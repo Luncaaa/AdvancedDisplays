@@ -1,0 +1,26 @@
+main: me.lucaaa.advanceddisplays.AdvancedDisplays
+description: "Create block, item and text displays!"
+name: "AdvancedDisplays"
+version: 1.0
+softdepend: [PlaceholderAPI]
+author: Lucaaa
+prefix: AD
+api-version: 1.19
+
+commands:
+  ad:
+    description: Main command.
+
+permissions:
+  ad.admin:
+    description: Admin permission - Allows everything
+    default: op
+    children:
+      ad.create: true
+      ad.remove: true
+  ad.create:
+    description: Creates a new display.
+    default: op
+  ad.remove:
+    description: Removes an existing display.
+    default: op

@@ -3,9 +3,9 @@ package me.lucaaa.advanceddisplays.commands;
 import me.lucaaa.advanceddisplays.commands.subCommands.*;
 import me.lucaaa.advanceddisplays.managers.MessagesManager;
 import org.bukkit.command.*;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label, @Nonnull String[] args) {
         // If there are no arguments, show an error.
         if (args.length == 0) {
             sender.sendMessage(MessagesManager.getColoredMessage("&cYou need to enter more arguments to run this command!", true));
@@ -72,7 +72,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
 
     @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public List<String> onTabComplete(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String alias, @Nonnull String[] args) {
         ArrayList<String> completions = new ArrayList<>();
 
         // Tab completions for each subcommand. If the user is going to type the first argument, and it does not need any permission

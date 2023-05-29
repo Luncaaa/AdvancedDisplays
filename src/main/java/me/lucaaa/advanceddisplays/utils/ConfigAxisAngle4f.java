@@ -1,10 +1,10 @@
 package me.lucaaa.advanceddisplays.utils;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.jetbrains.annotations.NotNull;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +35,7 @@ public class ConfigAxisAngle4f implements ConfigurationSerializable {
         this.z = (map.get("z") instanceof Float) ? (float) map.get("z") : ((Double) map.get("z")).floatValue();
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public Map<String, Object> serialize() {
         HashMap<String, Object> map = new HashMap<>();

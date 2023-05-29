@@ -17,7 +17,10 @@ import java.util.logging.Level;
 
 // TODO:
 //d1. Fix remove subcommand.
-// 2. Setup subcommand.
+// 2. Commands.
+//   2.1 setup.
+//   2.2 movehere.
+//   2.3 teleport.
 //d3. Add and fix properties.
 //d  3.1 Display location in config.
 //d  3.2 Add rotation
@@ -25,6 +28,8 @@ import java.util.logging.Level;
 //   4.1 Per-player placeholders.
 // 5. Developer API.
 //d6. Figure out transformation.
+// 7. Maybe per-player visibility.
+// 8. Glowing
 
 public class AdvancedDisplays extends JavaPlugin {
     // An instance of the plugin.

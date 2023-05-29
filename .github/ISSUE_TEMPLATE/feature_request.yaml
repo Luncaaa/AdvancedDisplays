@@ -1,0 +1,19 @@
+name: Feature request
+description: Suggest something you would like to be added.
+title: "[FEATURE REQUEST] "
+labels: ["Feature request"]
+assignees:
+  - Luncaaa
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggest something you would like to be added.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe what you would like to see in a future version.
+      description: A clear and concise description of your suggestion.
+      placeholder: A command that does something.
+    validations:
+      required: true

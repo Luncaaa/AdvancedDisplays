@@ -8,7 +8,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Create a report if you think something is not working as intended.
+        Create a bug report if you think something is not working as intended.
   - type: textarea
     id: description
     attributes:

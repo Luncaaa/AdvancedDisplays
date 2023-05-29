@@ -1,0 +1,57 @@
+name: Bug Report
+description: Create a report if you think something is not working as intended.
+title: "[Bug] "
+labels: ["Bug"]
+assignees:
+  - Luncaaa
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Create a report if you think something is not working as intended.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+      placeholder: x command throws an IllegalArgumentException.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How can the bug be reproduced?
+      description: Explain how to reproduce the error.
+      placeholder: |
+        1. Do this
+        2. Do that
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What you expected to happen.
+      placeholder: The error not occurring.
+    validations:
+      required: true
+  - type: dropdown
+    id: software
+    attributes:
+      label: Server Software
+      options:
+        - Paper
+        - Spigot
+        - Bukkit
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      options:
+        - 1.0
+    validations:
+      required: true

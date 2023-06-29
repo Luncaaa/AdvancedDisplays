@@ -105,7 +105,7 @@ public class ADTextDisplay extends BaseDisplay {
     public void setText(String text) {
         this.text = text;
         this.config.set("text", text);
-        this.display.setText(text);
+        this.display.setText(text.replace("\\n", "\n"));
         this.save();
     }
 

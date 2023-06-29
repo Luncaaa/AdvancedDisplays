@@ -35,7 +35,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
 
         // If the subcommand does not exist, show an error.
         if (!subCommands.containsKey(args[0])) {
-            sender.sendMessage(MessagesManager.getColoredMessage("&cThe command &b%subcommand% &cdoes not exist!", true));
+            sender.sendMessage(MessagesManager.getColoredMessage("&cThe command " + args[0] + " &cdoes not exist!", true));
             sender.sendMessage(MessagesManager.getColoredMessage("&cUse &b/ad help &cto see the list of existing commands.", true));
             return true;
         }

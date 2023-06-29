@@ -41,7 +41,7 @@ public class CreateSubCommand extends SubCommandsFormat {
             Player player = (Player) sender;
             DisplayType type = DisplayType.valueOf(args[1].toUpperCase());
 
-            AdvancedDisplays.displaysManager.createDisplay(player, type, args[2], player.getLocation(), args[3]);
+            AdvancedDisplays.displaysManager.createDisplay(player, type, args[2], args[3]);
 
         } catch (IllegalArgumentException e) {
             sender.sendMessage(MessagesManager.getColoredMessage("&cThe type &b" + args[1] + " &cis not a valid display type.", true));

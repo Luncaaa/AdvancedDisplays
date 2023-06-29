@@ -16,20 +16,11 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 // TODO:
-//d1. Fix remove subcommand.
-// 2. Commands.
-//   2.1 setup.
-//   2.2 movehere.
-//   2.3 teleport.
-//d3. Add and fix properties.
-//d  3.1 Display location in config.
-//d  3.2 Add rotation
-// 4. Placeholders in text displays.
-//   4.1 Per-player placeholders.
-// 5. Developer API.
-//d6. Figure out transformation.
-// 7. Maybe per-player visibility.
-// 8. Glowing
+// 1. Setup subcommand
+// 2. Text displays.
+//   2.1 Per-player placeholders -> Might need to use NMS
+//   2.2 Animated texts.
+// 3. Developer API.
 
 public class AdvancedDisplays extends JavaPlugin {
     // An instance of the plugin.
@@ -54,6 +45,11 @@ public class AdvancedDisplays extends JavaPlugin {
 
         // Managers
         displaysManager = new DisplaysManager(plugin);
+    }
+
+    // Gets the plugin.
+    public static Plugin getPlugin() {
+        return plugin;
     }
 
     @Override

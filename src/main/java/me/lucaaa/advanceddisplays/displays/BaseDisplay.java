@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.displays;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.utils.ConfigAxisAngle4f;
 import me.lucaaa.advanceddisplays.utils.ConfigVector3f;
@@ -8,10 +9,12 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class BaseDisplay {
@@ -21,6 +24,7 @@ public class BaseDisplay {
 
     private final Display display;
     private Location location;
+    private final ArrayList<Player> hiddenPlayers = new ArrayList<>();
 
     private Display.Billboard billboard;
     private Display.Brightness brightness;
@@ -177,6 +181,24 @@ public class BaseDisplay {
 
     public void remove() {
         this.display.remove();
+    }
+
+    // Returns false if the list of hidden players already contains the player.
+    public boolean hideTo(Player player) {
+        if (this.hiddenPlayers.contains(player)) return false;
+
+        player.hideEntity(AdvancedDisplays.getPlugin(), this.display);
+        this.hiddenPlayers.add(player);
+        return true;
+    }
+
+    // Returns false if the list of hidden players does not contain the player.
+    public boolean showTo(Player player) {
+        if (!this.hiddenPlayers.contains(player)) return false;
+
+        player.showEntity(AdvancedDisplays.getPlugin(), this.display);
+        this.hiddenPlayers.remove(player);
+        return true;
     }
 
     protected void save() {

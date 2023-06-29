@@ -1,14 +1,13 @@
 package me.lucaaa.advanceddisplays.managers;
 
+import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
 import me.lucaaa.advanceddisplays.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.displays.ADBlockDisplay;
 import me.lucaaa.advanceddisplays.displays.ADItemDisplay;
-import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
 import me.lucaaa.advanceddisplays.utils.ConfigAxisAngle4f;
 import me.lucaaa.advanceddisplays.utils.ConfigVector3f;
 import me.lucaaa.advanceddisplays.utils.DisplayType;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -35,7 +34,6 @@ public class DisplaysManager {
         }
 
         // If the displays folder is not empty, load the displays.
-        // TODO: Do not execute on server start
         for (File file : Objects.requireNonNull(displaysFolder.listFiles())) {
             this.loadEntity(new ConfigManager(plugin, "displays" + File.separator + file.getName()));
         }
@@ -45,12 +43,12 @@ public class DisplaysManager {
         Entity entity = Bukkit.getEntity(UUID.fromString(Objects.requireNonNull(config.getConfig().getString("id"))));
         String name = config.getFile().getName().replace(".yml", "");
 
-        if (entity == null || this.getDisplay(entity, config) == null) return;
+        if (entity == null || this.getDisplayFromEntity(entity, config) == null) return;
 
-        this.displays.put(name, this.getDisplay(entity, config));
+        this.displays.put(name, this.getDisplayFromEntity(entity, config));
     }
 
-    public void createDisplay(Player p, DisplayType type, String name, Location location, String value) throws IOException {
+    public void createDisplay(Player p, DisplayType type, String name, String value) throws IOException {
         if (displays.containsKey(name)) {
             p.sendMessage(MessagesManager.getColoredMessage("&cA display with the name &b" + name + " &calready exists!", true));
             return;
@@ -68,11 +66,11 @@ public class DisplaysManager {
 
         // Set properties in the display file.
         ConfigurationSection locationSection = displayConfig.createSection("location");
-        locationSection.set("x", location.getX());
-        locationSection.set("y", location.getY());
-        locationSection.set("z", location.getZ());
+        locationSection.set("x", p.getLocation().getX());
+        locationSection.set("y", p.getLocation().getY());
+        locationSection.set("z", p.getLocation().getZ());
 
-        displayConfig.set("rotationType", Display.Billboard.CENTER.name());
+        displayConfig.set("rotationType", org.bukkit.entity.Display.Billboard.CENTER.name());
 
         ConfigurationSection brightnessSection = displayConfig.createSection("brightness");
         brightnessSection.set("block", 15);
@@ -95,7 +93,7 @@ public class DisplaysManager {
         BaseDisplay newDisplay = null;
         switch (type) {
             case BLOCK -> {
-                BlockDisplay blockDisplay = Objects.requireNonNull(location.getWorld()).spawn(location, BlockDisplay.class);
+                BlockDisplay blockDisplay = Objects.requireNonNull(p.getLocation().getWorld()).spawn(p.getLocation(), BlockDisplay.class);
                 try {
                     newDisplay = new ADBlockDisplay(displayConfigManager, blockDisplay).create(Objects.requireNonNull(Material.getMaterial(value)).createBlockData());
                 } catch (IllegalArgumentException e) {
@@ -105,11 +103,11 @@ public class DisplaysManager {
                 }
             }
             case TEXT -> {
-                TextDisplay textDisplay = Objects.requireNonNull(location.getWorld()).spawn(location, TextDisplay.class);
+                TextDisplay textDisplay = Objects.requireNonNull(p.getLocation().getWorld()).spawn(p.getLocation(), TextDisplay.class);
                 newDisplay = new ADTextDisplay(displayConfigManager, textDisplay).create(value);
             }
             case ITEM -> {
-                ItemDisplay itemDisplay = Objects.requireNonNull(location.getWorld()).spawn(location, ItemDisplay.class);
+                ItemDisplay itemDisplay = Objects.requireNonNull(p.getLocation().getWorld()).spawn(p.getLocation(), ItemDisplay.class);
                 newDisplay = new ADItemDisplay(displayConfigManager, itemDisplay).create(Objects.requireNonNull(Material.getMaterial(value)));
             }
         }
@@ -132,7 +130,7 @@ public class DisplaysManager {
         return true;
     }
 
-    public BaseDisplay getDisplay(Entity entity, ConfigManager config) {
+    public BaseDisplay getDisplayFromEntity(Entity entity, ConfigManager config) {
         if (entity instanceof TextDisplay) {
             return new ADTextDisplay(config, (TextDisplay) entity);
 
@@ -143,5 +141,9 @@ public class DisplaysManager {
             return new ADBlockDisplay(config, (BlockDisplay) entity);
 
         } else return null;
+    }
+
+    public BaseDisplay getDisplayFromMap(String name) {
+        return this.displays.get(name);
     }
 }

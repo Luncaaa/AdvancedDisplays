@@ -20,6 +20,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         subCommands.put("reload", new ReloadSubCommand());
         subCommands.put("create", new CreateSubCommand());
         subCommands.put("remove", new RemoveSubCommand());
+        subCommands.put("movehere", new MoveHereSubCommand());
+        subCommands.put("teleport", new TeleportSubCommand());
     }
 
     @Override

@@ -29,7 +29,7 @@ public class MoveHereSubCommand extends SubCommandsFormat {
 
         if (display != null) {
             Player player = (Player) sender;
-            display.setLocation(player.getLocation());
+            display.setLocation(player.getEyeLocation());
             sender.sendMessage(MessagesManager.getColoredMessage("&aThe display &e" + args[1] + " &ahas been successfully removed.", true));
         } else {
             sender.sendMessage(MessagesManager.getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!", true));

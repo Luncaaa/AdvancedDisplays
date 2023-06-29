@@ -5,6 +5,7 @@ import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.utils.ConfigAxisAngle4f;
 import me.lucaaa.advanceddisplays.utils.ConfigVector3f;
 import me.lucaaa.advanceddisplays.utils.DisplayType;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -45,10 +46,11 @@ public class BaseDisplay {
         this.type = type;
 
         ConfigurationSection locationSection = Objects.requireNonNull(this.config.getConfigurationSection("location"));
+        String world = locationSection.getString("world", "world");
         double x = locationSection.getDouble("x");
         double y = locationSection.getDouble("y");
         double z = locationSection.getDouble("z");
-        this.location = new Location(this.display.getWorld(), x, y, z);
+        this.location = new Location(Bukkit.getWorld(world), x, y, z);
         this.display.teleport(this.location);
 
         this.billboard = Display.Billboard.valueOf(this.config.getString("rotationType"));

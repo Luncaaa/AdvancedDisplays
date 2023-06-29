@@ -18,9 +18,17 @@ permissions:
     children:
       ad.create: true
       ad.remove: true
+      ad.movehere: true
+      ad.teleport: true
   ad.create:
     description: Creates a new display.
     default: op
   ad.remove:
     description: Removes an existing display.
+    default: op
+  ad.movehere:
+    description: Moves a display to the player's location.
+    default: op
+  ad.teleport:
+    description: Teleports the player to the display's location.
     default: op

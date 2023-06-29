@@ -16,9 +16,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class DisplaysManager {
     private final Plugin plugin;
@@ -66,6 +64,7 @@ public class DisplaysManager {
 
         // Set properties in the display file.
         ConfigurationSection locationSection = displayConfig.createSection("location");
+        locationSection.set("world", p.getWorld().getName());
         locationSection.set("x", p.getLocation().getX());
         locationSection.set("y", p.getLocation().getY());
         locationSection.set("z", p.getLocation().getZ());
@@ -113,6 +112,7 @@ public class DisplaysManager {
         }
 
         displayConfig.set("id", newDisplay.getDisplay().getUniqueId().toString());
+        displayConfig.setComments("id", List.of("DO NOT MODIFY"));
         displayConfigManager.save();
         displays.put(name, newDisplay);
         p.sendMessage(MessagesManager.getColoredMessage("&aThe display &e" + name + " &ahas been successfully created.", true));

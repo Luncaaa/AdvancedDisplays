@@ -16,9 +16,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class DisplaysManager {
     private final Plugin plugin;
@@ -66,9 +64,10 @@ public class DisplaysManager {
 
         // Set properties in the display file.
         ConfigurationSection locationSection = displayConfig.createSection("location");
-        locationSection.set("x", p.getLocation().getX());
-        locationSection.set("y", p.getLocation().getY());
-        locationSection.set("z", p.getLocation().getZ());
+        locationSection.set("world", p.getWorld().getName());
+        locationSection.set("x", p.getEyeLocation().getX());
+        locationSection.set("y", p.getEyeLocation().getY());
+        locationSection.set("z", p.getEyeLocation().getZ());
 
         displayConfig.set("rotationType", org.bukkit.entity.Display.Billboard.CENTER.name());
 
@@ -93,7 +92,7 @@ public class DisplaysManager {
         BaseDisplay newDisplay = null;
         switch (type) {
             case BLOCK -> {
-                BlockDisplay blockDisplay = Objects.requireNonNull(p.getLocation().getWorld()).spawn(p.getLocation(), BlockDisplay.class);
+                BlockDisplay blockDisplay = Objects.requireNonNull(p.getWorld()).spawn(p.getEyeLocation(), BlockDisplay.class);
                 try {
                     newDisplay = new ADBlockDisplay(displayConfigManager, blockDisplay).create(Objects.requireNonNull(Material.getMaterial(value)).createBlockData());
                 } catch (IllegalArgumentException e) {
@@ -103,16 +102,17 @@ public class DisplaysManager {
                 }
             }
             case TEXT -> {
-                TextDisplay textDisplay = Objects.requireNonNull(p.getLocation().getWorld()).spawn(p.getLocation(), TextDisplay.class);
+                TextDisplay textDisplay = Objects.requireNonNull(p.getWorld()).spawn(p.getEyeLocation(), TextDisplay.class);
                 newDisplay = new ADTextDisplay(displayConfigManager, textDisplay).create(value);
             }
             case ITEM -> {
-                ItemDisplay itemDisplay = Objects.requireNonNull(p.getLocation().getWorld()).spawn(p.getLocation(), ItemDisplay.class);
+                ItemDisplay itemDisplay = Objects.requireNonNull(p.getWorld()).spawn(p.getEyeLocation(), ItemDisplay.class);
                 newDisplay = new ADItemDisplay(displayConfigManager, itemDisplay).create(Objects.requireNonNull(Material.getMaterial(value)));
             }
         }
 
         displayConfig.set("id", newDisplay.getDisplay().getUniqueId().toString());
+        displayConfig.setComments("id", List.of("DO NOT MODIFY"));
         displayConfigManager.save();
         displays.put(name, newDisplay);
         p.sendMessage(MessagesManager.getColoredMessage("&aThe display &e" + name + " &ahas been successfully created.", true));

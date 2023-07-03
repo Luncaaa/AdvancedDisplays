@@ -3,10 +3,8 @@ package me.lucaaa.advanceddisplays;
 import me.lucaaa.advanceddisplays.commands.MainCommand;
 import me.lucaaa.advanceddisplays.commands.subCommands.SubCommandsFormat;
 import me.lucaaa.advanceddisplays.managers.*;
-import me.lucaaa.advanceddisplays.utils.ConfigVector3f;
 import me.lucaaa.advanceddisplays.utils.EntitiesLoadListener;
 import me.lucaaa.advanceddisplays.utils.Logger;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -65,8 +63,6 @@ public class AdvancedDisplays extends JavaPlugin {
         // Registers the main command and adds tab completions.
         Objects.requireNonNull(this.getCommand("ad")).setExecutor(new MainCommand());
         Objects.requireNonNull(this.getCommand("ad")).setTabCompleter(new MainCommand());
-
-        ConfigurationSerialization.registerClass(ConfigVector3f.class);
 
         Logger.log(Level.INFO, "The plugin has been enabled.");
     }

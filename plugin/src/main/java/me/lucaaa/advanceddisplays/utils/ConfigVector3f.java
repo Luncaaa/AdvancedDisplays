@@ -1,13 +1,11 @@
 package me.lucaaa.advanceddisplays.utils;
 
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.joml.Vector3f;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConfigVector3f implements ConfigurationSerializable {
+public class ConfigVector3f {
     private final float x;
     private final float y;
     private final float z;
@@ -36,8 +34,6 @@ public class ConfigVector3f implements ConfigurationSerializable {
         this.z = (map.get("z") instanceof Float) ? (float) map.get("z") : ((Double) map.get("z")).floatValue();
     }
 
-    @Nonnull
-    @Override
     public Map<String, Object> serialize() {
         HashMap<String, Object> map = new HashMap<>();
         map.put("x", this.x);

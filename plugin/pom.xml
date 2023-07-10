@@ -74,9 +74,18 @@
                     </filters>
                     <artifactSet>
                         <includes>
+                            <!-- <include>net.kyori:*</include> -->
                             <include>AdvancedDisplays:*</include>
                         </includes>
                     </artifactSet>
+                    <!--
+                    <relocations>
+                        <relocation>
+                            <pattern>net.kyori</pattern>
+                            <shadedPattern>ad-shaded.net.kyori</shadedPattern>
+                        </relocation>
+                    </relocations>
+                    -->
                 </configuration>
             </plugin>
         </plugins>

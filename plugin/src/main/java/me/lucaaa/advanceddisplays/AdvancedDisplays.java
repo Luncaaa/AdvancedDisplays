@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays;
 
 import me.lucaaa.advanceddisplays.commands.MainCommand;
 import me.lucaaa.advanceddisplays.commands.subCommands.SubCommandsFormat;
-import me.lucaaa.advanceddisplays.events.PlayerJoinListener;
+import me.lucaaa.advanceddisplays.events.PlayerEventsListener;
 import me.lucaaa.advanceddisplays.managers.*;
 import me.lucaaa.advanceddisplays.utils.Logger;
 import org.bukkit.Bukkit;
@@ -56,7 +56,7 @@ public class AdvancedDisplays extends JavaPlugin {
         reloadConfigs();
 
         // Register events.
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerEventsListener(), this);
 
         // Registers the main command and adds tab completions.
         Objects.requireNonNull(this.getCommand("ad")).setExecutor(new MainCommand());

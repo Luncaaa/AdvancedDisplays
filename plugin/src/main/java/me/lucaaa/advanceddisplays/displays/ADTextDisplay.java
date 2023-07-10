@@ -2,15 +2,16 @@ package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.utils.DisplayType;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 
 import java.util.Objects;
 
-@SuppressWarnings("deprecation")
-public class ADTextDisplay extends BaseDisplay {
-    private final TextDisplay display;
-
+public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
+    private ConfigurationSection settings;
     private String text;
     private TextDisplay.TextAlignment alignment;
     private Color backgroundColor;
@@ -22,41 +23,35 @@ public class ADTextDisplay extends BaseDisplay {
 
     public ADTextDisplay(ConfigManager configManager, TextDisplay display) {
         super(DisplayType.TEXT, configManager, display);
-        this.display = display;
+        this.settings = this.config.getConfigurationSection("settings");
 
-        if (this.config.getString("text") != null) {
-            this.text = this.config.getString("text");
-            this.display.setText(this.text);
-        }
+        if (this.settings != null) {
+            this.text = this.settings.getString("text");
+            this.alignment = TextDisplay.TextAlignment.valueOf(this.settings.getString("alignment"));
 
-        if (this.config.getString("alignment") != null) {
-            this.alignment = TextDisplay.TextAlignment.valueOf(this.config.getString("alignment"));
-            this.display.setAlignment(this.alignment);
-        }
-
-        if (this.config.getString("backgroundColor") != null) {
-            String[] colorParts = Objects.requireNonNull(this.config.getString("backgroundColor")).split(";");
+            String[] colorParts = Objects.requireNonNull(this.settings.getString("backgroundColor")).split(";");
             this.backgroundColor = Color.fromRGB(Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]));
-            this.display.setBackgroundColor(this.backgroundColor);
+
+            this.lineWidth = this.settings.getInt("lineWidth");
+            this.textOpacity = (byte) this.settings.getInt("textOpacity");
+            this.defaultBackground = this.settings.getBoolean("defaultBackground");
+            this.seeThrough = this.settings.getBoolean("seeThrough");
+            this.shadowed = this.settings.getBoolean("shadowed");
         }
+    }
 
-        this.lineWidth = this.config.getInt("lineWidth");
-        this.display.setLineWidth(this.lineWidth);
-
-        this.textOpacity = (byte) this.config.getInt("textOpacity");
-        this.display.setTextOpacity(this.textOpacity);
-
-        this.defaultBackground = this.config.getBoolean("defaultBackground");
-        this.display.setDefaultBackground(this.defaultBackground);
-
-        this.seeThrough = this.config.getBoolean("seeThrough");
-        this.display.setSeeThrough(this.seeThrough);
-
-        this.shadowed = this.config.getBoolean("shadowed");
-        this.display.setShadowed(this.shadowed);
+    @Override
+    public void sendMetadataPackets(Player player) {
+        this.sendBaseMetadataPackets(player);
+        this.packets.setText(this.displayId, this.text, player);
+        this.packets.setBackgroundColor(this.displayId, this.backgroundColor, player);
+        this.packets.setLineWidth(this.displayId, this.lineWidth, player);
+        this.packets.setTextOpacity(this.displayId, this.textOpacity, player);
+        this.packets.setProperties(this.displayId, this.shadowed, this.seeThrough, this.defaultBackground, this.alignment, player);
     }
 
     public ADTextDisplay create(String text) {
+        this.settings = this.config.createSection("settings");
         this.setText(text);
         this.setAlignment(TextDisplay.TextAlignment.CENTER);
         this.setBackgroundColor(Color.fromRGB(0xFFAA00));
@@ -74,8 +69,10 @@ public class ADTextDisplay extends BaseDisplay {
     }
     public void setAlignment(TextDisplay.TextAlignment alignment) {
         this.alignment = alignment;
-        this.config.set("alignment", alignment.name());
-        this.display.setAlignment(alignment);
+        this.settings.set("alignment", alignment.name());
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.packets.setProperties(this.displayId, this.shadowed, this.seeThrough, this.defaultBackground, alignment, onlinePlayer);
+        }
         this.save();
     }
 
@@ -84,8 +81,10 @@ public class ADTextDisplay extends BaseDisplay {
     }
     public void setBackgroundColor(Color color) {
         this.backgroundColor = color;
-        this.config.set("backgroundColor", color.getRed() + ";" + color.getGreen() + ";" + color.getBlue());
-        this.display.setBackgroundColor(color);
+        this.settings.set("backgroundColor", color.getRed() + ";" + color.getGreen() + ";" + color.getBlue());
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.packets.setBackgroundColor(this.displayId, color, onlinePlayer);
+        }
         this.save();
     }
 
@@ -94,8 +93,10 @@ public class ADTextDisplay extends BaseDisplay {
     }
     public void setLineWidth(int width) {
         this.lineWidth = width;
-        this.config.set("lineWidth", width);
-        this.display.setLineWidth(width);
+        this.settings.set("lineWidth", width);
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.packets.setLineWidth(this.displayId, width, onlinePlayer);
+        }
         this.save();
     }
 
@@ -104,8 +105,10 @@ public class ADTextDisplay extends BaseDisplay {
     }
     public void setText(String text) {
         this.text = text;
-        this.config.set("text", text);
-        this.display.setText(text.replace("\\n", "\n"));
+        this.settings.set("text", text);
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.packets.setText(this.displayId, text, onlinePlayer);
+        }
         this.save();
     }
 
@@ -114,8 +117,10 @@ public class ADTextDisplay extends BaseDisplay {
     }
     public void setTextOpacity(byte opacity) {
         this.textOpacity = opacity;
-        this.config.set("textOpacity", opacity);
-        this.display.setTextOpacity(opacity);
+        this.settings.set("textOpacity", opacity);
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.packets.setTextOpacity(this.displayId, opacity, onlinePlayer);
+        }
         this.save();
     }
 
@@ -124,8 +129,10 @@ public class ADTextDisplay extends BaseDisplay {
     }
     public void setDefaultBackground(boolean defaultBackground) {
         this.defaultBackground = defaultBackground;
-        this.config.set("defaultBackground", defaultBackground);
-        this.display.setDefaultBackground(defaultBackground);
+        this.settings.set("defaultBackground", defaultBackground);
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.packets.setProperties(this.displayId, this.shadowed, this.seeThrough, defaultBackground, this.alignment, onlinePlayer);
+        }
         this.save();
     }
 
@@ -134,8 +141,10 @@ public class ADTextDisplay extends BaseDisplay {
     }
     public void setSeeThrough(boolean seeThrough) {
         this.seeThrough = seeThrough;
-        this.config.set("seeThrough", seeThrough);
-        this.display.setSeeThrough(seeThrough);
+        this.settings.set("seeThrough", seeThrough);
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.packets.setProperties(this.displayId, this.shadowed, seeThrough, this.defaultBackground, this.alignment, onlinePlayer);
+        }
         this.save();
     }
 
@@ -144,8 +153,10 @@ public class ADTextDisplay extends BaseDisplay {
     }
     public void setShadowed(boolean shadowed) {
         this.shadowed = shadowed;
-        this.config.set("shadowed", shadowed);
-        this.display.setShadowed(shadowed);
+        this.settings.set("shadowed", shadowed);
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.packets.setProperties(this.displayId, shadowed, this.seeThrough, this.defaultBackground, this.alignment, onlinePlayer);
+        }
         this.save();
     }
 }

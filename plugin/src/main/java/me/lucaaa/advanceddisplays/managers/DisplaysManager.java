@@ -1,13 +1,12 @@
 package me.lucaaa.advanceddisplays.managers;
 
-import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
-import me.lucaaa.advanceddisplays.displays.BaseDisplay;
-import me.lucaaa.advanceddisplays.displays.ADBlockDisplay;
-import me.lucaaa.advanceddisplays.displays.ADItemDisplay;
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.displays.*;
 import me.lucaaa.advanceddisplays.utils.ConfigAxisAngle4f;
 import me.lucaaa.advanceddisplays.utils.ConfigVector3f;
 import me.lucaaa.advanceddisplays.utils.DisplayType;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -32,18 +31,39 @@ public class DisplaysManager {
         }
 
         // If the displays folder is not empty, load the displays.
-        for (File file : Objects.requireNonNull(displaysFolder.listFiles())) {
-            this.loadEntity(new ConfigManager(plugin, "displays" + File.separator + file.getName()));
+        for (File configFile : Objects.requireNonNull(displaysFolder.listFiles())) {
+            ConfigManager displayConfigManager = new ConfigManager(this.plugin, "displays" + File.separator + configFile.getName());
+            DisplayType displayType = DisplayType.valueOf(displayConfigManager.getConfig().getString("type"));
+            ConfigurationSection locationSection = Objects.requireNonNull(displayConfigManager.getConfig().getConfigurationSection("location"));
+            String world = locationSection.getString("world", "world");
+            double x = locationSection.getDouble("x");
+            double y = locationSection.getDouble("y");
+            double z = locationSection.getDouble("z");
+            Location location = new Location(Bukkit.getWorld(world), x, y, z);
+
+            BaseDisplay newDisplay = null;
+            switch (displayType) {
+                case BLOCK -> {
+                    BlockDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createBlockDisplay(location);
+                    newDisplay = new ADBlockDisplay(displayConfigManager, newDisplayPacket);
+                }
+                case TEXT -> {
+                    TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(location);
+                    newDisplay = new ADTextDisplay(displayConfigManager, newDisplayPacket);
+                }
+                case ITEM -> {
+                    ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(location);
+                    newDisplay = new ADItemDisplay(displayConfigManager, newDisplayPacket);
+                }
+            }
+
+            this.displays.put(configFile.getName().replace(".yml", ""), newDisplay);
         }
-    }
 
-    public void loadEntity(ConfigManager config) {
-        Entity entity = Bukkit.getEntity(UUID.fromString(Objects.requireNonNull(config.getConfig().getString("id"))));
-        String name = config.getFile().getName().replace(".yml", "");
-
-        if (entity == null || this.getDisplayFromEntity(entity, config) == null) return;
-
-        this.displays.put(name, this.getDisplayFromEntity(entity, config));
+        // If the plugin was reloaded and there are online players, spawn the entities for them.
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            this.spawnDisplays(player);
+        }
     }
 
     public void createDisplay(Player p, DisplayType type, String name, String value) throws IOException {
@@ -63,6 +83,8 @@ public class DisplaysManager {
         YamlConfiguration displayConfig = displayConfigManager.getConfig();
 
         // Set properties in the display file.
+        displayConfig.set("type", type.name());
+
         ConfigurationSection locationSection = displayConfig.createSection("location");
         locationSection.set("world", p.getWorld().getName());
         locationSection.set("x", p.getEyeLocation().getX());
@@ -92,58 +114,60 @@ public class DisplaysManager {
         BaseDisplay newDisplay = null;
         switch (type) {
             case BLOCK -> {
-                BlockDisplay blockDisplay = Objects.requireNonNull(p.getWorld()).spawn(p.getEyeLocation(), BlockDisplay.class);
                 try {
-                    newDisplay = new ADBlockDisplay(displayConfigManager, blockDisplay).create(Objects.requireNonNull(Material.getMaterial(value)).createBlockData());
+                    Objects.requireNonNull(Material.getMaterial(value)).createBlockData();
                 } catch (IllegalArgumentException e) {
-                    blockDisplay.remove();
                     p.sendMessage(MessagesManager.getColoredMessage("&cThe block &b" + value + " &cis not a valid block.", true));
                     return;
                 }
+                BlockDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createBlockDisplay(p.getEyeLocation());
+                newDisplay = new ADBlockDisplay(displayConfigManager, newDisplayPacket).create(Objects.requireNonNull(Material.getMaterial(value)).createBlockData());
             }
             case TEXT -> {
-                TextDisplay textDisplay = Objects.requireNonNull(p.getWorld()).spawn(p.getEyeLocation(), TextDisplay.class);
-                newDisplay = new ADTextDisplay(displayConfigManager, textDisplay).create(value);
+                TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(p.getEyeLocation());
+                newDisplay = new ADTextDisplay(displayConfigManager, newDisplayPacket).create(value);
             }
             case ITEM -> {
-                ItemDisplay itemDisplay = Objects.requireNonNull(p.getWorld()).spawn(p.getEyeLocation(), ItemDisplay.class);
-                newDisplay = new ADItemDisplay(displayConfigManager, itemDisplay).create(Objects.requireNonNull(Material.getMaterial(value)));
+                ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(p.getEyeLocation());
+                newDisplay = new ADItemDisplay(displayConfigManager, newDisplayPacket).create(Objects.requireNonNull(Material.getMaterial(value)));
             }
         }
 
-        displayConfig.set("id", newDisplay.getDisplay().getUniqueId().toString());
-        displayConfig.setComments("id", List.of("DO NOT MODIFY"));
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            newDisplay.sendBaseMetadataPackets(onlinePlayer);
+        }
+
         displayConfigManager.save();
-        displays.put(name, newDisplay);
+        this.displays.put(name, newDisplay);
         p.sendMessage(MessagesManager.getColoredMessage("&aThe display &e" + name + " &ahas been successfully created.", true));
     }
 
     public boolean removeDisplay(String name) {
-        if (!displays.containsKey(name)) {
+        if (!this.displays.containsKey(name)) {
             return false;
         }
 
         File displayFileConfig = new ConfigManager(this.plugin, "displays" + File.separator + name +".yml").getFile();
         displayFileConfig.delete();
-        displays.get(name).remove();
-        displays.remove(name);
+        AdvancedDisplays.packetsManager.getPackets().removeDisplay(this.displays.get(name).getDisplayId());
+        this.displays.remove(name);
         return true;
     }
 
-    public BaseDisplay getDisplayFromEntity(Entity entity, ConfigManager config) {
-        if (entity instanceof TextDisplay) {
-            return new ADTextDisplay(config, (TextDisplay) entity);
-
-        } else if (entity instanceof ItemDisplay) {
-            return new ADItemDisplay(config, (ItemDisplay) entity);
-
-        } else if (entity instanceof BlockDisplay) {
-            return new ADBlockDisplay(config, (BlockDisplay) entity);
-
-        } else return null;
+    public void removeAllEntities() {
+        for (BaseDisplay display : this.displays.values()) {
+            AdvancedDisplays.packetsManager.getPackets().removeDisplay(display.getDisplayId());
+        }
     }
 
     public BaseDisplay getDisplayFromMap(String name) {
         return this.displays.get(name);
+    }
+
+    public void spawnDisplays(Player player) {
+        for (BaseDisplay display : this.displays.values()) {
+            AdvancedDisplays.packetsManager.getPackets().spawnDisplay(display.getDisplay(), player);
+            ((DisplayMethods) display).sendMetadataPackets(player);
+        }
     }
 }

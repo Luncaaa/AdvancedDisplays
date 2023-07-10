@@ -27,12 +27,13 @@ public class MoveHereSubCommand extends SubCommandsFormat {
     public void run(CommandSender sender, String[] args) {
         BaseDisplay display = AdvancedDisplays.displaysManager.getDisplayFromMap(args[1]);
 
-        if (display != null) {
-            Player player = (Player) sender;
-            display.setLocation(player.getEyeLocation());
-            sender.sendMessage(MessagesManager.getColoredMessage("&aThe display &e" + args[1] + " &ahas been successfully removed.", true));
-        } else {
+        if (display == null) {
             sender.sendMessage(MessagesManager.getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!", true));
+            return;
         }
+
+        Player player = (Player) sender;
+        display.setLocation(player.getEyeLocation());
+        sender.sendMessage(MessagesManager.getColoredMessage("&aThe display &e" + args[1] + " &ahas been successfully moved.", true));
     }
 }

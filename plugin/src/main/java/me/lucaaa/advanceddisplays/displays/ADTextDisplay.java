@@ -30,7 +30,7 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.alignment = TextDisplay.TextAlignment.valueOf(this.settings.getString("alignment"));
 
             String[] colorParts = Objects.requireNonNull(this.settings.getString("backgroundColor")).split(";");
-            this.backgroundColor = Color.fromRGB(Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]));
+            this.backgroundColor = Color.fromARGB(Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]), Integer.parseInt(colorParts[3]));
 
             this.lineWidth = this.settings.getInt("lineWidth");
             this.textOpacity = (byte) this.settings.getInt("textOpacity");
@@ -54,7 +54,7 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
         this.settings = this.config.createSection("settings");
         this.setText(text);
         this.setAlignment(TextDisplay.TextAlignment.CENTER);
-        this.setBackgroundColor(Color.fromRGB(0xFFAA00));
+        this.setBackgroundColor(Color.fromARGB(0xFFFFAA00));
         this.setLineWidth(250);
         this.setTextOpacity((byte) -1);
         this.setDefaultBackground(true);
@@ -81,7 +81,7 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
     }
     public void setBackgroundColor(Color color) {
         this.backgroundColor = color;
-        this.settings.set("backgroundColor", color.getRed() + ";" + color.getGreen() + ";" + color.getBlue());
+        this.settings.set("backgroundColor", color.getAlpha() + ";" + color.getRed() + ";" + color.getGreen() + ";" + color.getBlue());
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             this.packets.setBackgroundColor(this.displayId, color, onlinePlayer);
         }

@@ -12,7 +12,7 @@ public class RemoveSubCommand extends SubCommandsFormat {
         this.description = "Removes an existing display.";
         this.usage = "/ad remove [name]";
         this.minArguments = 1;
-        this.executableByConsole = false;
+        this.executableByConsole = true;
         this.neededPermission = "ad.remove";
     }
 

@@ -91,16 +91,28 @@ public class BaseDisplay {
         return this.location;
     }
     public void setLocation(Location location) {
-        this.location = location;
-        this.display.teleport(location);
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setLocation(this.display, onlinePlayer);
-        }
+        location.setYaw(this.yaw);
+        location.setPitch(this.pitch);
+
         ConfigurationSection locationSection = Objects.requireNonNull(this.config.getConfigurationSection("location"));
+        locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());
         locationSection.set("x", location.getX());
         locationSection.set("y", location.getY());
         locationSection.set("z", location.getZ());
         this.save();
+
+        if (this.location.getWorld() == location.getWorld()) {
+            this.display.teleport(location);
+            this.location = location;
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                this.packets.setLocation(this.display, onlinePlayer);
+            }
+        } else {
+            // Entities cannot be teleported across worlds with NMS,
+            // so the display will be removed & respawned in the new world.
+            this.packets.removeDisplay(this.displayId);
+            AdvancedDisplays.displaysManager.reloadDisplay(this.file.getName().replace(".yml", ""));
+        }
     }
 
     public Display.Billboard getBillboard() {

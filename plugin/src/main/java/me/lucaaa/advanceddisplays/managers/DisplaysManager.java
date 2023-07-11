@@ -32,37 +32,7 @@ public class DisplaysManager {
 
         // If the displays folder is not empty, load the displays.
         for (File configFile : Objects.requireNonNull(displaysFolder.listFiles())) {
-            ConfigManager displayConfigManager = new ConfigManager(this.plugin, "displays" + File.separator + configFile.getName());
-            DisplayType displayType = DisplayType.valueOf(displayConfigManager.getConfig().getString("type"));
-            ConfigurationSection locationSection = Objects.requireNonNull(displayConfigManager.getConfig().getConfigurationSection("location"));
-            String world = locationSection.getString("world", "world");
-            double x = locationSection.getDouble("x");
-            double y = locationSection.getDouble("y");
-            double z = locationSection.getDouble("z");
-            Location location = new Location(Bukkit.getWorld(world), x, y, z);
-
-            BaseDisplay newDisplay = null;
-            switch (displayType) {
-                case BLOCK -> {
-                    BlockDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createBlockDisplay(location);
-                    newDisplay = new ADBlockDisplay(displayConfigManager, newDisplayPacket);
-                }
-                case TEXT -> {
-                    TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(location);
-                    newDisplay = new ADTextDisplay(displayConfigManager, newDisplayPacket);
-                }
-                case ITEM -> {
-                    ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(location);
-                    newDisplay = new ADItemDisplay(displayConfigManager, newDisplayPacket);
-                }
-            }
-
-            this.displays.put(configFile.getName().replace(".yml", ""), newDisplay);
-        }
-
-        // If the plugin was reloaded and there are online players, spawn the entities for them.
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            this.spawnDisplays(player);
+            this.loadDisplay(new ConfigManager(this.plugin, "displays" + File.separator + configFile.getName()));
         }
     }
 
@@ -168,6 +138,42 @@ public class DisplaysManager {
         for (BaseDisplay display : this.displays.values()) {
             AdvancedDisplays.packetsManager.getPackets().spawnDisplay(display.getDisplay(), player);
             ((DisplayMethods) display).sendMetadataPackets(player);
+        }
+    }
+
+    public void reloadDisplay(String name) {
+        this.displays.remove(name);
+        this.loadDisplay(new ConfigManager(this.plugin, "displays" + File.separator + name + ".yml"));
+    }
+
+    public void loadDisplay(ConfigManager configManager) {
+        DisplayType displayType = DisplayType.valueOf(configManager.getConfig().getString("type"));
+        ConfigurationSection locationSection = Objects.requireNonNull(configManager.getConfig().getConfigurationSection("location"));
+        String world = locationSection.getString("world", "world");
+        double x = locationSection.getDouble("x");
+        double y = locationSection.getDouble("y");
+        double z = locationSection.getDouble("z");
+        Location location = new Location(Bukkit.getWorld(world), x, y, z);
+
+        BaseDisplay newDisplay = null;
+        switch (displayType) {
+            case BLOCK -> {
+                BlockDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createBlockDisplay(location);
+                newDisplay = new ADBlockDisplay(configManager, newDisplayPacket);
+            }
+            case TEXT -> {
+                TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(location);
+                newDisplay = new ADTextDisplay(configManager, newDisplayPacket);
+            }
+            case ITEM -> {
+                ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(location);
+                newDisplay = new ADItemDisplay(configManager, newDisplayPacket);
+            }
+        }
+
+        this.displays.put(configManager.getFile().getName().replace(".yml", ""), newDisplay);
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            ((DisplayMethods) newDisplay).sendMetadataPackets(onlinePlayer);
         }
     }
 }

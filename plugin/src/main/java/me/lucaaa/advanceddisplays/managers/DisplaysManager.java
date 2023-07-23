@@ -5,6 +5,7 @@ import me.lucaaa.advanceddisplays.displays.*;
 import me.lucaaa.advanceddisplays.utils.ConfigAxisAngle4f;
 import me.lucaaa.advanceddisplays.utils.ConfigVector3f;
 import me.lucaaa.advanceddisplays.utils.DisplayType;
+import me.lucaaa.advanceddisplays.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,6 +17,7 @@ import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 
 public class DisplaysManager {
     private final Plugin plugin;
@@ -32,7 +34,16 @@ public class DisplaysManager {
 
         // If the displays folder is not empty, load the displays.
         for (File configFile : Objects.requireNonNull(displaysFolder.listFiles())) {
-            this.loadDisplay(new ConfigManager(this.plugin, "displays" + File.separator + configFile.getName()));
+            ConfigManager configManager = new ConfigManager(this.plugin, "displays" + File.separator + configFile.getName());
+            if (configManager.getConfig().getString("id") != null) {
+                AdvancedDisplays.needsConversion = true;
+                Logger.log(Level.WARNING, "The displays configuration files are from an older version and have been changed in newer versions.");
+                Logger.log(Level.WARNING, "Run the command \"/ad convert\" in-game to update the configuration files to newer versions.");
+                Logger.log(Level.WARNING, "Not converting the configurations will cause commands to malfunction. See more information at lucaaa.gitbook.io/advanceddisplays/usage/commands-and-permissions/convert-subcommand");
+                break;
+            }
+
+            this.loadDisplay(configManager);
         }
     }
 

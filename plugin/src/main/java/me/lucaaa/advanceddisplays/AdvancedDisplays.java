@@ -34,6 +34,9 @@ public class AdvancedDisplays extends JavaPlugin {
     public static PacketsManager packetsManager;
     public static DisplaysManager displaysManager;
 
+    // Conversion
+    public static boolean needsConversion = false;
+
     // Reload the config files.
     public static void reloadConfigs() {
         // Creates the config file.
@@ -65,8 +68,7 @@ public class AdvancedDisplays extends JavaPlugin {
         Logger.log(Level.INFO, "The plugin has been enabled.");
     }
 
-    @Override
-    public void onDisable() {
-        Logger.log(Level.INFO, "The plugin has been disabled.");
+    public static Plugin getPlugin() {
+        return plugin;
     }
 }

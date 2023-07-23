@@ -106,7 +106,7 @@ public class DisplaysManager {
             }
             case TEXT -> {
                 TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(p.getEyeLocation());
-                newDisplay = new ADTextDisplay(displayConfigManager, newDisplayPacket).create(value);
+                newDisplay = new ADTextDisplay(displayConfigManager, newDisplayPacket).create(List.of(value));
             }
             case ITEM -> {
                 ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(p.getEyeLocation());
@@ -130,7 +130,9 @@ public class DisplaysManager {
 
         File displayFileConfig = new ConfigManager(this.plugin, "displays" + File.separator + name +".yml").getFile();
         displayFileConfig.delete();
-        AdvancedDisplays.packetsManager.getPackets().removeDisplay(this.displays.get(name).getDisplayId());
+        BaseDisplay display = this.displays.get(name);
+        if (display instanceof ADTextDisplay) ((ADTextDisplay) display).stopRunnable();
+        AdvancedDisplays.packetsManager.getPackets().removeDisplay(display.getDisplayId());
         this.displays.remove(name);
         return true;
     }
@@ -138,6 +140,9 @@ public class DisplaysManager {
     public void removeAllEntities() {
         for (BaseDisplay display : this.displays.values()) {
             AdvancedDisplays.packetsManager.getPackets().removeDisplay(display.getDisplayId());
+            if (display instanceof ADTextDisplay) {
+                ((ADTextDisplay) display).stopRunnable();
+            }
         }
     }
 
@@ -153,6 +158,7 @@ public class DisplaysManager {
     }
 
     public void reloadDisplay(String name) {
+        if (this.displays.get(name) instanceof ADTextDisplay) ((ADTextDisplay) this.displays.get(name)).stopRunnable();
         this.displays.remove(name);
         this.loadDisplay(new ConfigManager(this.plugin, "displays" + File.separator + name + ".yml"));
     }

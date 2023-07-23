@@ -1,6 +1,7 @@
 package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
+import me.lucaaa.advanceddisplays.utils.AnimatedTextRunnable;
 import me.lucaaa.advanceddisplays.utils.DisplayType;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -8,11 +9,13 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 
+import java.util.List;
 import java.util.Objects;
 
 public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
     private ConfigurationSection settings;
-    private String text;
+    private final AnimatedTextRunnable textRunnable = new AnimatedTextRunnable(this.displayId);
+    private List<String> text;
     private TextDisplay.TextAlignment alignment;
     private Color backgroundColor;
     private int lineWidth;
@@ -26,7 +29,9 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
         this.settings = this.config.getConfigurationSection("settings");
 
         if (this.settings != null) {
-            this.text = this.settings.getString("text");
+            this.text = this.settings.getStringList("text");
+            if (this.text.size() > 1) this.textRunnable.start(this.text);
+
             this.alignment = TextDisplay.TextAlignment.valueOf(this.settings.getString("alignment"));
 
             String[] colorParts = Objects.requireNonNull(this.settings.getString("backgroundColor")).split(";");
@@ -43,14 +48,15 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
     @Override
     public void sendMetadataPackets(Player player) {
         this.sendBaseMetadataPackets(player);
-        this.packets.setText(this.displayId, this.text, player);
+        // The text runnable will set the text automatically if there are more than one texts.
+        if (this.text.size() == 1) this.packets.setText(this.displayId, this.text.get(0), player);
         this.packets.setBackgroundColor(this.displayId, this.backgroundColor, player);
         this.packets.setLineWidth(this.displayId, this.lineWidth, player);
         this.packets.setTextOpacity(this.displayId, this.textOpacity, player);
         this.packets.setProperties(this.displayId, this.shadowed, this.seeThrough, this.defaultBackground, this.alignment, player);
     }
 
-    public ADTextDisplay create(String text) {
+    public ADTextDisplay create(List<String> text) {
         this.settings = this.config.createSection("settings");
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             this.setText(text, onlinePlayer);
@@ -95,13 +101,18 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
         this.save();
     }
 
-    public String getText() {
+    public List<String> getText() {
         return this.text;
     }
-    public void setText(String text, Player player) {
+    public void setText(List<String> text, Player player) {
         this.text = text;
         this.settings.set("text", text);
-        this.packets.setText(this.displayId, text, player);
+        if (text.size() == 1) {
+            this.packets.setText(this.displayId, text.get(0), player);
+        } else {
+            this.textRunnable.stop();
+            this.textRunnable.start(text);
+        }
         this.save();
     }
 
@@ -143,5 +154,9 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
         this.settings.set("shadowed", shadowed);
         this.packets.setProperties(this.displayId, shadowed, this.seeThrough, this.defaultBackground, this.alignment, player);
         this.save();
+    }
+
+    public void stopRunnable() {
+        this.textRunnable.stop();
     }
 }

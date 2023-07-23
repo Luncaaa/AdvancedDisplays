@@ -53,6 +53,16 @@ public class AdvancedDisplays extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        String version = getServer().getBukkitVersion().split("-")[0];
+        int majorNumber = Integer.parseInt(version.split("\\.")[1]);
+        int minorNumber = Integer.parseInt(version.split("\\.")[2]);
+        if (majorNumber < 19 || (majorNumber == 19 && minorNumber < 4)) {
+            Logger.log(Level.SEVERE, "The plugin will not work on this version as displays were not added until 1.19.4");
+            Logger.log(Level.SEVERE, "Please update your server to 1.19.4 or higher to use this plugin.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
         plugin = this;
 
         // Set up files and managers.

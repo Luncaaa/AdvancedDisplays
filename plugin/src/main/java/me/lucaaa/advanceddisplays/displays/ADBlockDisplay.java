@@ -32,19 +32,19 @@ public class ADBlockDisplay extends BaseDisplay implements DisplayMethods {
 
     public ADBlockDisplay create(BlockData block) {
         this.settings = this.config.createSection("settings");
-        this.setBlock(block);
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            this.setBlock(block, player);
+        }
         return this;
     }
 
     public BlockData getBlock() {
         return this.block;
     }
-    public void setBlock(BlockData block) {
+    public void setBlock(BlockData block, Player player) {
         this.block = block;
         this.settings.set("block", block.getMaterial().name());
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setBlock(this.displayId, block, onlinePlayer);
-        }
+        this.packets.setBlock(this.displayId, block, player);
         this.save();
     }
 }

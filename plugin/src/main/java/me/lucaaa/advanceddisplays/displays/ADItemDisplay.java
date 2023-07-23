@@ -32,32 +32,30 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
 
     public ADItemDisplay create(Material item) {
         this.settings = this.config.createSection("settings");
-        this.setMaterial(item);
-        this.setItemTransformation(ItemDisplay.ItemDisplayTransform.FIXED);
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.setMaterial(item, onlinePlayer);
+            this.setItemTransformation(ItemDisplay.ItemDisplayTransform.FIXED, onlinePlayer);
+        }
         return this;
     }
 
     public Material getMaterial() {
         return this.material;
     }
-    public void setMaterial(Material material) {
+    public void setMaterial(Material material, Player player) {
         this.material = material;
         this.settings.set("item", material.name());
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setItem(this.displayId, material, onlinePlayer);
-        }
+        this.packets.setItem(this.displayId, material, player);
         this.save();
     }
 
     private ItemDisplay.ItemDisplayTransform  getItemTransformation() {
         return this.itemTransformation;
     }
-    public void setItemTransformation(ItemDisplay.ItemDisplayTransform transformation) {
+    public void setItemTransformation(ItemDisplay.ItemDisplayTransform transformation, Player player) {
         this.itemTransformation = transformation;
         this.settings.set("itemTransformation", transformation.name());
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setItemDisplayTransformation(this.displayId, transformation, onlinePlayer);
-        }
+        this.packets.setItemDisplayTransformation(this.displayId, transformation, player);
         this.save();
     }
 }

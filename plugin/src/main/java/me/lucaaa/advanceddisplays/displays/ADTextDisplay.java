@@ -52,111 +52,96 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
 
     public ADTextDisplay create(String text) {
         this.settings = this.config.createSection("settings");
-        this.setText(text);
-        this.setAlignment(TextDisplay.TextAlignment.CENTER);
-        this.setBackgroundColor(Color.fromARGB(0xFFFFAA00));
-        this.setLineWidth(250);
-        this.setTextOpacity((byte) -1);
-        this.setDefaultBackground(true);
-        this.setSeeThrough(true);
-        this.setShadowed(true);
-
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.setText(text, onlinePlayer);
+            this.setAlignment(TextDisplay.TextAlignment.CENTER, onlinePlayer);
+            this.setBackgroundColor(Color.fromARGB(0xFFFFAA00), onlinePlayer);
+            this.setLineWidth(250, onlinePlayer);
+            this.setTextOpacity((byte) -1, onlinePlayer);
+            this.setDefaultBackground(true, onlinePlayer);
+            this.setSeeThrough(true, onlinePlayer);
+            this.setShadowed(true, onlinePlayer);
+        }
         return this;
     }
 
     public TextDisplay.TextAlignment getAlignment() {
         return this.alignment;
     }
-    public void setAlignment(TextDisplay.TextAlignment alignment) {
+    public void setAlignment(TextDisplay.TextAlignment alignment, Player player) {
         this.alignment = alignment;
         this.settings.set("alignment", alignment.name());
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setProperties(this.displayId, this.shadowed, this.seeThrough, this.defaultBackground, alignment, onlinePlayer);
-        }
+        this.packets.setProperties(this.displayId, this.shadowed, this.seeThrough, this.defaultBackground, alignment, player);
         this.save();
     }
 
     public Color getBackgroundColor() {
         return this.backgroundColor;
     }
-    public void setBackgroundColor(Color color) {
+    public void setBackgroundColor(Color color, Player player) {
         this.backgroundColor = color;
         this.settings.set("backgroundColor", color.getRed() + ";" + color.getGreen() + ";" + color.getBlue() + ";" + color.getAlpha());
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setBackgroundColor(this.displayId, color, onlinePlayer);
-        }
+        this.packets.setBackgroundColor(this.displayId, color, player);
         this.save();
     }
 
     public int getLineWidth() {
         return this.lineWidth;
     }
-    public void setLineWidth(int width) {
+    public void setLineWidth(int width, Player player) {
         this.lineWidth = width;
         this.settings.set("lineWidth", width);
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setLineWidth(this.displayId, width, onlinePlayer);
-        }
+        this.packets.setLineWidth(this.displayId, width, player);
         this.save();
     }
 
     public String getText() {
         return this.text;
     }
-    public void setText(String text) {
+    public void setText(String text, Player player) {
         this.text = text;
         this.settings.set("text", text);
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setText(this.displayId, text, onlinePlayer);
-        }
+        this.packets.setText(this.displayId, text, player);
         this.save();
     }
 
     public byte getTextOpacity() {
         return this.textOpacity;
     }
-    public void setTextOpacity(byte opacity) {
+    public void setTextOpacity(byte opacity, Player player) {
         this.textOpacity = opacity;
         this.settings.set("textOpacity", opacity);
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setTextOpacity(this.displayId, opacity, onlinePlayer);
-        }
+        this.packets.setTextOpacity(this.displayId, opacity, player);
         this.save();
     }
 
     public boolean getDefaultBackground() {
         return this.defaultBackground;
     }
-    public void setDefaultBackground(boolean defaultBackground) {
+    public void setDefaultBackground(boolean defaultBackground, Player player) {
         this.defaultBackground = defaultBackground;
         this.settings.set("defaultBackground", defaultBackground);
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setProperties(this.displayId, this.shadowed, this.seeThrough, defaultBackground, this.alignment, onlinePlayer);
-        }
+        this.packets.setProperties(this.displayId, this.shadowed, this.seeThrough, defaultBackground, this.alignment, player);
         this.save();
     }
 
     public boolean getSeeThrough() {
         return this.seeThrough;
     }
-    public void setSeeThrough(boolean seeThrough) {
+    public void setSeeThrough(boolean seeThrough, Player player) {
         this.seeThrough = seeThrough;
         this.settings.set("seeThrough", seeThrough);
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setProperties(this.displayId, this.shadowed, seeThrough, this.defaultBackground, this.alignment, onlinePlayer);
-        }
+        this.packets.setProperties(this.displayId, this.shadowed, seeThrough, this.defaultBackground, this.alignment, player);
         this.save();
     }
 
     public boolean getShadowed() {
         return this.shadowed;
     }
-    public void setShadowed(boolean shadowed) {
+    public void setShadowed(boolean shadowed, Player player) {
         this.shadowed = shadowed;
         this.settings.set("shadowed", shadowed);
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setProperties(this.displayId, shadowed, this.seeThrough, this.defaultBackground, this.alignment, onlinePlayer);
-        }
+        this.packets.setProperties(this.displayId, shadowed, this.seeThrough, this.defaultBackground, this.alignment, player);
         this.save();
     }
 }

@@ -35,10 +35,12 @@ public class DisplaysManager {
         // If the displays folder is not empty, load the displays.
         for (File configFile : Objects.requireNonNull(displaysFolder.listFiles())) {
             ConfigManager configManager = new ConfigManager(this.plugin, "displays" + File.separator + configFile.getName());
-            if (configManager.getConfig().getString("id") != null) {
+            YamlConfiguration config = configManager.getConfig();
+            if (config.getString("id") != null
+            || (DisplayType.valueOf(config.getString("type")) == DisplayType.TEXT && config.getConfigurationSection("settings").get("text") instanceof String)) {
                 AdvancedDisplays.needsConversion = true;
                 Logger.log(Level.WARNING, "The displays configuration files are from an older version and have been changed in newer versions.");
-                Logger.log(Level.WARNING, "Run the command \"/ad convert\" in-game to update the configuration files to newer versions.");
+                Logger.log(Level.WARNING, "Run the command \"/ad convert [previous version]\" in-game to update the configuration files to newer versions.");
                 Logger.log(Level.WARNING, "Not converting the configurations will cause commands to malfunction. See more information at lucaaa.gitbook.io/advanceddisplays/usage/commands-and-permissions/convert-subcommand");
                 break;
             }

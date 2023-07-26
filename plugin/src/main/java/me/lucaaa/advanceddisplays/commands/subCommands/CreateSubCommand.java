@@ -1,15 +1,16 @@
 package me.lucaaa.advanceddisplays.commands.subCommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.managers.MessagesManager;
-import me.lucaaa.advanceddisplays.utils.DisplayType;
+import me.lucaaa.advanceddisplays.displays.DisplayType;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class CreateSubCommand extends SubCommandsFormat {
     public CreateSubCommand() {
@@ -37,17 +38,37 @@ public class CreateSubCommand extends SubCommandsFormat {
 
     @Override
     public void run(CommandSender sender, String[] args) {
+        Player player = (Player) sender;
+        DisplayType type;
         try {
-            Player player = (Player) sender;
-            DisplayType type = DisplayType.valueOf(args[1].toUpperCase());
-
-            AdvancedDisplays.displaysManager.createDisplay(player, type, args[2], String.join(" ", Arrays.copyOfRange(args, 3, args.length)));
-
+            type = DisplayType.valueOf(args[1].toUpperCase());
         } catch (IllegalArgumentException e) {
             sender.sendMessage(MessagesManager.getColoredMessage("&cThe type &b" + args[1] + " &cis not a valid display type.", true));
+            return;
+        }
+        String value = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (type == DisplayType.BLOCK || type == DisplayType.ITEM) {
+            if (Material.getMaterial(value) == null) {
+                sender.sendMessage(MessagesManager.getColoredMessage("&b" + value + " &cis not a valid material!", true));
+                return;
+            }
+        }
+
+        if (type == DisplayType.BLOCK) {
+            try {
+                Objects.requireNonNull(Material.getMaterial(value)).createBlockData();
+            } catch (IllegalArgumentException e) {
+                sender.sendMessage(MessagesManager.getColoredMessage("&cThe material &b" + value + " &cis not a valid block.", true));
+                return;
+            }
+        }
+
+        BaseDisplay newDisplay = AdvancedDisplays.displaysManager.createDisplay(player.getEyeLocation(), type, args[2], value);
+        if (newDisplay == null) {
+            sender.sendMessage(MessagesManager.getColoredMessage("&cA display with the name &b" + args[2] + " &calready exists!", true));
+        } else {
+            sender.sendMessage(MessagesManager.getColoredMessage("&aThe display &e" + args[2] + " &ahas been successfully created.", true));
         }
     }
 }

@@ -15,8 +15,12 @@ public class ConfigManager {
         this.config = YamlConfiguration.loadConfiguration(this.file);
     }
 
-    public void save() throws IOException {
-        this.config.save(this.file);
+    public void save() {
+        try {
+            this.config.save(this.file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public File getFile() {

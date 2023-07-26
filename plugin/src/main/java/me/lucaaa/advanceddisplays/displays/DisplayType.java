@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.utils;
+package me.lucaaa.advanceddisplays.displays;
 
 public enum DisplayType {
     TEXT, BLOCK, ITEM

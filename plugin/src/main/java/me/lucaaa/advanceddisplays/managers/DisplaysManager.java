@@ -4,7 +4,7 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.displays.*;
 import me.lucaaa.advanceddisplays.utils.ConfigAxisAngle4f;
 import me.lucaaa.advanceddisplays.utils.ConfigVector3f;
-import me.lucaaa.advanceddisplays.utils.DisplayType;
+import me.lucaaa.advanceddisplays.displays.DisplayType;
 import me.lucaaa.advanceddisplays.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,26 +15,27 @@ import org.bukkit.entity.*;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 
 public class DisplaysManager {
     private final Plugin plugin;
+    private final String configsFolder;
     public final HashMap<String, BaseDisplay> displays = new HashMap<>();
 
-    public DisplaysManager(Plugin plugin) {
+    public DisplaysManager(Plugin plugin, String configsFolder) {
         this.plugin = plugin;
+        this.configsFolder = configsFolder;
 
         // Gets the displays folder and creates it if it doesn't exist.
-        File displaysFolder = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "displays");
+        File displaysFolder = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + configsFolder);
         if (!displaysFolder.exists()) {
             displaysFolder.mkdirs();
         }
 
         // If the displays folder is not empty, load the displays.
         for (File configFile : Objects.requireNonNull(displaysFolder.listFiles())) {
-            ConfigManager configManager = new ConfigManager(this.plugin, "displays" + File.separator + configFile.getName());
+            ConfigManager configManager = new ConfigManager(this.plugin, configsFolder + File.separator + configFile.getName());
             YamlConfiguration config = configManager.getConfig();
             if (config.getString("id") != null
             || (DisplayType.valueOf(config.getString("type")) == DisplayType.TEXT && config.getConfigurationSection("settings").get("text") instanceof String)) {
@@ -49,30 +50,22 @@ public class DisplaysManager {
         }
     }
 
-    public void createDisplay(Player p, DisplayType type, String name, String value) throws IOException {
+    public BaseDisplay createDisplay(Location location, DisplayType type, String name, String value) {
         if (displays.containsKey(name)) {
-            p.sendMessage(MessagesManager.getColoredMessage("&cA display with the name &b" + name + " &calready exists!", true));
-            return;
+            return null;
         }
 
-        if (type == DisplayType.BLOCK || type == DisplayType.ITEM) {
-            if (Material.getMaterial(value) == null) {
-                p.sendMessage(MessagesManager.getColoredMessage("&b" + value + " &cis not a valid material!", true));
-                return;
-            }
-        }
-
-        ConfigManager displayConfigManager = new ConfigManager(this.plugin, "displays" + File.separator + name + ".yml");
+        ConfigManager displayConfigManager = new ConfigManager(this.plugin, this.configsFolder + File.separator + name + ".yml");
         YamlConfiguration displayConfig = displayConfigManager.getConfig();
 
         // Set properties in the display file.
         displayConfig.set("type", type.name());
 
         ConfigurationSection locationSection = displayConfig.createSection("location");
-        locationSection.set("world", p.getWorld().getName());
-        locationSection.set("x", p.getEyeLocation().getX());
-        locationSection.set("y", p.getEyeLocation().getY());
-        locationSection.set("z", p.getEyeLocation().getZ());
+        locationSection.set("world", location.getWorld().getName());
+        locationSection.set("x", location.getX());
+        locationSection.set("y", location.getY());
+        locationSection.set("z", location.getZ());
 
         displayConfig.set("rotationType", org.bukkit.entity.Display.Billboard.CENTER.name());
 
@@ -97,21 +90,15 @@ public class DisplaysManager {
         BaseDisplay newDisplay = null;
         switch (type) {
             case BLOCK -> {
-                try {
-                    Objects.requireNonNull(Material.getMaterial(value)).createBlockData();
-                } catch (IllegalArgumentException e) {
-                    p.sendMessage(MessagesManager.getColoredMessage("&cThe block &b" + value + " &cis not a valid block.", true));
-                    return;
-                }
-                BlockDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createBlockDisplay(p.getEyeLocation());
+                BlockDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createBlockDisplay(location);
                 newDisplay = new ADBlockDisplay(displayConfigManager, newDisplayPacket).create(Objects.requireNonNull(Material.getMaterial(value)).createBlockData());
             }
             case TEXT -> {
-                TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(p.getEyeLocation());
+                TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(location);
                 newDisplay = new ADTextDisplay(displayConfigManager, newDisplayPacket).create(List.of(value));
             }
             case ITEM -> {
-                ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(p.getEyeLocation());
+                ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(location);
                 newDisplay = new ADItemDisplay(displayConfigManager, newDisplayPacket).create(Objects.requireNonNull(Material.getMaterial(value)));
             }
         }
@@ -122,7 +109,7 @@ public class DisplaysManager {
 
         displayConfigManager.save();
         this.displays.put(name, newDisplay);
-        p.sendMessage(MessagesManager.getColoredMessage("&aThe display &e" + name + " &ahas been successfully created.", true));
+        return newDisplay;
     }
 
     public boolean removeDisplay(String name) {
@@ -130,7 +117,7 @@ public class DisplaysManager {
             return false;
         }
 
-        File displayFileConfig = new ConfigManager(this.plugin, "displays" + File.separator + name +".yml").getFile();
+        File displayFileConfig = new ConfigManager(this.plugin, this.configsFolder + File.separator + name +".yml").getFile();
         displayFileConfig.delete();
         BaseDisplay display = this.displays.get(name);
         if (display instanceof ADTextDisplay) ((ADTextDisplay) display).stopRunnable();
@@ -162,7 +149,7 @@ public class DisplaysManager {
     public void reloadDisplay(String name) {
         if (this.displays.get(name) instanceof ADTextDisplay) ((ADTextDisplay) this.displays.get(name)).stopRunnable();
         this.displays.remove(name);
-        this.loadDisplay(new ConfigManager(this.plugin, "displays" + File.separator + name + ".yml"));
+        this.loadDisplay(new ConfigManager(this.plugin, this.configsFolder + File.separator + name + ".yml"));
     }
 
     public void loadDisplay(ConfigManager configManager) {

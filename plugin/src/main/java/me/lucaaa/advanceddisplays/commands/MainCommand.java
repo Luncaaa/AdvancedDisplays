@@ -6,7 +6,6 @@ import org.bukkit.command.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,11 +64,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         }
 
         // If the command is valid, run it.
-        try {
-            subCommand.run(sender, args);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        subCommand.run(sender, args);
         return true;
     }
 

@@ -14,6 +14,31 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.logging.Level;
 
+//todo
+/*
+public void setText(String text) {
+    this.text = text;
+    if (this.config != null) {
+        this.settings.set("text", text);
+        this.save();
+    }
+
+    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        this.setText(text, onlinePlayer);
+    }
+}
+
+public void setText(String text, Player player) {
+        // just send packets
+        if (text.size() == 1) {
+            this.packets.setText(this.displayId, text.get(0), player);
+        } else {
+            this.textRunnable.stop();
+            this.textRunnable.start(text);
+        }
+}
+ */
+
 // TODO:
 // 1. Setup subcommand
 // 2. Text displays.
@@ -48,7 +73,7 @@ public class AdvancedDisplays extends JavaPlugin {
         // Managers
         packetsManager = new PacketsManager(Bukkit.getServer().getClass().getName().split("\\.")[3]);
         if (displaysManager != null) displaysManager.removeAllEntities(); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
-        displaysManager = new DisplaysManager(plugin);
+        displaysManager = new DisplaysManager(plugin, "displays");
     }
 
     @Override

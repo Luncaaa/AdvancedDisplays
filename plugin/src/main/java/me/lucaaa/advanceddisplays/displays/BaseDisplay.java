@@ -5,7 +5,6 @@ import me.lucaaa.advanceddisplays.common.PacketInterface;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.utils.ConfigAxisAngle4f;
 import me.lucaaa.advanceddisplays.utils.ConfigVector3f;
-import me.lucaaa.advanceddisplays.utils.DisplayType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -15,11 +14,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Objects;
 
 public class BaseDisplay {
     protected PacketInterface packets = AdvancedDisplays.packetsManager.getPackets();
+    protected ConfigManager configManager;
     protected YamlConfiguration config;
     protected File file;
     protected final DisplayType type;
@@ -41,6 +40,7 @@ public class BaseDisplay {
         this.display = display;
         this.displayId = display.getEntityId();
 
+        this.configManager = configManager;
         this.config = configManager.getConfig();
         this.file = configManager.getFile();
         this.type = type;
@@ -201,10 +201,6 @@ public class BaseDisplay {
     }
 
     protected void save() {
-        try {
-            this.config.save(this.file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.configManager.save();
     }
 }

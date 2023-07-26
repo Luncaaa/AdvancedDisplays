@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.commands.subCommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.managers.MessagesManager;
-import me.lucaaa.advanceddisplays.utils.DisplayType;
+import me.lucaaa.advanceddisplays.displays.DisplayType;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;

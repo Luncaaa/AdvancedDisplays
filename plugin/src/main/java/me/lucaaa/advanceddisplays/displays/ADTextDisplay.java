@@ -2,7 +2,6 @@ package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.utils.AnimatedTextRunnable;
-import me.lucaaa.advanceddisplays.utils.DisplayType;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.configuration.ConfigurationSection;

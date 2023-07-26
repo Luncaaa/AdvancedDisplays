@@ -2,7 +2,6 @@ package me.lucaaa.advanceddisplays.commands.subCommands;
 
 import org.bukkit.command.CommandSender;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 public abstract class SubCommandsFormat {
@@ -44,5 +43,5 @@ public abstract class SubCommandsFormat {
      * @param sender The thing that sent the command.
      * @param args The command's arguments.
      */
-    public abstract void run(CommandSender sender, String[] args) throws IOException;
+    public abstract void run(CommandSender sender, String[] args);
 }

@@ -232,7 +232,9 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.save();
         }
         this.textRunnable.stop();
-        this.textRunnable.start(this.text, animationTime, this.refreshTime);
+        if (this.text != null) {
+            this.textRunnable.start(this.text, animationTime, this.refreshTime);
+        }
     }
 
     public int getRefreshTime() {
@@ -245,7 +247,9 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.save();
         }
         this.textRunnable.stop();
-        this.textRunnable.start(this.text, animationTime, this.refreshTime);
+        if (this.text != null) {
+            this.textRunnable.start(this.text, animationTime, this.refreshTime);
+        }
     }
 
     public void stopRunnable() {

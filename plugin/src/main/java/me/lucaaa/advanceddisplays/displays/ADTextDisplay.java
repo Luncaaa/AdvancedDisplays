@@ -14,6 +14,7 @@ import java.util.Objects;
 public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
     private ConfigurationSection settings = null;
     private final AnimatedTextRunnable textRunnable = new AnimatedTextRunnable(this.displayId);
+    private int animationTime;
     private List<String> text;
     private TextDisplay.TextAlignment alignment;
     private Color backgroundColor;
@@ -28,8 +29,10 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
         this.settings = this.config.getConfigurationSection("settings");
 
         if (this.settings != null) {
+            this.animationTime = this.settings.getInt("animationTime");
+
             this.text = this.settings.getStringList("text");
-            if (this.text.size() > 1) this.textRunnable.start(this.text);
+            if (this.text.size() > 1) this.textRunnable.start(this.text, this.animationTime);
 
             this.alignment = TextDisplay.TextAlignment.valueOf(this.settings.getString("alignment"));
 
@@ -61,6 +64,7 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
 
     public ADTextDisplay create(List<String> text) {
         if (this.config != null) this.settings = this.config.createSection("settings");
+        this.setAnimationTime(20);
         this.setText(text);
         this.setAlignment(TextDisplay.TextAlignment.CENTER);
         this.setBackgroundColor(Color.fromARGB(0xFFFFAA00));
@@ -138,7 +142,7 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             }
         } else {
             this.textRunnable.stop();
-            this.textRunnable.start(text);
+            this.textRunnable.start(text, this.animationTime);
         }
     }
     public void addText(String text) {
@@ -149,7 +153,7 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.settings.set("text", textsList);
             this.save();
         }
-        if (!this.textRunnable.isRunning()) this.textRunnable.start(this.text);
+        if (!this.textRunnable.isRunning()) this.textRunnable.start(this.text, this.animationTime);
         else this.textRunnable.addText(text);
     }
 
@@ -219,6 +223,21 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
     }
     public void setShadowed(boolean shadowed, Player player) {
         this.packets.setProperties(this.displayId, shadowed, this.seeThrough, this.defaultBackground, this.alignment, player);
+    }
+
+    public int getAnimatedSeconds() {
+        return this.animationTime;
+    }
+    public void setAnimationTime(int animationTime) {
+        this.animationTime = animationTime;
+        if (this.config != null) {
+            this.settings.set("animationTime", animationTime);
+            this.save();
+        }
+        if (this.text != null && this.text.size() > 1) {
+            this.textRunnable.stop();
+            this.textRunnable.start(this.text, animationTime);
+        }
     }
 
     public void stopRunnable() {

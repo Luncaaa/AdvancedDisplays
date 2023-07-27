@@ -17,7 +17,7 @@ public class AnimatedTextRunnable {
         this.displayId = displayId;
     }
 
-    public void start(List<String> texts) {
+    public void start(List<String> texts, int animationTime) {
         this.textsList = texts;
         this.task = new BukkitRunnable() {
             private int index = 0;
@@ -32,7 +32,7 @@ public class AnimatedTextRunnable {
                 else this.index++;
 
             }
-        }.runTaskTimer(AdvancedDisplays.getPlugin(), 0L, AdvancedDisplays.mainConfig.getConfig().getInt("text-update"));
+        }.runTaskTimer(AdvancedDisplays.getPlugin(), 0L, animationTime);
     }
 
     public void stop() {

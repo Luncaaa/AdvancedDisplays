@@ -124,6 +124,9 @@ public class BaseDisplay {
             // so the display will be removed & respawned in the new world.
             this.packets.removeDisplay(this.displayId);
             AdvancedDisplays.displaysManager.reloadDisplay(this.file.getName().replace(".yml", ""));
+
+            // todo: improve
+            // Maybe try creating new entities (replacing old displayId and display) and send metadata packets.
         }
     }
 

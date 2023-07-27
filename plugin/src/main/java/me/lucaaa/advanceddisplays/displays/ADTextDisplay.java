@@ -15,6 +15,7 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
     private ConfigurationSection settings = null;
     private final AnimatedTextRunnable textRunnable = new AnimatedTextRunnable(this.displayId);
     private int animationTime;
+    private int refreshTime;
     private List<String> text;
     private TextDisplay.TextAlignment alignment;
     private Color backgroundColor;
@@ -30,9 +31,10 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
 
         if (this.settings != null) {
             this.animationTime = this.settings.getInt("animationTime");
+            this.refreshTime = this.settings.getInt("refreshTime");
 
             this.text = this.settings.getStringList("text");
-            if (this.text.size() > 1) this.textRunnable.start(this.text, this.animationTime);
+            this.textRunnable.start(this.text, this.animationTime, this.refreshTime);
 
             this.alignment = TextDisplay.TextAlignment.valueOf(this.settings.getString("alignment"));
 
@@ -55,7 +57,7 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
     public void sendMetadataPackets(Player player) {
         this.sendBaseMetadataPackets(player);
         // The text runnable will set the text automatically if there are more than one texts.
-        if (this.text.size() == 1) this.packets.setText(this.displayId, this.text.get(0), player);
+        if (this.text.size() == 1 && this.refreshTime <= 0) this.packets.setText(this.displayId, this.text.get(0), player);
         this.packets.setBackgroundColor(this.displayId, this.backgroundColor, player);
         this.packets.setLineWidth(this.displayId, this.lineWidth, player);
         this.packets.setTextOpacity(this.displayId, this.textOpacity, player);
@@ -64,6 +66,7 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
 
     public ADTextDisplay create(List<String> text) {
         if (this.config != null) this.settings = this.config.createSection("settings");
+        this.setRefreshTime(10);
         this.setAnimationTime(20);
         this.setText(text);
         this.setAlignment(TextDisplay.TextAlignment.CENTER);
@@ -136,14 +139,8 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.settings.set("text", text);
             this.save();
         }
-        if (text.size() == 1) {
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                this.packets.setText(this.displayId, text.get(0), onlinePlayer);
-            }
-        } else {
-            this.textRunnable.stop();
-            this.textRunnable.start(text, this.animationTime);
-        }
+        this.textRunnable.stop();
+        this.textRunnable.start(text, this.animationTime, this.refreshTime);
     }
     public void addText(String text) {
         this.text.add(text);
@@ -153,7 +150,7 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.settings.set("text", textsList);
             this.save();
         }
-        if (!this.textRunnable.isRunning()) this.textRunnable.start(this.text, this.animationTime);
+        if (!this.textRunnable.isRunning()) this.textRunnable.start(this.text, this.animationTime, this.refreshTime);
         else this.textRunnable.addText(text);
     }
 
@@ -234,10 +231,21 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.settings.set("animationTime", animationTime);
             this.save();
         }
-        if (this.text != null && this.text.size() > 1) {
-            this.textRunnable.stop();
-            this.textRunnable.start(this.text, animationTime);
+        this.textRunnable.stop();
+        this.textRunnable.start(this.text, animationTime, this.refreshTime);
+    }
+
+    public int getRefreshTime() {
+        return this.refreshTime;
+    }
+    public void setRefreshTime(int refreshTime) {
+        this.refreshTime = refreshTime;
+        if (this.config != null) {
+            this.settings.set("refreshTime", refreshTime);
+            this.save();
         }
+        this.textRunnable.stop();
+        this.textRunnable.start(this.text, animationTime, this.refreshTime);
     }
 
     public void stopRunnable() {

@@ -11,36 +11,62 @@ import java.util.List;
 public class AnimatedTextRunnable {
     private final int displayId;
     private List<String> textsList;
-    private BukkitTask task;
+    private BukkitTask animateTask;
+    private BukkitTask refreshTask;
+    private int currentIndex = 0;
 
     public AnimatedTextRunnable(int displayId) {
         this.displayId = displayId;
     }
 
-    public void start(List<String> texts, int animationTime) {
+    public void start(List<String> texts, int animationTime, int refreshTime) {
+        this.stop();
         this.textsList = texts;
-        this.task = new BukkitRunnable() {
-            private int index = 0;
+        // Animated text runnable - displays new text from the list every x seconds.
+        if (texts.size() > 1) {
+            this.animateTask = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                        AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
+                    }
 
-            @Override
-            public void run() {
-                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(index), onlinePlayer);
+                    if (currentIndex + 1 == textsList.size()) currentIndex = 0;
+                    else currentIndex++;
+
                 }
+            }.runTaskTimer(AdvancedDisplays.getPlugin(), 0L, animationTime);
+        }
 
-                if (this.index + 1 == textsList.size()) index = 0;
-                else this.index++;
-
+        // Refresh text runnable - displays the current text again (to update placeholders) every x seconds.
+        if (refreshTime > 0) {
+            this.refreshTask = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                        AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
+                    }
+                }
+            }.runTaskTimer(AdvancedDisplays.getPlugin(), 0L, refreshTime);
+        } else if (texts.size() == 1) {
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
             }
-        }.runTaskTimer(AdvancedDisplays.getPlugin(), 0L, animationTime);
+        }
     }
 
     public void stop() {
-        if (this.task != null) {
-            this.task.cancel();
-            this.textsList = null;
-            this.task = null;
+        if (this.animateTask != null) {
+            this.animateTask.cancel();
+            this.animateTask = null;
         }
+
+        if (this.refreshTask != null) {
+            this.refreshTask.cancel();
+            this.refreshTask = null;
+        }
+
+        this.textsList = null;
     }
 
     public void addText(String text) {
@@ -48,6 +74,6 @@ public class AnimatedTextRunnable {
     }
 
     public boolean isRunning() {
-        return !this.task.isCancelled();
+        return !this.animateTask.isCancelled() && !this.refreshTask.isCancelled();
     }
 }

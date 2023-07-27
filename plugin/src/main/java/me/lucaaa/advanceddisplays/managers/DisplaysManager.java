@@ -38,7 +38,7 @@ public class DisplaysManager {
             ConfigManager configManager = new ConfigManager(this.plugin, configsFolder + File.separator + configFile.getName());
             YamlConfiguration config = configManager.getConfig();
             if (config.getString("id") != null
-            || (DisplayType.valueOf(config.getString("type")) == DisplayType.TEXT && config.getConfigurationSection("settings").get("text") instanceof String)) {
+            || (DisplayType.valueOf(config.getString("type")) == DisplayType.TEXT && config.getConfigurationSection("settings").get("refreshTime") == null)) {
                 AdvancedDisplays.needsConversion = true;
                 Logger.log(Level.WARNING, "The displays configuration files are from an older version and have been changed in newer versions.");
                 Logger.log(Level.WARNING, "Run the command \"/ad convert [previous version]\" in-game to update the configuration files to newer versions.");

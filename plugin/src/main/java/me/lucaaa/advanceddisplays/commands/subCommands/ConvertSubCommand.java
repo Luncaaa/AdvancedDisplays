@@ -27,7 +27,7 @@ public class ConvertSubCommand extends SubCommandsFormat {
 
     @Override
     public ArrayList<String> getTabCompletions(CommandSender sender, String[] args) {
-        return new ArrayList<>(Arrays.asList("1.0", "1.1"));
+        return new ArrayList<>(Arrays.asList("1.0", "1.1", "1.2"));
     }
 
     @Override
@@ -64,6 +64,8 @@ public class ConvertSubCommand extends SubCommandsFormat {
 
                     } else if (config.getString("text") != null) {
                         config.set("type", DisplayType.TEXT.name());
+                        settingsSection.set("animationTime", 20);
+                        settingsSection.set("refreshTime", 20);
                         settingsSection.set("text", List.of(config.getString("text")));
                         settingsSection.set("alignment", config.getString("alignment"));
                         settingsSection.set("backgroundColor", config.getString("backgroundColor") + ";255");
@@ -100,10 +102,29 @@ public class ConvertSubCommand extends SubCommandsFormat {
                     if (DisplayType.valueOf(config.getString("type")) != DisplayType.TEXT) continue;
 
                     ConfigurationSection settingsSection = config.getConfigurationSection("settings");
+                    settingsSection.set("animationTime", 20);
+                    settingsSection.set("refreshTime", 20);
                     settingsSection.set("text", List.of(settingsSection.get("text")));
 
                     try {
-                        AdvancedDisplays.mainConfig.getConfig().set("text-update", 20);
+                        config.save(configFile);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            case "1.2" -> {
+                for (File configFile : Objects.requireNonNull(new File(AdvancedDisplays.getPlugin().getDataFolder().getAbsolutePath() + File.separator + "displays").listFiles())) {
+                    YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
+                    if (DisplayType.valueOf(config.getString("type")) != DisplayType.TEXT) continue;
+
+                    ConfigurationSection settingsSection = config.getConfigurationSection("settings");
+                    settingsSection.set("animationTime", 20);
+                    settingsSection.set("refreshTime", 20);
+
+                    try {
+                        AdvancedDisplays.mainConfig.getConfig().set("text-update", null);
                         AdvancedDisplays.mainConfig.save();
                         config.save(configFile);
                     } catch (IOException e) {
@@ -116,6 +137,8 @@ public class ConvertSubCommand extends SubCommandsFormat {
         }
 
         AdvancedDisplays.needsConversion = false;
+        this.hasRunOnce = false;
         AdvancedDisplays.reloadConfigs();
+        sender.sendMessage(MessagesManager.getColoredMessage("&aThe displays have been successfully converted!", true));
     }
 }

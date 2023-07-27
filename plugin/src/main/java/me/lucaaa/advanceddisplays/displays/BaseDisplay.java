@@ -74,6 +74,16 @@ public class BaseDisplay {
         this.pitch = (float) rotationSection.getDouble("pitch");
     }
 
+    public BaseDisplay(DisplayType type, Display display) {
+        this.display = display;
+        this.displayId = display.getEntityId();
+        this.type = type;
+
+        this.configManager = null;
+        this.config = null;
+        this.file = null;
+    }
+
     public void sendBaseMetadataPackets(Player player) {
         this.packets.setLocation(this.display, player);
         this.packets.setRotation(this.displayId, this.yaw, this.pitch, player);
@@ -93,17 +103,19 @@ public class BaseDisplay {
     public void setLocation(Location location) {
         location.setYaw(this.yaw);
         location.setPitch(this.pitch);
+        this.location = location;
 
-        ConfigurationSection locationSection = Objects.requireNonNull(this.config.getConfigurationSection("location"));
-        locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());
-        locationSection.set("x", location.getX());
-        locationSection.set("y", location.getY());
-        locationSection.set("z", location.getZ());
-        this.save();
+        if (this.config != null) {
+            ConfigurationSection locationSection = Objects.requireNonNull(this.config.getConfigurationSection("location"));
+            locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());
+            locationSection.set("x", location.getX());
+            locationSection.set("y", location.getY());
+            locationSection.set("z", location.getZ());
+            this.save();
+        }
 
         if (this.location.getWorld() == location.getWorld()) {
             this.display.teleport(location);
-            this.location = location;
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 this.packets.setLocation(this.display, onlinePlayer);
             }
@@ -120,11 +132,16 @@ public class BaseDisplay {
     }
     public void setBillboard(Display.Billboard billboard) {
         this.billboard = billboard;
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setBillboard(this.displayId, billboard, onlinePlayer);
+        if (this.config != null) {
+            this.config.set("rotationType", billboard.name());
+            this.save();
         }
-        this.config.set("rotationType", billboard.name());
-        this.save();
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.setBillboard(billboard, onlinePlayer);
+        }
+    }
+    public void setBillboard(Display.Billboard billboard, Player player) {
+        this.packets.setBillboard(this.displayId, billboard, player);
     }
 
     public Display.Brightness getBrightness() {
@@ -132,13 +149,18 @@ public class BaseDisplay {
     }
     public void setBrightness(Display.Brightness brightness) {
         this.brightness = brightness;
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setBrightness(this.displayId, brightness, onlinePlayer);
+        if (this.config != null) {
+            ConfigurationSection brightnessSection = Objects.requireNonNull(this.config.getConfigurationSection("brightness"));
+            brightnessSection.set("block", brightness.getBlockLight());
+            brightnessSection.set("sky", brightness.getSkyLight());
+            this.save();
         }
-        ConfigurationSection brightnessSection = Objects.requireNonNull(this.config.getConfigurationSection("brightness"));
-        brightnessSection.set("block", brightness.getBlockLight());
-        brightnessSection.set("sky", brightness.getSkyLight());
-        this.save();
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.setBrightness(brightness, onlinePlayer);
+        }
+    }
+    public void setBrightness(Display.Brightness brightness, Player player) {
+        this.packets.setBrightness(this.displayId, brightness, player);
     }
 
     public float getShadowRadius() {
@@ -148,31 +170,42 @@ public class BaseDisplay {
         return this.shadowStrength;
     }
     public void setShadow(float shadowRadius, float shadowStrength) {
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setShadow(this.displayId, shadowRadius, shadowStrength, onlinePlayer);
-        }
-        ConfigurationSection shadowSection = Objects.requireNonNull(this.config.getConfigurationSection("shadow"));
-        shadowSection.set("radius", shadowRadius);
-        shadowSection.set("strength", shadowStrength);
         this.shadowRadius = shadowRadius;
         this.shadowStrength = shadowStrength;
-        this.save();
+        if (this.config != null) {
+            ConfigurationSection shadowSection = Objects.requireNonNull(this.config.getConfigurationSection("shadow"));
+            shadowSection.set("radius", shadowRadius);
+            shadowSection.set("strength", shadowStrength);
+            this.save();
+        }
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.setShadow(shadowRadius, shadowStrength, onlinePlayer);
+        }
+    }
+    public void setShadow(float shadowRadius, float shadowStrength, Player player) {
+        this.packets.setShadow(this.displayId, shadowRadius, shadowStrength, player);
     }
 
     public Transformation getTransformation() {
         return this.transformation;
     }
     public void setTransformation(Transformation transformation) {
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setTransformation(this.displayId, transformation, onlinePlayer);
-        }
         this.transformation = transformation;
-        ConfigurationSection transformationSection = Objects.requireNonNull(this.config.getConfigurationSection("transformation"));
-        transformationSection.createSection("translation", new ConfigVector3f(transformation.getTranslation()).serialize());
-        transformationSection.createSection("leftRotation", new ConfigAxisAngle4f(transformation.getLeftRotation()).serialize());
-        transformationSection.createSection("scale", new ConfigVector3f(transformation.getScale()).serialize());
-        transformationSection.createSection("rightRotation", new ConfigAxisAngle4f(transformation.getRightRotation()).serialize());
-        this.save();
+        if (this.config != null) {
+            ConfigurationSection transformationSection = Objects.requireNonNull(this.config.getConfigurationSection("transformation"));
+            transformationSection.createSection("translation", new ConfigVector3f(transformation.getTranslation()).serialize());
+            transformationSection.createSection("leftRotation", new ConfigAxisAngle4f(transformation.getLeftRotation()).serialize());
+            transformationSection.createSection("scale", new ConfigVector3f(transformation.getScale()).serialize());
+            transformationSection.createSection("rightRotation", new ConfigAxisAngle4f(transformation.getRightRotation()).serialize());
+            this.save();
+        }
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.setTransformation(transformation, onlinePlayer);
+        }
+
+    }
+    public void setTransformation(Transformation transformation, Player player) {
+        this.packets.setTransformation(this.displayId, transformation, player);
     }
 
     public float getYaw() {
@@ -182,15 +215,21 @@ public class BaseDisplay {
         return this.pitch;
     }
     public void setRotation(float yaw, float pitch) {
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setRotation(this.displayId, yaw, pitch, onlinePlayer);
-        }
-        ConfigurationSection rotationSection = Objects.requireNonNull(this.config.getConfigurationSection("rotation"));
-        rotationSection.set("yaw", yaw);
-        rotationSection.set("pitch", pitch);
         this.yaw = yaw;
         this.pitch = pitch;
-        this.save();
+        if (this.config != null) {
+            ConfigurationSection rotationSection = Objects.requireNonNull(this.config.getConfigurationSection("rotation"));
+            rotationSection.set("yaw", yaw);
+            rotationSection.set("pitch", pitch);
+            this.save();
+        }
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.setRotation(yaw, pitch, onlinePlayer);
+        }
+
+    }
+    public void setRotation(float yaw, float pitch, Player player) {
+        this.packets.setRotation(this.displayId, yaw, pitch, player);
     }
 
     public int getDisplayId() {

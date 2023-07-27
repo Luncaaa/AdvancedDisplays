@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import java.util.Objects;
 
 public class ADBlockDisplay extends BaseDisplay implements DisplayMethods {
-    private ConfigurationSection settings;
+    private ConfigurationSection settings = null;
     private BlockData block;
 
     public ADBlockDisplay(ConfigManager configManager, BlockDisplay display) {
@@ -22,6 +22,9 @@ public class ADBlockDisplay extends BaseDisplay implements DisplayMethods {
             this.block = Objects.requireNonNull(Material.getMaterial(Objects.requireNonNull(this.settings.getString("block")))).createBlockData();
         }
     }
+    public ADBlockDisplay(BlockDisplay display) {
+        super(DisplayType.BLOCK, display);
+    }
 
     @Override
     public void sendMetadataPackets(Player player) {
@@ -30,20 +33,25 @@ public class ADBlockDisplay extends BaseDisplay implements DisplayMethods {
     }
 
     public ADBlockDisplay create(BlockData block) {
-        this.settings = this.config.createSection("settings");
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            this.setBlock(block, player);
-        }
+        if (this.config != null) this.settings = this.config.createSection("settings");
+        this.setBlock(block);
         return this;
     }
 
     public BlockData getBlock() {
         return this.block;
     }
-    public void setBlock(BlockData block, Player player) {
+    public void setBlock(BlockData block) {
         this.block = block;
-        this.settings.set("block", block.getMaterial().name());
+        if (this.config != null) {
+            this.settings.set("block", block.getMaterial().name());
+            this.save();
+        }
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.setBlock(block, onlinePlayer);
+        }
+    }
+    public void setBlock(BlockData block, Player player) {
         this.packets.setBlock(this.displayId, block, player);
-        this.save();
     }
 }

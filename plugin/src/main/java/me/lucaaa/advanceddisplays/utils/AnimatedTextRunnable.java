@@ -7,10 +7,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.List;
-import java.util.logging.Level;
 
 public class AnimatedTextRunnable {
     private final int displayId;
+    private List<String> textsList;
     private BukkitTask task;
 
     public AnimatedTextRunnable(int displayId) {
@@ -18,17 +18,17 @@ public class AnimatedTextRunnable {
     }
 
     public void start(List<String> texts) {
+        this.textsList = texts;
         this.task = new BukkitRunnable() {
             private int index = 0;
 
             @Override
             public void run() {
-                Logger.log(Level.WARNING, "Called! Index:" + this.index);
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    AdvancedDisplays.packetsManager.getPackets().setText(displayId, texts.get(index), onlinePlayer);
+                    AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(index), onlinePlayer);
                 }
 
-                if (this.index + 1 == texts.size()) index = 0;
+                if (this.index + 1 == textsList.size()) index = 0;
                 else this.index++;
 
             }
@@ -38,7 +38,16 @@ public class AnimatedTextRunnable {
     public void stop() {
         if (this.task != null) {
             this.task.cancel();
+            this.textsList = null;
             this.task = null;
         }
+    }
+
+    public void addText(String text) {
+        this.textsList.add(text);
+    }
+
+    public boolean isRunning() {
+        return !this.task.isCancelled();
     }
 }

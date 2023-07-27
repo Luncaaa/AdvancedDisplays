@@ -8,7 +8,7 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 
 public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
-    private ConfigurationSection settings;
+    private ConfigurationSection settings = null;
     private Material material;
     private ItemDisplay.ItemDisplayTransform itemTransformation;
 
@@ -21,6 +21,9 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
             this.itemTransformation = ItemDisplay.ItemDisplayTransform.valueOf(this.settings.getString("itemTransformation"));
         }
     }
+    public ADItemDisplay(ItemDisplay display) {
+        super(DisplayType.ITEM, display);
+    }
 
     @Override
     public void sendMetadataPackets(Player player) {
@@ -30,31 +33,44 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
     }
 
     public ADItemDisplay create(Material item) {
-        this.settings = this.config.createSection("settings");
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setMaterial(item, onlinePlayer);
-            this.setItemTransformation(ItemDisplay.ItemDisplayTransform.FIXED, onlinePlayer);
-        }
+        if (this.config != null) this.settings = this.config.createSection("settings");
+        this.setMaterial(item);
+        this.setItemTransformation(ItemDisplay.ItemDisplayTransform.FIXED);
         return this;
     }
 
     public Material getMaterial() {
         return this.material;
     }
-    public void setMaterial(Material material, Player player) {
+    public void setMaterial(Material material) {
         this.material = material;
-        this.settings.set("item", material.name());
+        if (this.config != null) {
+            this.settings.set("item", material.name());
+            this.save();
+        }
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.setMaterial(material, onlinePlayer);
+        }
+
+    }
+    public void setMaterial(Material material, Player player) {
         this.packets.setItem(this.displayId, material, player);
-        this.save();
     }
 
     private ItemDisplay.ItemDisplayTransform  getItemTransformation() {
         return this.itemTransformation;
     }
-    public void setItemTransformation(ItemDisplay.ItemDisplayTransform transformation, Player player) {
+    public void setItemTransformation(ItemDisplay.ItemDisplayTransform transformation) {
         this.itemTransformation = transformation;
-        this.settings.set("itemTransformation", transformation.name());
+        if (this.config != null) {
+            this.settings.set("itemTransformation", transformation.name());
+            this.save();
+        }
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.setItemTransformation(transformation, onlinePlayer);
+        }
+    }
+    public void setItemTransformation(ItemDisplay.ItemDisplayTransform transformation, Player player) {
         this.packets.setItemDisplayTransformation(this.displayId, transformation, player);
-        this.save();
     }
 }

@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.logging.Level;
 
-//todo
+//todo - API implementation
 /*
 public void setText(String text) {
     this.text = text;
@@ -36,6 +36,29 @@ public void setText(String text, Player player) {
             this.textRunnable.stop();
             this.textRunnable.start(text);
         }
+}
+ */
+
+//todo
+/*
+class ADAPI {
+    public static dispManager;
+
+    enable() {
+        this.dispManager = new DispManager();
+    }
+}
+
+class AdvancedDisplaysAPI {
+    static Display createText() {
+        return ADAPI.dispManager.create(...)
+    }
+}
+
+this class {
+    onEnable() {
+        ADAPI.enable();
+    }
 }
  */
 

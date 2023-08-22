@@ -22,6 +22,7 @@ import org.bukkit.craftbukkit.v1_19_R3.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftDisplay;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
@@ -257,12 +258,14 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void setItem(int displayId, Material material, Player player) {
+    public void setItem(int displayId, Material material, boolean enchanted, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
         List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(22, EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy(new ItemStack(material))));
+        ItemStack item = new ItemStack(material);
+        if (enchanted) item.addUnsafeEnchantment(Enchantment.MENDING, 1);
+        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(22, EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy(item)));
 
         connection.send(new ClientboundSetEntityDataPacket(displayId, data));
     }

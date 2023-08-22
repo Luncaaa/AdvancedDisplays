@@ -39,6 +39,6 @@ public interface PacketInterface {
     void setBlock(int displayId, BlockData block, Player player);
 
     // -[ Item displays ]-
-    void setItem(int displayId, Material material, Player player);
+    void setItem(int displayId, Material material, boolean enchanted, Player player);
     void setItemDisplayTransformation(int displayId, ItemDisplay.ItemDisplayTransform transformation, Player player);
 }

@@ -58,6 +58,7 @@ public class ConvertSubCommand extends SubCommandsFormat {
                     } else if (config.getString("item") != null) {
                         config.set("type", DisplayType.ITEM.name());
                         settingsSection.set("item", config.getString("item"));
+                        settingsSection.set("enchanted", false);
                         settingsSection.set("itemTransformation", config.getString("itemTransformation"));
                         config.set("item", null);
                         config.set("itemTransformation", null);
@@ -99,12 +100,19 @@ public class ConvertSubCommand extends SubCommandsFormat {
             case "1.1" -> {
                 for (File configFile : Objects.requireNonNull(new File(AdvancedDisplays.getPlugin().getDataFolder().getAbsolutePath() + File.separator + "displays").listFiles())) {
                     YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
-                    if (DisplayType.valueOf(config.getString("type")) != DisplayType.TEXT) continue;
+                    DisplayType type = DisplayType.valueOf(config.getString("type"));
+                    if (type == DisplayType.BLOCK) continue;
 
                     ConfigurationSection settingsSection = config.getConfigurationSection("settings");
-                    settingsSection.set("animationTime", 20);
-                    settingsSection.set("refreshTime", 20);
-                    settingsSection.set("text", List.of(settingsSection.get("text")));
+
+                    if (type == DisplayType.TEXT) {
+                        settingsSection.set("animationTime", 20);
+                        settingsSection.set("refreshTime", 20);
+                        settingsSection.set("text", List.of(settingsSection.get("text")));
+
+                    } else if (type == DisplayType.ITEM) {
+                        settingsSection.set("enchanted", false);
+                    }
 
                     try {
                         config.save(configFile);
@@ -117,15 +125,38 @@ public class ConvertSubCommand extends SubCommandsFormat {
             case "1.2" -> {
                 for (File configFile : Objects.requireNonNull(new File(AdvancedDisplays.getPlugin().getDataFolder().getAbsolutePath() + File.separator + "displays").listFiles())) {
                     YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
-                    if (DisplayType.valueOf(config.getString("type")) != DisplayType.TEXT) continue;
+                    DisplayType type = DisplayType.valueOf(config.getString("type"));
+                    if (type == DisplayType.BLOCK) continue;
 
                     ConfigurationSection settingsSection = config.getConfigurationSection("settings");
-                    settingsSection.set("animationTime", 20);
-                    settingsSection.set("refreshTime", 20);
+
+                    if (type == DisplayType.TEXT) {
+                        settingsSection.set("animationTime", 20);
+                        settingsSection.set("refreshTime", 20);
+
+                    } else if (type == DisplayType.ITEM) {
+                        settingsSection.set("enchanted", false);
+                    }
 
                     try {
                         AdvancedDisplays.mainConfig.getConfig().set("text-update", null);
                         AdvancedDisplays.mainConfig.save();
+                        config.save(configFile);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            case "1.2.1" -> {
+                for (File configFile : Objects.requireNonNull(new File(AdvancedDisplays.getPlugin().getDataFolder().getAbsolutePath() + File.separator + "displays").listFiles())) {
+                    YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
+                    if (DisplayType.valueOf(config.getString("type")) != DisplayType.ITEM) continue;
+
+                    ConfigurationSection settingsSection = config.getConfigurationSection("settings");
+                    settingsSection.set("enchanted", false);
+
+                    try {
                         config.save(configFile);
                     } catch (IOException e) {
                         throw new RuntimeException(e);

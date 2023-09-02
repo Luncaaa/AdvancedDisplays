@@ -35,7 +35,7 @@ public class AnimatedTextRunnable {
                     else currentIndex++;
 
                 }
-            }.runTaskTimer(AdvancedDisplays.getPlugin(), 0L, animationTime);
+            }.runTaskTimerAsynchronously(AdvancedDisplays.getPlugin(), 0L, animationTime);
         }
 
         // Refresh text runnable - displays the current text again (to update placeholders) every x seconds.
@@ -47,7 +47,7 @@ public class AnimatedTextRunnable {
                         AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
                     }
                 }
-            }.runTaskTimer(AdvancedDisplays.getPlugin(), 0L, refreshTime);
+            }.runTaskTimerAsynchronously(AdvancedDisplays.getPlugin(), 0L, refreshTime);
         } else if (texts.size() == 1) {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);

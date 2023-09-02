@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.commands.subCommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.displays.BaseDisplay;
+import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import me.lucaaa.advanceddisplays.managers.MessagesManager;
 import me.lucaaa.advanceddisplays.displays.DisplayType;
 import org.bukkit.Material;
@@ -28,8 +29,11 @@ public class CreateSubCommand extends SubCommandsFormat {
             return new ArrayList<>(Arrays.stream(DisplayType.values()).map(Enum::name).toList());
 
         } else if (args.length == 4) {
-            if (args[1].equalsIgnoreCase("BLOCK") || args[1].equalsIgnoreCase("ITEM")) {
+            if (args[1].equalsIgnoreCase("ITEM")) {
                 return new ArrayList<>(Arrays.stream(Material.values()).map(Enum::name).toList());
+
+            } else if (args[1].equalsIgnoreCase("BLOCK")) {
+                return DisplaysManager.blocksList;
             }
         }
 

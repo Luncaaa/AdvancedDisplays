@@ -23,9 +23,19 @@ public class DisplaysManager {
     private final String configsFolder;
     public final HashMap<String, BaseDisplay> displays = new HashMap<>();
 
+    public static final ArrayList<String> blocksList = new ArrayList<>();
+
     public DisplaysManager(Plugin plugin, String configsFolder) {
         this.plugin = plugin;
         this.configsFolder = configsFolder;
+
+        for (Material material : Material.values()) {
+            try {
+                // If the material is a block, it will be added to the blocks list.
+                material.createBlockData();
+                blocksList.add(material.name());
+            } catch (IllegalArgumentException ignored) {}
+        }
 
         // Gets the displays folder and creates it if it doesn't exist.
         File displaysFolder = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + configsFolder);
@@ -38,7 +48,7 @@ public class DisplaysManager {
             ConfigManager configManager = new ConfigManager(this.plugin, configsFolder + File.separator + configFile.getName());
             YamlConfiguration config = configManager.getConfig();
             if (config.getString("id") != null
-            || (DisplayType.valueOf(config.getString("type")) == DisplayType.TEXT && config.getConfigurationSection("settings").get("refreshTime") == null)) {
+            || (DisplayType.valueOf(config.getString("type")) == DisplayType.ITEM && config.getConfigurationSection("settings").get("enchanted") == null)) {
                 AdvancedDisplays.needsConversion = true;
                 Logger.log(Level.WARNING, "The displays configuration files are from an older version and have been changed in newer versions.");
                 Logger.log(Level.WARNING, "Run the command \"/ad convert [previous version]\" in-game to update the configuration files to newer versions.");

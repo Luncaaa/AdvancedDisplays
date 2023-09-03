@@ -1,5 +1,11 @@
 package me.lucaaa.advanceddisplays.v1_19_R3;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import me.lucaaa.advanceddisplays.common.DisplayHeadType;
+import me.lucaaa.advanceddisplays.common.Logger;
 import me.lucaaa.advanceddisplays.common.PacketInterface;
 import me.lucaaa.advanceddisplays.common.Utils;
 import net.minecraft.network.chat.Component;
@@ -12,6 +18,7 @@ import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.Level;
+import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -28,10 +35,15 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.util.Transformation;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Packets implements PacketInterface {
     @Override
@@ -231,13 +243,9 @@ public class Packets implements PacketInterface {
         if (isSeeThrough) options = (byte) (options | 0x02);
         if (defaultBackground) options = (byte) (options | 0x04);
         switch (alignment) {
-            case CENTER: break;
-            case LEFT:
-                options = (byte) (options | 0x08);
-                break;
-            case RIGHT:
-                options = (byte) (options | 0x10);
-                break;
+            case CENTER -> {}
+            case LEFT -> options = (byte) (options | 0x08);
+            case RIGHT -> options = (byte) (options | 0x10);
         }
 
         List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
@@ -265,6 +273,59 @@ public class Packets implements PacketInterface {
         List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
         ItemStack item = new ItemStack(material);
         if (enchanted) item.addUnsafeEnchantment(Enchantment.MENDING, 1);
+        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(22, EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy(item)));
+
+        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
+    }
+
+    @Override
+    public void setHead(int displayId, Material material, boolean enchanted, DisplayHeadType displayHeadType, String displayHeadValue, Player player) {
+        CraftPlayer cp = (CraftPlayer) player;
+        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
+
+        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
+        ItemStack item = new ItemStack(material);
+        if (enchanted) item.addUnsafeEnchantment(Enchantment.MENDING, 1);
+
+        SkullMeta skullMeta = (SkullMeta) item.getItemMeta();
+        assert skullMeta != null;
+
+        if (displayHeadValue.equalsIgnoreCase("%player%")) {
+            skullMeta.setOwningPlayer(player);
+        } else {
+            String base64 = null;
+            if (displayHeadType == DisplayHeadType.PLAYER) {
+                try {
+                    String UUIDJson = IOUtils.toString(new URL("https://api.mojang.com/users/profiles/minecraft/" + displayHeadValue));
+                    JsonObject uuidObject = JsonParser.parseString(UUIDJson).getAsJsonObject();
+                    String dashlessUuid = uuidObject.get("id").getAsString();
+
+                    String profileJson = IOUtils.toString(new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + dashlessUuid));
+                    JsonObject profileObject = JsonParser.parseString(profileJson).getAsJsonObject();
+                    base64 = profileObject.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
+
+                } catch (IOException e) {
+                    Logger.log(java.util.logging.Level.WARNING, "The player name " + displayHeadValue + " does not exist!");
+                }
+
+            } else {
+                base64 = displayHeadValue;
+            }
+
+            try {
+                GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+                profile.getProperties().put("textures", new Property("textures", base64));
+                Field profileField;
+                profileField = skullMeta.getClass().getDeclaredField("profile");
+                profileField.setAccessible(true);
+                profileField.set(skullMeta, profile);
+
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                Logger.log(java.util.logging.Level.WARNING, "Unexpected error!");
+            }
+        }
+
+        item.setItemMeta(skullMeta);
         data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(22, EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy(item)));
 
         connection.send(new ClientboundSetEntityDataPacket(displayId, data));

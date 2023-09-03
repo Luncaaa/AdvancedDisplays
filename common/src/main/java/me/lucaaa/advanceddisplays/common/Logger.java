@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.utils;
+package me.lucaaa.advanceddisplays.common;
 
 import org.bukkit.Bukkit;
 

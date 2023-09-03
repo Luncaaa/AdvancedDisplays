@@ -4,7 +4,7 @@ import me.lucaaa.advanceddisplays.commands.MainCommand;
 import me.lucaaa.advanceddisplays.commands.subCommands.SubCommandsFormat;
 import me.lucaaa.advanceddisplays.events.PlayerEventsListener;
 import me.lucaaa.advanceddisplays.managers.*;
-import me.lucaaa.advanceddisplays.utils.Logger;
+import me.lucaaa.advanceddisplays.common.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -64,9 +64,7 @@ this class {
 
 // TODO:
 // 1. Setup subcommand
-// 2. Text displays.
-//   2.1 - Animated texts.
-// 3. Developer API.
+// 2. Developer API.
 
 public class AdvancedDisplays extends JavaPlugin {
     // An instance of the plugin.

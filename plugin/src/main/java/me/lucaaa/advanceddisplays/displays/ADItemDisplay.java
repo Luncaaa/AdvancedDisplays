@@ -47,14 +47,14 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
     @Override
     public void sendMetadataPackets(Player player) {
         this.sendBaseMetadataPackets(player);
-        if (this.material == Material.PLAYER_HEAD || this.material == Material.PLAYER_WALL_HEAD) this.packets.setHead(this.displayId, this.material, this.enchanted, this.displayHeadType, this.displayHeadValue, player);
+        if (this.material == Material.PLAYER_HEAD) this.packets.setHead(this.displayId, this.material, this.enchanted, this.displayHeadType, this.displayHeadValue, player);
         else this.packets.setItem(this.displayId, this.material, this.enchanted, player);
         this.packets.setItemDisplayTransformation(this.displayId, this.itemTransformation, player);
     }
 
     public ADItemDisplay create(Material item) {
         if (this.config != null) this.settings = this.config.createSection("settings");
-        if (item == Material.PLAYER_HEAD || this.material == Material.PLAYER_WALL_HEAD) this.setMaterialHead(item, DisplayHeadType.PLAYER, "%player%");
+        if (item == Material.PLAYER_HEAD) this.setMaterialHead(item, DisplayHeadType.PLAYER, "%player%");
         else this.setMaterial(item);
         this.setEnchanted(false);
         this.setItemTransformation(ItemDisplay.ItemDisplayTransform.FIXED);
@@ -111,7 +111,7 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
 
     }
     public void setEnchanted(boolean enchanted, Player player) {
-        if (this.material == Material.PLAYER_HEAD || this.material == Material.PLAYER_WALL_HEAD) this.packets.setHead(this.displayId,this.material, enchanted, this.displayHeadType, this.displayHeadValue, player);
+        if (this.material == Material.PLAYER_HEAD) this.packets.setHead(this.displayId,this.material, enchanted, this.displayHeadType, this.displayHeadValue, player);
         else this.packets.setItem(this.displayId, this.material, enchanted, player);
     }
 

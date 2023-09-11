@@ -42,10 +42,10 @@ public void setText(String text, Player player) {
 //todo
 /*
 class ADAPI {
-    public static dispManager;
+    public static displaysManager;
 
     enable() {
-        this.dispManager = new DispManager();
+        this.displaysManager = new DisplaysManager();
     }
 }
 
@@ -71,7 +71,7 @@ public class AdvancedDisplays extends JavaPlugin {
     private static Plugin plugin;
 
     // Subcommands for the HelpSubCommand class.
-    public static HashMap<String, SubCommandsFormat> subCommands = MainCommand.subCommands;
+    public final static HashMap<String, SubCommandsFormat> subCommands = MainCommand.subCommands;
 
     // Config file.
     public static ConfigManager mainConfig;

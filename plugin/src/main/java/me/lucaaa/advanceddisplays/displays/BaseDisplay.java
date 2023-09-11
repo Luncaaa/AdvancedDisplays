@@ -17,10 +17,10 @@ import java.io.File;
 import java.util.Objects;
 
 public class BaseDisplay {
-    protected PacketInterface packets = AdvancedDisplays.packetsManager.getPackets();
-    protected ConfigManager configManager;
-    protected YamlConfiguration config;
-    protected File file;
+    protected final PacketInterface packets = AdvancedDisplays.packetsManager.getPackets();
+    protected final ConfigManager configManager;
+    protected final YamlConfiguration config;
+    protected final File file;
     protected final DisplayType type;
 
     protected final Display display;

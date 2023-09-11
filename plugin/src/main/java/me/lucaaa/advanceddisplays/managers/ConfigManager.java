@@ -19,7 +19,7 @@ public class ConfigManager {
         try {
             this.config.save(this.file);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

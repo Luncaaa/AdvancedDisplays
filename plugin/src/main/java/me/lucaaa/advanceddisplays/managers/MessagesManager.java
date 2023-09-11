@@ -10,14 +10,4 @@ public class MessagesManager {
 
         return ChatColor.translateAlternateColorCodes('&', messageToSend);
     }
-
-    // For PAPI.
-    /*private static String replacePlaceholders(String message, HashMap<String, String> placeholders) {
-        String newMessage = message;
-        placeholders.put("%prefix%", AdvancedDisplays.mainConfig.getConfig().getString("prefix"));
-        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-            newMessage = newMessage.replace(entry.getKey(), entry.getValue());
-        }
-        return newMessage;
-    }*/
 }

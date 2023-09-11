@@ -118,7 +118,7 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
     }
     public void setLineWidth(int width) {
         this.lineWidth = width;
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        if (this.config != null) {
             this.settings.set("lineWidth", width);
             this.save();
         }

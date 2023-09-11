@@ -115,7 +115,7 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
         else this.packets.setItem(this.displayId, this.material, enchanted, player);
     }
 
-    private ItemDisplay.ItemDisplayTransform  getItemTransformation() {
+    public ItemDisplay.ItemDisplayTransform  getItemTransformation() {
         return this.itemTransformation;
     }
     public void setItemTransformation(ItemDisplay.ItemDisplayTransform transformation) {

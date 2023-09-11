@@ -4,7 +4,6 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.displays.*;
 import me.lucaaa.advanceddisplays.utils.ConfigAxisAngle4f;
 import me.lucaaa.advanceddisplays.utils.ConfigVector3f;
-import me.lucaaa.advanceddisplays.displays.DisplayType;
 import me.lucaaa.advanceddisplays.common.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

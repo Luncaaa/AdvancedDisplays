@@ -242,6 +242,10 @@ public class BaseDisplay {
         return this.display;
     }
 
+    public ConfigManager getConfigManager() {
+        return this.configManager;
+    }
+
     protected void save() {
         this.configManager.save();
     }

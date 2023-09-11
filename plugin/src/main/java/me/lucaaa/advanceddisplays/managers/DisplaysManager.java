@@ -47,7 +47,7 @@ public class DisplaysManager {
             ConfigManager configManager = new ConfigManager(this.plugin, configsFolder + File.separator + configFile.getName());
             YamlConfiguration config = configManager.getConfig();
             if (config.getString("id") != null
-            || (DisplayType.valueOf(config.getString("type")) == DisplayType.ITEM && config.getConfigurationSection("settings").get("enchanted") == null)) {
+            || (DisplayType.valueOf(config.getString("type")) == DisplayType.ITEM && Objects.requireNonNull(config.getConfigurationSection("settings")).get("enchanted") == null)) {
                 AdvancedDisplays.needsConversion = true;
                 Logger.log(Level.WARNING, "The displays configuration files are from an older version and have been changed in newer versions.");
                 Logger.log(Level.WARNING, "Run the command \"/ad convert [previous version]\" in-game to update the configuration files to newer versions.");
@@ -71,7 +71,7 @@ public class DisplaysManager {
         displayConfig.set("type", type.name());
 
         ConfigurationSection locationSection = displayConfig.createSection("location");
-        locationSection.set("world", location.getWorld().getName());
+        locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());
         locationSection.set("x", location.getX());
         locationSection.set("y", location.getY());
         locationSection.set("z", location.getZ());
@@ -126,9 +126,11 @@ public class DisplaysManager {
             return false;
         }
 
-        File displayFileConfig = new ConfigManager(this.plugin, this.configsFolder + File.separator + name +".yml").getFile();
-        displayFileConfig.delete();
         BaseDisplay display = this.displays.get(name);
+        if (display.getConfigManager() != null) {
+            display.getConfigManager().getFile().delete();
+        }
+
         if (display instanceof ADTextDisplay) ((ADTextDisplay) display).stopRunnable();
         AdvancedDisplays.packetsManager.getPackets().removeDisplay(display.getDisplayId());
         this.displays.remove(name);

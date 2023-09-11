@@ -41,6 +41,7 @@ import org.bukkit.util.Transformation;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -296,11 +297,11 @@ public class Packets implements PacketInterface {
             String base64 = null;
             if (displayHeadType == DisplayHeadType.PLAYER) {
                 try {
-                    String UUIDJson = IOUtils.toString(new URL("https://api.mojang.com/users/profiles/minecraft/" + displayHeadValue));
+                    String UUIDJson = IOUtils.toString(new URL("https://api.mojang.com/users/profiles/minecraft/" + displayHeadValue), StandardCharsets.UTF_8);
                     JsonObject uuidObject = JsonParser.parseString(UUIDJson).getAsJsonObject();
                     String dashlessUuid = uuidObject.get("id").getAsString();
 
-                    String profileJson = IOUtils.toString(new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + dashlessUuid));
+                    String profileJson = IOUtils.toString(new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + dashlessUuid), StandardCharsets.UTF_8);
                     JsonObject profileObject = JsonParser.parseString(profileJson).getAsJsonObject();
                     base64 = profileObject.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
 

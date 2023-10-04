@@ -1,14 +1,17 @@
-package me.lucaaa.advanceddisplays.displays;
+package me.lucaaa.advanceddisplays.api.displays.Internal;
 
+import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.common.DisplayHeadType;
-import me.lucaaa.advanceddisplays.managers.ConfigManager;
+import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 
-public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
+import java.util.Objects;
+
+public class ADItemDisplay extends BaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.api.ItemDisplay {
     private ConfigurationSection settings = null;
     private Material material;
     private DisplayHeadType displayHeadType;
@@ -27,7 +30,7 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
 
             if (this.settings.contains("head")) {
                 ConfigurationSection headSection = this.settings.getConfigurationSection("head");
-                if (headSection.contains("player"))  {
+                if (Objects.requireNonNull(headSection).contains("player"))  {
                     this.displayHeadType = DisplayHeadType.PLAYER;
                     this.displayHeadValue = headSection.getString("player");
 
@@ -36,7 +39,7 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
                     this.displayHeadValue = headSection.getString("base64");
                 }
             } else {
-                this.displayHeadType = DisplayHeadType.NONE;
+                this.displayHeadType = null;
             }
         }
     }
@@ -47,26 +50,25 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
     @Override
     public void sendMetadataPackets(Player player) {
         this.sendBaseMetadataPackets(player);
-        if (this.material == Material.PLAYER_HEAD) this.packets.setHead(this.displayId, this.material, this.enchanted, this.displayHeadType, this.displayHeadValue, player);
+        if (this.material == Material.PLAYER_HEAD) this.packets.setHead(this.displayId, this.enchanted, this.displayHeadType, this.displayHeadValue, player);
         else this.packets.setItem(this.displayId, this.material, this.enchanted, player);
         this.packets.setItemDisplayTransformation(this.displayId, this.itemTransformation, player);
     }
 
     public ADItemDisplay create(Material item) {
         if (this.config != null) this.settings = this.config.createSection("settings");
-        if (item == Material.PLAYER_HEAD) this.setMaterialHead(item, DisplayHeadType.PLAYER, "%player%");
+        if (item == Material.PLAYER_HEAD) this.setMaterialHead(DisplayHeadType.PLAYER, "%player%");
         else this.setMaterial(item);
         this.setEnchanted(false);
         this.setItemTransformation(ItemDisplay.ItemDisplayTransform.FIXED);
         return this;
     }
 
+    @Override
     public Material getMaterial() {
         return this.material;
     }
-    public boolean isEnchanted() {
-        return this.enchanted;
-    }
+    @Override
     public void setMaterial(Material material) {
         this.material = material;
         if (this.config != null) {
@@ -77,12 +79,14 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
             this.setMaterial(material, onlinePlayer);
         }
     }
+    @Override
     public void setMaterial(Material material, Player player) {
         this.packets.setItem(this.displayId, material, this.enchanted, player);
     }
 
-    public void setMaterialHead(Material material, DisplayHeadType displayHeadType, String value) {
-        this.material = material;
+    @Override
+    public void setMaterialHead(DisplayHeadType displayHeadType, String value) {
+        this.material = Material.PLAYER_HEAD;
         this.displayHeadType = displayHeadType;
         this.displayHeadValue = value;
         if (this.config != null) {
@@ -92,13 +96,19 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
             this.save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setMaterialHead(material, displayHeadType, value, onlinePlayer);
+            this.setMaterialHead(displayHeadType, value, onlinePlayer);
         }
     }
-    public void setMaterialHead(Material material, DisplayHeadType displayHeadType, String value, Player player) {
-        this.packets.setHead(this.displayId, material, this.enchanted, displayHeadType, value, player);
+    @Override
+    public void setMaterialHead(DisplayHeadType displayHeadType, String value, Player player) {
+        this.packets.setHead(this.displayId, this.enchanted, displayHeadType, value, player);
     }
 
+    @Override
+    public boolean isEnchanted() {
+        return this.enchanted;
+    }
+    @Override
     public void setEnchanted(boolean enchanted) {
         this.enchanted = enchanted;
         if (this.config != null) {
@@ -110,14 +120,17 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
         }
 
     }
+    @Override
     public void setEnchanted(boolean enchanted, Player player) {
-        if (this.material == Material.PLAYER_HEAD) this.packets.setHead(this.displayId,this.material, enchanted, this.displayHeadType, this.displayHeadValue, player);
+        if (this.material == Material.PLAYER_HEAD) this.packets.setHead(this.displayId, enchanted, this.displayHeadType, this.displayHeadValue, player);
         else this.packets.setItem(this.displayId, this.material, enchanted, player);
     }
 
+    @Override
     public ItemDisplay.ItemDisplayTransform  getItemTransformation() {
         return this.itemTransformation;
     }
+    @Override
     public void setItemTransformation(ItemDisplay.ItemDisplayTransform transformation) {
         this.itemTransformation = transformation;
         if (this.config != null) {
@@ -128,6 +141,7 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods {
             this.setItemTransformation(transformation, onlinePlayer);
         }
     }
+    @Override
     public void setItemTransformation(ItemDisplay.ItemDisplayTransform transformation, Player player) {
         this.packets.setItemDisplayTransformation(this.displayId, transformation, player);
     }

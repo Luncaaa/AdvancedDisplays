@@ -1,17 +1,19 @@
-package me.lucaaa.advanceddisplays.displays;
+package me.lucaaa.advanceddisplays.api.displays.Internal;
 
-import me.lucaaa.advanceddisplays.managers.ConfigManager;
-import me.lucaaa.advanceddisplays.utils.AnimatedTextRunnable;
+import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
+import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.plugin.Plugin;
 
 import java.util.List;
 import java.util.Objects;
 
-public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
+public class ADTextDisplay extends BaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.api.TextDisplay {
+    private final Plugin plugin;
     private ConfigurationSection settings = null;
     private final AnimatedTextRunnable textRunnable = new AnimatedTextRunnable(this.displayId);
     private int animationTime;
@@ -25,8 +27,9 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
     private boolean seeThrough;
     private boolean shadowed;
 
-    public ADTextDisplay(ConfigManager configManager, TextDisplay display) {
+    public ADTextDisplay(ConfigManager configManager, TextDisplay display, Plugin plugin) {
         super(DisplayType.TEXT, configManager, display);
+        this.plugin = plugin;
         this.settings = this.config.getConfigurationSection("settings");
 
         if (this.settings != null) {
@@ -34,7 +37,7 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.refreshTime = this.settings.getInt("refreshTime");
 
             this.text = this.settings.getStringList("text");
-            this.textRunnable.start(this.text, this.animationTime, this.refreshTime);
+            this.textRunnable.start(this.plugin, this.text, this.animationTime, this.refreshTime);
 
             this.alignment = TextDisplay.TextAlignment.valueOf(this.settings.getString("alignment"));
 
@@ -49,8 +52,9 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
         }
     }
 
-    public ADTextDisplay(TextDisplay display) {
+    public ADTextDisplay(TextDisplay display, Plugin plugin) {
         super(DisplayType.TEXT, display);
+        this.plugin = plugin;
     }
 
     @Override
@@ -73,15 +77,17 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
         this.setBackgroundColor(Color.fromARGB(0xFFFFAA00));
         this.setLineWidth(250);
         this.setTextOpacity((byte) -1);
-        this.setDefaultBackground(true);
+        this.setUseDefaultBackground(true);
         this.setSeeThrough(true);
         this.setShadowed(true);
         return this;
     }
 
+    @Override
     public TextDisplay.TextAlignment getAlignment() {
         return this.alignment;
     }
+    @Override
     public void setAlignment(TextDisplay.TextAlignment alignment) {
         this.alignment = alignment;
         if (this.config != null) {
@@ -92,13 +98,16 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.setAlignment(alignment, onlinePlayer);
         }
     }
+    @Override
     public void setAlignment(TextDisplay.TextAlignment alignment, Player player) {
         this.packets.setProperties(this.displayId, this.shadowed, this.seeThrough, this.defaultBackground, alignment, player);
     }
 
+    @Override
     public Color getBackgroundColor() {
         return this.backgroundColor;
     }
+    @Override
     public void setBackgroundColor(Color color) {
         this.backgroundColor = color;
         if (this.config != null) {
@@ -109,13 +118,16 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.setBackgroundColor(color, onlinePlayer);
         }
     }
+    @Override
     public void setBackgroundColor(Color color, Player player) {
         this.packets.setBackgroundColor(this.displayId, color, player);
     }
 
+    @Override
     public int getLineWidth() {
         return this.lineWidth;
     }
+    @Override
     public void setLineWidth(int width) {
         this.lineWidth = width;
         if (this.config != null) {
@@ -126,13 +138,16 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.setLineWidth(width, onlinePlayer);
         }
     }
+    @Override
     public void setLineWidth(int width, Player player) {
         this.packets.setLineWidth(this.displayId, width, player);
     }
 
+    @Override
     public List<String> getText() {
         return this.text;
     }
+    @Override
     public void setText(List<String> text) {
         this.text = text;
         if (this.config != null) {
@@ -140,8 +155,9 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.save();
         }
         this.textRunnable.stop();
-        this.textRunnable.start(text, this.animationTime, this.refreshTime);
+        this.textRunnable.start(this.plugin, text, this.animationTime, this.refreshTime);
     }
+    @Override
     public void addText(String text) {
         this.text.add(text);
         if (this.config != null) {
@@ -150,13 +166,15 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.settings.set("text", textsList);
             this.save();
         }
-        if (!this.textRunnable.isRunning()) this.textRunnable.start(this.text, this.animationTime, this.refreshTime);
+        if (!this.textRunnable.isRunning()) this.textRunnable.start(this.plugin, this.text, this.animationTime, this.refreshTime);
         else this.textRunnable.addText(text);
     }
 
+    @Override
     public byte getTextOpacity() {
         return this.textOpacity;
     }
+    @Override
     public void setTextOpacity(byte opacity) {
         this.textOpacity = opacity;
         if (this.config != null) {
@@ -167,30 +185,36 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.setTextOpacity(opacity, onlinePlayer);
         }
     }
+    @Override
     public void setTextOpacity(byte opacity, Player player) {
         this.packets.setTextOpacity(this.displayId, opacity, player);
     }
 
-    public boolean getDefaultBackground() {
+    @Override
+    public boolean getUseDefaultBackground() {
         return this.defaultBackground;
     }
-    public void setDefaultBackground(boolean defaultBackground) {
+    @Override
+    public void setUseDefaultBackground(boolean defaultBackground) {
         this.defaultBackground = defaultBackground;
         if (this.config != null) {
             this.settings.set("defaultBackground", defaultBackground);
             this.save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setDefaultBackground(defaultBackground, onlinePlayer);
+            this.setUseDefaultBackground(defaultBackground, onlinePlayer);
         }
     }
-    public void setDefaultBackground(boolean defaultBackground, Player player) {
+    @Override
+    public void setUseDefaultBackground(boolean defaultBackground, Player player) {
         this.packets.setProperties(this.displayId, this.shadowed, this.seeThrough, defaultBackground, this.alignment, player);
     }
 
-    public boolean getSeeThrough() {
+    @Override
+    public boolean isSeeThrough() {
         return this.seeThrough;
     }
+    @Override
     public void setSeeThrough(boolean seeThrough) {
         this.seeThrough = seeThrough;
         if (this.config != null) {
@@ -201,13 +225,16 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.setSeeThrough(seeThrough, onlinePlayer);
         }
     }
+    @Override
     public void setSeeThrough(boolean seeThrough, Player player) {
         this.packets.setProperties(this.displayId, this.shadowed, seeThrough, this.defaultBackground, this.alignment, player);
     }
 
-    public boolean getShadowed() {
+    @Override
+    public boolean isShadowed() {
         return this.shadowed;
     }
+    @Override
     public void setShadowed(boolean shadowed) {
         this.shadowed = shadowed;
         if (this.config != null) {
@@ -218,13 +245,16 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
             this.setShadowed(shadowed, onlinePlayer);
         }
     }
+    @Override
     public void setShadowed(boolean shadowed, Player player) {
         this.packets.setProperties(this.displayId, shadowed, this.seeThrough, this.defaultBackground, this.alignment, player);
     }
 
-    public int getAnimatedSeconds() {
+    @Override
+    public int getAnimationTime() {
         return this.animationTime;
     }
+    @Override
     public void setAnimationTime(int animationTime) {
         this.animationTime = animationTime;
         if (this.config != null) {
@@ -233,13 +263,15 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
         }
         this.textRunnable.stop();
         if (this.text != null) {
-            this.textRunnable.start(this.text, animationTime, this.refreshTime);
+            this.textRunnable.start(this.plugin, this.text, animationTime, this.refreshTime);
         }
     }
 
+    @Override
     public int getRefreshTime() {
         return this.refreshTime;
     }
+    @Override
     public void setRefreshTime(int refreshTime) {
         this.refreshTime = refreshTime;
         if (this.config != null) {
@@ -248,7 +280,7 @@ public class ADTextDisplay extends BaseDisplay implements DisplayMethods {
         }
         this.textRunnable.stop();
         if (this.text != null) {
-            this.textRunnable.start(this.text, animationTime, this.refreshTime);
+            this.textRunnable.start(this.plugin, this.text, animationTime, this.refreshTime);
         }
     }
 

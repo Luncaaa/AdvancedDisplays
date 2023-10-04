@@ -1,6 +1,7 @@
-package me.lucaaa.advanceddisplays.displays;
+package me.lucaaa.advanceddisplays.api.displays.Internal;
 
-import me.lucaaa.advanceddisplays.managers.ConfigManager;
+import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
+import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
@@ -10,7 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Objects;
 
-public class ADBlockDisplay extends BaseDisplay implements DisplayMethods {
+public class ADBlockDisplay extends BaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.api.BlockDisplay {
     private ConfigurationSection settings = null;
     private BlockData block;
 
@@ -38,9 +39,11 @@ public class ADBlockDisplay extends BaseDisplay implements DisplayMethods {
         return this;
     }
 
+    @Override
     public BlockData getBlock() {
         return this.block;
     }
+    @Override
     public void setBlock(BlockData block) {
         this.block = block;
         if (this.config != null) {
@@ -51,6 +54,7 @@ public class ADBlockDisplay extends BaseDisplay implements DisplayMethods {
             this.setBlock(block, onlinePlayer);
         }
     }
+    @Override
     public void setBlock(BlockData block, Player player) {
         this.packets.setBlock(this.displayId, block, player);
     }

@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.utils;
+package me.lucaaa.advanceddisplays.common.utils;
 
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;

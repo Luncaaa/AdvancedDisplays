@@ -5,9 +5,9 @@ import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.lucaaa.advanceddisplays.common.DisplayHeadType;
-import me.lucaaa.advanceddisplays.common.Logger;
+import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.common.PacketInterface;
-import me.lucaaa.advanceddisplays.common.Utils;
+import me.lucaaa.advanceddisplays.common.utils.Utils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -44,13 +44,14 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Packets implements PacketInterface {
     @Override
     public TextDisplay createTextDisplay(Location location) {
         CraftWorld world = (CraftWorld) location.getWorld();
-        Level level = world.getHandle();
+        Level level = Objects.requireNonNull(world).getHandle();
 
         Display.TextDisplay display = new Display.TextDisplay(EntityType.TEXT_DISPLAY, level);
         display.setPos(location.getX(), location.getY(), location.getZ());
@@ -68,7 +69,7 @@ public class Packets implements PacketInterface {
     @Override
     public ItemDisplay createItemDisplay(Location location) {
         CraftWorld world = (CraftWorld) location.getWorld();
-        Level level = world.getHandle();
+        Level level = Objects.requireNonNull(world).getHandle();
 
         Display.ItemDisplay display = new Display.ItemDisplay(EntityType.ITEM_DISPLAY, level);
         display.setPos(location.getX(), location.getY(), location.getZ());
@@ -86,7 +87,7 @@ public class Packets implements PacketInterface {
     @Override
     public BlockDisplay createBlockDisplay(Location location) {
         CraftWorld world = (CraftWorld) location.getWorld();
-        Level level = world.getHandle();
+        Level level = Objects.requireNonNull(world).getHandle();
 
         Display.BlockDisplay display = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, level);
         display.setPos(location.getX(), location.getY(), location.getZ());

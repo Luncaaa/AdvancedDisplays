@@ -18,6 +18,7 @@
         <module>nms</module>
         <module>plugin</module>
         <module>common</module>
+        <module>api</module>
     </modules>
 
     <repositories>

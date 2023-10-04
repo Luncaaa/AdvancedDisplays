@@ -19,11 +19,6 @@
 
         <dependency>
             <groupId>AdvancedDisplays</groupId>
-            <artifactId>common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>AdvancedDisplays</groupId>
             <artifactId>api</artifactId>
             <version>${project.version}</version>
         </dependency>

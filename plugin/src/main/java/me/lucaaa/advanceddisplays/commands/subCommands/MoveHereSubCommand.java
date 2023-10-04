@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.commands.subCommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.displays.BaseDisplay;
+import me.lucaaa.advanceddisplays.api.displays.Internal.BaseDisplay;
 import me.lucaaa.advanceddisplays.managers.MessagesManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

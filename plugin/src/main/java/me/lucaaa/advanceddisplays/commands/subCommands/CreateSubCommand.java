@@ -1,10 +1,10 @@
 package me.lucaaa.advanceddisplays.commands.subCommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.displays.BaseDisplay;
-import me.lucaaa.advanceddisplays.managers.DisplaysManager;
+import me.lucaaa.advanceddisplays.api.displays.Internal.BaseDisplay;
+import me.lucaaa.advanceddisplays.api.DisplaysManager;
 import me.lucaaa.advanceddisplays.managers.MessagesManager;
-import me.lucaaa.advanceddisplays.displays.DisplayType;
+import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

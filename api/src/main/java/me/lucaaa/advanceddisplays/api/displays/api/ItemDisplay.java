@@ -1,6 +1,6 @@
 package me.lucaaa.advanceddisplays.api.displays.api;
 
-import me.lucaaa.advanceddisplays.common.DisplayHeadType;
+import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.ItemDisplay.ItemDisplayTransform;

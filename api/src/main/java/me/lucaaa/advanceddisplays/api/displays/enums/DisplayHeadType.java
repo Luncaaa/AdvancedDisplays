@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.common;
+package me.lucaaa.advanceddisplays.api.displays.enums;
 
 public enum DisplayHeadType {
     PLAYER("player"), BASE64("base64");

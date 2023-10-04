@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.api.displays.Internal;
 
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
-import me.lucaaa.advanceddisplays.common.DisplayHeadType;
+import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -50,7 +50,7 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods, me.luc
     @Override
     public void sendMetadataPackets(Player player) {
         this.sendBaseMetadataPackets(player);
-        if (this.material == Material.PLAYER_HEAD) this.packets.setHead(this.displayId, this.enchanted, this.displayHeadType, this.displayHeadValue, player);
+        if (this.material == Material.PLAYER_HEAD) this.packets.setHead(this.displayId, this.enchanted, this.displayHeadType.name(), this.displayHeadValue, player);
         else this.packets.setItem(this.displayId, this.material, this.enchanted, player);
         this.packets.setItemDisplayTransformation(this.displayId, this.itemTransformation, player);
     }
@@ -101,7 +101,7 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods, me.luc
     }
     @Override
     public void setMaterialHead(DisplayHeadType displayHeadType, String value, Player player) {
-        this.packets.setHead(this.displayId, this.enchanted, displayHeadType, value, player);
+        this.packets.setHead(this.displayId, this.enchanted, displayHeadType.name(), value, player);
     }
 
     @Override
@@ -122,7 +122,7 @@ public class ADItemDisplay extends BaseDisplay implements DisplayMethods, me.luc
     }
     @Override
     public void setEnchanted(boolean enchanted, Player player) {
-        if (this.material == Material.PLAYER_HEAD) this.packets.setHead(this.displayId, enchanted, this.displayHeadType, this.displayHeadValue, player);
+        if (this.material == Material.PLAYER_HEAD) this.packets.setHead(this.displayId, enchanted, this.displayHeadType.name(), this.displayHeadValue, player);
         else this.packets.setItem(this.displayId, this.material, enchanted, player);
     }
 

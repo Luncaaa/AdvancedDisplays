@@ -40,6 +40,6 @@ public interface PacketInterface {
 
     // -[ Item displays ]-
     void setItem(int displayId, Material material, boolean enchanted, Player player);
-    void setHead(int displayId, Material material, boolean enchanted, DisplayHeadType displayHeadType, String displayHeadValue, Player player);
+    void setHead(int displayId, boolean enchanted, DisplayHeadType displayHeadType, String displayHeadValue, Player player);
     void setItemDisplayTransformation(int displayId, ItemDisplay.ItemDisplayTransform transformation, Player player);
 }

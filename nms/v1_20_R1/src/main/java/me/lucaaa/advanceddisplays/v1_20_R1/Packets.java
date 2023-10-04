@@ -281,12 +281,12 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void setHead(int displayId, Material material, boolean enchanted, DisplayHeadType displayHeadType, String displayHeadValue, Player player) {
+    public void setHead(int displayId, boolean enchanted, DisplayHeadType displayHeadType, String displayHeadValue, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
         List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        ItemStack item = new ItemStack(material);
+        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         if (enchanted) item.addUnsafeEnchantment(Enchantment.MENDING, 1);
 
         SkullMeta skullMeta = (SkullMeta) item.getItemMeta();

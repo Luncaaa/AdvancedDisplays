@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.common;
+package me.lucaaa.advanceddisplays.common.utils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;

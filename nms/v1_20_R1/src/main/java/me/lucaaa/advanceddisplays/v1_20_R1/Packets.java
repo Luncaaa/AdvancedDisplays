@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import me.lucaaa.advanceddisplays.common.DisplayHeadType;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.common.PacketInterface;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
@@ -281,7 +280,7 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void setHead(int displayId, boolean enchanted, DisplayHeadType displayHeadType, String displayHeadValue, Player player) {
+    public void setHead(int displayId, boolean enchanted, String displayHeadType, String displayHeadValue, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
@@ -296,7 +295,7 @@ public class Packets implements PacketInterface {
             skullMeta.setOwningPlayer(player);
         } else {
             String base64 = null;
-            if (displayHeadType == DisplayHeadType.PLAYER) {
+            if (displayHeadType.equals("PLAYER")) {
                 try {
                     String UUIDJson = IOUtils.toString(new URL("https://api.mojang.com/users/profiles/minecraft/" + displayHeadValue), StandardCharsets.UTF_8);
                     JsonObject uuidObject = JsonParser.parseString(UUIDJson).getAsJsonObject();

@@ -5,6 +5,7 @@ import org.bukkit.plugin.Plugin;
 /**
  * AdvancedDisplays' API class.
 */
+@SuppressWarnings("unused")
 public interface ADAPI {
 
     /**

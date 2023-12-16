@@ -1,10 +1,12 @@
 package me.lucaaa.advanceddisplays;
 
-import me.lucaaa.advanceddisplays.api.DisplaysManager;
+import me.lucaaa.advanceddisplays.api.ADAPIProvider;
+import me.lucaaa.advanceddisplays.api.ADAPIProviderImplementation;
+import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import me.lucaaa.advanceddisplays.commands.MainCommand;
 import me.lucaaa.advanceddisplays.commands.subCommands.SubCommandsFormat;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
-import me.lucaaa.advanceddisplays.common.managers.PacketsManager;
+import me.lucaaa.advanceddisplays.managers.PacketsManager;
 import me.lucaaa.advanceddisplays.events.PlayerEventsListener;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import org.bukkit.Bukkit;
@@ -21,28 +23,9 @@ import java.util.logging.Level;
 // 2. Add more text methods (add, remove, set order, per player...)
 // 3. Animated item and block displays?
 
-//todo
-/*
-class ADAPI {
-    public static displaysManager;
-
-    enable() {
-        this.displaysManager = new DisplaysManager();
-    }
-}
-
-class AdvancedDisplaysAPI {
-    static Display createText() {
-        return ADAPI.dispManager.create(...)
-    }
-}
-
-this class {
-    onEnable() {
-        ADAPI.enable();
-    }
-}
- */
+// TODO
+// Move displays manager to plugin module - won't be used in the API, as the create() methods will return new TextDisplay(...).create(...)
+// Create API methods
 
 // TODO:
 // 1. Setup subcommand
@@ -59,6 +42,7 @@ public class AdvancedDisplays extends JavaPlugin {
     public static ConfigManager mainConfig;
 
     // Managers.
+    public static PacketsManager packetsManager;
     public static DisplaysManager displaysManager;
 
     // Reload the config files.
@@ -70,8 +54,8 @@ public class AdvancedDisplays extends JavaPlugin {
         mainConfig = new ConfigManager(plugin, "config.yml");
 
         // Managers
-        PacketsManager.setPackets(Bukkit.getServer().getClass().getName().split("\\.")[3]);
         if (displaysManager != null) displaysManager.removeAllEntities(); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
+        packetsManager = new PacketsManager(Bukkit.getServer().getClass().getName().split("\\.")[3]);
         displaysManager = new DisplaysManager(plugin, "displays");
     }
 
@@ -88,6 +72,7 @@ public class AdvancedDisplays extends JavaPlugin {
         }
 
         plugin = this;
+        ADAPIProvider.setImplementation(new ADAPIProviderImplementation(this));
 
         // Set up files and managers.
         reloadConfigs();

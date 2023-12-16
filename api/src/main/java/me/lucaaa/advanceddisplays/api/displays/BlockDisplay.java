@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.api.displays.api;
+package me.lucaaa.advanceddisplays.api.displays;
 
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;

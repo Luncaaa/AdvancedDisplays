@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.api.displays.Internal;
+package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Objects;
 
-public class ADBlockDisplay extends BaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.api.BlockDisplay {
+public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.BlockDisplay {
     private ConfigurationSection settings = null;
     private BlockData block;
 

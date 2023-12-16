@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.api.displays.api;
+package me.lucaaa.advanceddisplays.api.displays;
 
 import org.bukkit.Color;
 import org.bukkit.entity.Player;

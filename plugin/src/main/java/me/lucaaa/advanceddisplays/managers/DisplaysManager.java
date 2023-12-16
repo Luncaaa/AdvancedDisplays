@@ -2,9 +2,11 @@ package me.lucaaa.advanceddisplays.managers;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.displays.*;
-import me.lucaaa.advanceddisplays.utils.ConfigAxisAngle4f;
-import me.lucaaa.advanceddisplays.utils.ConfigVector3f;
-import me.lucaaa.advanceddisplays.common.Logger;
+import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
+import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
+import me.lucaaa.advanceddisplays.common.managers.ConversionManager;
+import me.lucaaa.advanceddisplays.common.utils.ConfigAxisAngle4f;
+import me.lucaaa.advanceddisplays.common.utils.ConfigVector3f;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,12 +17,11 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.util.*;
-import java.util.logging.Level;
 
 public class DisplaysManager {
     private final Plugin plugin;
     private final String configsFolder;
-    public final HashMap<String, BaseDisplay> displays = new HashMap<>();
+    public final HashMap<String, ADBaseDisplay> displays = new HashMap<>();
 
     public static final ArrayList<String> blocksList = new ArrayList<>();
 
@@ -44,14 +45,12 @@ public class DisplaysManager {
 
         // If the displays folder is not empty, load the displays.
         for (File configFile : Objects.requireNonNull(displaysFolder.listFiles())) {
+            if (configFile.isDirectory()) continue;
             ConfigManager configManager = new ConfigManager(this.plugin, configsFolder + File.separator + configFile.getName());
             YamlConfiguration config = configManager.getConfig();
             if (config.getString("id") != null
             || (DisplayType.valueOf(config.getString("type")) == DisplayType.ITEM && Objects.requireNonNull(config.getConfigurationSection("settings")).get("enchanted") == null)) {
-                AdvancedDisplays.needsConversion = true;
-                Logger.log(Level.WARNING, "The displays configuration files are from an older version and have been changed in newer versions.");
-                Logger.log(Level.WARNING, "Run the command \"/ad convert [previous version]\" in-game to update the configuration files to newer versions.");
-                Logger.log(Level.WARNING, "Not converting the configurations will cause commands to malfunction. See more information at lucaaa.gitbook.io/advanceddisplays/usage/commands-and-permissions/convert-subcommand");
+                ConversionManager.setConversionNeeded(true);
                 break;
             }
 
@@ -59,7 +58,7 @@ public class DisplaysManager {
         }
     }
 
-    public BaseDisplay createDisplay(Location location, DisplayType type, String name, String value) {
+    public ADBaseDisplay createDisplay(Location location, DisplayType type, String name, String value) {
         if (displays.containsKey(name)) {
             return null;
         }
@@ -96,7 +95,7 @@ public class DisplaysManager {
         rotationSection.set("yaw", 0.0);
         rotationSection.set("pitch", 0.0);
 
-        BaseDisplay newDisplay = null;
+        ADBaseDisplay newDisplay = null;
         switch (type) {
             case BLOCK -> {
                 BlockDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createBlockDisplay(location);
@@ -104,7 +103,7 @@ public class DisplaysManager {
             }
             case TEXT -> {
                 TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(location);
-                newDisplay = new ADTextDisplay(displayConfigManager, newDisplayPacket).create(List.of(value));
+                newDisplay = new ADTextDisplay(displayConfigManager, newDisplayPacket, this.plugin).create(List.of(value));
             }
             case ITEM -> {
                 ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(location);
@@ -126,7 +125,7 @@ public class DisplaysManager {
             return false;
         }
 
-        BaseDisplay display = this.displays.get(name);
+        ADBaseDisplay display = this.displays.get(name);
         if (display.getConfigManager() != null) {
             display.getConfigManager().getFile().delete();
         }
@@ -138,7 +137,7 @@ public class DisplaysManager {
     }
 
     public void removeAllEntities() {
-        for (BaseDisplay display : this.displays.values()) {
+        for (ADBaseDisplay display : this.displays.values()) {
             AdvancedDisplays.packetsManager.getPackets().removeDisplay(display.getDisplayId());
             if (display instanceof ADTextDisplay) {
                 ((ADTextDisplay) display).stopRunnable();
@@ -146,12 +145,12 @@ public class DisplaysManager {
         }
     }
 
-    public BaseDisplay getDisplayFromMap(String name) {
+    public ADBaseDisplay getDisplayFromMap(String name) {
         return this.displays.get(name);
     }
 
     public void spawnDisplays(Player player) {
-        for (BaseDisplay display : this.displays.values()) {
+        for (ADBaseDisplay display : this.displays.values()) {
             AdvancedDisplays.packetsManager.getPackets().spawnDisplay(display.getDisplay(), player);
             ((DisplayMethods) display).sendMetadataPackets(player);
         }
@@ -172,7 +171,7 @@ public class DisplaysManager {
         double z = locationSection.getDouble("z");
         Location location = new Location(Bukkit.getWorld(world), x, y, z);
 
-        BaseDisplay newDisplay = null;
+        ADBaseDisplay newDisplay = null;
         switch (displayType) {
             case BLOCK -> {
                 BlockDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createBlockDisplay(location);
@@ -180,7 +179,7 @@ public class DisplaysManager {
             }
             case TEXT -> {
                 TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(location);
-                newDisplay = new ADTextDisplay(configManager, newDisplayPacket);
+                newDisplay = new ADTextDisplay(configManager, newDisplayPacket, this.plugin);
             }
             case ITEM -> {
                 ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(location);

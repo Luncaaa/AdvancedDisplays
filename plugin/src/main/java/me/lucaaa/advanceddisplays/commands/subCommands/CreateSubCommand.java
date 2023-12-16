@@ -1,8 +1,8 @@
 package me.lucaaa.advanceddisplays.commands.subCommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.api.displays.Internal.BaseDisplay;
-import me.lucaaa.advanceddisplays.api.DisplaysManager;
+import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
+import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import me.lucaaa.advanceddisplays.managers.MessagesManager;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import org.bukkit.Material;
@@ -68,7 +68,7 @@ public class CreateSubCommand extends SubCommandsFormat {
             }
         }
 
-        BaseDisplay newDisplay = AdvancedDisplays.displaysManager.createDisplay(player.getEyeLocation(), type, args[2], value);
+        ADBaseDisplay newDisplay = AdvancedDisplays.displaysManager.createDisplay(player.getEyeLocation(), type, args[2], value);
         if (newDisplay == null) {
             sender.sendMessage(MessagesManager.getColoredMessage("&cA display with the name &b" + args[2] + " &calready exists!", true));
         } else {

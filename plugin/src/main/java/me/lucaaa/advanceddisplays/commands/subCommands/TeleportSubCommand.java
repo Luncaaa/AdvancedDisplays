@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.commands.subCommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.api.displays.Internal.BaseDisplay;
+import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import me.lucaaa.advanceddisplays.managers.MessagesManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -25,7 +25,7 @@ public class TeleportSubCommand extends SubCommandsFormat {
 
     @Override
     public void run(CommandSender sender, String[] args) {
-        BaseDisplay display = AdvancedDisplays.displaysManager.getDisplayFromMap(args[1]);
+        ADBaseDisplay display = AdvancedDisplays.displaysManager.getDisplayFromMap(args[1]);
 
         if (display != null) {
             Player player = (Player) sender;

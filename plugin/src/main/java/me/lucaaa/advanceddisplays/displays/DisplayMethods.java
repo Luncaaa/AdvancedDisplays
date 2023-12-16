@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.api.displays.Internal;
+package me.lucaaa.advanceddisplays.displays;
 
 import org.bukkit.entity.Player;
 

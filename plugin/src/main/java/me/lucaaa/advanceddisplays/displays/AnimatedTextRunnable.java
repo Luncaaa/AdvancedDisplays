@@ -1,6 +1,7 @@
-package me.lucaaa.advanceddisplays.api.displays.Internal;
+package me.lucaaa.advanceddisplays.displays;
 
-import me.lucaaa.advanceddisplays.common.managers.PacketsManager;
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.managers.PacketsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -29,7 +30,7 @@ public class AnimatedTextRunnable {
                 @Override
                 public void run() {
                     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        PacketsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
+                        AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
                     }
 
                     if (currentIndex + 1 == textsList.size()) currentIndex = 0;
@@ -45,13 +46,13 @@ public class AnimatedTextRunnable {
                 @Override
                 public void run() {
                     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        PacketsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
+                        AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
                     }
                 }
             }.runTaskTimerAsynchronously(plugin, 0L, refreshTime);
         } else if (texts.size() == 1) {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                PacketsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
+                AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
             }
         }
     }

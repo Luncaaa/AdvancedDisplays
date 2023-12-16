@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.api.displays.Internal;
+package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin;
 import java.util.List;
 import java.util.Objects;
 
-public class ADTextDisplay extends BaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.api.TextDisplay {
+public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.TextDisplay {
     private final Plugin plugin;
     private ConfigurationSection settings = null;
     private final AnimatedTextRunnable textRunnable = new AnimatedTextRunnable(this.displayId);

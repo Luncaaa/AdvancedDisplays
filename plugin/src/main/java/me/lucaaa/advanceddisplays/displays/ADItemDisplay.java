@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.api.displays.Internal;
+package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Objects;
 
-public class ADItemDisplay extends BaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.api.ItemDisplay {
+public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.ItemDisplay {
     private ConfigurationSection settings = null;
     private Material material;
     private DisplayHeadType displayHeadType;

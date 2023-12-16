@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.api.displays.api;
+package me.lucaaa.advanceddisplays.api.displays;
 
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import org.bukkit.Location;

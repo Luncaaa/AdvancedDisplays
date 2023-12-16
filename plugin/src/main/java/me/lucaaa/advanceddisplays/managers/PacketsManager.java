@@ -1,22 +1,22 @@
-package me.lucaaa.advanceddisplays.common.managers;
+package me.lucaaa.advanceddisplays.managers;
 
 import me.lucaaa.advanceddisplays.common.PacketInterface;
 
 public class PacketsManager {
-    private static PacketInterface packets = null;
+    private final PacketInterface packets;
 
-    public static void setPackets(String version) {
+    public PacketsManager(String version) {
         try {
             Class<?> nmsClass = Class.forName("me.lucaaa.advanceddisplays." + version + ".Packets");
             Object nmsClassInstance = nmsClass.getConstructor().newInstance();
-            packets = (PacketInterface) nmsClassInstance;
+            this.packets = (PacketInterface) nmsClassInstance;
 
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static PacketInterface getPackets() {
-        return packets;
+    public PacketInterface getPackets() {
+        return this.packets;
     }
 }

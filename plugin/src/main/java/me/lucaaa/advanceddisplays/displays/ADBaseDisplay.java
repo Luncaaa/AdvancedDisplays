@@ -1,9 +1,10 @@
-package me.lucaaa.advanceddisplays.api.displays.Internal;
+package me.lucaaa.advanceddisplays.displays;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.common.PacketInterface;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
-import me.lucaaa.advanceddisplays.common.managers.PacketsManager;
 import me.lucaaa.advanceddisplays.common.utils.ConfigAxisAngle4f;
 import me.lucaaa.advanceddisplays.common.utils.ConfigVector3f;
 import org.bukkit.Bukkit;
@@ -17,8 +18,8 @@ import org.bukkit.util.Transformation;
 import java.io.File;
 import java.util.Objects;
 
-public class BaseDisplay implements me.lucaaa.advanceddisplays.api.displays.api.BaseDisplay {
-    protected final PacketInterface packets = PacketsManager.getPackets();
+public class ADBaseDisplay implements BaseDisplay {
+    protected final PacketInterface packets = AdvancedDisplays.packetsManager.getPackets();
     protected final ConfigManager configManager;
     protected final YamlConfiguration config;
     protected final File file;
@@ -37,7 +38,7 @@ public class BaseDisplay implements me.lucaaa.advanceddisplays.api.displays.api.
     private float yaw;
     private float pitch;
 
-    public BaseDisplay(DisplayType type, ConfigManager configManager, Display display) {
+    public ADBaseDisplay(DisplayType type, ConfigManager configManager, Display display) {
         this.display = display;
         this.displayId = display.getEntityId();
 
@@ -75,7 +76,7 @@ public class BaseDisplay implements me.lucaaa.advanceddisplays.api.displays.api.
         this.pitch = (float) rotationSection.getDouble("pitch");
     }
 
-    public BaseDisplay(DisplayType type, Display display) {
+    public ADBaseDisplay(DisplayType type, Display display) {
         this.display = display;
         this.displayId = display.getEntityId();
         this.type = type;

@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+@SuppressWarnings("unused")
 public class PlayerEventsListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {

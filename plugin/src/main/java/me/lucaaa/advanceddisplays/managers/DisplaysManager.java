@@ -23,19 +23,9 @@ public class DisplaysManager {
     private final String configsFolder;
     public final HashMap<String, ADBaseDisplay> displays = new HashMap<>();
 
-    public static final ArrayList<String> blocksList = new ArrayList<>();
-
     public DisplaysManager(Plugin plugin, String configsFolder) {
         this.plugin = plugin;
         this.configsFolder = configsFolder;
-
-        for (Material material : Material.values()) {
-            try {
-                // If the material is a block, it will be added to the blocks list.
-                material.createBlockData();
-                blocksList.add(material.name());
-            } catch (IllegalArgumentException ignored) {}
-        }
 
         // Gets the displays folder and creates it if it doesn't exist.
         File displaysFolder = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + configsFolder);

@@ -2,7 +2,6 @@ package me.lucaaa.advanceddisplays.commands.subCommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
-import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import me.lucaaa.advanceddisplays.managers.MessagesManager;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import org.bukkit.Material;
@@ -14,6 +13,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class CreateSubCommand extends SubCommandsFormat {
+    private final ArrayList<String> blocksList = new ArrayList<>();
+
     public CreateSubCommand() {
         this.name = "create";
         this.description = "Creates a new display.";
@@ -21,6 +22,14 @@ public class CreateSubCommand extends SubCommandsFormat {
         this.minArguments = 3;
         this.executableByConsole = false;
         this.neededPermission = "ad.create";
+
+        for (Material material : Material.values()) {
+            try {
+                // If the material is a block, it will be added to the blocks list.
+                material.createBlockData();
+                this.blocksList.add(material.name());
+            } catch (IllegalArgumentException ignored) {}
+        }
     }
 
     @Override
@@ -33,7 +42,7 @@ public class CreateSubCommand extends SubCommandsFormat {
                 return new ArrayList<>(Arrays.stream(Material.values()).map(Enum::name).toList());
 
             } else if (args[1].equalsIgnoreCase("BLOCK")) {
-                return DisplaysManager.blocksList;
+                return this.blocksList;
             }
         }
 

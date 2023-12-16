@@ -1,7 +1,6 @@
 package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.managers.PacketsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;

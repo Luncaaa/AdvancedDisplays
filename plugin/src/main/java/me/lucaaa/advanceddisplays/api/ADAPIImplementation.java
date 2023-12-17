@@ -2,18 +2,19 @@ package me.lucaaa.advanceddisplays.api;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
-import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
+import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 
-import java.util.HashMap;
+import java.io.File;
 import java.util.logging.Level;
 
 public class ADAPIImplementation implements ADAPI {
 
     private final AdvancedDisplays ad;
-    private final HashMap<String, ADBaseDisplay> holograms = new HashMap<>();
+    private final DisplaysManager displaysManager;
 
-    public ADAPIImplementation(AdvancedDisplays ad) {
+    public ADAPIImplementation(AdvancedDisplays ad, String pluginName) {
         this.ad = ad;
+        this.displaysManager = new DisplaysManager("displays" + File.separator + pluginName, false);
     }
 
     @Override

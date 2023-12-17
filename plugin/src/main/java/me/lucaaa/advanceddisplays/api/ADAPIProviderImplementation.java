@@ -17,6 +17,6 @@ public class ADAPIProviderImplementation extends ADAPIProvider {
 
     @Override
     public ADAPIImplementation getAPI(Plugin plugin) {
-        return this.apiMap.computeIfAbsent(plugin, p -> new ADAPIImplementation(this.ad));
+        return this.apiMap.computeIfAbsent(plugin, p -> new ADAPIImplementation(this.ad, plugin.getName()));
     }
 }

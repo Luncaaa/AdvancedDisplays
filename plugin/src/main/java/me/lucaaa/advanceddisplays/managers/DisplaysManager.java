@@ -4,7 +4,6 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
-import me.lucaaa.advanceddisplays.common.managers.ConversionManager;
 import me.lucaaa.advanceddisplays.common.utils.ConfigAxisAngle4f;
 import me.lucaaa.advanceddisplays.common.utils.ConfigVector3f;
 import org.bukkit.Bukkit;
@@ -23,28 +22,21 @@ public class DisplaysManager {
     private final String configsFolder;
     public final HashMap<String, ADBaseDisplay> displays = new HashMap<>();
 
-    public DisplaysManager(Plugin plugin, String configsFolder) {
-        this.plugin = plugin;
+    public DisplaysManager(String configsFolder, boolean createFolders) {
+        this.plugin = AdvancedDisplays.getPlugin();
         this.configsFolder = configsFolder;
 
         // Gets the displays folder and creates it if it doesn't exist.
         File displaysFolder = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + configsFolder);
-        if (!displaysFolder.exists()) {
-            displaysFolder.mkdirs();
-        }
+        if (!displaysFolder.exists() && createFolders) displaysFolder.mkdirs();
 
         // If the displays folder is not empty, load the displays.
-        for (File configFile : Objects.requireNonNull(displaysFolder.listFiles())) {
-            if (configFile.isDirectory()) continue;
-            ConfigManager configManager = new ConfigManager(this.plugin, configsFolder + File.separator + configFile.getName());
-            YamlConfiguration config = configManager.getConfig();
-            if (config.getString("id") != null
-            || (DisplayType.valueOf(config.getString("type")) == DisplayType.ITEM && Objects.requireNonNull(config.getConfigurationSection("settings")).get("enchanted") == null)) {
-                ConversionManager.setConversionNeeded(true);
-                break;
+        if (displaysFolder.exists()) {
+            for (File configFile : Objects.requireNonNull(displaysFolder.listFiles())) {
+                if (configFile.isDirectory()) continue;
+                ConfigManager configManager = new ConfigManager(this.plugin, configsFolder + File.separator + configFile.getName());
+                this.loadDisplay(configManager);
             }
-
-            this.loadDisplay(configManager);
         }
     }
 
@@ -144,12 +136,6 @@ public class DisplaysManager {
             AdvancedDisplays.packetsManager.getPackets().spawnDisplay(display.getDisplay(), player);
             ((DisplayMethods) display).sendMetadataPackets(player);
         }
-    }
-
-    public void reloadDisplay(String name) {
-        if (this.displays.get(name) instanceof ADTextDisplay) ((ADTextDisplay) this.displays.get(name)).stopRunnable();
-        this.displays.remove(name);
-        this.loadDisplay(new ConfigManager(this.plugin, this.configsFolder + File.separator + name + ".yml"));
     }
 
     public void loadDisplay(ConfigManager configManager) {

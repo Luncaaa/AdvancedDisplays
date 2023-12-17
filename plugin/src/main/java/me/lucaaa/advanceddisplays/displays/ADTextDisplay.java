@@ -7,13 +7,11 @@ import org.bukkit.Color;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
-import org.bukkit.plugin.Plugin;
 
 import java.util.List;
 import java.util.Objects;
 
 public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.TextDisplay {
-    private final Plugin plugin;
     private ConfigurationSection settings = null;
     private final AnimatedTextRunnable textRunnable = new AnimatedTextRunnable(this.displayId);
     private int animationTime;
@@ -27,9 +25,8 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     private boolean seeThrough;
     private boolean shadowed;
 
-    public ADTextDisplay(ConfigManager configManager, TextDisplay display, Plugin plugin) {
+    public ADTextDisplay(ConfigManager configManager, TextDisplay display) {
         super(DisplayType.TEXT, configManager, display);
-        this.plugin = plugin;
         this.settings = this.config.getConfigurationSection("settings");
 
         if (this.settings != null) {
@@ -37,7 +34,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             this.refreshTime = this.settings.getInt("refreshTime");
 
             this.text = this.settings.getStringList("text");
-            this.textRunnable.start(this.plugin, this.text, this.animationTime, this.refreshTime);
+            this.textRunnable.start(this.text, this.animationTime, this.refreshTime);
 
             this.alignment = TextDisplay.TextAlignment.valueOf(this.settings.getString("alignment"));
 
@@ -52,9 +49,8 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         }
     }
 
-    public ADTextDisplay(TextDisplay display, Plugin plugin) {
+    public ADTextDisplay(TextDisplay display) {
         super(DisplayType.TEXT, display);
-        this.plugin = plugin;
     }
 
     @Override
@@ -155,7 +151,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             this.save();
         }
         this.textRunnable.stop();
-        this.textRunnable.start(this.plugin, text, this.animationTime, this.refreshTime);
+        this.textRunnable.start(text, this.animationTime, this.refreshTime);
     }
     @Override
     public void addText(String text) {
@@ -166,7 +162,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             this.settings.set("text", textsList);
             this.save();
         }
-        if (!this.textRunnable.isRunning()) this.textRunnable.start(this.plugin, this.text, this.animationTime, this.refreshTime);
+        if (!this.textRunnable.isRunning()) this.textRunnable.start(this.text, this.animationTime, this.refreshTime);
         else this.textRunnable.addText(text);
     }
 
@@ -263,7 +259,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         }
         this.textRunnable.stop();
         if (this.text != null) {
-            this.textRunnable.start(this.plugin, this.text, animationTime, this.refreshTime);
+            this.textRunnable.start(this.text, animationTime, this.refreshTime);
         }
     }
 
@@ -280,11 +276,16 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         }
         this.textRunnable.stop();
         if (this.text != null) {
-            this.textRunnable.start(this.plugin, this.text, animationTime, this.refreshTime);
+            this.textRunnable.start(this.text, animationTime, this.refreshTime);
         }
     }
 
     public void stopRunnable() {
         this.textRunnable.stop();
+    }
+    public void restartRunnable() {
+        this.textRunnable.stop();
+        this.textRunnable.updateDisplayId(this.displayId);
+        this.textRunnable.start(this.text, this.animationTime, this.refreshTime);
     }
 }

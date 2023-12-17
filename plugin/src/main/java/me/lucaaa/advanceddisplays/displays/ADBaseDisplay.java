@@ -25,8 +25,8 @@ public class ADBaseDisplay implements BaseDisplay {
     protected final File file;
     protected final DisplayType type;
 
-    protected final Display display;
-    protected final int displayId;
+    protected Display display;
+    protected int displayId;
     private Location location;
 
     private Display.Billboard billboard;
@@ -106,10 +106,6 @@ public class ADBaseDisplay implements BaseDisplay {
     }
     @Override
     public void setLocation(Location location) {
-        location.setYaw(this.yaw);
-        location.setPitch(this.pitch);
-        this.location = location;
-
         if (this.config != null) {
             ConfigurationSection locationSection = Objects.requireNonNull(this.config.getConfigurationSection("location"));
             locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());
@@ -125,16 +121,28 @@ public class ADBaseDisplay implements BaseDisplay {
                 this.packets.setLocation(this.display, onlinePlayer);
             }
         } else {
-            // TODO
+            // Because entities cannot be teleported across worlds, the old one is removed and a new one is created
+            // in the new location (another world)
+            this.packets.removeDisplay(this.displayId);
 
-            // Entities cannot be teleported across worlds with NMS,
-            // so the display will be removed & respawned in the new world.
-            /*! this.packets.removeDisplay(this.displayId);
-            AdvancedDisplays.displaysManager.reloadDisplay(this.file.getName().replace(".yml", ""));*/
+            this.display = switch (this.type) {
+                case BLOCK -> this.packets.createBlockDisplay(location);
+                case TEXT -> this.packets.createTextDisplay(location);
+                case ITEM -> this.packets.createItemDisplay(location);
+            };
+            this.displayId = this.display.getEntityId();
 
-            // todo: improve
-            // Maybe try creating new entities (replacing old displayId and display) and send metadata packets.
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                if (this instanceof ADTextDisplay textDisplay) {
+                    textDisplay.restartRunnable();
+                }
+                ((DisplayMethods) this).sendMetadataPackets(onlinePlayer);
+            }
         }
+
+        location.setYaw(this.yaw);
+        location.setPitch(this.pitch);
+        this.location = location;
     }
 
     @Override

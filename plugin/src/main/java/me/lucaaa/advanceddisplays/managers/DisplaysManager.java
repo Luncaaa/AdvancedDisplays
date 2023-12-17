@@ -85,7 +85,7 @@ public class DisplaysManager {
             }
             case TEXT -> {
                 TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(location);
-                newDisplay = new ADTextDisplay(displayConfigManager, newDisplayPacket, this.plugin).create(List.of(value));
+                newDisplay = new ADTextDisplay(displayConfigManager, newDisplayPacket).create(List.of(value));
             }
             case ITEM -> {
                 ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(location);
@@ -155,7 +155,7 @@ public class DisplaysManager {
             }
             case TEXT -> {
                 TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(location);
-                newDisplay = new ADTextDisplay(configManager, newDisplayPacket, this.plugin);
+                newDisplay = new ADTextDisplay(configManager, newDisplayPacket);
             }
             case ITEM -> {
                 ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(location);

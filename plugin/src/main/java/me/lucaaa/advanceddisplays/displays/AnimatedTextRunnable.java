@@ -3,14 +3,13 @@ package me.lucaaa.advanceddisplays.displays;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.List;
 
 public class AnimatedTextRunnable {
-    private final int displayId;
+    private int displayId;
     private List<String> textsList;
     private BukkitTask animateTask;
     private BukkitTask refreshTask;
@@ -20,7 +19,7 @@ public class AnimatedTextRunnable {
         this.displayId = displayId;
     }
 
-    public void start(Plugin plugin, List<String> texts, int animationTime, int refreshTime) {
+    public void start(List<String> texts, int animationTime, int refreshTime) {
         this.stop();
         this.textsList = texts;
         // Animated text runnable - displays new text from the list every x seconds.
@@ -36,7 +35,7 @@ public class AnimatedTextRunnable {
                     else currentIndex++;
 
                 }
-            }.runTaskTimerAsynchronously(plugin, 0L, animationTime);
+            }.runTaskTimerAsynchronously(AdvancedDisplays.getPlugin(), 0L, animationTime);
         }
 
         // Refresh text runnable - displays the current text again (to update placeholders) every x seconds.
@@ -48,7 +47,7 @@ public class AnimatedTextRunnable {
                         AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
                     }
                 }
-            }.runTaskTimerAsynchronously(plugin, 0L, refreshTime);
+            }.runTaskTimerAsynchronously(AdvancedDisplays.getPlugin(), 0L, refreshTime);
         } else if (texts.size() == 1) {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
@@ -76,5 +75,9 @@ public class AnimatedTextRunnable {
 
     public boolean isRunning() {
         return !this.animateTask.isCancelled() && !this.refreshTask.isCancelled();
+    }
+
+    public void updateDisplayId(int newDisplayId) {
+        this.displayId = newDisplayId;
     }
 }

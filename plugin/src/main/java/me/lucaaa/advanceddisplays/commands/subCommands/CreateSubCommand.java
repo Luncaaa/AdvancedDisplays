@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class CreateSubCommand extends SubCommandsFormat {
@@ -77,7 +78,13 @@ public class CreateSubCommand extends SubCommandsFormat {
             }
         }
 
-        ADBaseDisplay newDisplay = AdvancedDisplays.displaysManager.createDisplay(player.getEyeLocation(), type, args[2], value);
+        ADBaseDisplay newDisplay = null;
+        switch (type) {
+            case TEXT -> newDisplay = AdvancedDisplays.displaysManager.createTextDisplay(player.getEyeLocation(), args[2], List.of(value), true);
+            case ITEM -> newDisplay = AdvancedDisplays.displaysManager.createItemDisplay(player.getEyeLocation(), args[2], Material.getMaterial(value), true);
+            case BLOCK -> newDisplay = AdvancedDisplays.displaysManager.createBlockDisplay(player.getEyeLocation(), args[2], Objects.requireNonNull(Material.getMaterial(value)).createBlockData(), true);
+        }
+
         if (newDisplay == null) {
             sender.sendMessage(MessagesManager.getColoredMessage("&cA display with the name &b" + args[2] + " &calready exists!", true));
         } else {

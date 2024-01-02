@@ -9,6 +9,7 @@ import me.lucaaa.advanceddisplays.common.utils.ConfigVector3f;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
@@ -40,11 +41,7 @@ public class DisplaysManager {
         }
     }
 
-    public ADBaseDisplay createDisplay(Location location, DisplayType type, String name, String value) {
-        if (displays.containsKey(name)) {
-            return null;
-        }
-
+    private ConfigManager createConfigManager(String name, DisplayType type, Location location) {
         ConfigManager displayConfigManager = new ConfigManager(this.plugin, this.configsFolder + File.separator + name + ".yml");
         YamlConfiguration displayConfig = displayConfigManager.getConfig();
 
@@ -77,29 +74,79 @@ public class DisplaysManager {
         rotationSection.set("yaw", 0.0);
         rotationSection.set("pitch", 0.0);
 
-        ADBaseDisplay newDisplay = null;
-        switch (type) {
-            case BLOCK -> {
-                BlockDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createBlockDisplay(location);
-                newDisplay = new ADBlockDisplay(displayConfigManager, newDisplayPacket).create(Objects.requireNonNull(Material.getMaterial(value)).createBlockData());
-            }
-            case TEXT -> {
-                TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(location);
-                newDisplay = new ADTextDisplay(displayConfigManager, newDisplayPacket).create(List.of(value));
-            }
-            case ITEM -> {
-                ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(location);
-                newDisplay = new ADItemDisplay(displayConfigManager, newDisplayPacket).create(Objects.requireNonNull(Material.getMaterial(value)));
-            }
+        return displayConfigManager;
+    }
+
+    public ADTextDisplay createTextDisplay(Location location, String name, List<String> value, boolean saveToConfig) {
+        if (this.displays.containsKey(name)) {
+            return null;
+        }
+
+        TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(location);
+        ADTextDisplay textDisplay;
+
+        if (saveToConfig) {
+            ConfigManager configManager = this.createConfigManager(name, DisplayType.TEXT, location);
+            textDisplay = new ADTextDisplay(configManager, newDisplayPacket).create(value);
+            configManager.save();
+        } else {
+            textDisplay = new ADTextDisplay(newDisplayPacket).create(value);
         }
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            newDisplay.sendBaseMetadataPackets(onlinePlayer);
+            textDisplay.sendBaseMetadataPackets(onlinePlayer);
         }
 
-        displayConfigManager.save();
-        this.displays.put(name, newDisplay);
-        return newDisplay;
+        this.displays.put(name, textDisplay);
+        return textDisplay;
+    }
+
+    public ADItemDisplay createItemDisplay(Location location, String name, Material value, boolean saveToConfig) {
+        if (this.displays.containsKey(name)) {
+            return null;
+        }
+
+        ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(location);
+        ADItemDisplay itemDisplay;
+
+        if (saveToConfig) {
+            ConfigManager configManager = this.createConfigManager(name, DisplayType.ITEM, location);
+            itemDisplay = new ADItemDisplay(configManager, newDisplayPacket).create(value);
+            configManager.save();
+        } else {
+            itemDisplay = new ADItemDisplay(newDisplayPacket).create(value);
+        }
+
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            itemDisplay.sendBaseMetadataPackets(onlinePlayer);
+        }
+
+        this.displays.put(name, itemDisplay);
+        return itemDisplay;
+    }
+
+    public ADBlockDisplay createBlockDisplay(Location location, String name, BlockData value, boolean saveToConfig) {
+        if (this.displays.containsKey(name)) {
+            return null;
+        }
+
+        BlockDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createBlockDisplay(location);
+        ADBlockDisplay blockDisplay;
+
+        if (saveToConfig) {
+            ConfigManager configManager = this.createConfigManager(name, DisplayType.BLOCK, location);
+            blockDisplay = new ADBlockDisplay(configManager, newDisplayPacket).create(value);
+            configManager.save();
+        } else {
+            blockDisplay = new ADBlockDisplay(newDisplayPacket).create(value);
+        }
+
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            blockDisplay.sendBaseMetadataPackets(onlinePlayer);
+        }
+
+        this.displays.put(name, blockDisplay);
+        return blockDisplay;
     }
 
     public boolean removeDisplay(String name) {

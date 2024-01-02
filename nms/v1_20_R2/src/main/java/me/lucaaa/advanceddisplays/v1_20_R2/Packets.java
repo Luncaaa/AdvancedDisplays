@@ -2,8 +2,6 @@ package me.lucaaa.advanceddisplays.v1_20_R2;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.common.PacketInterface;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
@@ -35,17 +33,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 import org.bukkit.util.Transformation;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
+@SuppressWarnings("unused")
 public class Packets implements PacketInterface {
     @Override
     public TextDisplay createTextDisplay(Location location) {
@@ -294,7 +292,7 @@ public class Packets implements PacketInterface {
         if (displayHeadValue.equalsIgnoreCase("%player%")) {
             skullMeta.setOwningPlayer(player);
         } else {
-            String base64 = null;
+            String base64;
             if (displayHeadType.equals("PLAYER")) {
                 try {
                     String UUIDJson = IOUtils.toString(new URL("https://api.mojang.com/users/profiles/minecraft/" + displayHeadValue), StandardCharsets.UTF_8);
@@ -307,22 +305,29 @@ public class Packets implements PacketInterface {
 
                 } catch (IOException e) {
                     Logger.log(java.util.logging.Level.WARNING, "The player name " + displayHeadValue + " does not exist!");
+                    return;
                 }
 
             } else {
                 base64 = displayHeadValue;
             }
 
-            try {
-                GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-                profile.getProperties().put("textures", new Property("textures", base64));
-                Field profileField;
-                profileField = skullMeta.getClass().getDeclaredField("profile");
-                profileField.setAccessible(true);
-                profileField.set(skullMeta, profile);
+            String skinJson = new String(Base64.getDecoder().decode(base64));
+            JsonObject skinObject = JsonParser.parseString(skinJson).getAsJsonObject();
+            String url = skinObject.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
 
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                Logger.log(java.util.logging.Level.WARNING, "Unexpected error!");
+            PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
+            PlayerTextures textures = profile.getTextures();
+
+            try {
+                URL urlObject = new URL(url);
+                textures.setSkin(urlObject);
+                profile.setTextures(textures);
+                skullMeta.setOwnerProfile(profile);
+
+            } catch (MalformedURLException e) {
+                Logger.logError(java.util.logging.Level.WARNING, "An error occurred while parsing a head! Head value: " + displayHeadValue, e);
+                return;
             }
         }
 

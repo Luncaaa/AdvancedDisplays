@@ -8,4 +8,8 @@ public class Logger {
     public static void log(Level level, String message) {
         Bukkit.getLogger().log(level, "[AdvancedDisplays] " + message);
     }
+
+    public static void logError(Level level, String message, Throwable error) {
+        Bukkit.getLogger().log(level, "[AdvancedDisplays] " + message, error);
+    }
 }

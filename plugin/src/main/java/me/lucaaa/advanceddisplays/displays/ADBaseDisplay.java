@@ -15,14 +15,12 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 
-import java.io.File;
 import java.util.Objects;
 
 public class ADBaseDisplay implements BaseDisplay {
     protected final PacketInterface packets = AdvancedDisplays.packetsManager.getPackets();
     protected final ConfigManager configManager;
     protected final YamlConfiguration config;
-    protected final File file;
     protected final DisplayType type;
 
     protected Display display;
@@ -44,7 +42,6 @@ public class ADBaseDisplay implements BaseDisplay {
 
         this.configManager = configManager;
         this.config = configManager.getConfig();
-        this.file = configManager.getFile();
         this.type = type;
 
         ConfigurationSection locationSection = Objects.requireNonNull(this.config.getConfigurationSection("location"));
@@ -83,7 +80,15 @@ public class ADBaseDisplay implements BaseDisplay {
 
         this.configManager = null;
         this.config = null;
-        this.file = null;
+
+        this.location = display.getLocation();
+        this.billboard = display.getBillboard();
+        this.brightness = new Display.Brightness(15, 15);
+        this.shadowRadius = display.getShadowRadius();
+        this.shadowStrength = display.getShadowStrength();
+        this.transformation = display.getTransformation();
+        this.yaw = display.getLocation().getYaw();
+        this.pitch = display.getLocation().getPitch();
     }
 
     public void sendBaseMetadataPackets(Player player) {

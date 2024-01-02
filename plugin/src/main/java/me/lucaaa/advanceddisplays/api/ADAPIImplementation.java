@@ -1,25 +1,47 @@
 package me.lucaaa.advanceddisplays.api;
 
-import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.common.utils.Logger;
+import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
+import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
+import me.lucaaa.advanceddisplays.api.displays.ItemDisplay;
+import me.lucaaa.advanceddisplays.api.displays.TextDisplay;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 
 import java.io.File;
-import java.util.logging.Level;
+import java.util.List;
 
 public class ADAPIImplementation implements ADAPI {
 
-    private final AdvancedDisplays ad;
     private final DisplaysManager displaysManager;
 
-    public ADAPIImplementation(AdvancedDisplays ad, String pluginName) {
-        this.ad = ad;
+    public ADAPIImplementation(String pluginName) {
         this.displaysManager = new DisplaysManager("displays" + File.separator + pluginName, false);
     }
 
     @Override
-    public String testMethod() {
-        Logger.log(Level.WARNING, "VIVA!");
-        return "Works";
+    public BlockDisplay createBlockDisplay(String name, Location location, BlockData value) {
+        return this.displaysManager.createBlockDisplay(location, name, value, false);
+    }
+
+    @Override
+    public ItemDisplay createItemDisplay(String name, Location location, Material value) {
+        return this.displaysManager.createItemDisplay(location, name, value, false);
+    }
+
+    @Override
+    public TextDisplay createTextDisplay(String name, Location location, List<String> value) {
+        return this.displaysManager.createTextDisplay(location, name, value, false);
+    }
+
+    @Override
+    public BaseDisplay getDisplay(String name) {
+        return this.displaysManager.getDisplayFromMap(name);
+    }
+
+    @Override
+    public void removeDisplay(String name) {
+        this.displaysManager.removeDisplay(name);
     }
 }

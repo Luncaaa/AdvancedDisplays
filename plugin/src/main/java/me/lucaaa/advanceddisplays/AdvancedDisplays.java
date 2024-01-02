@@ -72,7 +72,7 @@ public class AdvancedDisplays extends JavaPlugin {
         }
 
         plugin = this;
-        ADAPIProvider.setImplementation(new ADAPIProviderImplementation(this));
+        ADAPIProvider.setImplementation(new ADAPIProviderImplementation());
 
         // Set up files and managers.
         reloadConfigs();

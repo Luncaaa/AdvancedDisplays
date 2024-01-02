@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.ItemDisplay.ItemDisplayTransform;
 
+@SuppressWarnings("unused")
 public interface ItemDisplay extends BaseDisplay {
     /**
      * Gets the displayed item.

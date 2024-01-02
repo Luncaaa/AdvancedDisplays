@@ -6,6 +6,7 @@ import org.bukkit.entity.TextDisplay.TextAlignment;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public interface TextDisplay extends BaseDisplay {
     /**
      * Gets the display's text alignment.

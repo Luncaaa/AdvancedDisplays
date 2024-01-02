@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.api.displays;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 
+@SuppressWarnings("unused")
 public interface BlockDisplay extends BaseDisplay {
     /**
      * Gets the displayed block.

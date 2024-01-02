@@ -6,6 +6,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 
+@SuppressWarnings("unused")
 public interface BaseDisplay {
     /**
      * Gets the type of the display.
@@ -127,7 +128,7 @@ public interface BaseDisplay {
      */
     void setRotation(float yaw, float pitch);
     /**
-     * Sets the display's rotation for a specific player).
+     * Sets the display's rotation for a specific player.
      * @param yaw The new yaw.
      * @param pitch The new pitch.
      * @param player The player who will see the new rotation.

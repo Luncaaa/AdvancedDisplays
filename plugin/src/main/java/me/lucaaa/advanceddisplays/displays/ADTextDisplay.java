@@ -70,7 +70,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         this.setAnimationTime(20);
         this.setText(text);
         this.setAlignment(TextDisplay.TextAlignment.CENTER);
-        this.setBackgroundColor(Color.fromARGB(0xFFFFAA00));
+        this.setBackgroundColor(Color.ORANGE);
         this.setLineWidth(250);
         this.setTextOpacity((byte) -1);
         this.setUseDefaultBackground(true);

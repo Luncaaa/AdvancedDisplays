@@ -4,13 +4,16 @@ import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
 import me.lucaaa.advanceddisplays.api.displays.ItemDisplay;
 import me.lucaaa.advanceddisplays.api.displays.TextDisplay;
+import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.util.List;
+import java.util.logging.Level;
 
 public class ADAPIImplementation implements ADAPI {
 
@@ -22,17 +25,23 @@ public class ADAPIImplementation implements ADAPI {
 
     @Override
     public BlockDisplay createBlockDisplay(String name, Location location, BlockData value) {
-        return this.displaysManager.createBlockDisplay(location, name, value, false);
+        BlockDisplay display = this.displaysManager.createBlockDisplay(location, name, value, false);
+        if (display == null) Logger.log(Level.WARNING, "The display \"" + name + "\" could not be created because another display with the same name already exists.");
+        return display;
     }
 
     @Override
     public ItemDisplay createItemDisplay(String name, Location location, Material value) {
-        return this.displaysManager.createItemDisplay(location, name, value, false);
+        ItemDisplay display = this.displaysManager.createItemDisplay(location, name, value, false);
+        if (display == null) Logger.log(Level.WARNING, "The display \"" + name + "\" could not be created because another display with the same name already exists.");
+        return display;
     }
 
     @Override
     public TextDisplay createTextDisplay(String name, Location location, List<String> value) {
-        return this.displaysManager.createTextDisplay(location, name, value, false);
+        TextDisplay display = this.displaysManager.createTextDisplay(location, name, value, false);
+        if (display == null) Logger.log(Level.WARNING, "The display \"" + name + "\" could not be created because another display with the same name already exists.");
+        return display;
     }
 
     @Override
@@ -43,5 +52,10 @@ public class ADAPIImplementation implements ADAPI {
     @Override
     public void removeDisplay(String name) {
         this.displaysManager.removeDisplay(name);
+    }
+
+    @Override
+    public void spawnDisplaysToPlayer(Player player) {
+        this.displaysManager.spawnDisplays(player);
     }
 }

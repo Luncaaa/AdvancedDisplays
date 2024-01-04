@@ -116,6 +116,12 @@ public class ADBaseDisplay implements BaseDisplay {
     }
 
     @Override
+    public void spawnToPlayer(Player player) {
+        this.packets.spawnDisplay(this.display, player);
+        ((DisplayMethods) this).sendMetadataPackets(player);
+    }
+
+    @Override
     public Location getLocation() {
         return this.location;
     }

@@ -19,6 +19,12 @@ public interface BaseDisplay {
     DisplayType getType();
 
     /**
+     * Spawns the display to a player. This method is useful, for example, when a player enters the server.
+     * @param player The player that will see the displays.
+     */
+    void spawnToPlayer(Player player);
+
+    /**
      * Gets the location of the display.
      * @return The location of the display.
      */

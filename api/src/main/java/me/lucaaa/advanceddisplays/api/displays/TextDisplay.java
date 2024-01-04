@@ -6,6 +6,9 @@ import org.bukkit.entity.TextDisplay.TextAlignment;
 
 import java.util.List;
 
+/**
+ * An entity which displays some text.
+ */
 @SuppressWarnings("unused")
 public interface TextDisplay extends BaseDisplay {
     /**

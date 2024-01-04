@@ -7,6 +7,9 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 
+/**
+ * The settings that Text, Item and Block displays have in common.
+ */
 @SuppressWarnings("unused")
 public interface BaseDisplay {
     /**

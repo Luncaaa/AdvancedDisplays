@@ -189,6 +189,18 @@ public class Packets implements PacketInterface {
     }
 
     @Override
+    public void setGlowing(int displayId, boolean isGlowing, Color color, Player player) {
+        CraftPlayer cp = (CraftPlayer) player;
+        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
+
+        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
+        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(0, EntityDataSerializers.BYTE), (byte) (isGlowing ? 0x40 : 0)));
+        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(21, EntityDataSerializers.INT), color.asARGB()));
+
+        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
+    }
+
+    @Override
     public void setText(int displayId, String text, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;

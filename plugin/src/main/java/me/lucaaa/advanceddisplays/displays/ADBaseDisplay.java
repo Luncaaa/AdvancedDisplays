@@ -8,6 +8,7 @@ import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.common.utils.ConfigAxisAngle4f;
 import me.lucaaa.advanceddisplays.common.utils.ConfigVector3f;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -32,9 +33,10 @@ public class ADBaseDisplay implements BaseDisplay {
     private float shadowRadius;
     private float shadowStrength;
     private Transformation transformation;
-
     private float yaw;
     private float pitch;
+    private boolean isGlowing;
+    private Color glowColor;
 
     public ADBaseDisplay(DisplayType type, ConfigManager configManager, Display display) {
         this.display = display;
@@ -71,6 +73,11 @@ public class ADBaseDisplay implements BaseDisplay {
         ConfigurationSection rotationSection = Objects.requireNonNull(this.config.getConfigurationSection("rotation"));
         this.yaw = (float) rotationSection.getDouble("yaw");
         this.pitch = (float) rotationSection.getDouble("pitch");
+
+        ConfigurationSection glowSection = Objects.requireNonNull(this.config.getConfigurationSection("glow"));
+        this.isGlowing = glowSection.getBoolean("glowing");
+        String[] colorParts = Objects.requireNonNull(glowSection.getString("color")).split(";");
+        this.glowColor = Color.fromRGB(Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]));
     }
 
     public ADBaseDisplay(DisplayType type, Display display) {
@@ -89,6 +96,8 @@ public class ADBaseDisplay implements BaseDisplay {
         this.transformation = display.getTransformation();
         this.yaw = display.getLocation().getYaw();
         this.pitch = display.getLocation().getPitch();
+        this.isGlowing = display.isGlowing();
+        this.glowColor = Color.ORANGE;
     }
 
     public void sendBaseMetadataPackets(Player player) {
@@ -98,6 +107,7 @@ public class ADBaseDisplay implements BaseDisplay {
         this.packets.setBillboard(this.displayId, this.billboard, player);
         this.packets.setBrightness(this.displayId, this.brightness, player);
         this.packets.setShadow(this.displayId, this.shadowRadius, this.shadowStrength, player);
+        this.packets.setGlowing(this.displayId, this.isGlowing, this.glowColor, player);
     }
 
     @Override
@@ -270,6 +280,42 @@ public class ADBaseDisplay implements BaseDisplay {
     @Override
     public void setRotation(float yaw, float pitch, Player player) {
         this.packets.setRotation(this.displayId, yaw, pitch, player);
+    }
+
+    @Override
+    public void setGlowing(boolean isGlowing) {
+        this.isGlowing = isGlowing;
+        if (this.config != null) {
+            ConfigurationSection glowSection = Objects.requireNonNull(this.config.getConfigurationSection("glow"));
+            glowSection.set("glowing", isGlowing);
+            this.save();
+        }
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.setGlowing(isGlowing, onlinePlayer);
+        }
+    }
+
+    @Override
+    public void setGlowing(boolean isGlowing, Player player) {
+        this.packets.setGlowing(this.displayId, isGlowing, this.glowColor, player);
+    }
+
+    @Override
+    public void setGlowColor(Color color) {
+        this.glowColor = color;
+        if (this.config != null) {
+            ConfigurationSection glowSection = Objects.requireNonNull(this.config.getConfigurationSection("glow"));
+            glowSection.set("color", color.getRed() + ";" + color.getGreen() + ";" + color.getBlue());
+            this.save();
+        }
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.setGlowColor(color, onlinePlayer);
+        }
+    }
+
+    @Override
+    public void setGlowColor(Color color, Player player) {
+        this.packets.setGlowing(this.displayId, this.isGlowing, color, player);
     }
 
     public int getDisplayId() {

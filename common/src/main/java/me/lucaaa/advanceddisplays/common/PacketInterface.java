@@ -27,6 +27,7 @@ public interface PacketInterface {
     void setBillboard(int displayId, Display.Billboard billboard, Player player);
     void setBrightness(int displayId, Display.Brightness brightness, Player player);
     void setShadow(int displayId, float radius, float strength, Player player);
+    void setGlowing(int displayId, boolean isGlowing, Color color, Player player);
 
     // -[ Text displays ]-
     void setText(int displayId, String text, Player player);

@@ -17,6 +17,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.util.*;
+import java.util.List;
 
 public class DisplaysManager {
     private final Plugin plugin;
@@ -73,6 +74,10 @@ public class DisplaysManager {
         ConfigurationSection rotationSection = displayConfig.createSection("rotation");
         rotationSection.set("yaw", 0.0);
         rotationSection.set("pitch", 0.0);
+
+        ConfigurationSection glowSection = displayConfig.createSection("glow");
+        glowSection.set("glowing", false);
+        glowSection.set("color", "255;170;0");
 
         return displayConfigManager;
     }

@@ -1,6 +1,7 @@
 package me.lucaaa.advanceddisplays.api.displays;
 
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
@@ -134,4 +135,28 @@ public interface BaseDisplay {
      * @param player The player who will see the new rotation.
      */
     void setRotation(float yaw, float pitch, Player player);
+
+    /**
+     * Makes the display glow for everyone.
+     * @param isGlowing If the display will glow or not.
+     */
+    void setGlowing(boolean isGlowing);
+    /**
+     * Makes the display glow for everyone.
+     * @param isGlowing If the display will glow or not.
+     * @param player The player who will see the glow.
+     */
+    void setGlowing(boolean isGlowing, Player player);
+
+    /**
+     * Sets the glow color of the display. Only visible if the display is glowing.
+     * @param color The glow color of the display.
+     */
+    void setGlowColor(Color color);
+    /**
+     * Sets the glow color of the display. Only visible if the display is glowing.
+     * @param color The glow color of the display.
+     * @param player The player who will see the glow color.
+     */
+    void setGlowColor(Color color, Player player);
 }

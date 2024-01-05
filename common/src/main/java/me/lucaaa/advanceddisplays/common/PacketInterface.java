@@ -9,7 +9,6 @@ import org.bukkit.util.Transformation;
 
 public interface PacketInterface {
     // --[ Create displays ]--
-    // If the player is null, the display (packet) will be created for everyone. Otherwise, the display will just be created for the player.
     TextDisplay createTextDisplay(Location location);
     ItemDisplay createItemDisplay(Location location);
     BlockDisplay createBlockDisplay(Location location);

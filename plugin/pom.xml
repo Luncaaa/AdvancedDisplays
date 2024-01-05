@@ -19,7 +19,7 @@
 
         <dependency>
             <groupId>AdvancedDisplays</groupId>
-            <artifactId>api</artifactId>
+            <artifactId>advanceddisplays-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

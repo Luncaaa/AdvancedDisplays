@@ -9,7 +9,8 @@
         <version>1.3</version>
     </parent>
 
-    <artifactId>api</artifactId>
+    <artifactId>advanceddisplays-api</artifactId>
+    <name>AdvancedDisplays API</name>
 
     <dependencies>
         <dependency>

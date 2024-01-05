@@ -57,13 +57,14 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
         if (this.config != null) {
             this.settings.set("block", block.getMaterial().name());
 
-            String fullData = block.getAsString().substring(block.getAsString().indexOf("[") + 1, block.getAsString().lastIndexOf("]"));
             ConfigurationSection dataSection = this.settings.createSection("blockData");
-            for (String data : fullData.split(",")) {
-                String[] dataPart = data.split("=");
-                dataSection.set(dataPart[0], dataPart[1]);
+            if (block.getAsString().indexOf("[") > 0) {
+                String fullData = block.getAsString().substring(block.getAsString().indexOf("[") + 1, block.getAsString().lastIndexOf("]"));
+                for (String data : fullData.split(",")) {
+                    String[] dataPart = data.split("=");
+                    dataSection.set(dataPart[0], dataPart[1]);
+                }
             }
-
             this.save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {

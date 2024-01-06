@@ -59,7 +59,6 @@ public class AdvancedDisplays extends JavaPlugin {
         if (displaysManager != null) displaysManager.removeAllEntities(); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
         packetsManager = new PacketsManager(Bukkit.getServer().getClass().getName().split("\\.")[3]);
         displaysManager = new DisplaysManager("displays", true);
-        apiDisplays = new APIDisplays();
     }
 
     @Override
@@ -76,6 +75,7 @@ public class AdvancedDisplays extends JavaPlugin {
 
         plugin = this;
         ADAPIProvider.setImplementation(new ADAPIProviderImplementation());
+        apiDisplays = new APIDisplays();
 
         // Set up files and managers.
         reloadConfigs();

@@ -80,7 +80,6 @@
         <profile>
             <id>jitpack</id>
             <modules>
-                <module>common</module>
                 <module>api</module>
             </modules>
         </profile>

@@ -1,2 +1,2 @@
 install:
-  - mvn -P jitpack clean install -DskipTests
+  - mvn clean install -P jitpack

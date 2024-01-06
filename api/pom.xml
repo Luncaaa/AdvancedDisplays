@@ -17,11 +17,5 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>AdvancedDisplays</groupId>
-            <artifactId>common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 </project>

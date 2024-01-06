@@ -55,7 +55,7 @@
                         <id>attach-javadocs</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>aggregate</goal>
+                            <goal>jar</goal>
                         </goals>
                         <configuration>
                             <sourceFileIncludes>
@@ -66,8 +66,7 @@
                                 <sourceFileExclude>me/lucaaa/advanceddisplays/api/ADAPIProviderImplementation.java</sourceFileExclude>
                                 <sourceFileExclude>me/lucaaa/advanceddisplays/api/ADAPIProvider.java</sourceFileExclude>
                             </sourceFileExcludes>
-                            <reportOutputDirectory>javadoc</reportOutputDirectory>
-                            <destDir>javadoc</destDir>
+                            <jarOutputDirectory>${project.basedir}</jarOutputDirectory>
                             <windowtitle>AdvancedDisplays API</windowtitle>
                             <doctitle>AdvancedDisplays API ${project.version}</doctitle>
                         </configuration>

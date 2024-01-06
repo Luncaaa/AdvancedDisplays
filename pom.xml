@@ -14,13 +14,6 @@
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
-    <modules>
-        <module>nms</module>
-        <module>plugin</module>
-        <module>common</module>
-        <module>api</module>
-    </modules>
-
     <repositories>
         <repository>
             <id>spigot-repo</id>
@@ -88,6 +81,17 @@
         <profile>
             <id>jitpack</id>
             <modules>
+                <module>common</module>
+                <module>api</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>build-jar</id>
+            <modules>
+                <module>nms</module>
+                <module>plugin</module>
+                <module>common</module>
                 <module>api</module>
             </modules>
         </profile>

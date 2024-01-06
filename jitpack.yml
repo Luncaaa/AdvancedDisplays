@@ -1,2 +1,2 @@
 install:
-  - mvn clean install --projects \!AdvancedDisplays:nms
+  - mvn clean install -P jitpack

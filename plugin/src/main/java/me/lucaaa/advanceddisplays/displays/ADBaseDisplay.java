@@ -116,12 +116,6 @@ public class ADBaseDisplay implements BaseDisplay {
     }
 
     @Override
-    public void spawnToPlayer(Player player) {
-        this.packets.spawnDisplay(this.display, player);
-        ((DisplayMethods) this).sendMetadataPackets(player);
-    }
-
-    @Override
     public Location getLocation() {
         return this.location;
     }
@@ -322,6 +316,11 @@ public class ADBaseDisplay implements BaseDisplay {
     @Override
     public void setGlowColor(Color color, Player player) {
         this.packets.setGlowing(this.displayId, this.isGlowing, color, player);
+    }
+
+    public void spawnToPlayer(Player player) {
+        this.packets.spawnDisplay(this.display, player);
+        ((DisplayMethods) this).sendMetadataPackets(player);
     }
 
     public int getDisplayId() {

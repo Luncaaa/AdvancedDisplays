@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.api;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
 import me.lucaaa.advanceddisplays.api.displays.ItemDisplay;
@@ -9,7 +10,6 @@ import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.util.List;
@@ -27,6 +27,7 @@ public class ADAPIImplementation implements ADAPI {
     public BlockDisplay createBlockDisplay(String name, Location location, BlockData value) {
         BlockDisplay display = this.displaysManager.createBlockDisplay(location, name, value, false);
         if (display == null) Logger.log(Level.WARNING, "The display \"" + name + "\" could not be created because another display with the same name already exists.");
+        else AdvancedDisplays.apiDisplays.addDisplay(display);
         return display;
     }
 
@@ -34,6 +35,7 @@ public class ADAPIImplementation implements ADAPI {
     public ItemDisplay createItemDisplay(String name, Location location, Material value) {
         ItemDisplay display = this.displaysManager.createItemDisplay(location, name, value, false);
         if (display == null) Logger.log(Level.WARNING, "The display \"" + name + "\" could not be created because another display with the same name already exists.");
+        else AdvancedDisplays.apiDisplays.addDisplay(display);
         return display;
     }
 
@@ -41,6 +43,7 @@ public class ADAPIImplementation implements ADAPI {
     public TextDisplay createTextDisplay(String name, Location location, List<String> value) {
         TextDisplay display = this.displaysManager.createTextDisplay(location, name, value, false);
         if (display == null) Logger.log(Level.WARNING, "The display \"" + name + "\" could not be created because another display with the same name already exists.");
+        else AdvancedDisplays.apiDisplays.addDisplay(display);
         return display;
     }
 
@@ -51,11 +54,11 @@ public class ADAPIImplementation implements ADAPI {
 
     @Override
     public void removeDisplay(String name) {
-        this.displaysManager.removeDisplay(name);
-    }
+        BaseDisplay display = this.displaysManager.getDisplayFromMap(name);
 
-    @Override
-    public void spawnDisplaysToPlayer(Player player) {
-        this.displaysManager.spawnDisplays(player);
+        if (display != null) {
+            this.displaysManager.removeDisplay(name);
+            AdvancedDisplays.apiDisplays.removeDisplay(display);
+        }
     }
 }

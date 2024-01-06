@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays;
 
 import me.lucaaa.advanceddisplays.api.ADAPIProvider;
 import me.lucaaa.advanceddisplays.api.ADAPIProviderImplementation;
+import me.lucaaa.advanceddisplays.api.APIDisplays;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import me.lucaaa.advanceddisplays.commands.MainCommand;
 import me.lucaaa.advanceddisplays.commands.subCommands.SubCommandsFormat;
@@ -44,6 +45,7 @@ public class AdvancedDisplays extends JavaPlugin {
     // Managers.
     public static PacketsManager packetsManager;
     public static DisplaysManager displaysManager;
+    public static APIDisplays apiDisplays;
 
     // Reload the config files.
     public static void reloadConfigs() {
@@ -57,6 +59,7 @@ public class AdvancedDisplays extends JavaPlugin {
         if (displaysManager != null) displaysManager.removeAllEntities(); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
         packetsManager = new PacketsManager(Bukkit.getServer().getClass().getName().split("\\.")[3]);
         displaysManager = new DisplaysManager("displays", true);
+        apiDisplays = new APIDisplays();
     }
 
     @Override

@@ -7,7 +7,6 @@ import me.lucaaa.advanceddisplays.api.displays.TextDisplay;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.List;
@@ -67,10 +66,4 @@ public interface ADAPI {
      * @param name The name of the display.
      */
     void removeDisplay(String name);
-
-    /**
-     * Spawns all the displays to a certain player. This method is useful, for example, when a player enters the server.
-     * @param player The player that will see the displays.
-     */
-    void spawnDisplaysToPlayer(Player player);
 }

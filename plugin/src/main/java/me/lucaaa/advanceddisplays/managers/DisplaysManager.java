@@ -37,6 +37,14 @@ public class DisplaysManager {
             for (File configFile : Objects.requireNonNull(displaysFolder.listFiles())) {
                 if (configFile.isDirectory()) continue;
                 ConfigManager configManager = new ConfigManager(this.plugin, configsFolder + File.separator + configFile.getName());
+
+                YamlConfiguration config = configManager.getConfig();
+                if (config.getString("id") != null
+                        || (DisplayType.valueOf(config.getString("type")) == DisplayType.BLOCK && Objects.requireNonNull(config.getConfigurationSection("settings")).get("blockData") == null)) {
+                    ConversionManager.setConversionNeeded(true);
+                    break;
+                }
+
                 this.loadDisplay(configManager);
             }
         }

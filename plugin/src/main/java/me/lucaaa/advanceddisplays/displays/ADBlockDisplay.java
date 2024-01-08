@@ -9,6 +9,7 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.BlockDisplay {
@@ -65,6 +66,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
                     dataSection.set(dataPart[0], dataPart[1]);
                 }
             }
+            this.settings.setComments("blockData", List.of("For more information about what these values are, visit https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/data/BlockData.html"));
             this.save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {

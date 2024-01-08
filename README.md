@@ -15,3 +15,41 @@ If you have an issue, found a bug or want to suggest something, you can do it he
 ## How to compile
 The plugin is compiled using Maven and Java 17.
 Build the jar running the Maven command "mvn clean install package -P build-jar" in the parent POM.
+
+## Developer API [![](https://jitpack.io/v/Luncaaa/AdvancedDisplays.svg)](https://jitpack.io/#Luncaaa/AdvancedDisplays)
+<details>
+<summary>Maven</summary>
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.github.Luncaaa.AdvancedDisplays</groupId>
+        <artifactId>advanceddisplays-api</artifactId>
+        <version>{PLUGIN VERSION}</version>
+    </dependency>
+</dependencies>
+```
+</details>
+
+<details>
+<summary>Gradle</summary>
+
+```groovy
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    compileOnly 'com.github.Luncaaa.AdvancedDisplays:advanceddisplays-api:{PLUGIN VERSION}'
+}
+```
+</details>

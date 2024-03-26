@@ -15,6 +15,7 @@ If you have an issue, found a bug or want to suggest something, you can do it he
 ## How to compile
 The plugin is compiled using Maven and Java 17.
 Build the jar running the Maven command "mvn clean install package -P build-jar" in the parent POM.
+> **&#9432;** You will have to install the NMS classes before compiling!
 
 ## Developer API [![](https://jitpack.io/v/Luncaaa/AdvancedDisplays.svg)](https://jitpack.io/#Luncaaa/AdvancedDisplays)
 <details>

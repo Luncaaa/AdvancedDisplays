@@ -1,13 +1,11 @@
 package me.lucaaa.advanceddisplays.actions;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.actions.actionTypes.ActionType;
-import me.lucaaa.advanceddisplays.actions.actionTypes.ConsoleCommandAction;
-import me.lucaaa.advanceddisplays.actions.actionTypes.MessageAction;
-import me.lucaaa.advanceddisplays.actions.actionTypes.PlayerCommandAction;
+import me.lucaaa.advanceddisplays.actions.actionTypes.*;
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
 import me.lucaaa.advanceddisplays.api.actions.ClickType;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
+import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -66,6 +64,7 @@ public class ActionsHandler {
                 case MESSAGE -> action = new MessageAction(value, delay);
                 case CONSOLE_COMMAND -> action = new ConsoleCommandAction(value, delay);
                 case PLAYER_COMMAND -> action = new PlayerCommandAction(value, delay);
+                case TITLE -> action = new TitleAction(actionSection, delay);
             }
 
             this.actionsMap.computeIfAbsent(clickType, k -> new ArrayList<>());
@@ -77,9 +76,9 @@ public class ActionsHandler {
         this.isApiDisplay = true;
     }
 
-    public void runActions(Player player, ClickType clickType) {
+    public void runActions(Player player, ClickType clickType, ADBaseDisplay display) {
         if (this.isApiDisplay && this.clickActions != null) {
-            this.clickActions.onClick(player, clickType);
+            this.clickActions.onClick(player, clickType, display);
 
         } else {
             ArrayList<Action> actionsToRun = this.actionsMap.get(clickType);

@@ -3,7 +3,8 @@ package me.lucaaa.advanceddisplays.actions.actionTypes;
 public enum ActionType {
     MESSAGE("message"),
     CONSOLE_COMMAND("console-cmd"),
-    PLAYER_COMMAND("player-cmd");
+    PLAYER_COMMAND("player-cmd"),
+    TITLE("title");
 
     private final String configName;
     ActionType(String configName) {

@@ -427,7 +427,7 @@ public class ADBaseDisplay implements BaseDisplay {
     }
 
     public void runActions(Player player, ClickType clickType) {
-        this.actionsHandler.runActions(player, clickType);
+        this.actionsHandler.runActions(player, clickType, this);
     }
 
     public void spawnToPlayer(Player player) {

@@ -25,8 +25,8 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     private boolean seeThrough;
     private boolean shadowed;
 
-    public ADTextDisplay(ConfigManager configManager, TextDisplay display) {
-        super(DisplayType.TEXT, configManager, display);
+    public ADTextDisplay(ConfigManager configManager, TextDisplay display, boolean isApi) {
+        super(DisplayType.TEXT, configManager, display, isApi);
         this.settings = this.config.getConfigurationSection("settings");
 
         if (this.settings != null) {

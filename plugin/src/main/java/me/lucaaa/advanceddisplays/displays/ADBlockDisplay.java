@@ -16,8 +16,8 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
     private ConfigurationSection settings = null;
     private BlockData block;
 
-    public ADBlockDisplay(ConfigManager configManager, BlockDisplay display) {
-        super(DisplayType.BLOCK, configManager, display);
+    public ADBlockDisplay(ConfigManager configManager, BlockDisplay display, boolean isApi) {
+        super(DisplayType.BLOCK, configManager, display, isApi);
         this.settings = this.config.getConfigurationSection("settings");
 
         if (this.settings != null) {

@@ -3,12 +3,14 @@ package me.lucaaa.advanceddisplays;
 import me.lucaaa.advanceddisplays.api.ADAPIProvider;
 import me.lucaaa.advanceddisplays.api.ADAPIProviderImplementation;
 import me.lucaaa.advanceddisplays.api.APIDisplays;
+import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import me.lucaaa.advanceddisplays.events.InternalEntityClickListener;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import me.lucaaa.advanceddisplays.commands.MainCommand;
 import me.lucaaa.advanceddisplays.commands.subCommands.SubCommandsFormat;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.managers.InteractionsManager;
+import me.lucaaa.advanceddisplays.managers.MessagesManager;
 import me.lucaaa.advanceddisplays.managers.PacketsManager;
 import me.lucaaa.advanceddisplays.events.PlayerEventsListener;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
@@ -32,7 +34,8 @@ import java.util.logging.Level;
 
 // TODO:
 // 1. Setup subcommand
-// 2. Developer API.
+// 2. Better eveloper API.
+// 3. More actions on click.
 
 public class AdvancedDisplays extends JavaPlugin {
     // An instance of the plugin.
@@ -59,11 +62,13 @@ public class AdvancedDisplays extends JavaPlugin {
         mainConfig = new ConfigManager(plugin, "config.yml");
 
         // Managers
+        HashMap<Integer, ADBaseDisplay> savedApiDisplays = new HashMap<>(); // If the plugin is reloaded, this will save the click actions for API displays.
         if (displaysManager != null) displaysManager.removeAllEntities(); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
+        if (interactionsManager != null) savedApiDisplays = interactionsManager.getApiDisplays();
         if (packetsManager != null) packetsManager.removeAll(); // If the plugin has been reloaded, remove and add all players again.
         packetsManager = new PacketsManager(Bukkit.getServer().getClass().getName().split("\\.")[3]);
-        interactionsManager = new InteractionsManager();
-        displaysManager = new DisplaysManager("displays", true);
+        interactionsManager = new InteractionsManager(savedApiDisplays);
+        displaysManager = new DisplaysManager("displays", true, false);
     }
 
     @Override
@@ -94,7 +99,7 @@ public class AdvancedDisplays extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("ad")).setExecutor(commandHandler);
         Objects.requireNonNull(this.getCommand("ad")).setTabCompleter(commandHandler);
 
-        Logger.log(Level.INFO, "The plugin has been enabled.");
+        Bukkit.getConsoleSender().sendMessage( MessagesManager.getColoredMessage("&aThe plugin has been successfully enabled!", true));
     }
 
     public static Plugin getPlugin() {

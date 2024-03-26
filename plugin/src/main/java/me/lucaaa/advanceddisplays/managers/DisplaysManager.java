@@ -24,10 +24,12 @@ public class DisplaysManager {
     private final Plugin plugin;
     private final String configsFolder;
     public final HashMap<String, ADBaseDisplay> displays = new HashMap<>();
+    private final boolean isApi;
 
-    public DisplaysManager(String configsFolder, boolean createFolders) {
+    public DisplaysManager(String configsFolder, boolean createFolders, boolean isApi) {
         this.plugin = AdvancedDisplays.getPlugin();
         this.configsFolder = configsFolder;
+        this.isApi = isApi;
 
         // Gets the displays folder and creates it if it doesn't exist.
         File displaysFolder = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + configsFolder);
@@ -115,7 +117,7 @@ public class DisplaysManager {
 
         if (saveToConfig) {
             ConfigManager configManager = this.createConfigManager(name, DisplayType.TEXT, location);
-            textDisplay = new ADTextDisplay(configManager, newDisplayPacket).create(value);
+            textDisplay = new ADTextDisplay(configManager, newDisplayPacket, this.isApi).create(value);
             configManager.save();
         } else {
             textDisplay = new ADTextDisplay(newDisplayPacket).create(value);
@@ -140,7 +142,7 @@ public class DisplaysManager {
 
         if (saveToConfig) {
             ConfigManager configManager = this.createConfigManager(name, DisplayType.ITEM, location);
-            itemDisplay = new ADItemDisplay(configManager, newDisplayPacket).create(value);
+            itemDisplay = new ADItemDisplay(configManager, newDisplayPacket, this.isApi).create(value);
             configManager.save();
         } else {
             itemDisplay = new ADItemDisplay(newDisplayPacket).create(value);
@@ -165,7 +167,7 @@ public class DisplaysManager {
 
         if (saveToConfig) {
             ConfigManager configManager = this.createConfigManager(name, DisplayType.BLOCK, location);
-            blockDisplay = new ADBlockDisplay(configManager, newDisplayPacket).create(value);
+            blockDisplay = new ADBlockDisplay(configManager, newDisplayPacket, this.isApi).create(value);
             configManager.save();
         } else {
             blockDisplay = new ADBlockDisplay(newDisplayPacket).create(value);
@@ -230,15 +232,15 @@ public class DisplaysManager {
         switch (displayType) {
             case BLOCK -> {
                 BlockDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createBlockDisplay(location);
-                newDisplay = new ADBlockDisplay(configManager, newDisplayPacket);
+                newDisplay = new ADBlockDisplay(configManager, newDisplayPacket, this.isApi);
             }
             case TEXT -> {
                 TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(location);
-                newDisplay = new ADTextDisplay(configManager, newDisplayPacket);
+                newDisplay = new ADTextDisplay(configManager, newDisplayPacket, this.isApi);
             }
             case ITEM -> {
                 ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(location);
-                newDisplay = new ADItemDisplay(configManager, newDisplayPacket);
+                newDisplay = new ADItemDisplay(configManager, newDisplayPacket, this.isApi);
             }
         }
 

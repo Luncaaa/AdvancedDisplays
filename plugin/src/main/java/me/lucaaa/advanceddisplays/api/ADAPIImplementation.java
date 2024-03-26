@@ -21,7 +21,7 @@ public class ADAPIImplementation implements ADAPI {
     private final DisplaysManager displaysManager;
 
     public ADAPIImplementation(String pluginName) {
-        this.displaysManager = new DisplaysManager("displays" + File.separator + pluginName, false);
+        this.displaysManager = new DisplaysManager("displays" + File.separator + pluginName, false, true);
     }
 
     @Override

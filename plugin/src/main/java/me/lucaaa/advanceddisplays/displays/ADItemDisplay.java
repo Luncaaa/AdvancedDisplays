@@ -19,8 +19,8 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     private boolean enchanted;
     private ItemDisplay.ItemDisplayTransform itemTransformation;
 
-    public ADItemDisplay(ConfigManager configManager, ItemDisplay display) {
-        super(DisplayType.ITEM, configManager, display);
+    public ADItemDisplay(ConfigManager configManager, ItemDisplay display, boolean isApi) {
+        super(DisplayType.ITEM, configManager, display, isApi);
         this.settings = this.config.getConfigurationSection("settings");
 
         if (this.settings != null) {

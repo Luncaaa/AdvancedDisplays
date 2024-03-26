@@ -31,6 +31,7 @@ public class ADBaseDisplay implements BaseDisplay {
 
     protected Display display;
     protected int displayId;
+    private final boolean isApi;
     private Location location;
 
     private Display.Billboard billboard;
@@ -47,9 +48,10 @@ public class ADBaseDisplay implements BaseDisplay {
     private float hitboxWidth;
     private float hitboxHeight;
 
-    public ADBaseDisplay(DisplayType type, ConfigManager configManager, Display display) {
+    public ADBaseDisplay(DisplayType type, ConfigManager configManager, Display display, boolean isApi) {
         this.display = display;
         this.displayId = display.getEntityId();
+        this.isApi = isApi;
 
         this.configManager = configManager;
         this.config = configManager.getConfig();
@@ -105,6 +107,7 @@ public class ADBaseDisplay implements BaseDisplay {
     public ADBaseDisplay(DisplayType type, Display display) {
         this.display = display;
         this.displayId = display.getEntityId();
+        this.isApi = true;
 
         this.configManager = null;
         this.config = null;
@@ -437,11 +440,11 @@ public class ADBaseDisplay implements BaseDisplay {
         this.packets.removeEntity(this.displayId);
         this.packets.removeEntity(this.hitbox.getEntityId());
     }
-    public Display getDisplay() {
-        return this.display;
-    }
     public int getInteractionId() {
         return this.hitbox.getEntityId();
+    }
+    public boolean isApi() {
+        return this.isApi;
     }
 
     public ConfigManager getConfigManager() {

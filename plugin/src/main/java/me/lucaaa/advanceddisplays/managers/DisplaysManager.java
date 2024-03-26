@@ -1,6 +1,7 @@
 package me.lucaaa.advanceddisplays.managers;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.actions.actionTypes.ActionType;
 import me.lucaaa.advanceddisplays.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
@@ -87,6 +88,20 @@ public class DisplaysManager {
         glowSection.set("glowing", false);
         glowSection.set("color", "255;170;0");
 
+        ConfigurationSection hitboxSection = displayConfig.createSection("hitbox");
+        hitboxSection.set("override", false);
+        hitboxSection.set("width", 1.0f);
+        hitboxSection.set("height", 1.0f);
+        displayConfig.setComments("hitbox", Arrays.asList("Displays don't have hitboxes of their own, so to have click actions independent entities have to be created.", "These settings allow you to control the hitbox of the display.", "(Use F3 + B to see the hitboxes)"));
+
+        ConfigurationSection actionsSection = displayConfig.createSection("actions");
+        ConfigurationSection anySection = actionsSection.createSection("ANY");
+        ConfigurationSection actionSetting = anySection.createSection("messagePlayer");
+        actionSetting.set("type", ActionType.MESSAGE.getConfigName());
+        actionSetting.set("value", "You clicked me, %player_name%!");
+        actionSetting.set("delay", 20);
+        actionSetting.setInlineComments("delay", List.of("In ticks"));
+
         return displayConfigManager;
     }
 
@@ -111,6 +126,7 @@ public class DisplaysManager {
         }
 
         this.displays.put(name, textDisplay);
+        AdvancedDisplays.interactionsManager.addInteraction(textDisplay.getInteractionId(), textDisplay);
         return textDisplay;
     }
 
@@ -135,6 +151,7 @@ public class DisplaysManager {
         }
 
         this.displays.put(name, itemDisplay);
+        AdvancedDisplays.interactionsManager.addInteraction(itemDisplay.getInteractionId(), itemDisplay);
         return itemDisplay;
     }
 
@@ -159,6 +176,7 @@ public class DisplaysManager {
         }
 
         this.displays.put(name, blockDisplay);
+        AdvancedDisplays.interactionsManager.addInteraction(blockDisplay.getInteractionId(), blockDisplay);
         return blockDisplay;
     }
 
@@ -173,14 +191,15 @@ public class DisplaysManager {
         }
 
         if (display instanceof ADTextDisplay) ((ADTextDisplay) display).stopRunnable();
-        AdvancedDisplays.packetsManager.getPackets().removeDisplay(display.getDisplayId());
+        display.remove();
         this.displays.remove(name);
+        AdvancedDisplays.interactionsManager.removeInteraction(display.getInteractionId());
         return true;
     }
 
     public void removeAllEntities() {
         for (ADBaseDisplay display : this.displays.values()) {
-            AdvancedDisplays.packetsManager.getPackets().removeDisplay(display.getDisplayId());
+            display.remove();
             if (display instanceof ADTextDisplay) {
                 ((ADTextDisplay) display).stopRunnable();
             }
@@ -193,7 +212,7 @@ public class DisplaysManager {
 
     public void spawnDisplays(Player player) {
         for (ADBaseDisplay display : this.displays.values()) {
-            AdvancedDisplays.packetsManager.getPackets().spawnDisplay(display.getDisplay(), player);
+            display.spawnToPlayer(player);
             ((DisplayMethods) display).sendMetadataPackets(player);
         }
     }
@@ -224,6 +243,7 @@ public class DisplaysManager {
         }
 
         this.displays.put(configManager.getFile().getName().replace(".yml", ""), newDisplay);
+        AdvancedDisplays.interactionsManager.addInteraction(newDisplay.getInteractionId(), newDisplay);
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             ((DisplayMethods) newDisplay).sendMetadataPackets(onlinePlayer);
         }

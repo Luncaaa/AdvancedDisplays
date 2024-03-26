@@ -1,5 +1,6 @@
-package me.lucaaa.advanceddisplays.common;
+package me.lucaaa.advanceddisplays.nms_common;
 
+import io.netty.channel.ChannelPipeline;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -8,18 +9,26 @@ import org.bukkit.entity.*;
 import org.bukkit.util.Transformation;
 
 public interface PacketInterface {
+    // --[ Packet reader ]--
+    ChannelPipeline getPlayerPipeline(Player player);
+    InternalEntityClickEvent getClickEvent(Player player, Object packet);
+
+    // --[ Interaction entity ]--
+    Interaction createInteractionEntity(Location location);
+    void setInteractionSize(int interactionEntityId, float width, float height, Player player);
+
     // --[ Create displays ]--
     TextDisplay createTextDisplay(Location location);
     ItemDisplay createItemDisplay(Location location);
     BlockDisplay createBlockDisplay(Location location);
-    void spawnDisplay(Display display, Player player);
+    void spawnEntity(Entity spawnEntity, Player player);
 
     // --[ Remove displays ]--
-    void removeDisplay(int displayId);
+    void removeEntity(int entityId);
 
     // --[ Modify displays ]--
     // -[ General ]-
-    void setLocation(Display display, Player player);
+    void setLocation(Entity entity, Player player);
     void setRotation(int displayId, float yaw, float pitch, Player player);
 
     void setTransformation(int displayId, Transformation transformation, Player player);

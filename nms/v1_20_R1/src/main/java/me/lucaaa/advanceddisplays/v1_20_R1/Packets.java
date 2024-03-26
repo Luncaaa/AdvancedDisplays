@@ -2,9 +2,12 @@ package me.lucaaa.advanceddisplays.v1_20_R1;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.netty.channel.ChannelPipeline;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
-import me.lucaaa.advanceddisplays.common.PacketInterface;
+import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;
+import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -23,14 +26,12 @@ import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R1.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftDisplay;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.ItemDisplay;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.TextDisplay;
+import org.bukkit.entity.*;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
@@ -38,6 +39,9 @@ import org.bukkit.profile.PlayerTextures;
 import org.bukkit.util.Transformation;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -45,6 +49,77 @@ import java.util.*;
 
 @SuppressWarnings("unused")
 public class Packets implements PacketInterface {
+    @Override
+    public ChannelPipeline getPlayerPipeline(Player player) {
+        CraftPlayer craftPlayer = (CraftPlayer) player;
+
+        try {
+            Field field = craftPlayer.getHandle().connection.getClass().getSuperclass().getDeclaredField("c");
+            field.setAccessible(true);
+            return ((Connection) field.get(craftPlayer.getHandle().connection)).channel.pipeline();
+
+        } catch (Exception e) {
+            Logger.logError(java.util.logging.Level.SEVERE, "An error occurred while getting " + player.getName() + "'s pipeline: ", e);
+            return null;
+        }
+    }
+
+    @Override
+    public InternalEntityClickEvent getClickEvent(Player player, Object anyPacket) {
+        if (!(anyPacket instanceof ServerboundInteractPacket packet)) return null;
+
+        try {
+            Field idField = packet.getClass().getDeclaredField("a");
+            idField.setAccessible(true);
+            int interactionId = (int) idField.get(packet);
+
+            Field actionField = packet.getClass().getDeclaredField("b");
+            actionField.setAccessible(true);
+            Object action = actionField.get(packet);
+            Method getActionTypeMethod = action.getClass().getDeclaredMethod("a");
+            getActionTypeMethod.setAccessible(true);
+            int clickTypeNumber = ((Enum<?>) getActionTypeMethod.invoke(action)).ordinal();
+
+            ClickType clickType = InternalEntityClickEvent.getClickTypeFromPacket(packet.isUsingSecondaryAction(), clickTypeNumber);
+
+            return new InternalEntityClickEvent(player, clickType, interactionId);
+
+        } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            Logger.logError(java.util.logging.Level.SEVERE, "An error occurred while handling a click on a display: ", e);
+            return null;
+        }
+    }
+
+    @Override
+    public Interaction createInteractionEntity(Location location) {
+        CraftWorld world = (CraftWorld) location.getWorld();
+        Level level = Objects.requireNonNull(world).getHandle();
+
+        net.minecraft.world.entity.Interaction interactionEntity = new net.minecraft.world.entity.Interaction(EntityType.INTERACTION, level);
+        interactionEntity.setPos(location.getX(), location.getY(), location.getZ());
+
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            CraftPlayer cp = (CraftPlayer) onlinePlayer;
+            ServerGamePacketListenerImpl connection = cp.getHandle().connection;
+
+            connection.send(new ClientboundAddEntityPacket(interactionEntity));
+        }
+
+        return (Interaction) interactionEntity.getBukkitEntity();
+    }
+
+    @Override
+    public void setInteractionSize(int interactionEntityId, float width, float height, Player player) {
+        CraftPlayer cp = (CraftPlayer) player;
+        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
+
+        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
+        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(8, EntityDataSerializers.FLOAT), width));
+        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(9, EntityDataSerializers.FLOAT), height));
+
+        connection.send(new ClientboundSetEntityDataPacket(interactionEntityId, data));
+    }
+
     @Override
     public TextDisplay createTextDisplay(Location location) {
         CraftWorld world = (CraftWorld) location.getWorld();
@@ -100,29 +175,29 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void spawnDisplay(org.bukkit.entity.Display display, Player player) {
+    public void spawnEntity(Entity entity, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
-        connection.send(new ClientboundAddEntityPacket(((CraftDisplay) display).getHandle()));
+        connection.send(new ClientboundAddEntityPacket(((CraftEntity) entity).getHandle()));
     }
 
     @Override
-    public void removeDisplay(int displayId) {
+    public void removeEntity(int entityId) {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             CraftPlayer cp = (CraftPlayer) onlinePlayer;
             ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
-            connection.send(new ClientboundRemoveEntitiesPacket(displayId));
+            connection.send(new ClientboundRemoveEntitiesPacket(entityId));
         }
     }
 
     @Override
-    public void setLocation(org.bukkit.entity.Display display, Player player) {
+    public void setLocation(Entity entity, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
-        connection.send(new ClientboundTeleportEntityPacket(((CraftDisplay) display).getHandle()));
+        connection.send(new ClientboundTeleportEntityPacket(((CraftEntity) entity).getHandle()));
     }
 
     @Override

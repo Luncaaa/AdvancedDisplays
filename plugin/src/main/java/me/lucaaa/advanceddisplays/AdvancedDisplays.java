@@ -3,10 +3,12 @@ package me.lucaaa.advanceddisplays;
 import me.lucaaa.advanceddisplays.api.ADAPIProvider;
 import me.lucaaa.advanceddisplays.api.ADAPIProviderImplementation;
 import me.lucaaa.advanceddisplays.api.APIDisplays;
+import me.lucaaa.advanceddisplays.events.InternalEntityClickListener;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import me.lucaaa.advanceddisplays.commands.MainCommand;
 import me.lucaaa.advanceddisplays.commands.subCommands.SubCommandsFormat;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
+import me.lucaaa.advanceddisplays.managers.InteractionsManager;
 import me.lucaaa.advanceddisplays.managers.PacketsManager;
 import me.lucaaa.advanceddisplays.events.PlayerEventsListener;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
@@ -44,6 +46,7 @@ public class AdvancedDisplays extends JavaPlugin {
 
     // Managers.
     public static PacketsManager packetsManager;
+    public static InteractionsManager interactionsManager;
     public static DisplaysManager displaysManager;
     public static APIDisplays apiDisplays;
 
@@ -57,7 +60,9 @@ public class AdvancedDisplays extends JavaPlugin {
 
         // Managers
         if (displaysManager != null) displaysManager.removeAllEntities(); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
+        if (packetsManager != null) packetsManager.removeAll(); // If the plugin has been reloaded, remove and add all players again.
         packetsManager = new PacketsManager(Bukkit.getServer().getClass().getName().split("\\.")[3]);
+        interactionsManager = new InteractionsManager();
         displaysManager = new DisplaysManager("displays", true);
     }
 
@@ -82,10 +87,12 @@ public class AdvancedDisplays extends JavaPlugin {
 
         // Register events.
         getServer().getPluginManager().registerEvents(new PlayerEventsListener(), this);
+        getServer().getPluginManager().registerEvents(new InternalEntityClickListener(), this);
 
         // Registers the main command and adds tab completions.
-        Objects.requireNonNull(this.getCommand("ad")).setExecutor(new MainCommand());
-        Objects.requireNonNull(this.getCommand("ad")).setTabCompleter(new MainCommand());
+        MainCommand commandHandler = new MainCommand();
+        Objects.requireNonNull(this.getCommand("ad")).setExecutor(commandHandler);
+        Objects.requireNonNull(this.getCommand("ad")).setTabCompleter(commandHandler);
 
         Logger.log(Level.INFO, "The plugin has been enabled.");
     }

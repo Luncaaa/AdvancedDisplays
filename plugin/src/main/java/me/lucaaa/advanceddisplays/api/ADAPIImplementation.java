@@ -6,6 +6,7 @@ import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
 import me.lucaaa.advanceddisplays.api.displays.ItemDisplay;
 import me.lucaaa.advanceddisplays.api.displays.TextDisplay;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
+import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -54,11 +55,12 @@ public class ADAPIImplementation implements ADAPI {
 
     @Override
     public void removeDisplay(String name) {
-        BaseDisplay display = this.displaysManager.getDisplayFromMap(name);
+        ADBaseDisplay display = this.displaysManager.getDisplayFromMap(name);
 
         if (display != null) {
-            this.displaysManager.removeDisplay(name);
+            AdvancedDisplays.interactionsManager.removeInteraction(display.getInteractionId());
             AdvancedDisplays.apiDisplays.removeDisplay(display);
+            this.displaysManager.removeDisplay(name);
         }
     }
 }

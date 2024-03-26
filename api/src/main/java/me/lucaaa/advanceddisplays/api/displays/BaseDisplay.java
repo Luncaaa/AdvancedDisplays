@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.api.displays;
 
+import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -145,21 +146,45 @@ public interface BaseDisplay {
      */
     void setGlowing(boolean isGlowing);
     /**
-     * Makes the display glow for everyone.
+     * Makes the display glow for a specific player.
      * @param isGlowing If the display will glow or not.
      * @param player The player who will see the glow.
      */
     void setGlowing(boolean isGlowing, Player player);
 
     /**
-     * Sets the glow color of the display. Only visible if the display is glowing.
+     * Sets the glow color of the display for everyone. Only visible if the display is glowing.
      * @param color The glow color of the display.
      */
     void setGlowColor(Color color);
     /**
-     * Sets the glow color of the display. Only visible if the display is glowing.
+     * Sets the glow color of the display for a specific player. Only visible if the display is glowing.
      * @param color The glow color of the display.
      * @param player The player who will see the glow color.
      */
     void setGlowColor(Color color, Player player);
+
+    /**
+     * Sets the new size of the hitbox.
+     * @param override Whether these values should be used or not.
+     * @param width The new width of the hitbox.
+     * @param height The new height of the hitbox.
+     */
+    void setHitboxSize(boolean override, float width, float height);
+    /**
+     * Returns the overriden width of the hitbox.
+     * @return The width of the hitbox.
+     */
+    float getHitboxWidth();
+    /**
+     * Returns the overriden height of the hitbox.
+     * @return The height of the hitbox.
+     */
+    float getHitboxHeight();
+
+    /**
+     * Sets the code to run when the display is clicked.
+     * @param actions The code to run.
+     */
+    void setClickActions(DisplayActions actions);
 }

@@ -76,6 +76,9 @@
                             <jarOutputDirectory>${project.basedir}</jarOutputDirectory>
                             <windowtitle>AdvancedDisplays API</windowtitle>
                             <doctitle>AdvancedDisplays API ${project.version}</doctitle>
+                            <links>
+                                <link>https://hub.spigotmc.org/javadocs/spigot</link>
+                            </links>
                         </configuration>
                     </execution>
                 </executions>

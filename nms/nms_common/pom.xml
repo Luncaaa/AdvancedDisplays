@@ -3,19 +3,30 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>AdvancedDisplays</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>nms</artifactId>
         <version>1.4</version>
     </parent>
 
-    <artifactId>advanceddisplays-api</artifactId>
-    <name>AdvancedDisplays API</name>
+    <artifactId>nms_common</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>AdvancedDisplays</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

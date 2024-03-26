@@ -6,16 +6,25 @@
     <parent>
         <groupId>AdvancedDisplays</groupId>
         <artifactId>parent</artifactId>
-        <version>1.3</version>
+        <version>1.4</version>
     </parent>
 
     <artifactId>nms</artifactId>
     <packaging>pom</packaging>
 
     <modules>
+        <module>nms_common</module>
         <module>v1_19_R3</module>
         <module>v1_20_R1</module>
         <module>v1_20_R2</module>
         <module>v1_20_R3</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>AdvancedDisplays</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

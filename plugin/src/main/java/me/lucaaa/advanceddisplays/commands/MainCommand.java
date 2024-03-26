@@ -22,6 +22,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         subCommands.put("movehere", new MoveHereSubCommand());
         subCommands.put("teleport", new TeleportSubCommand());
         subCommands.put("convert", new ConvertSubCommand());
+        subCommands.put("list", new ListSubCommand());
     }
 
     @Override
@@ -94,7 +95,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         // For example, it can complete "reload", "removeDisplay" and "help". If the user doesn't type anything, all those
         // options will appear. If the user starts typing "r", only "reload" and "removeDisplay" will appear.
         // args[args.size-1] -> To get the argument the user is typing (first, second...)
-        return completions.stream().filter(completion -> completion.startsWith(args[args.length-1])).toList();
+        return completions.stream().filter(completion -> completion.toLowerCase().contains(args[args.length-1].toLowerCase())).toList();
     }
 }
 

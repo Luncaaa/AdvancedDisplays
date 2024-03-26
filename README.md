@@ -18,6 +18,7 @@ Build the jar running the Maven command "mvn clean install package -P build-jar"
 > **&#9432;** You will have to install the NMS classes before compiling!
 
 ## Developer API [![](https://jitpack.io/v/Luncaaa/AdvancedDisplays.svg)](https://jitpack.io/#Luncaaa/AdvancedDisplays)
+> You can find the docs [here](https://jitpack.io/com/github/Luncaaa/AdvancedDisplays/advanceddisplays-api/main-SNAPSHOT/javadoc/)
 <details>
 <summary>Maven</summary>
 

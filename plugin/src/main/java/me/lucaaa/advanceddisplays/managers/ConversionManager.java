@@ -12,6 +12,7 @@ import org.bukkit.entity.Display;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -94,6 +95,12 @@ public class ConversionManager {
                 glowSection.set("glowing", false);
                 glowSection.set("color", "255;170;0");
 
+                ConfigurationSection hitboxSection = config.createSection("hitbox");
+                hitboxSection.set("override", false);
+                hitboxSection.set("width", 1.0f);
+                hitboxSection.set("height", 1.0f);
+                config.setComments("hitbox", Arrays.asList("Displays don't have hitboxes of their own, so to have click actions independent entities have to be created.", "These settings allow you to control the hitbox of the display.", "(Use F3 + B to see the hitboxes)"));
+
                 Display display = (Display) Bukkit.getEntity(UUID.fromString(Objects.requireNonNull(config.getString("id"))));
                 Objects.requireNonNull(display).remove();
                 config.set("id", null);
@@ -125,6 +132,12 @@ public class ConversionManager {
                 ConfigurationSection glowSection = Objects.requireNonNull(config.createSection("glow"));
                 glowSection.set("glowing", false);
                 glowSection.set("color", "255;170;0");
+
+                ConfigurationSection hitboxSection = config.createSection("hitbox");
+                hitboxSection.set("override", false);
+                hitboxSection.set("width", 1.0f);
+                hitboxSection.set("height", 1.0f);
+                config.setComments("hitbox", Arrays.asList("Displays don't have hitboxes of their own, so to have click actions independent entities have to be created.", "These settings allow you to control the hitbox of the display.", "(Use F3 + B to see the hitboxes)"));
             }
 
             case "1.2" -> {
@@ -153,6 +166,12 @@ public class ConversionManager {
                 glowSection.set("glowing", false);
                 glowSection.set("color", "255;170;0");
 
+                ConfigurationSection hitboxSection = config.createSection("hitbox");
+                hitboxSection.set("override", false);
+                hitboxSection.set("width", 1.0f);
+                hitboxSection.set("height", 1.0f);
+                config.setComments("hitbox", Arrays.asList("Displays don't have hitboxes of their own, so to have click actions independent entities have to be created.", "These settings allow you to control the hitbox of the display.", "(Use F3 + B to see the hitboxes)"));
+
                 AdvancedDisplays.mainConfig.getConfig().set("text-update", null);
                 AdvancedDisplays.mainConfig.save();
             }
@@ -161,6 +180,12 @@ public class ConversionManager {
                 ConfigurationSection glowSection = Objects.requireNonNull(config.createSection("glow"));
                 glowSection.set("glowing", false);
                 glowSection.set("color", "255;170;0");
+
+                ConfigurationSection hitboxSection = config.createSection("hitbox");
+                hitboxSection.set("override", false);
+                hitboxSection.set("width", 1.0f);
+                hitboxSection.set("height", 1.0f);
+                config.setComments("hitbox", Arrays.asList("Displays don't have hitboxes of their own, so to have click actions independent entities have to be created.", "These settings allow you to control the hitbox of the display.", "(Use F3 + B to see the hitboxes)"));
 
                 DisplayType type = DisplayType.valueOf(config.getString("type"));
                 if (type == DisplayType.BLOCK) {
@@ -177,8 +202,15 @@ public class ConversionManager {
 
                 } else if (type == DisplayType.ITEM) {
                     settingsSection.set("enchanted", false);
-
                 }
+            }
+
+            case "1.3" -> {
+                ConfigurationSection hitboxSection = config.createSection("hitbox");
+                hitboxSection.set("override", false);
+                hitboxSection.set("width", 1.0f);
+                hitboxSection.set("height", 1.0f);
+                config.setComments("hitbox", Arrays.asList("Displays don't have hitboxes of their own, so to have click actions independent entities have to be created.", "These settings allow you to control the hitbox of the display.", "(Use F3 + B to see the hitboxes)"));
             }
         }
 

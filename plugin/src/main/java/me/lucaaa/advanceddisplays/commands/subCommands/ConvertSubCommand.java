@@ -10,7 +10,7 @@ import java.util.*;
 
 public class ConvertSubCommand extends SubCommandsFormat {
     private boolean hasRunOnce = false;
-    private final ArrayList<String> validVersions = new ArrayList<>(Arrays.asList("1.0", "1.1", "1.2", "1.2.1", "1.2.2", "1.2.3"));
+    private final ArrayList<String> validVersions = new ArrayList<>(Arrays.asList("1.0", "1.1", "1.2", "1.2.1", "1.2.2", "1.2.3", "1.3"));
 
     public ConvertSubCommand() {
         this.name = "convert";

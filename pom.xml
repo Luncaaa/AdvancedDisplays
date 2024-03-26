@@ -71,6 +71,7 @@
                             <sourceFileExcludes>
                                 <sourceFileExclude>me/lucaaa/advanceddisplays/api/ADAPIImplementation.java</sourceFileExclude>
                                 <sourceFileExclude>me/lucaaa/advanceddisplays/api/ADAPIProviderImplementation.java</sourceFileExclude>
+                                <sourceFileExclude>me/lucaaa/advanceddisplays/api/APIDisplays.java</sourceFileExclude>
                                 <sourceFileExclude>me/lucaaa/advanceddisplays/api/ADAPIProvider.java</sourceFileExclude>
                             </sourceFileExcludes>
                             <jarOutputDirectory>${project.basedir}</jarOutputDirectory>

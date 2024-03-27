@@ -102,7 +102,7 @@ public class DisplaysManager {
         actionSetting.set("message", "You clicked me, %player_name%!");
         actionSetting.set("delay", 20);
         actionSetting.set("global", false);
-        actionSetting.set("global-placeholders:", true);
+        actionSetting.set("global-placeholders", true);
         actionSetting.setInlineComments("delay", List.of("In ticks"));
 
         return displayConfigManager;

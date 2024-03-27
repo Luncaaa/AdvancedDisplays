@@ -27,42 +27,43 @@ public class ActionsHandler {
         ConfigurationSection actionsSection = config.getConfigurationSection("actions");
         if (actionsSection == null) return;
 
-        for (String clickTypesSection : actionsSection.getKeys(false)) {
-            if (clickTypesSection.equalsIgnoreCase("ANY")) {
+        for (String clickTypeKey : actionsSection.getKeys(false)) {
+            if (clickTypeKey.equalsIgnoreCase("ANY")) {
                 for (ClickType clickType : ClickType.values()) {
-                    boolean success = this.addAction(clickType, actionsSection.getConfigurationSection(clickTypesSection));
-                    if (!success) break;
+                    this.addAction(clickType, actionsSection.getConfigurationSection(clickTypeKey));
                 }
 
-            } else if (clickTypesSection.contains(";")) {
-                String[] clickTypes = clickTypesSection.split(";");
+            } else if (clickTypeKey.contains(";")) {
+                String[] clickTypes = clickTypeKey.split(";");
                 for (String clickType : clickTypes) {
-                    boolean success = this.addAction(ClickType.valueOf(clickType), actionsSection.getConfigurationSection(clickTypesSection));
-                    if (!success) break;
+                    this.addAction(ClickType.valueOf(clickType), actionsSection.getConfigurationSection(clickTypeKey));
                 }
 
             } else {
-                this.addAction(ClickType.valueOf(clickTypesSection), actionsSection.getConfigurationSection(clickTypesSection));
+                this.addAction(ClickType.valueOf(clickTypeKey), actionsSection.getConfigurationSection(clickTypeKey));
             }
         }
+    }
+
+    public ActionsHandler() {
+        this.isApiDisplay = true;
     }
 
     /**
      * Adds an action to the map.
      * @param clickType The click that should be used to execute the action.
      * @param actionsSection The section with the action data.
-     * @return True if the action exists, its format is correct and could be added. False otherwise.
      */
-    private boolean addAction(ClickType clickType, ConfigurationSection actionsSection) {
-        if (actionsSection == null) return false;
+    private void addAction(ClickType clickType, ConfigurationSection actionsSection) {
+        if (actionsSection == null) return;
 
         for (Map.Entry<String, Object> actionsMap : actionsSection.getValues(false).entrySet()) {
             ConfigurationSection actionSection = (ConfigurationSection) actionsMap.getValue();
             ActionType actionType = ActionType.getFromConfigName(actionSection.getString("type"));
 
             if (actionType == null) {
-                Logger.log(Level.WARNING, "Invalid action type detected in \"" + actionSection.getName() + "\": " + actionSection.getString("type"));
-                return false;
+                Logger.log(Level.WARNING, "Invalid action type detected in \"" + actionSection.getName() + "\" for click type " + clickType.name() + actionSection.getString("type"));
+                continue;
             }
 
             Action action = switch (actionType) {
@@ -74,17 +75,15 @@ public class ActionsHandler {
                 case PLAY_SOUND -> new SoundAction(actionSection);
             };
 
-            if (!action.isFormatCorrect()) return false;
+            if (!action.isFormatCorrect()) {
+                String missingFields = String.join(", ", action.getMissingFields());
+                Logger.log(Level.WARNING, "Your action \"" + actionSection.getName() + "\" is missing necessary fields: " + missingFields);
+                continue;
+            }
 
             this.actionsMap.computeIfAbsent(clickType, k -> new ArrayList<>());
             this.actionsMap.get(clickType).add(action);
         }
-
-        return true;
-    }
-
-    public ActionsHandler() {
-        this.isApiDisplay = true;
     }
 
     public void runActions(Player player, ClickType clickType, ADBaseDisplay display) {

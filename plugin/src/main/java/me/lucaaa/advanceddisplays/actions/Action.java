@@ -1,19 +1,19 @@
 package me.lucaaa.advanceddisplays.actions;
 
-import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 public abstract class Action {
     private final int delay;
     private final boolean global;
     private final boolean globalPlaceholders;
     private boolean correctFormat = true;
+    private final List<String> missingFields = new ArrayList<>();
 
     public Action(List<String> requiredFields, ConfigurationSection section, boolean canBeGlobal) {
         this.delay = section.getInt("delay", 0);
@@ -22,7 +22,7 @@ public abstract class Action {
 
         for (String requiredField : requiredFields) {
             if (section.get(requiredField) == null) {
-                Logger.log(Level.WARNING, "Your action \"" + section.getName() + "\" is missing a necessary field: " + requiredField);
+                missingFields.add(requiredField);
                 this.correctFormat = false;
             }
         }
@@ -53,6 +53,10 @@ public abstract class Action {
 
     public boolean isFormatCorrect() {
         return this.correctFormat;
+    }
+
+    public List<String> getMissingFields() {
+        return this.missingFields;
     }
 
     public BaseComponent[] getTextComponent(String message, Player clickedPlayer, Player actionPlayer) {

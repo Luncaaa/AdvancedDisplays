@@ -54,7 +54,7 @@ public class Packets implements PacketInterface {
         CraftPlayer craftPlayer = (CraftPlayer) player;
 
         try {
-            Field field = craftPlayer.getHandle().connection.getClass().getSuperclass().getDeclaredField("c");
+            Field field = craftPlayer.getHandle().connection.getClass().getDeclaredField("h");
             field.setAccessible(true);
             return ((Connection) field.get(craftPlayer.getHandle().connection)).channel.pipeline();
 

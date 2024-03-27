@@ -1,8 +1,6 @@
 package me.lucaaa.advanceddisplays.actions.actionTypes;
 
 import me.lucaaa.advanceddisplays.actions.Action;
-import me.lucaaa.advanceddisplays.common.utils.Utils;
-import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -17,7 +15,7 @@ public class MessageAction extends Action {
     }
 
     @Override
-    public void runAction(Player actionPlayer, Player globalPlayer) {
-        globalPlayer.spigot().sendMessage(ComponentSerializer.parse(Utils.getColoredTextWithPlaceholders(globalPlayer, this.message, actionPlayer)));
+    public void runAction(Player clickedPlayer, Player actionPlayer) {
+        actionPlayer.spigot().sendMessage(this.getTextComponent(this.message, clickedPlayer, actionPlayer));
     }
 }

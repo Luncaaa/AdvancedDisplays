@@ -20,7 +20,7 @@ public class SoundAction extends Action {
     }
 
     @Override
-    public void runAction(Player actionPlayer, Player globalPlayer) {
-        globalPlayer.playSound(globalPlayer, this.sound, this.volume, this.pitch);
+    public void runAction(Player clickedPlayer, Player actionPlayer) {
+        actionPlayer.playSound(actionPlayer, this.sound, this.volume, this.pitch);
     }
 }

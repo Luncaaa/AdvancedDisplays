@@ -1,9 +1,6 @@
 package me.lucaaa.advanceddisplays.actions.actionTypes;
 
 import me.lucaaa.advanceddisplays.actions.Action;
-import me.lucaaa.advanceddisplays.common.utils.Utils;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -26,9 +23,9 @@ public class TitleAction extends Action {
     }
 
     @Override
-    public void runAction(Player actionPlayer, Player globalPlayer) {
-        String title = BaseComponent.toLegacyText(ComponentSerializer.parse(Utils.getColoredTextWithPlaceholders(globalPlayer, this.title, actionPlayer)));
-        String subtitle = BaseComponent.toLegacyText(ComponentSerializer.parse(Utils.getColoredTextWithPlaceholders(globalPlayer, this.subtitle, actionPlayer)));
-        globalPlayer.sendTitle(title, subtitle, this.fadeIn, this.stay, this.fadeOut);
+    public void runAction(Player clickedPlayer, Player actionPlayer) {
+        String title = this.getTextString(this.title, clickedPlayer, actionPlayer);
+        String subtitle = this.getTextString(this.subtitle, clickedPlayer, actionPlayer);
+        actionPlayer.sendTitle(title, subtitle, this.fadeIn, this.stay, this.fadeOut);
     }
 }

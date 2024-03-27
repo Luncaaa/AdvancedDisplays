@@ -1,6 +1,8 @@
 package me.lucaaa.advanceddisplays.actions;
 
 import me.lucaaa.advanceddisplays.common.utils.Logger;
+import me.lucaaa.advanceddisplays.common.utils.Utils;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -32,10 +34,10 @@ public abstract class Action {
 
     /**
      * Runs the action for a specific player.
-     * @param actionPlayer The player who clicked the display.
-     * @param globalPlayer Who to run the action for.
+     * @param clickedPlayer The player who clicked the display.
+     * @param actionPlayer Who to run the action for.
      */
-    public abstract void runAction(Player actionPlayer, Player globalPlayer);
+    public abstract void runAction(Player clickedPlayer, Player actionPlayer);
 
     public int getDelay() {
         return this.delay;
@@ -51,5 +53,13 @@ public abstract class Action {
 
     public boolean isFormatCorrect() {
         return this.correctFormat;
+    }
+
+    public BaseComponent[] getTextComponent(String message, Player clickedPlayer, Player actionPlayer) {
+        return Utils.getTextComponent(message, clickedPlayer, actionPlayer, useGlobalPlaceholders());
+    }
+
+    public String getTextString(String message, Player clickedPlayer, Player actionPlayer) {
+        return BaseComponent.toLegacyText(Utils.getTextComponent(message, clickedPlayer, actionPlayer, useGlobalPlaceholders()));
     }
 }

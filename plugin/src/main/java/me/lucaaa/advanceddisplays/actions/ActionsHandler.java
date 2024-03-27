@@ -98,8 +98,7 @@ public class ActionsHandler {
             for (Action action : actionsToRun) {
                 if (action.isGlobal()) {
                     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        Player globalPlayer = (action.useGlobalPlaceholders()) ? onlinePlayer : player;
-                        this.executeAction(action, player, globalPlayer);
+                        this.executeAction(action, player, onlinePlayer);
                     }
                 } else {
                     this.executeAction(action, player, player);
@@ -111,14 +110,14 @@ public class ActionsHandler {
     /**
      * Runs the action for a specific player.
      * @param action The action to run.
-     * @param actionPlayer The player who clicked the display.
-     * @param globalPlayer Who to run the action for.
+     * @param clickedPlayer The player who clicked the display.
+     * @param actionPlayer Who to run the action for.
      */
-    public void executeAction(Action action, Player actionPlayer, Player globalPlayer) {
+    public void executeAction(Action action, Player clickedPlayer, Player actionPlayer) {
         if (action.getDelay() > 0) {
-            Bukkit.getScheduler().runTaskLater(AdvancedDisplays.getPlugin(), () -> action.runAction(actionPlayer, globalPlayer), action.getDelay());
+            Bukkit.getScheduler().runTaskLater(AdvancedDisplays.getPlugin(), () -> action.runAction(clickedPlayer, actionPlayer), action.getDelay());
         } else {
-            action.runAction(actionPlayer, globalPlayer);
+            action.runAction(clickedPlayer, actionPlayer);
         }
     }
 

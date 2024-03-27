@@ -30,13 +30,15 @@ public class ActionsHandler {
         for (String clickTypesSection : actionsSection.getKeys(false)) {
             if (clickTypesSection.equalsIgnoreCase("ANY")) {
                 for (ClickType clickType : ClickType.values()) {
-                    this.addAction(clickType, actionsSection.getConfigurationSection(clickTypesSection));
+                    boolean success = this.addAction(clickType, actionsSection.getConfigurationSection(clickTypesSection));
+                    if (!success) break;
                 }
 
             } else if (clickTypesSection.contains(";")) {
                 String[] clickTypes = clickTypesSection.split(";");
                 for (String clickType : clickTypes) {
-                    this.addAction(ClickType.valueOf(clickType), actionsSection.getConfigurationSection(clickTypesSection));
+                    boolean success = this.addAction(ClickType.valueOf(clickType), actionsSection.getConfigurationSection(clickTypesSection));
+                    if (!success) break;
                 }
 
             } else {
@@ -45,31 +47,40 @@ public class ActionsHandler {
         }
     }
 
-    private void addAction(ClickType clickType, ConfigurationSection actionsSection) {
-        if (actionsSection == null) return;
+    /**
+     * Adds an action to the map.
+     * @param clickType The click that should be used to execute the action.
+     * @param actionsSection The section with the action data.
+     * @return True if the action exists, its format is correct and could be added. False otherwise.
+     */
+    private boolean addAction(ClickType clickType, ConfigurationSection actionsSection) {
+        if (actionsSection == null) return false;
 
         for (Map.Entry<String, Object> actionsMap : actionsSection.getValues(false).entrySet()) {
             ConfigurationSection actionSection = (ConfigurationSection) actionsMap.getValue();
             ActionType actionType = ActionType.getFromConfigName(actionSection.getString("type"));
-            String value = actionSection.getString("value");
-            int delay = actionSection.getInt("delay", 0); // If delay is not set, it will be 0 by default.
 
             if (actionType == null) {
                 Logger.log(Level.WARNING, "Invalid action type detected in \"" + actionSection.getName() + "\": " + actionSection.getString("type"));
-                return;
+                return false;
             }
 
-            Action action = null;
-            switch (actionType) {
-                case MESSAGE -> action = new MessageAction(value, delay);
-                case CONSOLE_COMMAND -> action = new ConsoleCommandAction(value, delay);
-                case PLAYER_COMMAND -> action = new PlayerCommandAction(value, delay);
-                case TITLE -> action = new TitleAction(actionSection, delay);
-            }
+            Action action = switch (actionType) {
+                case MESSAGE -> new MessageAction(actionSection);
+                case CONSOLE_COMMAND -> new ConsoleCommandAction(actionSection);
+                case PLAYER_COMMAND -> new PlayerCommandAction(actionSection);
+                case TITLE -> new TitleAction(actionSection);
+                case ACTIONBAR -> new ActionbarAction(actionSection);
+                case PLAY_SOUND -> new SoundAction(actionSection);
+            };
+
+            if (!action.isFormatCorrect()) return false;
 
             this.actionsMap.computeIfAbsent(clickType, k -> new ArrayList<>());
             this.actionsMap.get(clickType).add(action);
         }
+
+        return true;
     }
 
     public ActionsHandler() {
@@ -85,12 +96,29 @@ public class ActionsHandler {
             if (actionsToRun == null) return;
 
             for (Action action : actionsToRun) {
-                if (action.getDelay() > 0) {
-                    Bukkit.getScheduler().runTaskLater(AdvancedDisplays.getPlugin(), () -> action.runAction(player), action.getDelay());
+                if (action.isGlobal()) {
+                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                        Player globalPlayer = (action.useGlobalPlaceholders()) ? onlinePlayer : player;
+                        this.executeAction(action, player, globalPlayer);
+                    }
                 } else {
-                    action.runAction(player);
+                    this.executeAction(action, player, player);
                 }
             }
+        }
+    }
+
+    /**
+     * Runs the action for a specific player.
+     * @param action The action to run.
+     * @param actionPlayer The player who clicked the display.
+     * @param globalPlayer Who to run the action for.
+     */
+    public void executeAction(Action action, Player actionPlayer, Player globalPlayer) {
+        if (action.getDelay() > 0) {
+            Bukkit.getScheduler().runTaskLater(AdvancedDisplays.getPlugin(), () -> action.runAction(actionPlayer, globalPlayer), action.getDelay());
+        } else {
+            action.runAction(actionPlayer, globalPlayer);
         }
     }
 

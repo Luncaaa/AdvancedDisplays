@@ -4,7 +4,9 @@ public enum ActionType {
     MESSAGE("message"),
     CONSOLE_COMMAND("console-cmd"),
     PLAYER_COMMAND("player-cmd"),
-    TITLE("title");
+    TITLE("title"),
+    ACTIONBAR("actionbar"),
+    PLAY_SOUND("play-sound");
 
     private final String configName;
     ActionType(String configName) {

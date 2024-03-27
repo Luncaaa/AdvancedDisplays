@@ -99,8 +99,10 @@ public class DisplaysManager {
         ConfigurationSection anySection = actionsSection.createSection("ANY");
         ConfigurationSection actionSetting = anySection.createSection("messagePlayer");
         actionSetting.set("type", ActionType.MESSAGE.getConfigName());
-        actionSetting.set("value", "You clicked me, %player_name%!");
+        actionSetting.set("message", "You clicked me, %player_name%!");
         actionSetting.set("delay", 20);
+        actionSetting.set("global", false);
+        actionSetting.set("global-placeholders:", true);
         actionSetting.setInlineComments("delay", List.of("In ticks"));
 
         return displayConfigManager;

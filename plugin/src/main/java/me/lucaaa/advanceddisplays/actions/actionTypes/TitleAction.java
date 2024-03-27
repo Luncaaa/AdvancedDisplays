@@ -16,19 +16,19 @@ public class TitleAction extends Action {
     private final int stay;
     private final int fadeOut;
 
-    public TitleAction(ConfigurationSection actionSection, int delay) {
-        super(delay, List.of("title", "subtitle", "fadeIn", "stay", "fadeOut"), actionSection);
+    public TitleAction(ConfigurationSection actionSection) {
+        super(List.of("title", "subtitle", "fadeIn", "stay", "fadeOut"), actionSection);
         this.title = actionSection.getString("title");
         this.subtitle = actionSection.getString("subtitle");
-        this.fadeIn = actionSection.getInt("fadeIn");
+        this.fadeIn = actionSection.getInt("fadeIn", 20);
         this.stay = actionSection.getInt("stay");
-        this.fadeOut = actionSection.getInt("fadeOut");
+        this.fadeOut = actionSection.getInt("fadeOut", 20);
     }
 
     @Override
-    public void runAction(Player player) {
-        String title = BaseComponent.toLegacyText(ComponentSerializer.parse(Utils.getColoredTextWithPlaceholders(player, this.title)));
-        String subtitle = BaseComponent.toLegacyText(ComponentSerializer.parse(Utils.getColoredTextWithPlaceholders(player, this.subtitle)));
-        player.sendTitle(title,subtitle,this.fadeIn, this.stay, this.fadeOut);
+    public void runAction(Player actionPlayer, Player globalPlayer) {
+        String title = BaseComponent.toLegacyText(ComponentSerializer.parse(Utils.getColoredTextWithPlaceholders(globalPlayer, this.title, actionPlayer)));
+        String subtitle = BaseComponent.toLegacyText(ComponentSerializer.parse(Utils.getColoredTextWithPlaceholders(globalPlayer, this.subtitle, actionPlayer)));
+        globalPlayer.sendTitle(title, subtitle, this.fadeIn, this.stay, this.fadeOut);
     }
 }

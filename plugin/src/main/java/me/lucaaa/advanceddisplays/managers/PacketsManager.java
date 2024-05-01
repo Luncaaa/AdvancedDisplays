@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.managers;
 
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
+import me.lucaaa.advanceddisplays.common.utils.Version;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import org.bukkit.Bukkit;
@@ -14,7 +15,7 @@ public class PacketsManager {
 
     public PacketsManager(String version) {
         try {
-            Class<?> nmsClass = Class.forName("me.lucaaa.advanceddisplays." + version + ".Packets");
+            Class<?> nmsClass = Class.forName("me.lucaaa.advanceddisplays." + Version.getNMSVersion(version).name() + ".Packets");
             Object nmsClassInstance = nmsClass.getConstructor().newInstance();
             this.packets = (PacketInterface) nmsClassInstance;
             this.addAll();
@@ -64,13 +65,14 @@ public class PacketsManager {
     private void playerPipelineOperation(Player player, Consumer<ChannelPipeline> operation) {
         try {
             ChannelPipeline pipeline = this.packets.getPlayerPipeline(player);
-            EventLoop eventLoop = pipeline.channel().eventLoop();
 
+            EventLoop eventLoop = pipeline.channel().eventLoop();
             if (eventLoop.inEventLoop()) {
                 operation.accept(pipeline);
             } else {
                 eventLoop.execute(() -> playerPipelineOperation(player, operation));
             }
+
         } catch (Exception e) {
             Logger.logError(java.util.logging.Level.WARNING, "An error occurred while executing an operation on a player's pipeline! Player: " + player.getName(), e);
         }

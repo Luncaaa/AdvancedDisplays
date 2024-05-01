@@ -66,7 +66,7 @@ public class AdvancedDisplays extends JavaPlugin {
         if (displaysManager != null) displaysManager.removeAllEntities(); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
         if (interactionsManager != null) savedApiDisplays = interactionsManager.getApiDisplays();
         if (packetsManager != null) packetsManager.removeAll(); // If the plugin has been reloaded, remove and add all players again.
-        packetsManager = new PacketsManager(Bukkit.getServer().getClass().getName().split("\\.")[3]);
+        packetsManager = new PacketsManager(Bukkit.getServer().getBukkitVersion().split("-")[0]);
         interactionsManager = new InteractionsManager(savedApiDisplays);
         displaysManager = new DisplaysManager("displays", true, false);
     }

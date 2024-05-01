@@ -6,7 +6,7 @@
     <parent>
         <groupId>AdvancedDisplays</groupId>
         <artifactId>parent</artifactId>
-        <version>1.4</version>
+        <version>1.4.1</version>
     </parent>
 
     <artifactId>common</artifactId>

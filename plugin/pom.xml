@@ -6,7 +6,7 @@
     <parent>
         <groupId>AdvancedDisplays</groupId>
         <artifactId>parent</artifactId>
-        <version>1.4</version>
+        <version>1.4.1</version>
     </parent>
 
     <artifactId>plugin</artifactId>
@@ -51,6 +51,11 @@
             <artifactId>v1_20_R3</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>AdvancedDisplays</groupId>
+            <artifactId>v1_20_R4</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -68,7 +73,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.4.1</version>
                 <configuration>
                     <outputDirectory>../target</outputDirectory>
                 </configuration>
@@ -76,7 +81,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>3.5.3</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

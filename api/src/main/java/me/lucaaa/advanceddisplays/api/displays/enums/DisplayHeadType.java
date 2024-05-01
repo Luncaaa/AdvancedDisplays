@@ -21,9 +21,9 @@ public enum DisplayHeadType {
     }
 
     /**
-     * @hidden
      * Returns the name of the setting (key) in the config file.
      * @return The name of the setting (key) in the config file.
+     * @hidden
      */
     public String getConfigName() {
         return this.configName;

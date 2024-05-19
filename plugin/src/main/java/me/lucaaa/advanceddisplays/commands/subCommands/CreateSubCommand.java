@@ -29,7 +29,7 @@ public class CreateSubCommand extends SubCommandsFormat {
                 // If the material is a block, it will be added to the blocks list.
                 material.createBlockData();
                 this.blocksList.add(material.name());
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException | NullPointerException ignored) {}
         }
     }
 

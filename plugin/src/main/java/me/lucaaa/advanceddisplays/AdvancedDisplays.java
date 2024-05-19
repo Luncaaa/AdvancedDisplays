@@ -99,7 +99,7 @@ public class AdvancedDisplays extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("ad")).setExecutor(commandHandler);
         Objects.requireNonNull(this.getCommand("ad")).setTabCompleter(commandHandler);
 
-        Bukkit.getConsoleSender().sendMessage( MessagesManager.getColoredMessage("&aThe plugin has been successfully enabled!", true));
+        Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage("&aThe plugin has been successfully enabled! &7Version: " + this.getDescription().getVersion(), true));
     }
 
     public static Plugin getPlugin() {

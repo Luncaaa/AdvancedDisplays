@@ -39,6 +39,7 @@ public class ConvertSubCommand extends SubCommandsFormat {
         ConversionManager.setConversionNeeded(false);
         plugin.reloadConfigs();
         sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe displays have been successfully converted!", true));
+        this.hasRunOnce = false;
     }
 
     private void loopFiles(File fileOrDir) {

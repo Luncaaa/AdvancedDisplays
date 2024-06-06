@@ -44,7 +44,8 @@ public class DisplaysManager {
                 ConfigManager configManager = new ConfigManager(this.plugin, configsFolder + File.separator + configFile.getName());
 
                 YamlConfiguration config = configManager.getConfig();
-                if (config.getString("id") != null || config.getConfigurationSection("hitbox") == null) {
+                ConfigurationSection settingsSection = config.getConfigurationSection("settings");
+                if (config.getString("id") != null || config.getConfigurationSection("hitbox") == null || (settingsSection != null && settingsSection.isList("text"))) {
                     ConversionManager.setConversionNeeded(true);
                     break;
                 }

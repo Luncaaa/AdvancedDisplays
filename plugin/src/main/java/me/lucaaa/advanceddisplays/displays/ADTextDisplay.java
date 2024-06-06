@@ -3,21 +3,24 @@ package me.lucaaa.advanceddisplays.displays;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
+import me.lucaaa.advanceddisplays.common.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 
 public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.TextDisplay {
     private ConfigurationSection settings = null;
     private final AnimatedTextRunnable textRunnable;
     private int animationTime;
     private int refreshTime;
-    private List<String> text;
+    private List<List<String>> texts = new ArrayList<>();
     private TextDisplay.TextAlignment alignment;
     private Color backgroundColor;
     private int lineWidth;
@@ -35,8 +38,18 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             this.animationTime = this.settings.getInt("animationTime");
             this.refreshTime = this.settings.getInt("refreshTime");
 
-            this.text = this.settings.getStringList("text");
-            this.textRunnable.start(this.text, this.animationTime, this.refreshTime);
+            ConfigurationSection textSection = this.settings.getConfigurationSection("texts");
+            if (textSection == null) {
+                Logger.log(Level.SEVERE, "The text display \"" + configManager.getFile().getName() + "\" does not have a valid \"text\" section! Check the wiki for more information.");
+                texts.add(List.of("&cError! No valid \"texts\" section found. Check the wiki for more information."));
+            } else {
+                for (String sectionName : textSection.getKeys(false)) {
+                    if (!textSection.isList(sectionName)) continue;
+
+                    texts.add(textSection.getStringList(sectionName));
+                }
+            }
+            this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
 
             this.alignment = TextDisplay.TextAlignment.valueOf(this.settings.getString("alignment"));
 
@@ -60,7 +73,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     public void sendMetadataPackets(Player player) {
         this.sendBaseMetadataPackets(player);
         // The text runnable will set the text automatically if there are more than one texts.
-        if (this.text.size() == 1 && this.refreshTime <= 0) this.packets.setText(this.displayId, this.text.get(0), player);
+        if (this.texts.size() == 1 && this.refreshTime <= 0) this.packets.setText(this.displayId, String.join("\\n", this.texts.get(0)), player);
         this.packets.setBackgroundColor(this.displayId, this.backgroundColor, player);
         this.packets.setLineWidth(this.displayId, this.lineWidth, player);
         this.packets.setTextOpacity(this.displayId, this.textOpacity, player);
@@ -71,7 +84,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         if (this.config != null) this.settings = this.config.createSection("settings");
         this.setRefreshTime(10);
         this.setAnimationTime(20);
-        this.setText(text);
+        this.setSingleText(text);
         this.setAlignment(TextDisplay.TextAlignment.CENTER);
         this.setBackgroundColor(Color.ORANGE);
         this.setLineWidth(250);
@@ -143,29 +156,47 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     }
 
     @Override
-    public List<String> getText() {
-        return this.text;
+    public List<List<String>> getText() {
+        return this.texts;
     }
     @Override
-    public void setText(List<String> text) {
-        this.text = text;
+    public void setAnimatedText(List<List<String>> text) {
+        this.texts = text;
         if (this.config != null) {
-            this.settings.set("text", text);
+            ConfigurationSection textSection = this.settings.createSection("texts");
+            for (int i = 1; (i - 1) < text.size(); i++) {
+                textSection.set(String.valueOf(i), text.get(i-1));
+            }
+            this.settings.set("texts", textSection);
             this.save();
         }
         this.textRunnable.stop();
         this.textRunnable.start(text, this.animationTime, this.refreshTime);
     }
     @Override
-    public void addText(String text) {
-        this.text.add(text);
+    public void setSingleText(List<String> text) {
+        this.texts = List.of(text);
         if (this.config != null) {
-            List<String> textsList = this.settings.getStringList("text");
-            textsList.add(text);
-            this.settings.set("text", textsList);
+            ConfigurationSection textSection = this.settings.createSection("texts");
+            textSection.set("0", text);
+            this.settings.set("texts", textSection);
             this.save();
         }
-        if (!this.textRunnable.isRunning()) this.textRunnable.start(this.text, this.animationTime, this.refreshTime);
+        this.textRunnable.stop();
+        this.textRunnable.start(List.of(text), this.animationTime, this.refreshTime);
+    }
+    @Override
+    public void addText(List<String> text) {
+        this.texts.add(text);
+        if (this.config != null) {
+            ConfigurationSection textSection = this.settings.createSection("texts");
+            for (int i = 1; (i - 1) < text.size(); i++) {
+                textSection.set(String.valueOf(i), text.get(i-1));
+            }
+            this.settings.set("texts", textSection);
+            this.save();
+        }
+        if (!this.textRunnable.isRunning()) this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
         else this.textRunnable.addText(text);
     }
 
@@ -261,8 +292,8 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             this.save();
         }
         this.textRunnable.stop();
-        if (this.text != null) {
-            this.textRunnable.start(this.text, animationTime, this.refreshTime);
+        if (this.texts != null) {
+            this.textRunnable.start(this.texts, animationTime, this.refreshTime);
         }
     }
 
@@ -278,8 +309,8 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             this.save();
         }
         this.textRunnable.stop();
-        if (this.text != null) {
-            this.textRunnable.start(this.text, animationTime, this.refreshTime);
+        if (this.texts != null) {
+            this.textRunnable.start(this.texts, animationTime, this.refreshTime);
         }
     }
 
@@ -289,6 +320,6 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     public void restartRunnable() {
         this.textRunnable.stop();
         this.textRunnable.updateDisplayId(this.displayId);
-        this.textRunnable.start(this.text, this.animationTime, this.refreshTime);
+        this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
     }
 }

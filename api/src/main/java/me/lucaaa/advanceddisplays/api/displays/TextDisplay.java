@@ -66,17 +66,22 @@ public interface TextDisplay extends BaseDisplay {
      * Gets the displayed text.
      * @return The displayed text.
      */
-    List<String> getText();
+    List<List<String>> getText();
     /**
      * Sets the text that will be displayed.
      * @param text The text that will be displayed.
      */
-    void setText(List<String> text);
+    void setAnimatedText(List<List<String>> text);
+    /**
+     * Sets the text that will be displayed. Won't be animated.
+     * @param text The text that will be displayed.
+     */
+    void setSingleText(List<String> text);
     /**
      * Adds a line of text that will be displayed along with the previous list of text.
      * @param text The new line of text.
      */
-    void addText(String text);
+    void addText(List<String> text);
 
     /**
      * Gets the text's opacity.

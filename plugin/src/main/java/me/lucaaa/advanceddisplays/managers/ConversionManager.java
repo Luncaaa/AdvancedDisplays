@@ -62,7 +62,8 @@ public class ConversionManager {
             config.set("type", DisplayType.TEXT.name());
             settingsSection.set("animationTime", 20);
             settingsSection.set("refreshTime", 20);
-            settingsSection.set("text", List.of(Objects.requireNonNull(config.getString("text"))));
+            String[] oldTextSpared = config.getString("text", "Error! No old text found.").split("\\n");
+            settingsSection.createSection("texts").set("0", oldTextSpared);
             settingsSection.set("alignment", config.getString("alignment"));
             settingsSection.set("backgroundColor", config.getString("backgroundColor") + ";255");
             settingsSection.set("lineWidth", config.getInt("lineWidth"));
@@ -97,7 +98,19 @@ public class ConversionManager {
         } else if (type == DisplayType.TEXT) {
             if (!settingsSection.contains("animationTime")) settingsSection.set("animationTime", 20);
             if (!settingsSection.contains("refreshTime")) settingsSection.set("refreshTime", 20);
-            settingsSection.set("text", List.of(Objects.requireNonNull(settingsSection.get("text"))));
+
+            ConfigurationSection textSection = settingsSection.createSection("texts");
+            if (settingsSection.isList("text")) {
+                List<String> oldTextLines = settingsSection.getStringList("text");
+                for (int i = 1; (i - 1) < oldTextLines.size(); i++) {
+                    textSection.set(String.valueOf(i), oldTextLines.get(i-1).split("\\n"));
+                }
+
+            } else if (settingsSection.isString("text")) {
+                String[] separatedText = settingsSection.getString("text", "Error! No \"text\" section found.").split("\\n");
+                textSection.set("0", separatedText);
+            }
+            settingsSection.set("text", null);
 
         } else if (type == DisplayType.ITEM) {
             if (!settingsSection.contains("enchanted")) settingsSection.set("enchanted", false);

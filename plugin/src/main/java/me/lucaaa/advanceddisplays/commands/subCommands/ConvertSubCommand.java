@@ -9,21 +9,15 @@ import java.util.*;
 
 public class ConvertSubCommand extends SubCommandsFormat {
     private boolean hasRunOnce = false;
-    private final ArrayList<String> validVersions = new ArrayList<>(Arrays.asList("1.0", "1.1", "1.2", "1.2.1", "1.2.2", "1.2.3", "1.3"));
 
     public ConvertSubCommand(AdvancedDisplays plugin) {
         super(plugin);
         this.name = "convert";
         this.description = "Converts old display configurations to newer versions.";
-        this.usage = "/ad convert [previous version]";
-        this.minArguments = 1;
+        this.usage = "/ad convert";
+        this.minArguments = 0;
         this.executableByConsole = true;
         this.neededPermission = "ad.convert";
-    }
-
-    @Override
-    public ArrayList<String> getTabCompletions(CommandSender sender, String[] args) {
-        return validVersions;
     }
 
     @Override
@@ -40,25 +34,21 @@ public class ConvertSubCommand extends SubCommandsFormat {
             return;
         }
 
-        if (!validVersions.contains(args[1])) {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + args[1] + " &cis not a valid version.", true));
-        }
-
-        this.loopFiles(args[1], new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "displays"));
+        this.loopFiles(new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "displays"));
 
         ConversionManager.setConversionNeeded(false);
         plugin.reloadConfigs();
         sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe displays have been successfully converted!", true));
     }
 
-    private void loopFiles(String previousVersion, File fileOrDir) {
+    private void loopFiles(File fileOrDir) {
         if (fileOrDir.isDirectory()) {
             for (File insideFileOrDir : Objects.requireNonNull(fileOrDir.listFiles())) {
-                this.loopFiles(previousVersion, insideFileOrDir);
+                this.loopFiles(insideFileOrDir);
             }
 
         } else {
-            ConversionManager.convert(plugin, previousVersion, fileOrDir);
+            ConversionManager.convert(plugin, fileOrDir);
         }
     }
 }

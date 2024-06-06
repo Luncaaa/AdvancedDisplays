@@ -2,7 +2,6 @@ package me.lucaaa.advanceddisplays.commands.subCommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
-import me.lucaaa.advanceddisplays.managers.MessagesManager;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -16,7 +15,8 @@ import java.util.Objects;
 public class CreateSubCommand extends SubCommandsFormat {
     private final ArrayList<String> blocksList = new ArrayList<>();
 
-    public CreateSubCommand() {
+    public CreateSubCommand(AdvancedDisplays plugin) {
+        super(plugin);
         this.name = "create";
         this.description = "Creates a new display.";
         this.usage = "/ad create [type] [name] [value]";
@@ -57,14 +57,14 @@ public class CreateSubCommand extends SubCommandsFormat {
         try {
             type = DisplayType.valueOf(args[1].toUpperCase());
         } catch (IllegalArgumentException e) {
-            sender.sendMessage(MessagesManager.getColoredMessage("&cThe type &b" + args[1] + " &cis not a valid display type.", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe type &b" + args[1] + " &cis not a valid display type.", true));
             return;
         }
         String value = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
 
         if (type == DisplayType.BLOCK || type == DisplayType.ITEM) {
             if (Material.getMaterial(value) == null) {
-                sender.sendMessage(MessagesManager.getColoredMessage("&b" + value + " &cis not a valid material!", true));
+                sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + value + " &cis not a valid material!", true));
                 return;
             }
         }
@@ -73,22 +73,22 @@ public class CreateSubCommand extends SubCommandsFormat {
             try {
                 Objects.requireNonNull(Material.getMaterial(value)).createBlockData();
             } catch (IllegalArgumentException e) {
-                sender.sendMessage(MessagesManager.getColoredMessage("&cThe material &b" + value + " &cis not a valid block.", true));
+                sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe material &b" + value + " &cis not a valid block.", true));
                 return;
             }
         }
 
         ADBaseDisplay newDisplay = null;
         switch (type) {
-            case TEXT -> newDisplay = AdvancedDisplays.displaysManager.createTextDisplay(player.getEyeLocation(), args[2], List.of(value), true);
-            case ITEM -> newDisplay = AdvancedDisplays.displaysManager.createItemDisplay(player.getEyeLocation(), args[2], Material.getMaterial(value), true);
-            case BLOCK -> newDisplay = AdvancedDisplays.displaysManager.createBlockDisplay(player.getEyeLocation(), args[2], Objects.requireNonNull(Material.getMaterial(value)).createBlockData(), true);
+            case TEXT -> newDisplay = plugin.getDisplaysManager().createTextDisplay(player.getEyeLocation(), args[2], List.of(value), true);
+            case ITEM -> newDisplay = plugin.getDisplaysManager().createItemDisplay(player.getEyeLocation(), args[2], Material.getMaterial(value), true);
+            case BLOCK -> newDisplay = plugin.getDisplaysManager().createBlockDisplay(player.getEyeLocation(), args[2], Objects.requireNonNull(Material.getMaterial(value)).createBlockData(), true);
         }
 
         if (newDisplay == null) {
-            sender.sendMessage(MessagesManager.getColoredMessage("&cA display with the name &b" + args[2] + " &calready exists!", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cA display with the name &b" + args[2] + " &calready exists!", true));
         } else {
-            sender.sendMessage(MessagesManager.getColoredMessage("&aThe display &e" + args[2] + " &ahas been successfully created.", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[2] + " &ahas been successfully created.", true));
         }
     }
 }

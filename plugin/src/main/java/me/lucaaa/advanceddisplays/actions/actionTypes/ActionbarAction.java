@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.actions.actionTypes;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.Action;
 import me.lucaaa.advanceddisplays.actions.util.ActionBarRunnable;
 import org.bukkit.configuration.ConfigurationSection;
@@ -10,11 +11,11 @@ import java.util.List;
 public class ActionbarAction extends Action {
     private final ActionBarRunnable runnable;
 
-    public ActionbarAction(ConfigurationSection actionSection) {
+    public ActionbarAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
         super(List.of("message", "duration"), actionSection);
         String message = actionSection.getString("message");
         int duration = actionSection.getInt("duration");
-        this.runnable = new ActionBarRunnable(this, message, duration);
+        this.runnable = new ActionBarRunnable(plugin, this, message, duration);
     }
 
     @Override

@@ -23,7 +23,8 @@ import org.bukkit.util.Transformation;
 import java.util.Objects;
 
 public class ADBaseDisplay implements BaseDisplay {
-    protected final PacketInterface packets = AdvancedDisplays.packetsManager.getPackets();
+    private final AdvancedDisplays plugin;
+    protected final PacketInterface packets;
     protected final ConfigManager configManager;
     protected final YamlConfiguration config;
     protected final DisplayType type;
@@ -48,7 +49,9 @@ public class ADBaseDisplay implements BaseDisplay {
     private float hitboxWidth;
     private float hitboxHeight;
 
-    public ADBaseDisplay(DisplayType type, ConfigManager configManager, Display display, boolean isApi) {
+    public ADBaseDisplay(AdvancedDisplays plugin, DisplayType type, ConfigManager configManager, Display display, boolean isApi) {
+        this.plugin = plugin;
+        this.packets = plugin.getPacketsManager().getPackets();
         this.display = display;
         this.displayId = display.getEntityId();
         this.isApi = isApi;
@@ -56,7 +59,7 @@ public class ADBaseDisplay implements BaseDisplay {
         this.configManager = configManager;
         this.config = configManager.getConfig();
         this.type = type;
-        this.actionsHandler = new ActionsHandler(configManager.getConfig());
+        this.actionsHandler = new ActionsHandler(plugin, configManager.getConfig());
 
         ConfigurationSection locationSection = Objects.requireNonNull(this.config.getConfigurationSection("location"));
         String world = locationSection.getString("world", "world");
@@ -104,7 +107,9 @@ public class ADBaseDisplay implements BaseDisplay {
         this.hitboxHeight = (float) hitboxSection.getDouble("height");
     }
 
-    public ADBaseDisplay(DisplayType type, Display display) {
+    public ADBaseDisplay(AdvancedDisplays plugin, DisplayType type, Display display) {
+        this.plugin = plugin;
+        this.packets = plugin.getPacketsManager().getPackets();
         this.display = display;
         this.displayId = display.getEntityId();
         this.isApi = true;
@@ -112,7 +117,7 @@ public class ADBaseDisplay implements BaseDisplay {
         this.configManager = null;
         this.config = null;
         this.type = type;
-        this.actionsHandler = new ActionsHandler();
+        this.actionsHandler = new ActionsHandler(plugin);
 
         this.location = display.getLocation();
         this.billboard = display.getBillboard();
@@ -193,7 +198,7 @@ public class ADBaseDisplay implements BaseDisplay {
             this.packets.removeEntity(this.displayId);
             this.packets.removeEntity(this.hitbox.getEntityId());
 
-            AdvancedDisplays.interactionsManager.removeInteraction(this.getInteractionId());
+            plugin.getInteractionsManager().removeInteraction(this.getInteractionId());
 
             this.display = switch (this.type) {
                 case BLOCK -> this.packets.createBlockDisplay(location);
@@ -215,7 +220,7 @@ public class ADBaseDisplay implements BaseDisplay {
                 ((DisplayMethods) this).sendMetadataPackets(onlinePlayer);
             }
 
-            AdvancedDisplays.interactionsManager.addInteraction(this.getInteractionId(), this);
+            plugin.getInteractionsManager().addInteraction(this.getInteractionId(), this);
         }
         this.location = location;
     }

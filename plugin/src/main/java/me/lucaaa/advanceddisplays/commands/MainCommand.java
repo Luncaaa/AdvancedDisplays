@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.commands;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.commands.subCommands.*;
-import me.lucaaa.advanceddisplays.managers.MessagesManager;
 import org.bukkit.command.*;
 
 import javax.annotation.Nonnull;
@@ -12,32 +12,34 @@ import java.util.List;
 import java.util.Map;
 
 public class MainCommand implements CommandExecutor, TabCompleter {
-    public static final HashMap<String, SubCommandsFormat>  subCommands = new HashMap<>();
+    private final AdvancedDisplays plugin;
+    private final HashMap<String, SubCommandsFormat> subCommands = new HashMap<>();
 
-    public MainCommand() {
-        subCommands.put("help", new HelpSubCommand());
-        subCommands.put("reload", new ReloadSubCommand());
-        subCommands.put("create", new CreateSubCommand());
-        subCommands.put("remove", new RemoveSubCommand());
-        subCommands.put("movehere", new MoveHereSubCommand());
-        subCommands.put("teleport", new TeleportSubCommand());
-        subCommands.put("convert", new ConvertSubCommand());
-        subCommands.put("list", new ListSubCommand());
+    public MainCommand(AdvancedDisplays plugin) {
+        this.plugin = plugin;
+        subCommands.put("help", new HelpSubCommand(plugin, this.subCommands));
+        subCommands.put("reload", new ReloadSubCommand(plugin));
+        subCommands.put("create", new CreateSubCommand(plugin));
+        subCommands.put("remove", new RemoveSubCommand(plugin));
+        subCommands.put("movehere", new MoveHereSubCommand(plugin));
+        subCommands.put("teleport", new TeleportSubCommand(plugin));
+        subCommands.put("convert", new ConvertSubCommand(plugin));
+        subCommands.put("list", new ListSubCommand(plugin));
     }
 
     @Override
     public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label, @Nonnull String[] args) {
         // If there are no arguments, show an error.
         if (args.length == 0) {
-            sender.sendMessage(MessagesManager.getColoredMessage("&cYou need to enter more arguments to run this command!", true));
-            sender.sendMessage(MessagesManager.getColoredMessage("&cUse &b/ad help &cto see the list of existing commands.", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cYou need to enter more arguments to run this command!", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cUse &b/ad help &cto see the list of existing commands.", true));
             return true;
         }
 
         // If the subcommand does not exist, show an error.
         if (!subCommands.containsKey(args[0])) {
-            sender.sendMessage(MessagesManager.getColoredMessage("&cThe command " + args[0] + " &cdoes not exist!", true));
-            sender.sendMessage(MessagesManager.getColoredMessage("&cUse &b/ad help &cto see the list of existing commands.", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe command " + args[0] + " &cdoes not exist!", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cUse &b/ad help &cto see the list of existing commands.", true));
             return true;
         }
 
@@ -46,21 +48,21 @@ public class MainCommand implements CommandExecutor, TabCompleter {
 
         // If the player who ran the command does not have the needed permissions, show an error.
         if (!sender.hasPermission("ad.admin") && (subCommand.neededPermission != null && !sender.hasPermission(subCommand.neededPermission))) {
-            sender.sendMessage(MessagesManager.getColoredMessage("&cYou don't have permission to execute this command!", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cYou don't have permission to execute this command!", true));
             return true;
         }
 
         // If the command was executed by console but only players can execute it, show an error.
         if (sender instanceof ConsoleCommandSender && !subCommand.executableByConsole) {
-            sender.sendMessage(MessagesManager.getColoredMessage("&cOnly players can execute this command!", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cOnly players can execute this command!", true));
             return true;
         }
 
         // If the user entered fewer arguments than the subcommand needs, an error will appear.
         // args.size - 1 because the name of the subcommand is not included in the minArguments
         if (args.length - 1 < subCommand.minArguments) {
-            sender.sendMessage(MessagesManager.getColoredMessage("&cYou need to enter more arguments to run this command!", true));
-            sender.sendMessage(MessagesManager.getColoredMessage("&7Correct usage: &c" + subCommand.usage, true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cYou need to enter more arguments to run this command!", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&7Correct usage: &c" + subCommand.usage, true));
             return true;
         }
 

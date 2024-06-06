@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.displays;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
 import org.bukkit.Bukkit;
@@ -16,8 +17,8 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
     private ConfigurationSection settings = null;
     private BlockData block;
 
-    public ADBlockDisplay(ConfigManager configManager, BlockDisplay display, boolean isApi) {
-        super(DisplayType.BLOCK, configManager, display, isApi);
+    public ADBlockDisplay(AdvancedDisplays plugin, ConfigManager configManager, BlockDisplay display, boolean isApi) {
+        super(plugin, DisplayType.BLOCK, configManager, display, isApi);
         this.settings = this.config.getConfigurationSection("settings");
 
         if (this.settings != null) {
@@ -31,8 +32,8 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
             this.block = Bukkit.getServer().createBlockData(blockData + "]");
         }
     }
-    public ADBlockDisplay(BlockDisplay display) {
-        super(DisplayType.BLOCK, display);
+    public ADBlockDisplay(AdvancedDisplays plugin, BlockDisplay display) {
+        super(plugin, DisplayType.BLOCK, display);
     }
 
     @Override

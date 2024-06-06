@@ -17,18 +17,19 @@ import java.util.List;
 import java.util.logging.Level;
 
 public class ADAPIImplementation implements ADAPI {
-
+    private final AdvancedDisplays plugin;
     private final DisplaysManager displaysManager;
 
-    public ADAPIImplementation(String pluginName) {
-        this.displaysManager = new DisplaysManager("displays" + File.separator + pluginName, false, true);
+    public ADAPIImplementation(AdvancedDisplays plugin, String pluginName) {
+        this.plugin = plugin;
+        this.displaysManager = new DisplaysManager(plugin, "displays" + File.separator + pluginName, false, true);
     }
 
     @Override
     public BlockDisplay createBlockDisplay(String name, Location location, BlockData value) {
         BlockDisplay display = this.displaysManager.createBlockDisplay(location, name, value, false);
         if (display == null) Logger.log(Level.WARNING, "The display \"" + name + "\" could not be created because another display with the same name already exists.");
-        else AdvancedDisplays.apiDisplays.addDisplay(display);
+        else plugin.getApiDisplays().addDisplay(display);
         return display;
     }
 
@@ -36,7 +37,7 @@ public class ADAPIImplementation implements ADAPI {
     public ItemDisplay createItemDisplay(String name, Location location, Material value) {
         ItemDisplay display = this.displaysManager.createItemDisplay(location, name, value, false);
         if (display == null) Logger.log(Level.WARNING, "The display \"" + name + "\" could not be created because another display with the same name already exists.");
-        else AdvancedDisplays.apiDisplays.addDisplay(display);
+        else plugin.getApiDisplays().addDisplay(display);
         return display;
     }
 
@@ -44,7 +45,7 @@ public class ADAPIImplementation implements ADAPI {
     public TextDisplay createTextDisplay(String name, Location location, List<String> value) {
         TextDisplay display = this.displaysManager.createTextDisplay(location, name, value, false);
         if (display == null) Logger.log(Level.WARNING, "The display \"" + name + "\" could not be created because another display with the same name already exists.");
-        else AdvancedDisplays.apiDisplays.addDisplay(display);
+        else plugin.getApiDisplays().addDisplay(display);
         return display;
     }
 
@@ -58,8 +59,8 @@ public class ADAPIImplementation implements ADAPI {
         ADBaseDisplay display = this.displaysManager.getDisplayFromMap(name);
 
         if (display != null) {
-            AdvancedDisplays.interactionsManager.removeInteraction(display.getInteractionId());
-            AdvancedDisplays.apiDisplays.removeDisplay(display);
+            plugin.getInteractionsManager().removeInteraction(display.getInteractionId());
+            plugin.getApiDisplays().removeDisplay(display);
             this.displaysManager.removeDisplay(name);
         }
     }

@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.displays;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
 import org.bukkit.Bukkit;
@@ -13,7 +14,7 @@ import java.util.Objects;
 
 public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.TextDisplay {
     private ConfigurationSection settings = null;
-    private final AnimatedTextRunnable textRunnable = new AnimatedTextRunnable(this.displayId);
+    private final AnimatedTextRunnable textRunnable;
     private int animationTime;
     private int refreshTime;
     private List<String> text;
@@ -25,9 +26,10 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     private boolean seeThrough;
     private boolean shadowed;
 
-    public ADTextDisplay(ConfigManager configManager, TextDisplay display, boolean isApi) {
-        super(DisplayType.TEXT, configManager, display, isApi);
+    public ADTextDisplay(AdvancedDisplays plugin, ConfigManager configManager, TextDisplay display, boolean isApi) {
+        super(plugin, DisplayType.TEXT, configManager, display, isApi);
         this.settings = this.config.getConfigurationSection("settings");
+        this.textRunnable = new AnimatedTextRunnable(plugin, this.displayId);
 
         if (this.settings != null) {
             this.animationTime = this.settings.getInt("animationTime");
@@ -49,8 +51,9 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         }
     }
 
-    public ADTextDisplay(TextDisplay display) {
-        super(DisplayType.TEXT, display);
+    public ADTextDisplay(AdvancedDisplays plugin, TextDisplay display) {
+        super(plugin, DisplayType.TEXT, display);
+        this.textRunnable = new AnimatedTextRunnable(plugin, this.displayId);
     }
 
     @Override

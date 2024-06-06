@@ -1,11 +1,11 @@
 package me.lucaaa.advanceddisplays.commands.subCommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.managers.MessagesManager;
 import org.bukkit.command.CommandSender;
 
 public class ListSubCommand extends SubCommandsFormat{
-    public ListSubCommand() {
+    public ListSubCommand(AdvancedDisplays plugin) {
+        super(plugin);
         this.name = "list";
         this.description = "Shows every display created by the plugin.";
         this.usage = "/ad list";
@@ -16,7 +16,7 @@ public class ListSubCommand extends SubCommandsFormat{
 
     @Override
     public void run(CommandSender sender, String[] args) {
-        String list = String.join("&6,&e ", AdvancedDisplays.displaysManager.displays.keySet());
-        sender.sendMessage(MessagesManager.getColoredMessage("&6List of displays: &e" + list, true));
+        String list = String.join("&6,&e ", plugin.getDisplaysManager().getDisplays().keySet());
+        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&6List of displays: &e" + list, true));
     }
 }

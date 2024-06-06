@@ -1,10 +1,17 @@
 package me.lucaaa.advanceddisplays.commands.subCommands;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
 
 public abstract class SubCommandsFormat {
+    protected final AdvancedDisplays plugin;
+
+    public SubCommandsFormat(AdvancedDisplays plugin) {
+        this.plugin = plugin;
+    }
+
     // The name of the subcommand
     public String name;
 

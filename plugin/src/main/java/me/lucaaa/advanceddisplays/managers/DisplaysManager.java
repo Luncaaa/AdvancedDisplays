@@ -7,6 +7,7 @@ import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.common.utils.ConfigAxisAngle4f;
 import me.lucaaa.advanceddisplays.common.utils.ConfigVector3f;
+import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,20 +15,21 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
-import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.util.*;
 import java.util.List;
 
 public class DisplaysManager {
-    private final Plugin plugin;
+    private final AdvancedDisplays plugin;
+    private final PacketInterface packets;
     private final String configsFolder;
-    public final HashMap<String, ADBaseDisplay> displays = new HashMap<>();
+    private final HashMap<String, ADBaseDisplay> displays = new HashMap<>();
     private final boolean isApi;
 
-    public DisplaysManager(String configsFolder, boolean createFolders, boolean isApi) {
-        this.plugin = AdvancedDisplays.getPlugin();
+    public DisplaysManager(AdvancedDisplays plugin, String configsFolder, boolean createFolders, boolean isApi) {
+        this.plugin = plugin;
+        this.packets = plugin.getPacketsManager().getPackets();
         this.configsFolder = configsFolder;
         this.isApi = isApi;
 
@@ -113,15 +115,15 @@ public class DisplaysManager {
             return null;
         }
 
-        TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(location);
+        TextDisplay newDisplayPacket = packets.createTextDisplay(location);
         ADTextDisplay textDisplay;
 
         if (saveToConfig) {
             ConfigManager configManager = this.createConfigManager(name, DisplayType.TEXT, location);
-            textDisplay = new ADTextDisplay(configManager, newDisplayPacket, this.isApi).create(value);
+            textDisplay = new ADTextDisplay(plugin, configManager, newDisplayPacket, this.isApi).create(value);
             configManager.save();
         } else {
-            textDisplay = new ADTextDisplay(newDisplayPacket).create(value);
+            textDisplay = new ADTextDisplay(plugin, newDisplayPacket).create(value);
         }
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -129,7 +131,7 @@ public class DisplaysManager {
         }
 
         this.displays.put(name, textDisplay);
-        AdvancedDisplays.interactionsManager.addInteraction(textDisplay.getInteractionId(), textDisplay);
+        plugin.getInteractionsManager().addInteraction(textDisplay.getInteractionId(), textDisplay);
         return textDisplay;
     }
 
@@ -138,15 +140,15 @@ public class DisplaysManager {
             return null;
         }
 
-        ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(location);
+        ItemDisplay newDisplayPacket = packets.createItemDisplay(location);
         ADItemDisplay itemDisplay;
 
         if (saveToConfig) {
             ConfigManager configManager = this.createConfigManager(name, DisplayType.ITEM, location);
-            itemDisplay = new ADItemDisplay(configManager, newDisplayPacket, this.isApi).create(value);
+            itemDisplay = new ADItemDisplay(plugin, configManager, newDisplayPacket, this.isApi).create(value);
             configManager.save();
         } else {
-            itemDisplay = new ADItemDisplay(newDisplayPacket).create(value);
+            itemDisplay = new ADItemDisplay(plugin, newDisplayPacket).create(value);
         }
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -154,7 +156,7 @@ public class DisplaysManager {
         }
 
         this.displays.put(name, itemDisplay);
-        AdvancedDisplays.interactionsManager.addInteraction(itemDisplay.getInteractionId(), itemDisplay);
+        plugin.getInteractionsManager().addInteraction(itemDisplay.getInteractionId(), itemDisplay);
         return itemDisplay;
     }
 
@@ -163,15 +165,15 @@ public class DisplaysManager {
             return null;
         }
 
-        BlockDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createBlockDisplay(location);
+        BlockDisplay newDisplayPacket = packets.createBlockDisplay(location);
         ADBlockDisplay blockDisplay;
 
         if (saveToConfig) {
             ConfigManager configManager = this.createConfigManager(name, DisplayType.BLOCK, location);
-            blockDisplay = new ADBlockDisplay(configManager, newDisplayPacket, this.isApi).create(value);
+            blockDisplay = new ADBlockDisplay(plugin, configManager, newDisplayPacket, this.isApi).create(value);
             configManager.save();
         } else {
-            blockDisplay = new ADBlockDisplay(newDisplayPacket).create(value);
+            blockDisplay = new ADBlockDisplay(plugin, newDisplayPacket).create(value);
         }
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -179,7 +181,7 @@ public class DisplaysManager {
         }
 
         this.displays.put(name, blockDisplay);
-        AdvancedDisplays.interactionsManager.addInteraction(blockDisplay.getInteractionId(), blockDisplay);
+        plugin.getInteractionsManager().addInteraction(blockDisplay.getInteractionId(), blockDisplay);
         return blockDisplay;
     }
 
@@ -196,7 +198,7 @@ public class DisplaysManager {
         if (display instanceof ADTextDisplay) ((ADTextDisplay) display).stopRunnable();
         display.remove();
         this.displays.remove(name);
-        AdvancedDisplays.interactionsManager.removeInteraction(display.getInteractionId());
+        plugin.getInteractionsManager().removeInteraction(display.getInteractionId());
         return true;
     }
 
@@ -232,23 +234,27 @@ public class DisplaysManager {
         ADBaseDisplay newDisplay = null;
         switch (displayType) {
             case BLOCK -> {
-                BlockDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createBlockDisplay(location);
-                newDisplay = new ADBlockDisplay(configManager, newDisplayPacket, this.isApi);
+                BlockDisplay newDisplayPacket = packets.createBlockDisplay(location);
+                newDisplay = new ADBlockDisplay(plugin, configManager, newDisplayPacket, this.isApi);
             }
             case TEXT -> {
-                TextDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createTextDisplay(location);
-                newDisplay = new ADTextDisplay(configManager, newDisplayPacket, this.isApi);
+                TextDisplay newDisplayPacket = packets.createTextDisplay(location);
+                newDisplay = new ADTextDisplay(plugin, configManager, newDisplayPacket, this.isApi);
             }
             case ITEM -> {
-                ItemDisplay newDisplayPacket = AdvancedDisplays.packetsManager.getPackets().createItemDisplay(location);
-                newDisplay = new ADItemDisplay(configManager, newDisplayPacket, this.isApi);
+                ItemDisplay newDisplayPacket = packets.createItemDisplay(location);
+                newDisplay = new ADItemDisplay(plugin, configManager, newDisplayPacket, this.isApi);
             }
         }
 
         this.displays.put(configManager.getFile().getName().replace(".yml", ""), newDisplay);
-        AdvancedDisplays.interactionsManager.addInteraction(newDisplay.getInteractionId(), newDisplay);
+        plugin.getInteractionsManager().addInteraction(newDisplay.getInteractionId(), newDisplay);
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             ((DisplayMethods) newDisplay).sendMetadataPackets(onlinePlayer);
         }
+    }
+
+    public Map<String, ADBaseDisplay> getDisplays() {
+        return this.displays;
     }
 }

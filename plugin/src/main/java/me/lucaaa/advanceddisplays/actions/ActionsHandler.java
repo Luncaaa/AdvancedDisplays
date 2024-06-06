@@ -17,11 +17,13 @@ import java.util.Map;
 import java.util.logging.Level;
 
 public class ActionsHandler {
+    private final AdvancedDisplays plugin;
     private final Map<ClickType, ArrayList<Action>> actionsMap = new EnumMap<>(ClickType.class);
     private DisplayActions clickActions = null;
     private final boolean isApiDisplay;
 
-    public ActionsHandler(YamlConfiguration config) {
+    public ActionsHandler(AdvancedDisplays plugin, YamlConfiguration config) {
+        this.plugin = plugin;
         this.isApiDisplay = false;
 
         ConfigurationSection actionsSection = config.getConfigurationSection("actions");
@@ -45,7 +47,8 @@ public class ActionsHandler {
         }
     }
 
-    public ActionsHandler() {
+    public ActionsHandler(AdvancedDisplays plugin) {
+        this.plugin = plugin;
         this.isApiDisplay = true;
     }
 
@@ -71,7 +74,7 @@ public class ActionsHandler {
                 case CONSOLE_COMMAND -> new ConsoleCommandAction(actionSection);
                 case PLAYER_COMMAND -> new PlayerCommandAction(actionSection);
                 case TITLE -> new TitleAction(actionSection);
-                case ACTIONBAR -> new ActionbarAction(actionSection);
+                case ACTIONBAR -> new ActionbarAction(plugin, actionSection);
                 case PLAY_SOUND -> new SoundAction(actionSection);
             };
 
@@ -114,7 +117,7 @@ public class ActionsHandler {
      */
     public void executeAction(Action action, Player clickedPlayer, Player actionPlayer) {
         if (action.getDelay() > 0) {
-            Bukkit.getScheduler().runTaskLater(AdvancedDisplays.getPlugin(), () -> action.runAction(clickedPlayer, actionPlayer), action.getDelay());
+            Bukkit.getScheduler().runTaskLater(plugin, () -> action.runAction(clickedPlayer, actionPlayer), action.getDelay());
         } else {
             action.runAction(clickedPlayer, actionPlayer);
         }

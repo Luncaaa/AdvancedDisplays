@@ -10,21 +10,27 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 @SuppressWarnings("unused")
 public class PlayerEventsListener implements Listener {
+    private final AdvancedDisplays plugin;
+
+    public PlayerEventsListener(AdvancedDisplays plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        AdvancedDisplays.packetsManager.add(event.getPlayer());
-        AdvancedDisplays.displaysManager.spawnDisplays(event.getPlayer());
-        AdvancedDisplays.apiDisplays.getDisplays().forEach(display -> ((ADBaseDisplay) display).spawnToPlayer(event.getPlayer()));
+        plugin.getPacketsManager().add(event.getPlayer());
+        plugin.getDisplaysManager().spawnDisplays(event.getPlayer());
+        plugin.getApiDisplays().getDisplays().forEach(display -> ((ADBaseDisplay) display).spawnToPlayer(event.getPlayer()));
     }
 
     @EventHandler
     public void onWorldChange(PlayerChangedWorldEvent event) {
-        AdvancedDisplays.displaysManager.spawnDisplays(event.getPlayer());
-        AdvancedDisplays.apiDisplays.getDisplays().forEach(display -> ((ADBaseDisplay) display).spawnToPlayer(event.getPlayer()));
+        plugin.getDisplaysManager().spawnDisplays(event.getPlayer());
+        plugin.getApiDisplays().getDisplays().forEach(display -> ((ADBaseDisplay) display).spawnToPlayer(event.getPlayer()));
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        AdvancedDisplays.packetsManager.remove(event.getPlayer());
+        plugin.getPacketsManager().remove(event.getPlayer());
     }
 }

@@ -8,11 +8,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class ActionBarRunnable {
+    private final AdvancedDisplays plugin;
     private final ActionbarAction action;
     private final String message;
     private final int duration;
 
-    public ActionBarRunnable(ActionbarAction action, String message, int duration) {
+    public ActionBarRunnable(AdvancedDisplays plugin, ActionbarAction action, String message, int duration) {
+        this.plugin = plugin;
         this.action = action;
         this.message = message;
         this.duration = duration;
@@ -28,6 +30,6 @@ public class ActionBarRunnable {
                 --timeLeft;
                 if (timeLeft == 0) this.cancel();
             }
-        }.runTaskTimer(AdvancedDisplays.getPlugin(), 0L, 0L);
+        }.runTaskTimer(plugin, 0L, 0L);
     }
 }

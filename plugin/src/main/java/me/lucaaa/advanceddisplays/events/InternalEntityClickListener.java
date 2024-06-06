@@ -12,7 +12,12 @@ import java.util.HashMap;
 
 @SuppressWarnings("unused")
 public class InternalEntityClickListener implements Listener {
+    private final AdvancedDisplays plugin;
     private final HashMap<Player, Long> pastInteractions = new HashMap<>();
+
+    public InternalEntityClickListener(AdvancedDisplays plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler
     public void onEntityClick(InternalEntityClickEvent event) {
@@ -33,7 +38,7 @@ public class InternalEntityClickListener implements Listener {
             }
         }
 
-        ADBaseDisplay display = AdvancedDisplays.interactionsManager.getDisplay(event.getInteractionId());
+        ADBaseDisplay display = plugin.getInteractionsManager().getDisplay(event.getInteractionId());
         if (display != null) display.runActions(player,clickType);
     }
 }

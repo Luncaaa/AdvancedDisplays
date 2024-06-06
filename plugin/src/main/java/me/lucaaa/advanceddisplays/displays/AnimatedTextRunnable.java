@@ -9,13 +9,15 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.List;
 
 public class AnimatedTextRunnable {
+    private final AdvancedDisplays plugin;
     private int displayId;
     private List<String> textsList;
     private BukkitTask animateTask;
     private BukkitTask refreshTask;
     private int currentIndex = 0;
 
-    public AnimatedTextRunnable(int displayId) {
+    public AnimatedTextRunnable(AdvancedDisplays plugin, int displayId) {
+        this.plugin = plugin;
         this.displayId = displayId;
     }
 
@@ -28,14 +30,14 @@ public class AnimatedTextRunnable {
                 @Override
                 public void run() {
                     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
+                        plugin.getPacketsManager().getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
                     }
 
                     if (currentIndex + 1 == textsList.size()) currentIndex = 0;
                     else currentIndex++;
 
                 }
-            }.runTaskTimerAsynchronously(AdvancedDisplays.getPlugin(), 0L, animationTime);
+            }.runTaskTimerAsynchronously(plugin, 0L, animationTime);
         }
 
         // Refresh text runnable - displays the current text again (to update placeholders) every x seconds.
@@ -44,13 +46,13 @@ public class AnimatedTextRunnable {
                 @Override
                 public void run() {
                     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
+                        plugin.getPacketsManager().getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
                     }
                 }
-            }.runTaskTimerAsynchronously(AdvancedDisplays.getPlugin(), 0L, refreshTime);
+            }.runTaskTimerAsynchronously(plugin, 0L, refreshTime);
         } else if (texts.size() == 1) {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                AdvancedDisplays.packetsManager.getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
+                plugin.getPacketsManager().getPackets().setText(displayId, textsList.get(currentIndex), onlinePlayer);
             }
         }
     }

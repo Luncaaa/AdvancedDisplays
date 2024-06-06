@@ -34,7 +34,7 @@ public class ConversionManager {
         return conversionNeeded;
     }
 
-    public static void convert(String previousVersion, File file) {
+    public static void convert(AdvancedDisplays plugin, String previousVersion, File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         ConfigurationSection settingsSection;
         if (config.contains("settings")) {
@@ -172,8 +172,8 @@ public class ConversionManager {
                 hitboxSection.set("height", 1.0f);
                 config.setComments("hitbox", Arrays.asList("Displays don't have hitboxes of their own, so to have click actions independent entities have to be created.", "These settings allow you to control the hitbox of the display.", "(Use F3 + B to see the hitboxes)"));
 
-                AdvancedDisplays.mainConfig.getConfig().set("text-update", null);
-                AdvancedDisplays.mainConfig.save();
+                plugin.getMainConfig().getConfig().set("text-update", null);
+                plugin.getMainConfig().save();
             }
 
             case "1.2.1", "1.2.2", "1.2.3" -> {

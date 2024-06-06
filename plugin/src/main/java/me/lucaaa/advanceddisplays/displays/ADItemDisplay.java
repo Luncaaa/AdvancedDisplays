@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.displays;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
@@ -19,8 +20,8 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     private boolean enchanted;
     private ItemDisplay.ItemDisplayTransform itemTransformation;
 
-    public ADItemDisplay(ConfigManager configManager, ItemDisplay display, boolean isApi) {
-        super(DisplayType.ITEM, configManager, display, isApi);
+    public ADItemDisplay(AdvancedDisplays plugin, ConfigManager configManager, ItemDisplay display, boolean isApi) {
+        super(plugin, DisplayType.ITEM, configManager, display, isApi);
         this.settings = this.config.getConfigurationSection("settings");
 
         if (this.settings != null) {
@@ -43,8 +44,8 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             }
         }
     }
-    public ADItemDisplay(ItemDisplay display) {
-        super(DisplayType.ITEM, display);
+    public ADItemDisplay(AdvancedDisplays plugin, ItemDisplay display) {
+        super(plugin, DisplayType.ITEM, display);
     }
 
     @Override

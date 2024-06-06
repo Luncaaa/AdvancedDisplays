@@ -5,7 +5,7 @@
 
     <groupId>AdvancedDisplays</groupId>
     <artifactId>parent</artifactId>
-    <version>1.4.1</version>
+    <version>1.5</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -38,7 +38,7 @@
             <dependency>
                 <groupId>me.clip</groupId>
                 <artifactId>placeholderapi</artifactId>
-                <version>2.11.5</version>
+                <version>2.11.6</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -46,7 +46,7 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
-                <version>4.1.104.Final</version>
+                <version>4.1.110.Final</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -56,7 +56,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.6.3</version>
+                <version>3.7.0</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>

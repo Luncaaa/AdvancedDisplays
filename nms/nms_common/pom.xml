@@ -7,7 +7,7 @@
     <parent>
         <groupId>AdvancedDisplays</groupId>
         <artifactId>nms</artifactId>
-        <version>1.4.1</version>
+        <version>1.5</version>
     </parent>
 
     <artifactId>nms_common</artifactId>

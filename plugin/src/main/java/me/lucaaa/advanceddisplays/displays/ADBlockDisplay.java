@@ -17,8 +17,8 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
     private ConfigurationSection settings = null;
     private BlockData block;
 
-    public ADBlockDisplay(AdvancedDisplays plugin, ConfigManager configManager, BlockDisplay display, boolean isApi) {
-        super(plugin, DisplayType.BLOCK, configManager, display, isApi);
+    public ADBlockDisplay(AdvancedDisplays plugin, ConfigManager configManager, String name, BlockDisplay display, boolean isApi) {
+        super(plugin, name, DisplayType.BLOCK, configManager, display, isApi);
         this.settings = this.config.getConfigurationSection("settings");
 
         if (this.settings != null) {
@@ -32,8 +32,8 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
             this.block = Bukkit.getServer().createBlockData(blockData + "]");
         }
     }
-    public ADBlockDisplay(AdvancedDisplays plugin, BlockDisplay display) {
-        super(plugin, DisplayType.BLOCK, display);
+    public ADBlockDisplay(AdvancedDisplays plugin, String name, BlockDisplay display) {
+        super(plugin, name, DisplayType.BLOCK, display);
     }
 
     @Override

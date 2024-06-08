@@ -30,6 +30,7 @@ public class ADBaseDisplay implements BaseDisplay {
     protected final DisplayType type;
     private final ActionsHandler actionsHandler;
 
+    private final String name;
     protected Display display;
     protected int displayId;
     private final boolean isApi;
@@ -49,9 +50,10 @@ public class ADBaseDisplay implements BaseDisplay {
     private float hitboxWidth;
     private float hitboxHeight;
 
-    public ADBaseDisplay(AdvancedDisplays plugin, DisplayType type, ConfigManager configManager, Display display, boolean isApi) {
+    public ADBaseDisplay(AdvancedDisplays plugin, String name, DisplayType type, ConfigManager configManager, Display display, boolean isApi) {
         this.plugin = plugin;
         this.packets = plugin.getPacketsManager().getPackets();
+        this.name = name;
         this.display = display;
         this.displayId = display.getEntityId();
         this.isApi = isApi;
@@ -107,9 +109,10 @@ public class ADBaseDisplay implements BaseDisplay {
         this.hitboxHeight = (float) hitboxSection.getDouble("height");
     }
 
-    public ADBaseDisplay(AdvancedDisplays plugin, DisplayType type, Display display) {
+    public ADBaseDisplay(AdvancedDisplays plugin, String name, DisplayType type, Display display) {
         this.plugin = plugin;
         this.packets = plugin.getPacketsManager().getPackets();
+        this.name = name;
         this.display = display;
         this.displayId = display.getEntityId();
         this.isApi = true;
@@ -155,6 +158,11 @@ public class ADBaseDisplay implements BaseDisplay {
         this.packets.setBrightness(this.displayId, this.brightness, player);
         this.packets.setShadow(this.displayId, this.shadowRadius, this.shadowStrength, player);
         this.packets.setGlowing(this.displayId, this.isGlowing, this.glowColor, player);
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
     }
 
     @Override

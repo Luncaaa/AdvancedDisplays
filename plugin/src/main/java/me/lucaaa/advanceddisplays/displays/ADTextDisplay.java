@@ -29,8 +29,8 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     private boolean seeThrough;
     private boolean shadowed;
 
-    public ADTextDisplay(AdvancedDisplays plugin, ConfigManager configManager, TextDisplay display, boolean isApi) {
-        super(plugin, DisplayType.TEXT, configManager, display, isApi);
+    public ADTextDisplay(AdvancedDisplays plugin, ConfigManager configManager, String name, TextDisplay display, boolean isApi) {
+        super(plugin, name, DisplayType.TEXT, configManager, display, isApi);
         this.settings = this.config.getConfigurationSection("settings");
         this.textRunnable = new AnimatedTextRunnable(plugin, this.displayId);
 
@@ -64,8 +64,8 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         }
     }
 
-    public ADTextDisplay(AdvancedDisplays plugin, TextDisplay display) {
-        super(plugin, DisplayType.TEXT, display);
+    public ADTextDisplay(AdvancedDisplays plugin, String name, TextDisplay display) {
+        super(plugin, name, DisplayType.TEXT, display);
         this.textRunnable = new AnimatedTextRunnable(plugin, this.displayId);
     }
 

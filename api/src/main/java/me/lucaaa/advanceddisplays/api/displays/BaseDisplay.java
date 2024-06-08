@@ -14,6 +14,12 @@ import org.bukkit.util.Transformation;
 @SuppressWarnings("unused")
 public interface BaseDisplay {
     /**
+     * Gets the name of the display.
+     * @return The name of the display.
+     */
+    String getName();
+
+    /**
      * Gets the type of the display.
      * @return The type of the display: Either BLOCK, ITEM or TEXT
      */

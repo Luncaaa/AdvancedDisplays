@@ -76,8 +76,8 @@ public class DisplaysManager {
         brightnessSection.set("sky", 15);
 
         ConfigurationSection shadowSection = displayConfig.createSection("shadow");
-        shadowSection.set("radius", 5);
-        shadowSection.set("strength", 1);
+        shadowSection.set("radius", 5.0);
+        shadowSection.set("strength", 1.0);
 
         ConfigurationSection transformationSection = displayConfig.createSection("transformation");
         transformationSection.createSection("translation", new ConfigVector3f().serialize());

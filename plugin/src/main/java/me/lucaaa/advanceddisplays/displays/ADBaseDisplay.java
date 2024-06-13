@@ -76,8 +76,8 @@ public class ADBaseDisplay implements BaseDisplay {
         this.brightness = new Display.Brightness(brightnessSection.getInt("block"), brightnessSection.getInt("sky"));
 
         ConfigurationSection shadowSection = Objects.requireNonNull(this.config.getConfigurationSection("shadow"));
-        this.shadowRadius = shadowSection.getInt("radius");
-        this.shadowStrength = shadowSection.getInt("strength");
+        this.shadowRadius = (float) shadowSection.getDouble("radius");
+        this.shadowStrength = (float) shadowSection.getDouble("strength");
 
         ConfigurationSection transformationSection = Objects.requireNonNull(this.config.getConfigurationSection("transformation"));
         this.transformation = new Transformation(

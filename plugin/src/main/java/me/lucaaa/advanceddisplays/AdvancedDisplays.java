@@ -1,14 +1,11 @@
 package me.lucaaa.advanceddisplays;
 
-import me.lucaaa.advanceddisplays.api.ADAPIProvider;
-import me.lucaaa.advanceddisplays.api.ADAPIProviderImplementation;
-import me.lucaaa.advanceddisplays.api.APIDisplays;
-import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
-import me.lucaaa.advanceddisplays.events.InternalEntityClickListener;
 import me.lucaaa.advanceddisplays.managers.*;
+import me.lucaaa.advanceddisplays.events.*;
+import me.lucaaa.advanceddisplays.api.*;
+import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import me.lucaaa.advanceddisplays.commands.MainCommand;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
-import me.lucaaa.advanceddisplays.events.PlayerEventsListener;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -42,6 +39,7 @@ public class AdvancedDisplays extends JavaPlugin {
     private DisplaysManager displaysManager;
     private APIDisplays apiDisplays;
     private MessagesManager messagesManager;
+    private InventoryManager inventoryManager;
 
     // Reload the config files.
     public void reloadConfigs() {
@@ -56,17 +54,20 @@ public class AdvancedDisplays extends JavaPlugin {
         if (displaysManager != null) displaysManager.removeAllEntities(); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
         if (interactionsManager != null) savedApiDisplays = interactionsManager.getApiDisplays();
         if (packetsManager != null) packetsManager.removeAll(); // If the plugin has been reloaded, remove and add all players again.
+        if (inventoryManager != null) inventoryManager.clearAll(); // If the plugin has been reloaded, clear the map.
         packetsManager = new PacketsManager(this, Bukkit.getServer().getBukkitVersion().split("-")[0]);
         interactionsManager = new InteractionsManager(savedApiDisplays);
         displaysManager = new DisplaysManager(this, "displays", true, false);
         messagesManager = new MessagesManager(this.mainConfig);
+        inventoryManager = new InventoryManager();
     }
 
     @Override
     public void onEnable() {
         String version = getServer().getBukkitVersion().split("-")[0];
-        int majorNumber = Integer.parseInt(version.split("\\.")[1]);
-        int minorNumber = Integer.parseInt(version.split("\\.")[2]);
+        String[] parts = version.split("\\.");
+        int majorNumber = Integer.parseInt(parts[1]);
+        int minorNumber = (parts.length == 2) ? 0 : Integer.parseInt(parts[2]);
         if (majorNumber < 19 || (majorNumber == 19 && minorNumber < 4)) {
             Logger.log(Level.SEVERE, "The plugin will not work on this version as displays were not added until 1.19.4");
             Logger.log(Level.SEVERE, "Please update your server to 1.19.4 or higher to use this plugin.");
@@ -83,6 +84,7 @@ public class AdvancedDisplays extends JavaPlugin {
         // Register events.
         getServer().getPluginManager().registerEvents(new PlayerEventsListener(this), this);
         getServer().getPluginManager().registerEvents(new InternalEntityClickListener(this), this);
+        getServer().getPluginManager().registerEvents(new InventoryEventsListener(this), this);
 
         // Registers the main command and adds tab completions.
         MainCommand commandHandler = new MainCommand(this);
@@ -114,5 +116,9 @@ public class AdvancedDisplays extends JavaPlugin {
     
     public MessagesManager getMessagesManager() {
         return this.messagesManager;
+    }
+
+    public InventoryManager getInventoryManager() {
+        return this.inventoryManager;
     }
 }

@@ -1,8 +1,8 @@
 package me.lucaaa.advanceddisplays.v1_21_R1;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import io.netty.channel.ChannelPipeline;
+import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
+import me.lucaaa.advanceddisplays.common.utils.HeadUtils;
 import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
@@ -20,7 +20,6 @@ import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.Level;
-import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -35,18 +34,11 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.profile.PlayerProfile;
-import org.bukkit.profile.PlayerTextures;
 import org.bukkit.util.Transformation;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @SuppressWarnings("unused")
@@ -373,62 +365,15 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void setHead(int displayId, boolean enchanted, String displayHeadType, String displayHeadValue, Player player) {
+    public void setHead(int displayId, boolean enchanted, DisplayHeadType displayHeadType, String displayHeadValue, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
         List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
-        if (enchanted) item.addUnsafeEnchantment(Enchantment.MENDING, 1);
+        ItemStack head = HeadUtils.getHead(displayHeadType, displayHeadValue, player);
+        if (enchanted) head.addUnsafeEnchantment(Enchantment.MENDING, 1);
 
-        SkullMeta skullMeta = (SkullMeta) item.getItemMeta();
-        assert skullMeta != null;
-
-        if (displayHeadValue.equalsIgnoreCase("%player%")) {
-            skullMeta.setOwningPlayer(player);
-        } else {
-            String base64;
-            if (displayHeadType.equals("PLAYER")) {
-                try {
-                    String UUIDJson = IOUtils.toString(new URL("https://api.mojang.com/users/profiles/minecraft/" + displayHeadValue), StandardCharsets.UTF_8);
-                    JsonObject uuidObject = JsonParser.parseString(UUIDJson).getAsJsonObject();
-                    String dashlessUuid = uuidObject.get("id").getAsString();
-
-                    String profileJson = IOUtils.toString(new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + dashlessUuid), StandardCharsets.UTF_8);
-                    JsonObject profileObject = JsonParser.parseString(profileJson).getAsJsonObject();
-                    base64 = profileObject.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
-
-                } catch (IOException e) {
-                    Logger.log(java.util.logging.Level.WARNING, "The player name " + displayHeadValue + " does not exist!");
-                    return;
-                }
-
-            } else {
-                base64 = displayHeadValue;
-            }
-
-            String skinJson = new String(Base64.getDecoder().decode(base64));
-            JsonObject skinObject = JsonParser.parseString(skinJson).getAsJsonObject();
-            String url = skinObject.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
-
-            PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
-            PlayerTextures textures = profile.getTextures();
-
-            try {
-                URL urlObject = new URL(url);
-                textures.setSkin(urlObject);
-                profile.setTextures(textures);
-                skullMeta.setOwnerProfile(profile);
-
-            } catch (MalformedURLException e) {
-                Logger.logError(java.util.logging.Level.WARNING, "An error occurred while parsing a head! Head value: " + displayHeadValue, e);
-                return;
-            }
-        }
-
-        item.setItemMeta(skullMeta);
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy(item)));
-
+        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy(head)));
         connection.send(new ClientboundSetEntityDataPacket(displayId, data));
     }
 

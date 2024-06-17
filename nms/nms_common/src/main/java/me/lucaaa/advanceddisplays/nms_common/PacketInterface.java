@@ -1,6 +1,7 @@
 package me.lucaaa.advanceddisplays.nms_common;
 
 import io.netty.channel.ChannelPipeline;
+import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -49,6 +50,6 @@ public interface PacketInterface {
 
     // -[ Item displays ]-
     void setItem(int displayId, Material material, boolean enchanted, Player player);
-    void setHead(int displayId, boolean enchanted, String displayHeadType, String displayHeadValue, Player player);
+    void setHead(int displayId, boolean enchanted, DisplayHeadType displayHeadType, String displayHeadValue, Player player);
     void setItemDisplayTransformation(int displayId, ItemDisplay.ItemDisplayTransform transformation, Player player);
 }

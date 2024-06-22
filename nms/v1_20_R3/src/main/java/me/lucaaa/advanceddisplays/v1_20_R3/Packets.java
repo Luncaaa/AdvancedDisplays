@@ -262,7 +262,7 @@ public class Packets implements PacketInterface {
 
         List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
         data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(0, EntityDataSerializers.BYTE), (byte) (isGlowing ? 0x40 : 0)));
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(22, EntityDataSerializers.INT), color.asARGB()));
+        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(22, EntityDataSerializers.INT), color.asRGB()));
 
         connection.send(new ClientboundSetEntityDataPacket(displayId, data));
     }

@@ -220,7 +220,6 @@ public class DisplaysManager {
     public void spawnDisplays(Player player) {
         for (ADBaseDisplay display : this.displays.values()) {
             display.spawnToPlayer(player);
-            ((DisplayMethods) display).sendMetadataPackets(player);
         }
     }
 

@@ -366,6 +366,11 @@ public class ADBaseDisplay implements BaseDisplay {
     }
 
     @Override
+    public boolean isGlowing() {
+        return this.isGlowing;
+    }
+
+    @Override
     public void setGlowing(boolean isGlowing) {
         this.isGlowing = isGlowing;
         if (this.config != null) {
@@ -381,6 +386,11 @@ public class ADBaseDisplay implements BaseDisplay {
     @Override
     public void setGlowing(boolean isGlowing, Player player) {
         this.packets.setGlowing(this.displayId, isGlowing, this.glowColor, player);
+    }
+
+    @Override
+    public Color getGlowColor() {
+        return this.glowColor;
     }
 
     @Override

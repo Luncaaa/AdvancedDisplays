@@ -126,6 +126,7 @@ public interface BaseDisplay {
      * @return The display's yaw.
      */
     float getYaw();
+
     /**
      * Gets the display's pitch.
      * @return The display's pitch.
@@ -137,6 +138,7 @@ public interface BaseDisplay {
      * @param yaw The new yaw.
      * @param pitch The new pitch.
      */
+
     void setRotation(float yaw, float pitch);
     /**
      * Sets the display's rotation for a specific player.
@@ -147,10 +149,17 @@ public interface BaseDisplay {
     void setRotation(float yaw, float pitch, Player player);
 
     /**
+     * Returns whether the display's glow is active or not.
+     * @return Whether the display is glowing or not.
+     */
+    boolean isGlowing();
+
+    /**
      * Makes the display glow for everyone.
      * @param isGlowing If the display will glow or not.
      */
     void setGlowing(boolean isGlowing);
+
     /**
      * Makes the display glow for a specific player.
      * @param isGlowing If the display will glow or not.
@@ -159,10 +168,17 @@ public interface BaseDisplay {
     void setGlowing(boolean isGlowing, Player player);
 
     /**
+     * Gets the display's glow color.
+     * @return The display's glow color.
+     */
+    Color getGlowColor();
+
+    /**
      * Sets the glow color of the display for everyone. Only visible if the display is glowing.
      * @param color The glow color of the display.
      */
     void setGlowColor(Color color);
+
     /**
      * Sets the glow color of the display for a specific player. Only visible if the display is glowing.
      * @param color The glow color of the display.
@@ -177,11 +193,13 @@ public interface BaseDisplay {
      * @param height The new height of the hitbox.
      */
     void setHitboxSize(boolean override, float width, float height);
+
     /**
      * Returns the overriden width of the hitbox.
      * @return The width of the hitbox.
      */
     float getHitboxWidth();
+
     /**
      * Returns the overriden height of the hitbox.
      * @return The height of the hitbox.

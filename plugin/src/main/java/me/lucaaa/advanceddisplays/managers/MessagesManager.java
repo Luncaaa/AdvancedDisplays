@@ -4,15 +4,15 @@ import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
 import org.bukkit.ChatColor;
 
 public class MessagesManager {
-    private final ConfigManager mainConfig;
+    private final String prefix;
     
     public MessagesManager(ConfigManager mainConfigManager) {
-        this.mainConfig = mainConfigManager;
+        this.prefix = mainConfigManager.getConfig().getString("prefix");
     }
     
     public String getColoredMessage(String message, boolean addPrefix) {
         String messageToSend = message;
-        if (addPrefix) messageToSend = mainConfig.getConfig().getString("prefix") + " " + messageToSend;
+        if (addPrefix) messageToSend =  prefix + " " + messageToSend;
 
         return ChatColor.translateAlternateColorCodes('&', messageToSend);
     }

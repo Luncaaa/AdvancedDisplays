@@ -16,10 +16,19 @@ permissions:
     description: Admin permission - Allows everything
     default: op
     children:
+      ad.reload: true
+      ad.convert: true
       ad.create: true
       ad.remove: true
       ad.movehere: true
       ad.teleport: true
+      ad.edit: true
+  ad.reload:
+    description: Reloads the plugin's configuration files.
+    default: op
+  ad.convert:
+    description: Converts old display configurations to newer versions.
+    default: op
   ad.create:
     description: Creates a new display.
     default: op
@@ -31,4 +40,7 @@ permissions:
     default: op
   ad.teleport:
     description: Teleports the player to the display's location.
+    default: op
+  ad.edit:
+    description: Opens the GUI editor for a certain display.
     default: op

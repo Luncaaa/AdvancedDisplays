@@ -24,7 +24,7 @@ public class ConversionManager {
     public static void setConversionNeeded(boolean needsConversion) {
         if (needsConversion) {
             Logger.log(Level.WARNING, "The displays configuration files are from an older version and have been changed in newer versions.");
-            Logger.log(Level.WARNING, "Run the command \"/ad convert [previous version]\" to update the configuration files to newer versions.");
+            Logger.log(Level.WARNING, "Run the command \"/ad convert\" to update the configuration files to newer versions.");
             Logger.log(Level.WARNING, "Not converting the configurations will cause the plugin to malfunction. See more information at lucaaa.gitbook.io/advanceddisplays/usage/commands-and-permissions/convert-subcommand");
         }
         conversionNeeded = needsConversion;
@@ -53,17 +53,14 @@ public class ConversionManager {
         } else if (config.getString("item") != null) {
             config.set("type", DisplayType.ITEM.name());
             settingsSection.set("item", config.getString("item"));
-            settingsSection.set("enchanted", false);
             settingsSection.set("itemTransformation", config.getString("itemTransformation"));
             config.set("item", null);
             config.set("itemTransformation", null);
 
         } else if (config.getString("text") != null) {
             config.set("type", DisplayType.TEXT.name());
-            settingsSection.set("animationTime", 20);
-            settingsSection.set("refreshTime", 20);
-            String[] oldTextSpared = config.getString("text", "Error! No old text found.").split("\\n");
-            settingsSection.createSection("texts").set("0", oldTextSpared);
+            String[] oldTextSpaced = config.getString("text", "Error! No old text found.").split("\\n");
+            settingsSection.createSection("texts").set("0", oldTextSpaced);
             settingsSection.set("alignment", config.getString("alignment"));
             settingsSection.set("backgroundColor", config.getString("backgroundColor") + ";255");
             settingsSection.set("lineWidth", config.getInt("lineWidth"));

@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
@@ -17,9 +18,22 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 public class HeadUtils {
+    public static ItemStack getHead(String base64, String title, List<String> lore) {
+        ItemStack head = getHead(DisplayHeadType.BASE64, base64, null);
+        ItemMeta meta = head.getItemMeta();
+        assert meta != null;
+
+        meta.setDisplayName(Utils.getColoredText(title));
+        meta.setLore(lore.stream().map(Utils::getColoredText).toList());
+
+        head.setItemMeta(meta);
+        return head;
+    }
+
     public static ItemStack getHead(DisplayHeadType displayHeadType, String displayHeadValue, Player player) {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
 

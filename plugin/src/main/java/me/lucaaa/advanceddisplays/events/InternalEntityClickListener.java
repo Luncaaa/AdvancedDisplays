@@ -29,8 +29,7 @@ public class InternalEntityClickListener implements Listener {
         if (clickType == ClickType.RIGHT || clickType == ClickType.SHIFT_RIGHT) {
             if (this.pastInteractions.containsKey(player)) {
                 long now = System.currentTimeMillis();
-                if (now - this.pastInteractions.get(player) <= 20) {
-                    this.pastInteractions.remove(player);
+                if (now - this.pastInteractions.remove(player) <= 500) {
                     return;
                 }
             } else {

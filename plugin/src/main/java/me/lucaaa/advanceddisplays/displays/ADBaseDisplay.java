@@ -234,6 +234,23 @@ public class ADBaseDisplay implements BaseDisplay {
     }
 
     @Override
+    public Location center() {
+        Location centered = this.location;
+        if (this.type == DisplayType.BLOCK) {
+            centered.setX(Math.floor(location.getX()));
+            centered.setY(Math.floor(location.getY()));
+            centered.setZ(Math.floor(location.getZ()));
+
+        } else {
+            centered.setX(Math.floor(location.getX()) + 0.5);
+            centered.setY(Math.floor(location.getY()));
+            centered.setZ(Math.floor(location.getZ()) + 0.5);
+        }
+        this.setLocation(centered);
+        return centered;
+    }
+
+    @Override
     public Display.Billboard getBillboard() {
         return this.billboard;
     }

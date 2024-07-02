@@ -38,6 +38,12 @@ public interface BaseDisplay {
     void setLocation(Location location);
 
     /**
+     * Centers the display on the block its on.
+     * @return The centered location.
+     */
+    Location center();
+
+    /**
      * Gets the display's billboard.
      * @return The display's billboard.
      */

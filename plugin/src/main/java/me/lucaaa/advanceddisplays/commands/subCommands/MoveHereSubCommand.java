@@ -6,13 +6,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MoveHereSubCommand extends SubCommandsFormat {
     public MoveHereSubCommand(AdvancedDisplays plugin) {
         super(plugin);
         this.name = "movehere";
         this.description = "Moves a display to the player's location.";
-        this.usage = "/ad movehere [name]";
+        this.usage = "/ad movehere [name] <--center / -c>";
         this.minArguments = 1;
         this.executableByConsole = false;
         this.neededPermission = "ad.movehere";
@@ -20,7 +21,11 @@ public class MoveHereSubCommand extends SubCommandsFormat {
 
     @Override
     public ArrayList<String> getTabCompletions(CommandSender sender, String[] args) {
-        return new ArrayList<>(plugin.getDisplaysManager().getDisplays().keySet().stream().toList());
+        if (args.length == 2) {
+            return new ArrayList<>(plugin.getDisplaysManager().getDisplays().keySet().stream().toList());
+        } else {
+            return new ArrayList<>(List.of("--center", "-c"));
+        }
     }
 
     @Override
@@ -33,7 +38,12 @@ public class MoveHereSubCommand extends SubCommandsFormat {
         }
 
         Player player = (Player) sender;
-        display.setLocation(player.getEyeLocation());
+        display.setLocation(player.getLocation());
+
+        if (args.length >= 3 && (args[2].equalsIgnoreCase("--center") || args[2].equalsIgnoreCase("-c"))) {
+            display.center();
+        }
+
         sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[1] + " &ahas been successfully moved.", true));
     }
 }

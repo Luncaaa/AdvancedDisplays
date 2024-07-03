@@ -96,7 +96,7 @@ public class ADBaseDisplay implements BaseDisplay {
         String[] colorParts = Objects.requireNonNull(glowSection.getString("color")).split(";");
         this.glowColor = Color.fromRGB(Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]));
 
-        Location location1 = this.location;
+        Location location1 = this.location.clone();
         if (this.type == DisplayType.BLOCK) {
             double x1 = this.transformation.getScale().x / 2;
             double z1 = this.transformation.getScale().z / 2;

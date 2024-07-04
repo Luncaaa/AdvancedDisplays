@@ -19,13 +19,13 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class HeadUtils {
     public static ItemStack getHead(String base64, String title, List<String> lore) {
         ItemStack head = getHead(DisplayHeadType.BASE64, base64, null);
-        ItemMeta meta = head.getItemMeta();
-        assert meta != null;
+        ItemMeta meta = Objects.requireNonNull(head.getItemMeta());
 
         meta.setDisplayName(Utils.getColoredText(title));
         meta.setLore(lore.stream().map(Utils::getColoredText).toList());
@@ -37,8 +37,7 @@ public class HeadUtils {
     public static ItemStack getHead(DisplayHeadType displayHeadType, String displayHeadValue, Player player) {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
 
-        SkullMeta skullMeta = (SkullMeta) item.getItemMeta();
-        assert skullMeta != null;
+        SkullMeta skullMeta = (SkullMeta) Objects.requireNonNull(item.getItemMeta());
 
         String value = displayHeadValue;
         if (displayHeadValue.equalsIgnoreCase("%player%")) {

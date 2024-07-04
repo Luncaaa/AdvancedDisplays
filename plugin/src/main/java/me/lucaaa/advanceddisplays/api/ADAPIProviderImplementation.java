@@ -18,4 +18,8 @@ public class ADAPIProviderImplementation extends ADAPIProvider {
     public ADAPIImplementation getAPI(Plugin plugin) {
         return this.apiMap.computeIfAbsent(plugin, p -> new ADAPIImplementation(this.adPlugin, plugin.getName()));
     }
+
+    public Map<Plugin, ADAPIImplementation> getApiMap() {
+        return this.apiMap;
+    }
 }

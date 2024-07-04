@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.events;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
+import me.lucaaa.advanceddisplays.api.ADAPIImplementation;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -20,13 +20,17 @@ public class PlayerEventsListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         plugin.getPacketsManager().add(event.getPlayer());
         plugin.getDisplaysManager().spawnDisplays(event.getPlayer());
-        plugin.getApiDisplays().getDisplays().forEach(display -> ((ADBaseDisplay) display).spawnToPlayer(event.getPlayer()));
+        for (ADAPIImplementation implementation : plugin.getApiDisplays().getApiMap().values()) {
+            implementation.getDisplaysManager().spawnDisplays(event.getPlayer());
+        }
     }
 
     @EventHandler
     public void onWorldChange(PlayerChangedWorldEvent event) {
         plugin.getDisplaysManager().spawnDisplays(event.getPlayer());
-        plugin.getApiDisplays().getDisplays().forEach(display -> ((ADBaseDisplay) display).spawnToPlayer(event.getPlayer()));
+        for (ADAPIImplementation implementation : plugin.getApiDisplays().getApiMap().values()) {
+            implementation.getDisplaysManager().spawnDisplays(event.getPlayer());
+        }
     }
 
     @EventHandler

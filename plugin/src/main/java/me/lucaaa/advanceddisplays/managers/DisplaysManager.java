@@ -219,7 +219,7 @@ public class DisplaysManager {
 
     public void spawnDisplays(Player player) {
         for (ADBaseDisplay display : this.displays.values()) {
-            display.spawnToPlayer(player);
+            if (display.getVisibilityManager().isVisibleByPlayer(player)) display.spawnToPlayer(player);
         }
     }
 

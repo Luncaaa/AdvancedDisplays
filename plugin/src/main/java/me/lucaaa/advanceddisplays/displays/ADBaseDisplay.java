@@ -6,6 +6,7 @@ import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.actions.ClickType;
+import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.common.utils.ConfigAxisAngle4f;
@@ -29,6 +30,7 @@ public class ADBaseDisplay implements BaseDisplay {
     protected final YamlConfiguration config;
     protected final DisplayType type;
     private final ActionsHandler actionsHandler;
+    private final ADVisibilityManager visibilityManager = new ADVisibilityManager(this);
 
     private final String name;
     protected Display display;
@@ -168,6 +170,11 @@ public class ADBaseDisplay implements BaseDisplay {
     @Override
     public DisplayType getType() {
         return this.type;
+    }
+
+    @Override
+    public VisibilityManager getVisibilityManager() {
+        return this.visibilityManager;
     }
 
     @Override
@@ -474,6 +481,11 @@ public class ADBaseDisplay implements BaseDisplay {
         this.packets.spawnEntity(this.display, player);
         this.packets.spawnEntity(this.hitbox, player);
         ((DisplayMethods) this).sendMetadataPackets(player);
+    }
+
+    public void removeToPlayer(Player player) {
+        this.packets.removeEntity(this.displayId, player);
+        this.packets.removeEntity(this.getInteractionId(), player);
     }
 
     public void remove() {

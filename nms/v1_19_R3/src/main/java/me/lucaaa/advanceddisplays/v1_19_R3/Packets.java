@@ -185,6 +185,14 @@ public class Packets implements PacketInterface {
     }
 
     @Override
+    public void removeEntity(int entityId, Player player) {
+        CraftPlayer cp = (CraftPlayer) player;
+        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
+
+        connection.send(new ClientboundRemoveEntitiesPacket(entityId));
+    }
+
+    @Override
     public void setLocation(Entity entity, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;

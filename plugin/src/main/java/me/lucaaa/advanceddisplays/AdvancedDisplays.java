@@ -37,9 +37,11 @@ public class AdvancedDisplays extends JavaPlugin {
     private PacketsManager packetsManager;
     private InteractionsManager interactionsManager;
     private DisplaysManager displaysManager;
-    private APIDisplays apiDisplays;
     private MessagesManager messagesManager;
     private InventoryManager inventoryManager;
+
+    // API
+    private final ADAPIProviderImplementation apiDisplays = new ADAPIProviderImplementation(this);
 
     // Reload the config files.
     public void reloadConfigs() {
@@ -75,8 +77,7 @@ public class AdvancedDisplays extends JavaPlugin {
             return;
         }
 
-        ADAPIProvider.setImplementation(new ADAPIProviderImplementation(this));
-        apiDisplays = new APIDisplays();
+        ADAPIProvider.setImplementation(apiDisplays);
 
         // Set up files and managers.
         reloadConfigs();
@@ -133,7 +134,7 @@ public class AdvancedDisplays extends JavaPlugin {
         return this.displaysManager;
     }
 
-    public APIDisplays getApiDisplays() {
+    public ADAPIProviderImplementation getApiDisplays() {
         return this.apiDisplays;
     }
     

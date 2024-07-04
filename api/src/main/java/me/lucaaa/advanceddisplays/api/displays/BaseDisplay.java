@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.api.displays;
 
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
+import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.Display;
@@ -24,6 +25,12 @@ public interface BaseDisplay {
      * @return The type of the display: Either BLOCK, ITEM or TEXT
      */
     DisplayType getType();
+
+    /**
+     * Gets the display's visibility manager.
+     * @return The display's visibility manager.
+     */
+    VisibilityManager getVisibilityManager();
 
     /**
      * Gets the location of the display.

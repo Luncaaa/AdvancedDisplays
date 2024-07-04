@@ -26,6 +26,7 @@ public interface PacketInterface {
 
     // --[ Remove displays ]--
     void removeEntity(int entityId);
+    void removeEntity(int entityId, Player player);
 
     // --[ Modify displays ]--
     // -[ General ]-

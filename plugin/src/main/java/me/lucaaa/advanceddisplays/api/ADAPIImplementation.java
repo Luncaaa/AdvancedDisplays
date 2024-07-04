@@ -29,7 +29,6 @@ public class ADAPIImplementation implements ADAPI {
     public BlockDisplay createBlockDisplay(String name, Location location, BlockData value) {
         BlockDisplay display = this.displaysManager.createBlockDisplay(location, name, value, false);
         if (display == null) Logger.log(Level.WARNING, "The display \"" + name + "\" could not be created because another display with the same name already exists.");
-        else plugin.getApiDisplays().addDisplay(display);
         return display;
     }
 
@@ -37,7 +36,6 @@ public class ADAPIImplementation implements ADAPI {
     public ItemDisplay createItemDisplay(String name, Location location, Material value) {
         ItemDisplay display = this.displaysManager.createItemDisplay(location, name, value, false);
         if (display == null) Logger.log(Level.WARNING, "The display \"" + name + "\" could not be created because another display with the same name already exists.");
-        else plugin.getApiDisplays().addDisplay(display);
         return display;
     }
 
@@ -45,7 +43,6 @@ public class ADAPIImplementation implements ADAPI {
     public TextDisplay createTextDisplay(String name, Location location, List<String> value) {
         TextDisplay display = this.displaysManager.createTextDisplay(location, name, value, false);
         if (display == null) Logger.log(Level.WARNING, "The display \"" + name + "\" could not be created because another display with the same name already exists.");
-        else plugin.getApiDisplays().addDisplay(display);
         return display;
     }
 
@@ -60,8 +57,11 @@ public class ADAPIImplementation implements ADAPI {
 
         if (display != null) {
             plugin.getInteractionsManager().removeInteraction(display.getInteractionId());
-            plugin.getApiDisplays().removeDisplay(display);
             this.displaysManager.removeDisplay(name);
         }
+    }
+
+    public DisplaysManager getDisplaysManager() {
+        return this.displaysManager;
     }
 }

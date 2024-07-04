@@ -382,8 +382,15 @@ public class Packets implements PacketInterface {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
+        ItemDisplayContext transform = switch (transformation) {
+            case FIRSTPERSON_LEFTHAND -> ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
+            case FIRSTPERSON_RIGHTHAND -> ItemDisplayContext.FIRST_PERSON_RIGHT_HAND;
+            case THIRDPERSON_LEFTHAND -> ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
+            case THIRDPERSON_RIGHTHAND -> ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
+            default -> ItemDisplayContext.valueOf(transformation.name());
+        };
         List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.BYTE), ItemDisplayContext.valueOf(transformation.name()).getId()));
+        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.BYTE), transform.getId()));
 
         connection.send(new ClientboundSetEntityDataPacket(displayId, data));
     }

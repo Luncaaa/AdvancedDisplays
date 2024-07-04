@@ -11,6 +11,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class Utils {
+    public static String getColoredText(String text) {
+        return ChatColor.translateAlternateColorCodes('&', text);
+    }
+
     public static String getColoredTextWithPlaceholders(Player player, String text) {
         String transformedText = text.replaceAll("%player%", player.getName());
 
@@ -19,11 +23,11 @@ public class Utils {
         }
 
         Component c = MiniMessage.miniMessage().deserialize(transformedText);
-        return ChatColor.translateAlternateColorCodes('&', JSONComponentSerializer.json().serialize(c)).replace("\\n", "\n");
+        return ChatColor.translateAlternateColorCodes('&', JSONComponentSerializer.json().serialize(c)).replaceAll("\\n", "\n");
     }
 
     public static BaseComponent[] getTextComponent(String message, Player clickedPlayer, Player actionPlayer, boolean useGlobalPlaceholders) {
-        String transformedText = message.replaceAll("%clicked_player%", clickedPlayer.getName()).replaceAll("%player%", actionPlayer.getName());
+        String transformedText = message.replaceAll("%player%", clickedPlayer.getName()).replaceAll("%global_player%", actionPlayer.getName());
 
         Player placeholderPlayer = (useGlobalPlaceholders) ? actionPlayer : clickedPlayer;
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -31,7 +35,7 @@ public class Utils {
         }
 
         Component c = MiniMessage.miniMessage().deserialize(transformedText);
-        String json = ChatColor.translateAlternateColorCodes('&', JSONComponentSerializer.json().serialize(c)).replace("\\n", "\n");
+        String json = ChatColor.translateAlternateColorCodes('&', JSONComponentSerializer.json().serialize(c)).replaceAll("\\n", "\n");
         return ComponentSerializer.parse(json);
     }
 }

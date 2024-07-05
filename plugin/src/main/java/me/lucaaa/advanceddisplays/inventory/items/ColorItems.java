@@ -1,6 +1,5 @@
 package me.lucaaa.advanceddisplays.inventory.items;
 
-import me.lucaaa.advanceddisplays.common.utils.HeadUtils;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import me.lucaaa.advanceddisplays.inventory.InventoryUtils;
 import net.md_5.bungee.api.ChatColor;
@@ -34,9 +33,7 @@ public class ColorItems {
     public final ItemStack ALPHA_100;
     public final ItemStack ALPHA_PREVIEW;
 
-    public final ItemStack CANCEL;
     public final ItemStack PREVIEW;
-    public final ItemStack DONE;
 
     public ColorItems(Color color, boolean alphaEnabled) {
         RED_1 = create(Material.RED_CONCRETE, "&cRed ±1", List.of("Adds or subtracts 1 red from the color"));
@@ -59,9 +56,7 @@ public class ColorItems {
         ALPHA_100 = create(Material.WHITE_CONCRETE, "&fAlpha ±100", List.of("Adds or subtracts 100 alpha from the color"));
         ALPHA_PREVIEW = InventoryUtils.changeArmorColor(create("&fAlpha preview", color.getAlpha(), ColorComponent.ALPHA), Color.fromRGB(color.getAlpha(), color.getAlpha(), color.getAlpha()));
 
-        CANCEL = HeadUtils.getHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmViNTg4YjIxYTZmOThhZDFmZjRlMDg1YzU1MmRjYjA1MGVmYzljYWI0MjdmNDYwNDhmMThmYzgwMzQ3NWY3In19fQ==", "&cCancel", List.of("&eGo back without saving the color"));
         PREVIEW = InventoryUtils.changeArmorColor(createPreview(color, alphaEnabled), color);
-        DONE = HeadUtils.getHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDMxMmNhNDYzMmRlZjVmZmFmMmViMGQ5ZDdjYzdiNTVhNTBjNGUzOTIwZDkwMzcyYWFiMTQwNzgxZjVkZmJjNCJ9fX0=", "&aDone", List.of("&eGo back and save the current color"));
     }
 
     public static ItemStack createPreview(Color color, boolean alphaEnabled) {

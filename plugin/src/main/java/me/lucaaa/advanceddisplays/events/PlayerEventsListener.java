@@ -4,9 +4,11 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.ADAPIImplementation;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 @SuppressWarnings("unused")
 public class PlayerEventsListener implements Listener {
@@ -36,5 +38,18 @@ public class PlayerEventsListener implements Listener {
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
         plugin.getPacketsManager().remove(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
+        boolean isEditing = plugin.getInventoryManager().isPlayerEditing(event.getPlayer());
+        if (!isEditing) return;
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                plugin.getInventoryManager().handleEdit(event.getPlayer(), event.getMessage());
+            }
+        }.runTask(plugin);
+        event.setCancelled(true);
     }
 }

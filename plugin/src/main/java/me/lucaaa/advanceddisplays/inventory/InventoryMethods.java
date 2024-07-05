@@ -59,4 +59,6 @@ public abstract class InventoryMethods {
             this.getInventory().setItem(i, filler);
         }
     }
+
+    public void handleEdit(Player player, Object input) {}
 }

@@ -199,7 +199,9 @@ public class EditorGUI extends InventoryMethods {
                             getInventory().setItem(13, getItem());
                             event.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
                         }
-                    }.runTaskLater(plugin, 0L);
+                    }.runTask(plugin);
+
+                    setBlockData(items);
                 }
             }
         });
@@ -215,12 +217,8 @@ public class EditorGUI extends InventoryMethods {
 
         // ----[ DISPLAY-SPECIFIC ]-----
         switch (display.getType()) {
-            case BLOCK -> addButton(8, new InventoryButton(items.BLOCK_DATA) {
-                @Override
-                public void onClick(InventoryClickEvent event) {
+            case BLOCK -> setBlockData(items);
 
-                }
-            });
             case ITEM -> addButton(8, new InventoryButton(items.ITEM_TRANSFORMATION) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
@@ -229,6 +227,7 @@ public class EditorGUI extends InventoryMethods {
                     ((ItemDisplay) display).setItemTransformation(newTransform);
                 }
             });
+
             case TEXT -> {
                 TextDisplay textDisplay = (TextDisplay) display;
                 addButton(8, new InventoryButton(items.TEXT_ALIGNMENT) {
@@ -246,6 +245,7 @@ public class EditorGUI extends InventoryMethods {
                         event.getWhoClicked().closeInventory();
                         plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), new ColorGUI(plugin, EditorGUI.this, display, true, textDisplay.getBackgroundColor(), color -> {
                             textDisplay.setBackgroundColor(color);
+                            InventoryUtils.changeArmorColor(getItem(), textDisplay.getBackgroundColor());
                             InventoryUtils.changeCurrentValue(getItem(), ChatColor.of(new Color(textDisplay.getBackgroundColor().asRGB())) + "Preview");
                             getInventory().setItem(7, getItem());
                         }));
@@ -319,5 +319,32 @@ public class EditorGUI extends InventoryMethods {
         // ----------
 
         super.decorate();
+    }
+
+    private void setBlockData(EditorItems items) {
+        BlockDisplay blockDisplay = (BlockDisplay) display;
+        String data = blockDisplay.getBlock().getAsString();
+        if (data.contains("[")) {
+            addButton(8, new InventoryButton(items.BLOCK_DATA) {
+                @Override
+                public void onClick(InventoryClickEvent event) {
+                    event.getWhoClicked().closeInventory();
+                    plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), new BlockDataGUI(plugin, EditorGUI.this, blockDisplay, blockData -> {
+                        blockDisplay.setBlock(blockData);
+                        InventoryUtils.changeCurrentValue(getItem(), blockData.toString());
+                        getInventory().setItem(8, getItem());
+                    }));
+                }
+            });
+            InventoryUtils.changeCurrentValue(items.BLOCK_DATA, blockDisplay.getBlock().getAsString());
+
+        } else {
+            addButton(8, new InventoryButton(items.BLOCK_DATA) {
+                @Override
+                public void onClick(InventoryClickEvent event) {}
+            });
+            InventoryUtils.changeCurrentValue(items.BLOCK_DATA, "This block has no data");
+        }
+        getInventory().setItem(8, items.BLOCK_DATA);
     }
 }

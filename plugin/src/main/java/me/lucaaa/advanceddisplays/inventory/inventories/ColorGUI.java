@@ -7,6 +7,7 @@ import me.lucaaa.advanceddisplays.inventory.InventoryButton;
 import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
 import me.lucaaa.advanceddisplays.inventory.InventoryUtils;
 import me.lucaaa.advanceddisplays.inventory.items.ColorItems;
+import me.lucaaa.advanceddisplays.inventory.items.GlobalItems;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
@@ -180,7 +181,7 @@ public class ColorGUI extends InventoryMethods {
         // ----------
 
         // ---[ BUTTONS & PREVIEW ]----
-        addButton(8, new InventoryButton(items.CANCEL) {
+        addButton(8, new InventoryButton(GlobalItems.CANCEL) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 onClose((Player) event.getWhoClicked());
@@ -189,7 +190,7 @@ public class ColorGUI extends InventoryMethods {
 
         addButton(17, preview);
 
-        addButton(26, new InventoryButton(items.DONE) {
+        addButton(26, new InventoryButton(GlobalItems.DONE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 onDone.accept(savedColor);
@@ -211,7 +212,7 @@ public class ColorGUI extends InventoryMethods {
             public void run() {
                 plugin.getInventoryManager().handleOpen(player, previous);
             }
-        }.runTaskLater(plugin, 0L);
+        }.runTask(plugin);
     }
 
     private void updateItems(int slot, ItemStack item, ItemStack previewItem) {

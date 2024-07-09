@@ -1,6 +1,5 @@
 package me.lucaaa.advanceddisplays.managers;
 
-import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
 import org.bukkit.ChatColor;
 
 public class MessagesManager {

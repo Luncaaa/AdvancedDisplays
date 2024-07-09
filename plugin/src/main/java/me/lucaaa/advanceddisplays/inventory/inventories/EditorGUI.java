@@ -5,6 +5,7 @@ import me.lucaaa.advanceddisplays.api.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import me.lucaaa.advanceddisplays.inventory.*;
+import me.lucaaa.advanceddisplays.inventory.Button;
 import me.lucaaa.advanceddisplays.inventory.items.EditorItems;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -60,7 +61,7 @@ public class EditorGUI extends InventoryMethods {
         EditorItems items = new EditorItems(this.display);
 
         // ---[ BRIGHTNESS ]----
-        addButton(0, new InventoryButton(items.BLOCK_LIGHT) {
+        addButton(0, new Button.InventoryButton(items.BLOCK_LIGHT) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 int newBrightness = InventoryUtils.setNewItemBrightness(getItem(), display.getBrightness().getBlockLight(), event.isLeftClick());
@@ -69,7 +70,7 @@ public class EditorGUI extends InventoryMethods {
             }
         });
 
-        addButton(9, new InventoryButton(items.SKY_LIGHT) {
+        addButton(9, new Button.InventoryButton(items.SKY_LIGHT) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 int newBrightness = InventoryUtils.setNewItemBrightness(getItem(), display.getBrightness().getSkyLight(), event.isLeftClick());
@@ -80,7 +81,7 @@ public class EditorGUI extends InventoryMethods {
         // ----------
 
         // ----[ SHADOW ]-----
-        addButton(1, new InventoryButton(items.SHADOW_RADIUS) {
+        addButton(1, new Button.InventoryButton(items.SHADOW_RADIUS) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 double newValue = InventoryUtils.changeDoubleValue(getItem(), display.getShadowRadius(), event.isShiftClick(), 0.0, event.isLeftClick());
@@ -89,7 +90,7 @@ public class EditorGUI extends InventoryMethods {
             }
         });
 
-        addButton(10, new InventoryButton(items.SHADOW_STRENGTH) {
+        addButton(10, new Button.InventoryButton(items.SHADOW_STRENGTH) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 double newValue = InventoryUtils.changeDoubleValue(getItem(), display.getShadowStrength(), event.isShiftClick(), 0.0, event.isLeftClick());
@@ -100,7 +101,7 @@ public class EditorGUI extends InventoryMethods {
         // ----------
 
         // ----[ GLOW ]-----
-        addButton(2, new InventoryButton(new ItemStack(items.GLOW_TOGGLE)) {
+        addButton(2, new Button.InventoryButton(new ItemStack(items.GLOW_TOGGLE)) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 boolean newValue = !display.isGlowing();
@@ -110,21 +111,23 @@ public class EditorGUI extends InventoryMethods {
             }
         });
 
-        addButton(11, new InventoryButton(new ItemStack(items.GLOW_COLOR_SELECTOR)) {
+        addButton(11, new Button.InventoryButton(new ItemStack(items.GLOW_COLOR_SELECTOR)) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
-                plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), new ColorGUI(plugin, EditorGUI.this, display, false, display.getGlowColor(), color -> {
+                ColorGUI inventory = new ColorGUI(plugin, EditorGUI.this, display, false, display.getGlowColor(), color -> {
                     display.setGlowColor(color);
                     InventoryUtils.changeCurrentValue(getItem(), ChatColor.of(new Color(display.getGlowColor().asRGB())) + "Preview");
                     getInventory().setItem(11, getItem());
-                }));
+                });
+
+                plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory, display);
             }
         });
         // ----------
 
         // ----[ LOCATION ]-----
-        addButton(18, new InventoryButton(items.TELEPORT) {
+        addButton(18, new Button.InventoryButton(items.TELEPORT) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
@@ -132,7 +135,7 @@ public class EditorGUI extends InventoryMethods {
             }
         });
 
-        addButton(19, new InventoryButton(items.MOVE_HERE) {
+        addButton(19, new Button.InventoryButton(items.MOVE_HERE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
@@ -140,7 +143,7 @@ public class EditorGUI extends InventoryMethods {
             }
         });
 
-        addButton(19, new InventoryButton(items.MOVE_HERE) {
+        addButton(19, new Button.InventoryButton(items.MOVE_HERE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
@@ -152,11 +155,11 @@ public class EditorGUI extends InventoryMethods {
             }
         });
 
-        addButton(20, new InventoryButton(items.CENTER) {
+        addButton(20, new Button.InventoryButton(items.CENTER) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 Location loc = display.center();
-                String location = loc.getX() + ";" + loc.getX() + ";" + loc.getZ();
+                String location = loc.getX() + ";" + loc.getY() + ";" + loc.getZ();
                 InventoryUtils.changeCurrentValue(getItem(), location);
                 getInventory().setItem(20, getItem());
             }
@@ -164,7 +167,7 @@ public class EditorGUI extends InventoryMethods {
         // ----------
 
         // ----[ OTHER ]-----
-        addButton(4, new InventoryButton(items.BILLBOARD) {
+        addButton(4, new Button.InventoryButton(items.BILLBOARD) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 Display.Billboard newBillboard = InventoryUtils.changeEnumValue(getItem(), display.getBillboard());
@@ -175,7 +178,7 @@ public class EditorGUI extends InventoryMethods {
         // ----------
 
         // ----[ ACTIONS ]-----
-        addButton(13, new InventoryButton(items.CURRENT_VALUE) {
+        addButton(13, new Button.InventoryButton(items.CURRENT_VALUE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 ItemStack cursorItem = Objects.requireNonNull(event.getCursor()).clone();
@@ -201,12 +204,12 @@ public class EditorGUI extends InventoryMethods {
                         }
                     }.runTask(plugin);
 
-                    setBlockData(items);
+                    if (display.getType() == DisplayType.BLOCK) setBlockData(items);
                 }
             }
         });
 
-        addButton(22, new InventoryButton(items.REMOVE) {
+        addButton(22, new Button.InventoryButton(items.REMOVE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
@@ -219,7 +222,7 @@ public class EditorGUI extends InventoryMethods {
         switch (display.getType()) {
             case BLOCK -> setBlockData(items);
 
-            case ITEM -> addButton(8, new InventoryButton(items.ITEM_TRANSFORMATION) {
+            case ITEM -> addButton(8, new Button.InventoryButton(items.ITEM_TRANSFORMATION) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
                     org.bukkit.entity.ItemDisplay.ItemDisplayTransform newTransform = InventoryUtils.changeEnumValue(getItem(), ((ItemDisplay) display).getItemTransformation());
@@ -230,7 +233,7 @@ public class EditorGUI extends InventoryMethods {
 
             case TEXT -> {
                 TextDisplay textDisplay = (TextDisplay) display;
-                addButton(8, new InventoryButton(items.TEXT_ALIGNMENT) {
+                addButton(8, new Button.InventoryButton(items.TEXT_ALIGNMENT) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         org.bukkit.entity.TextDisplay.TextAlignment newAlignment = InventoryUtils.changeEnumValue(getItem(), textDisplay.getAlignment());
@@ -239,20 +242,22 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(7, new InventoryButton(items.BACKGROUND_COLOR) {
+                addButton(7, new Button.InventoryButton(items.BACKGROUND_COLOR) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         event.getWhoClicked().closeInventory();
-                        plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), new ColorGUI(plugin, EditorGUI.this, display, true, textDisplay.getBackgroundColor(), color -> {
+                        ColorGUI inventory = new ColorGUI(plugin, EditorGUI.this, display, true, textDisplay.getBackgroundColor(), color -> {
                             textDisplay.setBackgroundColor(color);
                             InventoryUtils.changeArmorColor(getItem(), textDisplay.getBackgroundColor());
                             InventoryUtils.changeCurrentValue(getItem(), ChatColor.of(new Color(textDisplay.getBackgroundColor().asRGB())) + "Preview");
                             getInventory().setItem(7, getItem());
-                        }));
+                        });
+
+                        plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory, display);
                     }
                 });
 
-                addButton(6, new InventoryButton(items.LINE_WIDTH) {
+                addButton(6, new Button.InventoryButton(items.LINE_WIDTH) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         int newValue = (int) InventoryUtils.changeDoubleValue(getItem(), textDisplay.getLineWidth(), 10.0, 1.0, event.isShiftClick(), 0.0, null, event.isLeftClick());
@@ -261,7 +266,7 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(17, new InventoryButton(items.TEXT_OPACITY) {
+                addButton(17, new Button.InventoryButton(items.TEXT_OPACITY) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         byte newValue = (byte) InventoryUtils.changeDoubleValue(getItem(), textDisplay.getTextOpacity(), 10.0, 1.0, event.isShiftClick(), -1.0, 127.0, event.isLeftClick());
@@ -270,7 +275,7 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(16, new InventoryButton(items.USE_DEFAULT_BACKGROUND) {
+                addButton(16, new Button.InventoryButton(items.USE_DEFAULT_BACKGROUND) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         boolean newValue = InventoryUtils.changeBooleanValue(getItem(), textDisplay.getUseDefaultBackground());
@@ -279,7 +284,7 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(15, new InventoryButton(items.SEE_THROUGH) {
+                addButton(15, new Button.InventoryButton(items.SEE_THROUGH) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         boolean newValue = InventoryUtils.changeBooleanValue(getItem(), textDisplay.isSeeThrough());
@@ -288,7 +293,7 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(26, new InventoryButton(items.SHADOWED) {
+                addButton(26, new Button.InventoryButton(items.SHADOWED) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         boolean newValue = InventoryUtils.changeBooleanValue(getItem(), textDisplay.isShadowed());
@@ -297,7 +302,7 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(25, new InventoryButton(items.ANIMATION_TIME) {
+                addButton(25, new Button.InventoryButton(items.ANIMATION_TIME) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         int newValue = (int) InventoryUtils.changeDoubleValue(getItem(), textDisplay.getAnimationTime(), 10.0, 1.0, event.isShiftClick(), 1.0, null, event.isLeftClick());
@@ -306,7 +311,7 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(24, new InventoryButton(items.REFRESH_TIME) {
+                addButton(24, new Button.InventoryButton(items.REFRESH_TIME) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         int newValue = (int) InventoryUtils.changeDoubleValue(getItem(), textDisplay.getRefreshTime(), 10.0, 1.0, event.isShiftClick(), 0.0, null, event.isLeftClick());
@@ -325,21 +330,23 @@ public class EditorGUI extends InventoryMethods {
         BlockDisplay blockDisplay = (BlockDisplay) display;
         String data = blockDisplay.getBlock().getAsString();
         if (data.contains("[")) {
-            addButton(8, new InventoryButton(items.BLOCK_DATA) {
+            addButton(8, new Button.InventoryButton(items.BLOCK_DATA) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
                     event.getWhoClicked().closeInventory();
-                    plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), new BlockDataGUI(plugin, EditorGUI.this, blockDisplay, blockData -> {
+                    InventoryMethods inventory = new BlockDataGUI(plugin, EditorGUI.this, blockDisplay, blockData -> {
                         blockDisplay.setBlock(blockData);
                         InventoryUtils.changeCurrentValue(getItem(), blockData.toString());
                         getInventory().setItem(8, getItem());
-                    }));
+                    });
+
+                    plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory, display);
                 }
             });
             InventoryUtils.changeCurrentValue(items.BLOCK_DATA, blockDisplay.getBlock().getAsString());
 
         } else {
-            addButton(8, new InventoryButton(items.BLOCK_DATA) {
+            addButton(8, new Button.InventoryButton(items.BLOCK_DATA) {
                 @Override
                 public void onClick(InventoryClickEvent event) {}
             });

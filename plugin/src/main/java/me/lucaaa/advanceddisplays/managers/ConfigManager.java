@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.common.managers;
+package me.lucaaa.advanceddisplays.managers;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;

@@ -26,6 +26,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         subCommands.put("convert", new ConvertSubCommand(plugin));
         subCommands.put("list", new ListSubCommand(plugin));
         subCommands.put("edit", new EditSubCommand(plugin));
+        subCommands.put("finishEditing", new FinishEditingSubCommand(plugin));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package me.lucaaa.advanceddisplays.inventory;
 
 import me.lucaaa.advanceddisplays.common.utils.Utils;
+import me.lucaaa.advanceddisplays.data.NamedEnum;
 import me.lucaaa.advanceddisplays.inventory.items.ColorItems;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -43,10 +44,22 @@ public class InventoryUtils {
     }
 
     public static double changeDoubleValue(ItemStack item, double oldValue, boolean changeDecimals, double min, boolean increase) {
-        return changeDoubleValue(item, oldValue, 1.0, 0.1, changeDecimals, min, null, increase);
+        return changeDoubleValue(item, oldValue, 1.0, 0.1, changeDecimals, min, null, increase, false);
+    }
+
+    public static double changeDoubleValue(ItemStack item, double oldValue, boolean changeDecimals, double min, boolean increase, boolean changeTitle) {
+        return changeDoubleValue(item, oldValue, 1.0, 0.1, changeDecimals, min, null, increase, changeTitle);
+    }
+
+    public static double changeDoubleValue(ItemStack item, double oldValue, boolean changeDecimals, double min, double max, boolean increase, boolean changeTitle) {
+        return changeDoubleValue(item, oldValue, 1.0, 0.1, changeDecimals, min, max, increase, changeTitle);
     }
 
     public static double changeDoubleValue(ItemStack item, double oldValue, double bigChange, double smallChange, boolean changeSmall, double min, Double max, boolean increase) {
+        return changeDoubleValue(item, oldValue, bigChange, smallChange, changeSmall, min, max, increase, false);
+    }
+
+    public static double changeDoubleValue(ItemStack item, double oldValue, double bigChange, double smallChange, boolean changeSmall, double min, Double max, boolean increase, boolean changeTitle) {
         double change;
         if (changeSmall) {
             change = (increase) ? smallChange : -smallChange;
@@ -60,7 +73,7 @@ public class InventoryUtils {
 
         // Round it to 2 decimal places
         double rounded = new BigDecimal(toReturn).setScale(2, RoundingMode.HALF_UP).doubleValue();
-        changeCurrentValue(item, rounded);
+        changeCurrentValue(item, rounded, changeTitle);
         return rounded;
     }
 
@@ -71,25 +84,43 @@ public class InventoryUtils {
         return newValue;
     }
 
+    public static <T extends Enum<T>> T changeEnumValue(ItemStack item, T initialValue) {
+        return changeEnumValue(item, initialValue, false);
+    }
+
     /**
      * Gets the next enum value from enum class of the given enum.
      * @param item The inventory item whose value we want to change.
      * @param initialValue The enum we want to get the next enum from.
+     * @param changeTitle Whether the title should be changed.
      * @return The next enum in the enum class or the first if the provided one was the last.
      * @param <T> The enum class.
      */
-    public static <T extends Enum<T>> T changeEnumValue(ItemStack item, T initialValue) {
+    public static <T extends Enum<T>> T changeEnumValue(ItemStack item, T initialValue, boolean changeTitle) {
         T[] values = initialValue.getDeclaringClass().getEnumConstants();
         int currentIndex = initialValue.ordinal();
         int newValueIndex = (currentIndex + 1 == values.length) ? 0 : currentIndex + 1;
         T newValue = values[newValueIndex];
 
-        changeCurrentValue(item, newValue.name());
+        String title = newValue.name();
+        if (newValue instanceof NamedEnum named) {
+            title = named.getName();
+        }
+
+        changeCurrentValue(item, title, changeTitle);
         return newValue;
     }
 
     public static void changeCurrentValue(ItemStack item, Object value) {
+        changeCurrentValue(item, value, false);
+    }
+
+    public static void changeCurrentValue(ItemStack item, Object value, boolean changeTitle) {
         ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
+
+        if (changeTitle) {
+            meta.setDisplayName(Utils.getColoredText(meta.getDisplayName().split(":")[0] + ": &7" + value));
+        }
 
         ArrayList<String> lore = new ArrayList<>(Objects.requireNonNull(meta.getLore()));
         lore.remove(lore.size() - 1);

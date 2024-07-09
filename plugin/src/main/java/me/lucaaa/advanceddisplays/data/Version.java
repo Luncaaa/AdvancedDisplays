@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.common.utils;
+package me.lucaaa.advanceddisplays.data;
 
 import java.util.List;
 

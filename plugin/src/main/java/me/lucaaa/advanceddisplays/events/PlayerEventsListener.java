@@ -2,12 +2,12 @@ package me.lucaaa.advanceddisplays.events;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.ADAPIImplementation;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scheduler.BukkitRunnable;
 
 @SuppressWarnings("unused")
@@ -38,18 +38,42 @@ public class PlayerEventsListener implements Listener {
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
         plugin.getPacketsManager().remove(event.getPlayer());
+        if (plugin.getInventoryManager().isPlayerNotEditing(event.getPlayer())) return;
+        plugin.getInventoryManager().getEditingPlayer(event.getPlayer()).finishEditing();
     }
 
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
-        boolean isEditing = plugin.getInventoryManager().isPlayerEditing(event.getPlayer());
-        if (!isEditing) return;
+        if (plugin.getInventoryManager().isPlayerNotEditing(event.getPlayer())) return;
         new BukkitRunnable() {
             @Override
             public void run() {
-                plugin.getInventoryManager().handleEdit(event.getPlayer(), event.getMessage());
+                plugin.getInventoryManager().handleChatEdit(event.getPlayer(), event.getMessage());
             }
         }.runTask(plugin);
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (plugin.getInventoryManager().isPlayerNotEditing(event.getPlayer()) || event.getHand() == EquipmentSlot.OFF_HAND) return;
+
+        event.setCancelled(true);
+        plugin.getInventoryManager().getEditingPlayer(event.getPlayer()).handleClick(event);
+    }
+
+    @EventHandler
+    public void onItemDrop(PlayerDropItemEvent event) {
+        if (plugin.getInventoryManager().isPlayerNotEditing(event.getPlayer())) return;
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onItemPickup(EntityPickupItemEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (plugin.getInventoryManager().isPlayerNotEditing(player)) return;
+
         event.setCancelled(true);
     }
 }

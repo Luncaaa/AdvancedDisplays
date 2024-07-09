@@ -8,9 +8,9 @@ import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.actions.ClickType;
 import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
-import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
-import me.lucaaa.advanceddisplays.common.utils.ConfigAxisAngle4f;
-import me.lucaaa.advanceddisplays.common.utils.ConfigVector3f;
+import me.lucaaa.advanceddisplays.managers.ConfigManager;
+import me.lucaaa.advanceddisplays.data.ConfigAxisAngle4f;
+import me.lucaaa.advanceddisplays.data.ConfigVector3f;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -197,12 +197,13 @@ public class ADBaseDisplay implements BaseDisplay {
 
         if (this.location.getWorld() == location.getWorld()) {
             this.display.teleport(location);
+            Location location1 = location.clone();
             if (this.type == DisplayType.BLOCK) {
                 double x1 = this.transformation.getScale().x / 2;
                 double z1 = this.transformation.getScale().z / 2;
-                location.add(x1, 0.0, z1);
+                location1.add(x1, 0.0, z1);
             }
-            this.hitbox.teleport(location);
+            this.hitbox.teleport(location1);
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 this.packets.setLocation(this.display, onlinePlayer);
                 this.packets.setLocation(this.hitbox, onlinePlayer);
@@ -242,7 +243,7 @@ public class ADBaseDisplay implements BaseDisplay {
 
     @Override
     public Location center() {
-        Location centered = this.location;
+        Location centered = this.location.clone();
         if (this.type == DisplayType.BLOCK) {
             centered.setX(Math.floor(location.getX()));
             centered.setY(Math.floor(location.getY()));
@@ -346,8 +347,19 @@ public class ADBaseDisplay implements BaseDisplay {
             transformationSection.createSection("rightRotation", new ConfigAxisAngle4f(transformation.getRightRotation()).serialize());
             this.save();
         }
+
+        // Centers the block in the hitbox when size changes
+        Location location1 = this.location.clone();
+        if (this.type == DisplayType.BLOCK) {
+            double x1 = this.transformation.getScale().x / 2;
+            double z1 = this.transformation.getScale().z / 2;
+            location1.add(x1, 0.0, z1);
+        }
+        this.hitbox.teleport(location1);
+
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             this.setTransformation(transformation, onlinePlayer);
+            this.packets.setLocation(this.hitbox, onlinePlayer);
         }
 
     }

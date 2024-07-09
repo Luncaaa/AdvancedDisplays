@@ -1,7 +1,9 @@
-package me.lucaaa.advanceddisplays.common.utils;
+package me.lucaaa.advanceddisplays.data;
 
 import org.joml.Vector3f;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,9 +38,9 @@ public class ConfigVector3f {
 
     public Map<String, Object> serialize() {
         HashMap<String, Object> map = new HashMap<>();
-        map.put("x", this.x);
-        map.put("y", this.y);
-        map.put("z", this.z);
+        map.put("x", BigDecimal.valueOf(this.x).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        map.put("y", BigDecimal.valueOf(this.y).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        map.put("z", BigDecimal.valueOf(this.z).setScale(2, RoundingMode.HALF_UP).doubleValue());
         return map;
     }
 

@@ -15,7 +15,7 @@ import java.util.Objects;
 public abstract class InventoryMethods {
     protected final AdvancedDisplays plugin;
     private final Inventory inventory;
-    private final Map<Integer, InventoryButton> buttons = new HashMap<>();
+    private final Map<Integer, Button> buttons = new HashMap<>();
     private boolean loaded = false;
 
     public InventoryMethods(AdvancedDisplays plugin, Inventory inventory) {
@@ -37,7 +37,7 @@ public abstract class InventoryMethods {
         this.buttons.get(event.getSlot()).onClick(event);
     }
 
-    protected void addButton(int slot, InventoryButton button) {
+    protected void addButton(int slot, Button button) {
         this.buttons.put(slot, button);
     }
 
@@ -60,5 +60,5 @@ public abstract class InventoryMethods {
         }
     }
 
-    public void handleEdit(Player player, Object input) {}
+    public void handleChatEdit(Player player, String input) {}
 }

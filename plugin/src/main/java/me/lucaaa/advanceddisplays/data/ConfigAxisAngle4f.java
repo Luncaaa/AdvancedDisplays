@@ -1,8 +1,10 @@
-package me.lucaaa.advanceddisplays.common.utils;
+package me.lucaaa.advanceddisplays.data;
 
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,10 +22,19 @@ public class ConfigAxisAngle4f {
     }
 
     public ConfigAxisAngle4f(Quaternionf angle) {
-        this.a = angle.angle();
-        this.x = angle.x;
-        this.y = angle.y;
-        this.z = angle.z;
+        angle.normalize();
+        this.a = (float) Math.toDegrees(angle.angle());
+
+        float sinHalfAngle = (float) Math.sqrt(1.0 - angle.w * angle.w);
+        if (sinHalfAngle < 1e-6f) {
+            this.x = angle.x;
+            this.y = angle.y;
+            this.z = angle.z;
+        } else {
+            this.x = angle.x / sinHalfAngle;
+            this.y = angle.y / sinHalfAngle;
+            this.z = angle.z / sinHalfAngle;
+        }
     }
 
     public ConfigAxisAngle4f(Map<String, Object> map) {
@@ -35,14 +46,14 @@ public class ConfigAxisAngle4f {
 
     public Map<String, Object> serialize() {
         HashMap<String, Object> map = new HashMap<>();
-        map.put("angle", this.a);
-        map.put("x", this.x);
-        map.put("y", this.y);
-        map.put("z", this.z);
+        map.put("angle", BigDecimal.valueOf(this.a).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        map.put("x", BigDecimal.valueOf(this.x).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        map.put("y", BigDecimal.valueOf(this.y).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        map.put("z", BigDecimal.valueOf(this.z).setScale(2, RoundingMode.HALF_UP).doubleValue());
         return map;
     }
 
     public AxisAngle4f toAxisAngle4f() {
-            return new AxisAngle4f(this.a, this.x, this.y, this.z);
+        return new AxisAngle4f((float) Math.toRadians(this.a), this.x, this.y, this.z);
     }
 }

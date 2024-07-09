@@ -5,9 +5,8 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.ActionType;
 import me.lucaaa.advanceddisplays.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
-import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
-import me.lucaaa.advanceddisplays.common.utils.ConfigAxisAngle4f;
-import me.lucaaa.advanceddisplays.common.utils.ConfigVector3f;
+import me.lucaaa.advanceddisplays.data.ConfigAxisAngle4f;
+import me.lucaaa.advanceddisplays.data.ConfigVector3f;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -28,6 +27,7 @@ public class DisplaysManager {
     private final HashMap<String, ADBaseDisplay> displays = new HashMap<>();
     private final boolean isApi;
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public DisplaysManager(AdvancedDisplays plugin, String configsFolder, boolean createFolders, boolean isApi) {
         this.plugin = plugin;
         this.packets = plugin.getPacketsManager().getPackets();
@@ -187,6 +187,7 @@ public class DisplaysManager {
         return blockDisplay;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public boolean removeDisplay(String name) {
         if (!this.displays.containsKey(name)) {
             return false;
@@ -201,6 +202,7 @@ public class DisplaysManager {
         display.remove();
         this.displays.remove(name);
         plugin.getInteractionsManager().removeInteraction(display.getInteractionId());
+        plugin.getInventoryManager().handleRemoval(display);
         return true;
     }
 

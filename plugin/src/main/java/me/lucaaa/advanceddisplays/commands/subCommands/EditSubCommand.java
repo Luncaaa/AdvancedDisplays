@@ -2,7 +2,6 @@ package me.lucaaa.advanceddisplays.commands.subCommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
-import me.lucaaa.advanceddisplays.inventory.inventories.EditorGUI;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -33,7 +32,7 @@ public class EditSubCommand extends SubCommandsFormat {
             return;
         }
 
-        EditorGUI inventory = new EditorGUI(plugin, display);
-        plugin.getInventoryManager().handleOpen((Player) sender, inventory);
+        plugin.getInventoryManager().addEditingPlayer((Player) sender, display);
+        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are now editing the display &e" + display.getName() + "&a. Run &e/ad finishEditing &ato get your old inventory back.", true));
     }
 }

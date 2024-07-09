@@ -1,9 +1,10 @@
 package me.lucaaa.advanceddisplays.inventory.inventories;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
-import me.lucaaa.advanceddisplays.inventory.InventoryButton;
+import me.lucaaa.advanceddisplays.inventory.Button;
 import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
 import me.lucaaa.advanceddisplays.inventory.items.GlobalItems;
 import org.bukkit.Bukkit;
@@ -22,6 +23,7 @@ import java.util.function.Consumer;
 
 public class BlockDataGUI extends InventoryMethods {
     private final EditorGUI previous;
+    private final BaseDisplay display;
     private final Consumer<BlockData> onDone;
     private final Material material;
     private final Map<String, String> dataMap = new HashMap<>();
@@ -30,6 +32,7 @@ public class BlockDataGUI extends InventoryMethods {
     public BlockDataGUI(AdvancedDisplays plugin, EditorGUI previousInventory, BlockDisplay display, Consumer<BlockData> onDone) {
         super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText("&6Editing block data of: &e" + display.getName())));
         this.previous = previousInventory;
+        this.display = display;
         this.onDone = onDone;
         this.material = display.getBlock().getMaterial();
 
@@ -54,11 +57,11 @@ public class BlockDataGUI extends InventoryMethods {
     public void decorate() {
         int slot = 0;
         for (Map.Entry<String, String> entry : this.dataMap.entrySet()) {
-            addButton(slot, new InventoryButton(create(entry.getKey(), entry.getValue())) {
+            addButton(slot, new Button.InventoryButton(create(entry.getKey(), entry.getValue())) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
                     editMap.put((Player) event.getWhoClicked(), entry.getKey());
-                    plugin.getInventoryManager().addEditingPlayer((Player) event.getWhoClicked(), BlockDataGUI.this);
+                    plugin.getInventoryManager().getEditingPlayer((Player) event.getWhoClicked()).setChatEditing(true);
                     event.getWhoClicked().closeInventory();
                     event.getWhoClicked().sendMessage(Utils.getColoredText("&6Enter the new value for the &e" + entry.getKey() + " &6data value. Enter &ecancel &6to cancel the operation."));
                 }
@@ -66,14 +69,14 @@ public class BlockDataGUI extends InventoryMethods {
             slot++;
         }
 
-        addButton(18, new InventoryButton(GlobalItems.CANCEL) {
+        addButton(18, new Button.InventoryButton(GlobalItems.CANCEL) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 onClose((Player) event.getWhoClicked());
             }
         });
 
-        addButton(26, new InventoryButton(GlobalItems.DONE) {
+        addButton(26, new Button.InventoryButton(GlobalItems.DONE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 String blockData = "minecraft:" + material.name().toLowerCase() + "[";
@@ -91,12 +94,12 @@ public class BlockDataGUI extends InventoryMethods {
     }
 
     @Override
-    public void handleEdit(Player player, Object input) {
-        if (!((String) input).equalsIgnoreCase("cancel")) {
-            dataMap.put(editMap.remove(player), (String) input);
+    public void handleChatEdit(Player player, String input) {
+        if (!input.equalsIgnoreCase("cancel")) {
+            dataMap.put(editMap.remove(player), input);
             decorate();
         }
-        plugin.getInventoryManager().handleOpen(player, this);
+        plugin.getInventoryManager().handleOpen(player, this, display);
     }
 
     @Override
@@ -108,7 +111,7 @@ public class BlockDataGUI extends InventoryMethods {
         new BukkitRunnable() {
             @Override
             public void run() {
-                plugin.getInventoryManager().handleOpen(player, previous);
+                plugin.getInventoryManager().handleOpen(player, previous, display);
             }
         }.runTask(plugin);
     }

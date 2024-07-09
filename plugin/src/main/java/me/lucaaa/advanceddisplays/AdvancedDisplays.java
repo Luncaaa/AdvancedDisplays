@@ -5,7 +5,7 @@ import me.lucaaa.advanceddisplays.events.*;
 import me.lucaaa.advanceddisplays.api.*;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import me.lucaaa.advanceddisplays.commands.MainCommand;
-import me.lucaaa.advanceddisplays.common.managers.ConfigManager;
+import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -61,7 +61,7 @@ public class AdvancedDisplays extends JavaPlugin {
         interactionsManager = new InteractionsManager(savedApiDisplays);
         displaysManager = new DisplaysManager(this, "displays", true, false);
         messagesManager = new MessagesManager(this.mainConfig);
-        inventoryManager = new InventoryManager();
+        inventoryManager = new InventoryManager(this);
     }
 
     @Override
@@ -116,6 +116,11 @@ public class AdvancedDisplays extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("ad")).setTabCompleter(commandHandler);
 
         Bukkit.getConsoleSender().sendMessage(messagesManager.getColoredMessage("&aThe plugin has been successfully enabled! &7Version: " + this.getDescription().getVersion(), true));
+    }
+
+    @Override
+    public void onDisable() {
+        inventoryManager.clearAll();
     }
 
     public ConfigManager getMainConfig() {

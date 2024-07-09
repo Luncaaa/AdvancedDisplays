@@ -3,7 +3,7 @@ package me.lucaaa.advanceddisplays.managers;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.common.utils.Version;
+import me.lucaaa.advanceddisplays.data.Version;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import org.bukkit.Bukkit;

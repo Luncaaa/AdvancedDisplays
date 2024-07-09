@@ -1,0 +1,7 @@
+# This file saves the inventory of the players who are editing a display
+# ---
+# The inventory is also saved in a variable, but this file while allow its restoration in case the server crashes
+# or the plugin throws an error.
+# ---
+# Do not touch anything unless you know what you are doing!
+saved: {}

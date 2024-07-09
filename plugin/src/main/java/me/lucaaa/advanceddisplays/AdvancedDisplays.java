@@ -30,8 +30,9 @@ import java.util.logging.Level;
 // 3. More actions on click.
 
 public class AdvancedDisplays extends JavaPlugin {
-    // Config file.
+    // Config files.
     private ConfigManager mainConfig;
+    private ConfigManager savesConfig;
 
     // Managers.
     private PacketsManager packetsManager;
@@ -48,8 +49,11 @@ public class AdvancedDisplays extends JavaPlugin {
         // Creates the config file.
         if (!new File(getDataFolder().getAbsolutePath() + File.separator + "config.yml").exists())
             saveResource("config.yml", false);
+        if (!new File(getDataFolder().getAbsolutePath() + File.separator + "saved-inventories.yml").exists())
+            saveResource("saved-inventories.yml", false);
 
         mainConfig = new ConfigManager(this, "config.yml");
+        savesConfig = new ConfigManager(this, "saved-inventories.yml");
 
         // Managers
         HashMap<Integer, ADBaseDisplay> savedApiDisplays = new HashMap<>(); // If the plugin is reloaded, this will save the click actions for API displays.
@@ -61,7 +65,7 @@ public class AdvancedDisplays extends JavaPlugin {
         interactionsManager = new InteractionsManager(savedApiDisplays);
         displaysManager = new DisplaysManager(this, "displays", true, false);
         messagesManager = new MessagesManager(this.mainConfig);
-        inventoryManager = new InventoryManager(this);
+        inventoryManager = new InventoryManager(this, savesConfig);
     }
 
     @Override
@@ -125,6 +129,10 @@ public class AdvancedDisplays extends JavaPlugin {
 
     public ConfigManager getMainConfig() {
         return this.mainConfig;
+    }
+
+    public ConfigManager getSavesConfig() {
+        return this.savesConfig;
     }
 
     public PacketsManager getPacketsManager() {

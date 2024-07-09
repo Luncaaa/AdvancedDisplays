@@ -14,11 +14,13 @@ import java.util.Objects;
 
 public class InventoryManager {
     private final AdvancedDisplays plugin;
+    private final ConfigManager savesConfig;
     private final Map<Player, InventoryMethods> openGUIs = new HashMap<>();
     private final Map<Player, EditingPlayer> editingData = new HashMap<>();
 
-    public InventoryManager(AdvancedDisplays plugin) {
+    public InventoryManager(AdvancedDisplays plugin, ConfigManager savesConfig) {
         this.plugin = plugin;
+        this.savesConfig = savesConfig;
     }
 
     public void handleOpen(Player player, InventoryMethods gui, BaseDisplay display) {
@@ -64,7 +66,7 @@ public class InventoryManager {
 
     public void addEditingPlayer(Player player, BaseDisplay display) {
         if (this.editingData.containsKey(player)) this.editingData.get(player).finishEditing();
-        this.editingData.put(player, new EditingPlayer(plugin, player, display));
+        this.editingData.put(player, new EditingPlayer(plugin, savesConfig, player, display));
     }
 
     public void removeEditingPlayer(Player player) {

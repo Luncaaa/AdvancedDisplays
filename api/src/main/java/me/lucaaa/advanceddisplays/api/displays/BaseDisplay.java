@@ -33,6 +33,18 @@ public interface BaseDisplay {
     VisibilityManager getVisibilityManager();
 
     /**
+     * Opens the in-game editor for a player.
+     * @param player The player for whom the editor will be opened.
+     */
+    void openEditor(Player player);
+
+    /**
+     * Closes the in-game editor for a player.
+     * @param player The player for whom the editor will be closed.
+     */
+    void closeEditor(Player player);
+
+    /**
      * Gets the location of the display.
      * @return The location of the display.
      */

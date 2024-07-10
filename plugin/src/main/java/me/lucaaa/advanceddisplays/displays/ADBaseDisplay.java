@@ -178,6 +178,20 @@ public class ADBaseDisplay implements BaseDisplay {
     }
 
     @Override
+    public void openEditor(Player player) {
+        plugin.getInventoryManager().addEditingPlayer(player, this);
+        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are now editing the display &e" + display.getName() + "&a. Run &e/ad finishEditing &ato get your old inventory back.", true));
+    }
+
+    @Override
+    public void closeEditor(Player player) {
+        if (plugin.getInventoryManager().isPlayerNotEditing(player)) return;
+
+        plugin.getInventoryManager().getEditingPlayer(player).finishEditing();
+        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been successfully given back to you.", true));
+    }
+
+    @Override
     public Location getLocation() {
         return this.location;
     }

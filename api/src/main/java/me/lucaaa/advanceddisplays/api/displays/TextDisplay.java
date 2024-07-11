@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay.TextAlignment;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * An entity which displays some text.
@@ -64,24 +65,34 @@ public interface TextDisplay extends BaseDisplay {
 
     /**
      * Gets the displayed text.
-     * @return The displayed text.
+     * @return The displayed text. The map's key is the text's (the value) identifier.
      */
-    List<List<String>> getText();
+    Map<String, List<String>> getText();
     /**
-     * Sets the text that will be displayed.
-     * @param text The text that will be displayed.
+     * Sets the text that will be displayed. Will remove the previously set texts.
+     * @param text The text that will be displayed. The map's key will be the text's (the value) identifier.
      */
-    void setAnimatedText(List<List<String>> text);
+    void setAnimatedText(Map<String, List<String>> text);
     /**
      * Sets the text that will be displayed. Won't be animated.
+     * @param identifier What the text will be identified with.
      * @param text The text that will be displayed.
      */
-    void setSingleText(List<String> text);
+    void setSingleText(String identifier, List<String> text);
     /**
-     * Adds a line of text that will be displayed along with the previous list of text.
-     * @param text The new line of text.
+     * Adds new text that will be animated along with the previously set text.
+     * @param identifier What this text will be identified with.
+     * @param text The new lines of text.
+     * @return False if a list of texts with that identifier already existed, true otherwise.
      */
-    void addText(List<String> text);
+    boolean addText(String identifier, List<String> text);
+
+    /**
+     * Removes a list of text from the display.
+     * @param identifier The text to remove.
+     * @return Whether the text existed and could be removed or not.
+     */
+    boolean removeText(String identifier);
 
     /**
      * Gets the text's opacity.

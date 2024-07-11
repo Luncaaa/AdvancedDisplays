@@ -1,10 +1,6 @@
 package me.lucaaa.advanceddisplays.inventory.items;
 
-import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
-import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
-import me.lucaaa.advanceddisplays.api.displays.ItemDisplay;
-import me.lucaaa.advanceddisplays.api.displays.TextDisplay;
-import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
+import me.lucaaa.advanceddisplays.api.displays.*;
 import me.lucaaa.advanceddisplays.inventory.InventoryUtils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
@@ -58,7 +54,7 @@ public class EditorItems {
         SHADOW_STRENGTH = createShadow("Shadow Strength", "Changes how dark the shadow is", display.getShadowStrength());
 
         GLOW_TOGGLE = GlobalItems.create(Material.GLOW_BERRIES, "Toggle glow", "Enables or disables the display's glowing status", display.isGlowing());
-        GLOW_COLOR_SELECTOR = GlobalItems.create(Material.GLOW_INK_SAC, "Change glow color", "Changes the display's glow color", ChatColor.of(new Color(display.getGlowColor().asRGB())) + "Preview");
+        GLOW_COLOR_SELECTOR = GlobalItems.create(Material.GLOW_INK_SAC, "Glow color", "Changes the display's glow color", ChatColor.of(new Color(display.getGlowColor().asRGB())) + "Preview");
 
         Location loc = display.getLocation();
         String location = BigDecimal.valueOf(loc.getX()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getY()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getZ()).setScale(2, RoundingMode.HALF_UP).doubleValue();
@@ -68,13 +64,12 @@ public class EditorItems {
 
         BILLBOARD = GlobalItems.create(Material.STRUCTURE_VOID, "Change billboard", "Changes the display's rotation axis", display.getBillboard().name());
 
-        Material currentMaterial = switch (display.getType()) {
-            case TEXT -> Material.OAK_SIGN;
-            case ITEM -> ((ItemDisplay) display).getMaterial();
-            case BLOCK -> ((BlockDisplay) display).getBlock().getMaterial();
-        };
-        String value = (display.getType() == DisplayType.TEXT) ? (((TextDisplay) display).getText().size() + " text animation(s)") : currentMaterial.name();
-        CURRENT_VALUE = GlobalItems.create(currentMaterial, "Display value", List.of("Changes what the display is displaying", "You must have an item in your cursor to", "change the value of block and item displays."), value, false, false, 0.0, 0.0);
+        switch (display.getType()) {
+            case TEXT -> CURRENT_VALUE = GlobalItems.create(Material.OAK_SIGN, "Display text", List.of("Changes the text that is being displayed", "", "&7Use &cLEFT_CLICK &7to remove an animation", "&7Use &cRIGHT_CLICK &7to add an animation"), ((TextDisplay) display).getText().size() + " text animation(s)", false, false, 0.0, 0.0);
+            case ITEM -> CURRENT_VALUE = GlobalItems.create(((ItemDisplay) display).getMaterial(), "Display item", List.of("Changes the item that is being displayed", "You must have an item in your cursor."), ((ItemDisplay) display).getMaterial(), false, false, 0.0, 0.0);
+            case BLOCK -> CURRENT_VALUE = GlobalItems.create(((BlockDisplay) display).getBlock().getMaterial(), "Display block", List.of("Changes the block that is being displayed", "You must have a valid block in your cursor."), ((BlockDisplay) display).getBlock().getMaterial(), false, false, 0.0, 0.0);
+            default -> CURRENT_VALUE = new ItemStack(Material.BARRIER);
+        }
         REMOVE = GlobalItems.create(Material.BARRIER, "&cRemove", "Permanently removes this display", null);
 
         switch (display.getType()) {
@@ -84,7 +79,7 @@ public class EditorItems {
                 TextDisplay textDisplay = (TextDisplay) display;
 
                 TEXT_ALIGNMENT = GlobalItems.create(Material.FILLED_MAP, "Text alignment", "Changes the text's alignment", textDisplay.getAlignment().name());
-                BACKGROUND_COLOR = InventoryUtils.changeArmorColor(ColorItems.createPreview(textDisplay.getBackgroundColor(), true), textDisplay.getBackgroundColor());
+                BACKGROUND_COLOR = InventoryUtils.changeArmorColor(ColorItems.createPreview(textDisplay.getBackgroundColor(), true, "Background Color"), textDisplay.getBackgroundColor());
                 LINE_WIDTH = GlobalItems.create(Material.BLACK_DYE, "Line width", List.of("Changes the text's line width"), textDisplay.getLineWidth(), true, true, 10.0, 1.0);
                 TEXT_OPACITY = GlobalItems.create(Material.GRAY_DYE, "Text opacity", List.of("Changes the text's opacity"), textDisplay.getTextOpacity(), true, true, 10.0, 1.0);
                 USE_DEFAULT_BACKGROUND = GlobalItems.create(Material.WHITE_DYE, "Use default background", "Changes whether the display uses the default background or not", textDisplay.getUseDefaultBackground());

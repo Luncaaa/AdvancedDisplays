@@ -56,12 +56,12 @@ public class ColorItems {
         ALPHA_100 = create(Material.WHITE_CONCRETE, "&fAlpha ±100", List.of("Adds or subtracts 100 alpha from the color"));
         ALPHA_PREVIEW = InventoryUtils.changeArmorColor(create("&fAlpha preview", color.getAlpha(), ColorComponent.ALPHA), Color.fromRGB(color.getAlpha(), color.getAlpha(), color.getAlpha()));
 
-        PREVIEW = InventoryUtils.changeArmorColor(createPreview(color, alphaEnabled), color);
+        PREVIEW = InventoryUtils.changeArmorColor(createPreview(color, alphaEnabled, "Color Preview"), color);
     }
 
-    public static ItemStack createPreview(Color color, boolean alphaEnabled) {
+    public static ItemStack createPreview(Color color, boolean alphaEnabled, String title) {
         ItemStack item = new ItemStack(Material.LEATHER_CHESTPLATE);
-        item.setItemMeta(setPreviewLore(Objects.requireNonNull(item.getItemMeta()), color, alphaEnabled));
+        item.setItemMeta(setPreviewLore(Objects.requireNonNull(item.getItemMeta()), color, alphaEnabled, title));
         return item;
     }
 
@@ -114,8 +114,9 @@ public class ColorItems {
         ALPHA
     }
 
-    public static ItemMeta setPreviewLore(ItemMeta meta, Color color, boolean alphaEnabled) {
-        meta.setDisplayName(ChatColor.of(new java.awt.Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha())) + "Color preview");
+    public static ItemMeta setPreviewLore(ItemMeta meta, Color color, boolean alphaEnabled, String title) {
+        String displayName = (title == null) ? "Preview Color" : title;
+        meta.setDisplayName(ChatColor.of(new java.awt.Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha())) + displayName);
 
         ArrayList<String> lore = new ArrayList<>();
         lore.add(Utils.getColoredText("&9Current values:"));

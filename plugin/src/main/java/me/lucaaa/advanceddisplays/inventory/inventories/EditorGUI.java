@@ -6,6 +6,7 @@ import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import me.lucaaa.advanceddisplays.inventory.*;
 import me.lucaaa.advanceddisplays.inventory.Button;
+import me.lucaaa.advanceddisplays.inventory.items.ColorItems;
 import me.lucaaa.advanceddisplays.inventory.items.EditorItems;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -21,10 +22,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Objects;
+import java.util.*;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class EditorGUI extends InventoryMethods {
     private final BaseDisplay display;
+    private final Map<Player, EditText> editMap = new HashMap<>();
 
     public EditorGUI(AdvancedDisplays plugin, BaseDisplay display) {
         super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))));
@@ -182,14 +186,15 @@ public class EditorGUI extends InventoryMethods {
             @Override
             public void onClick(InventoryClickEvent event) {
                 ItemStack cursorItem = Objects.requireNonNull(event.getCursor()).clone();
-                if (cursorItem.getType() == Material.AIR) return;
-
-                switch (display.getType()) {
-                    case BLOCK -> ((BlockDisplay) display).setBlock(cursorItem.getType().createBlockData());
-                    case ITEM -> ((ItemDisplay) display).setMaterial(cursorItem.getType());
-                }
 
                 if (display.getType() != DisplayType.TEXT) {
+                    if (cursorItem.getType() == Material.AIR) return;
+
+                    switch (display.getType()) {
+                        case BLOCK -> ((BlockDisplay) display).setBlock(cursorItem.getType().createBlockData());
+                        case ITEM -> ((ItemDisplay) display).setMaterial(cursorItem.getType());
+                    }
+
                     getItem().setType(cursorItem.getType());
                     getItem().setAmount(1);
 
@@ -205,6 +210,19 @@ public class EditorGUI extends InventoryMethods {
                     }.runTask(plugin);
 
                     if (display.getType() == DisplayType.BLOCK) setBlockData(items);
+                } else {
+                    event.getWhoClicked().closeInventory();
+                    plugin.getInventoryManager().getEditingPlayer((Player) event.getWhoClicked()).setChatEditing(true);
+                    if (event.isLeftClick()) {
+                        editMap.put((Player) event.getWhoClicked(), EditText.REMOVE);
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of the animation to remove. Valid animations: &e" + String.join("&6, &e", ((TextDisplay) display).getText().keySet()), true));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Type \"&ecancel&6\" to cancel the operation.", true));
+                    } else {
+                        editMap.put((Player) event.getWhoClicked(), EditText.ADD);
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of the animation to add along with its value. The name must not include spaces. You may use legacy color codes, minimessage format, placeholders and '\\n' to add a new line.", true));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Example: \"&emyAnimation3 <red>Hello %player%\\n<yellow>How are you?&6\"", true));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Type \"&ecancel&6\" to cancel the operation.", true));
+                    }
                 }
             }
         });
@@ -248,8 +266,8 @@ public class EditorGUI extends InventoryMethods {
                         event.getWhoClicked().closeInventory();
                         ColorGUI inventory = new ColorGUI(plugin, EditorGUI.this, display, true, textDisplay.getBackgroundColor(), color -> {
                             textDisplay.setBackgroundColor(color);
-                            InventoryUtils.changeArmorColor(getItem(), textDisplay.getBackgroundColor());
-                            InventoryUtils.changeCurrentValue(getItem(), ChatColor.of(new Color(textDisplay.getBackgroundColor().asRGB())) + "Preview");
+                            InventoryUtils.changeArmorColor(getItem(), color);
+                            getItem().setItemMeta(ColorItems.setPreviewLore(Objects.requireNonNull(getItem().getItemMeta()), color, true, "Background Color"));
                             getInventory().setItem(7, getItem());
                         });
 
@@ -353,5 +371,48 @@ public class EditorGUI extends InventoryMethods {
             InventoryUtils.changeCurrentValue(items.BLOCK_DATA, "This block has no data");
         }
         getInventory().setItem(8, items.BLOCK_DATA);
+    }
+
+    @Override
+    public void handleChatEdit(Player player, String input) {
+        if (!(display instanceof TextDisplay textDisplay)) return;
+
+        if (!input.equalsIgnoreCase("cancel")) {
+            if (editMap.get(player) == EditText.REMOVE) {
+                if (textDisplay.removeText(input)) {
+                    player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + input + " &a has been removed. If it didn't exist, nothing will be changed.", true));
+                } else {
+                    player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe animation &b" + input + " &cdoes not exist!", true));
+                    return;
+                }
+
+            } else {
+                int firstSpace = input.indexOf(" ");
+
+                if (firstSpace == -1){
+                    player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe text you have entered is invalid. Remember that the format is &b<animation name (no spaces)> <animation text>", true));
+                    return;
+                }
+
+                String identifier = input.substring(0, firstSpace);
+                List<String> value = Arrays.stream(input.substring(firstSpace + 1).split(Pattern.quote("\\n"))).toList();
+                if (textDisplay.addText(identifier, value)) {
+                    player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + identifier + " &a has been created and added after the last animation.", true));
+                } else {
+                    player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cAn animation with the name &b" + identifier + " &calready exists!", true));
+                    return;
+                }
+            }
+        }
+
+        InventoryUtils.changeCurrentValue(getInventory().getItem(13), ((TextDisplay) display).getText().size() + " text animation(s)");
+        getInventory().setItem(13, getInventory().getItem(13));
+        editMap.remove(player);
+        plugin.getInventoryManager().handleOpen(player, this, display);
+    }
+
+    private enum EditText {
+        ADD,
+        REMOVE
     }
 }

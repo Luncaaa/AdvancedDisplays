@@ -220,7 +220,7 @@ public class ColorGUI extends InventoryMethods {
     private void updateItems(int slot, ItemStack item, ItemStack previewItem) {
         getInventory().setItem(slot, item);
         InventoryUtils.changeArmorColor(previewItem, savedColor);
-        previewItem.setItemMeta(ColorItems.setPreviewLore(Objects.requireNonNull(previewItem.getItemMeta()), savedColor, alphaEnabled));
+        previewItem.setItemMeta(ColorItems.setPreviewLore(Objects.requireNonNull(previewItem.getItemMeta()), savedColor, alphaEnabled, null));
         getInventory().setItem(17, previewItem);
     }
 }

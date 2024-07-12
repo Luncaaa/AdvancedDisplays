@@ -12,12 +12,11 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.awt.*;
 import java.math.BigDecimal;
@@ -28,16 +27,20 @@ import java.util.regex.Pattern;
 
 public class EditorGUI extends InventoryMethods {
     private final BaseDisplay display;
-    private final Map<Player, EditText> editMap = new HashMap<>();
+    private final EditorItems items;
+    private final Map<Player, EditAction> editMap = new HashMap<>();
 
     public EditorGUI(AdvancedDisplays plugin, BaseDisplay display) {
         super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))));
         this.display = display;
+        this.items = new EditorItems(display);
     }
 
     @Override
     public void onClick(InventoryClickEvent event) {
-        if (display.getType() == DisplayType.TEXT || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+        event.setCancelled(true);
+        //* This would be useful if the player could use their inventory to drag items into the "current value" slot.
+        /*if (display.getType() == DisplayType.TEXT || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
             event.setCancelled(true);
 
         } else {
@@ -53,7 +56,7 @@ public class EditorGUI extends InventoryMethods {
                     event.setCancelled(true);
                 }
             }
-        }
+        }*/
 
         if (event.getClickedInventory() == this.getInventory()) {
             super.onClick(event);
@@ -62,8 +65,6 @@ public class EditorGUI extends InventoryMethods {
 
     @Override
     public void decorate() {
-        EditorItems items = new EditorItems(this.display);
-
         // ---[ BRIGHTNESS ]----
         addButton(0, new Button.InventoryButton(items.BLOCK_LIGHT) {
             @Override
@@ -194,9 +195,21 @@ public class EditorGUI extends InventoryMethods {
         addButton(13, new Button.InventoryButton(items.CURRENT_VALUE) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                ItemStack cursorItem = Objects.requireNonNull(event.getCursor()).clone();
+                event.getWhoClicked().closeInventory();
+                plugin.getInventoryManager().getEditingPlayer((Player) event.getWhoClicked()).setChatEditing(true);
 
                 if (display.getType() != DisplayType.TEXT) {
+                    editMap.put((Player) event.getWhoClicked(), EditAction.CHANGE_MATERIAL);
+                    if (display.getType() == DisplayType.BLOCK) {
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of a valid block.", true));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6You can find a list of them here: &ehttps://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/BlockType.html", true));
+                    } else {
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of a valid material.", true));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6You can find a list of them here: &ehttps://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html", true));
+                    }
+                    //* This would be useful if the player could use their inventory to drag items into the "current value" slot.
+                    /*ItemStack cursorItem = Objects.requireNonNull(event.getCursor()).clone();
+
                     if (cursorItem.getType() == Material.AIR) return;
 
                     switch (display.getType()) {
@@ -218,16 +231,14 @@ public class EditorGUI extends InventoryMethods {
                         }
                     }.runTask(plugin);
 
-                    if (display.getType() == DisplayType.BLOCK) setBlockData(items);
+                    if (display.getType() == DisplayType.BLOCK) setBlockData(items);*/
                 } else {
-                    event.getWhoClicked().closeInventory();
-                    plugin.getInventoryManager().getEditingPlayer((Player) event.getWhoClicked()).setChatEditing(true);
                     if (event.isLeftClick()) {
-                        editMap.put((Player) event.getWhoClicked(), EditText.REMOVE);
+                        editMap.put((Player) event.getWhoClicked(), EditAction.REMOVE_TEXT);
                         event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of the animation to remove. Valid animations: &e" + String.join("&6, &e", ((TextDisplay) display).getText().keySet()), true));
                         event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Type \"&ecancel&6\" to cancel the operation.", true));
                     } else {
-                        editMap.put((Player) event.getWhoClicked(), EditText.ADD);
+                        editMap.put((Player) event.getWhoClicked(), EditAction.ADD_TEXT);
                         event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of the animation to add along with its value. The name must not include spaces. You may use legacy color codes, minimessage format, placeholders and '\\n' to add a new line.", true));
                         event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Example: \"&emyAnimation3 <red>Hello %player%\\n<yellow>How are you?&6\"", true));
                         event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Type \"&ecancel&6\" to cancel the operation.", true));
@@ -247,7 +258,7 @@ public class EditorGUI extends InventoryMethods {
 
         // ----[ DISPLAY-SPECIFIC ]-----
         switch (display.getType()) {
-            case BLOCK -> setBlockData(items);
+            case BLOCK -> setBlockData();
 
             case ITEM -> addButton(8, new Button.InventoryButton(items.ITEM_TRANSFORMATION) {
                 @Override
@@ -353,7 +364,7 @@ public class EditorGUI extends InventoryMethods {
         super.decorate();
     }
 
-    private void setBlockData(EditorItems items) {
+    private void setBlockData() {
         BlockDisplay blockDisplay = (BlockDisplay) display;
         String data = blockDisplay.getBlock().getAsString();
         if (data.contains("[")) {
@@ -384,44 +395,82 @@ public class EditorGUI extends InventoryMethods {
 
     @Override
     public void handleChatEdit(Player player, String input) {
-        if (!(display instanceof TextDisplay textDisplay)) return;
-
         if (!input.equalsIgnoreCase("cancel")) {
-            if (editMap.get(player) == EditText.REMOVE) {
-                if (textDisplay.removeText(input)) {
-                    player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + input + " &a has been removed. If it didn't exist, nothing will be changed.", true));
-                } else {
-                    player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe animation &b" + input + " &cdoes not exist!", true));
-                    return;
+            switch (editMap.get(player)) {
+                case REMOVE_TEXT -> {
+                    if (((TextDisplay) display).removeText(input)) {
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + input + " &a has been removed. If it didn't exist, nothing will be changed.", true));
+                    } else {
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe animation &b" + input + " &cdoes not exist!", true));
+                        return;
+                    }
+
+                    InventoryUtils.changeCurrentValue(getInventory().getItem(13), ((TextDisplay) display).getText().size() + " text animation(s)");
                 }
 
-            } else {
-                int firstSpace = input.indexOf(" ");
+                case ADD_TEXT -> {
+                    int firstSpace = input.indexOf(" ");
 
-                if (firstSpace == -1){
-                    player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe text you have entered is invalid. Remember that the format is &b<animation name (no spaces)> <animation text>", true));
-                    return;
+                    if (firstSpace == -1){
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe text you have entered is invalid. Remember that the format is &b<animation name (no spaces)> <animation text>", true));
+                        return;
+                    }
+
+                    String identifier = input.substring(0, firstSpace);
+                    List<String> value = Arrays.stream(input.substring(firstSpace + 1).split(Pattern.quote("\\n"))).toList();
+                    if (((TextDisplay) display).addText(identifier, value)) {
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + identifier + " &a has been created and added after the last animation.", true));
+                    } else {
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cAn animation with the name &b" + identifier + " &calready exists!", true));
+                        return;
+                    }
+
+                    InventoryUtils.changeCurrentValue(getInventory().getItem(13), ((TextDisplay) display).getText().size() + " text animation(s)");
                 }
 
-                String identifier = input.substring(0, firstSpace);
-                List<String> value = Arrays.stream(input.substring(firstSpace + 1).split(Pattern.quote("\\n"))).toList();
-                if (textDisplay.addText(identifier, value)) {
-                    player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + identifier + " &a has been created and added after the last animation.", true));
-                } else {
-                    player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cAn animation with the name &b" + identifier + " &calready exists!", true));
-                    return;
+                case CHANGE_MATERIAL -> {
+                    Material material = Material.getMaterial(input.toUpperCase());
+
+                    if (material == null) {
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + input + " &cis not a valid material!", true));
+                        return;
+                    }
+
+                    if (material == Material.AIR) {
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe material cannot be air!", true));
+                        return;
+                    }
+
+                    if (display.getType() == DisplayType.ITEM) {
+                        ((ItemDisplay) display).setMaterial(material);
+
+                    } else {
+                        try {
+                            BlockData blockData = material.createBlockData();
+                            ((BlockDisplay) display).setBlock(blockData);
+                            setBlockData();
+
+                        } catch (IllegalArgumentException | NullPointerException ignored) {
+                            player.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + material.name() + " &cis not a valid block!", true));
+                            return;
+                        }
+                    }
+
+                    Objects.requireNonNull(getInventory().getItem(13)).setType(material);
+                    Objects.requireNonNull(getInventory().getItem(13)).setAmount(1);
+                    InventoryUtils.changeCurrentValue(getInventory().getItem(13), material.name());
                 }
             }
         }
 
-        InventoryUtils.changeCurrentValue(getInventory().getItem(13), ((TextDisplay) display).getText().size() + " text animation(s)");
         getInventory().setItem(13, getInventory().getItem(13));
         editMap.remove(player);
         plugin.getInventoryManager().handleOpen(player, this, display);
     }
 
-    private enum EditText {
-        ADD,
-        REMOVE
+    private enum EditAction {
+        ADD_TEXT,
+        REMOVE_TEXT,
+        CHANGE_MATERIAL
     }
 }

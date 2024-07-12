@@ -68,8 +68,8 @@ public class EditorItems {
 
         switch (display.getType()) {
             case TEXT -> CURRENT_VALUE = GlobalItems.create(Material.OAK_SIGN, "Display text", List.of("Changes the text that is being displayed", "", "&7Use &cLEFT_CLICK &7to remove an animation", "&7Use &cRIGHT_CLICK &7to add an animation"), ((TextDisplay) display).getText().size() + " text animation(s)", false, false, 0.0, 0.0);
-            case ITEM -> CURRENT_VALUE = GlobalItems.create(((ItemDisplay) display).getMaterial(), "Display item", List.of("Changes the item that is being displayed", "You must have an item in your cursor."), ((ItemDisplay) display).getMaterial(), false, false, 0.0, 0.0);
-            case BLOCK -> CURRENT_VALUE = GlobalItems.create(((BlockDisplay) display).getBlock().getMaterial(), "Display block", List.of("Changes the block that is being displayed", "You must have a valid block in your cursor."), ((BlockDisplay) display).getBlock().getMaterial(), false, false, 0.0, 0.0);
+            case ITEM -> CURRENT_VALUE = GlobalItems.create(((ItemDisplay) display).getMaterial(), "Display item", List.of("Changes the item that is being displayed"/*, "You must have an item in your cursor."*/), ((ItemDisplay) display).getMaterial(), false, false, 0.0, 0.0);
+            case BLOCK -> CURRENT_VALUE = GlobalItems.create(((BlockDisplay) display).getBlock().getMaterial(), "Display block", List.of("Changes the block that is being displayed"/*, "You must have a valid block in your cursor."*/), ((BlockDisplay) display).getBlock().getMaterial(), false, false, 0.0, 0.0);
             default -> CURRENT_VALUE = new ItemStack(Material.BARRIER);
         }
         REMOVE = GlobalItems.create(Material.BARRIER, "&cRemove", "Permanently removes this display", null);

@@ -29,7 +29,6 @@ public class ConvertSubCommand extends SubCommandsFormat {
 
         if (!hasRunOnce) {
             sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aRun the command again to confirm the conversion. It is highly recommended to create a backup of the displays folder before running the command again.", true));
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cMake sure you select the correct version. Selecting the incorrect one may cause errors. Command usage: &b/ad convert [previous version]", true));
             this.hasRunOnce = true;
             return;
         }

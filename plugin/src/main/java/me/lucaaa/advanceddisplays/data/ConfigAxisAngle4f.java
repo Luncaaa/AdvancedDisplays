@@ -22,7 +22,6 @@ public class ConfigAxisAngle4f {
     }
 
     public ConfigAxisAngle4f(Quaternionf angle) {
-        angle.normalize();
         this.a = (float) Math.toDegrees(angle.angle());
 
         float sinHalfAngle = (float) Math.sqrt(1.0 - angle.w * angle.w);

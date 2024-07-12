@@ -13,7 +13,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
-import org.joml.AxisAngle4f;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -199,7 +198,7 @@ public class PlayerInv {
             public void onClick(PlayerInteractEvent event) {
                 double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getLeftRotation().x, event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
                 player.getInventory().setItem(0, getItem());
-                transformation.getLeftRotation().set(new AxisAngle4f(transformation.getLeftRotation().angle(), (float) newValue, transformation.getLeftRotation().y, transformation.getLeftRotation().z));
+                transformation.getLeftRotation().setAngleAxis(transformation.getLeftRotation().angle(), (float) newValue, transformation.getLeftRotation().y, transformation.getLeftRotation().z);
                 display.setTransformation(transformation);
             }
         });
@@ -209,7 +208,7 @@ public class PlayerInv {
             public void onClick(PlayerInteractEvent event) {
                 double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getLeftRotation().y, event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
                 player.getInventory().setItem(1, getItem());
-                transformation.getLeftRotation().set(new AxisAngle4f(transformation.getLeftRotation().angle(), transformation.getLeftRotation().x, (float) newValue, transformation.getLeftRotation().z));
+                transformation.getLeftRotation().setAngleAxis(transformation.getLeftRotation().angle(), transformation.getLeftRotation().x, (float) newValue, transformation.getLeftRotation().z);
                 display.setTransformation(transformation);
             }
         });
@@ -219,7 +218,7 @@ public class PlayerInv {
             public void onClick(PlayerInteractEvent event) {
                 double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getLeftRotation().z, event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
                 player.getInventory().setItem(2, getItem());
-                transformation.getLeftRotation().set(new AxisAngle4f(transformation.getLeftRotation().angle(), transformation.getLeftRotation().x, transformation.getLeftRotation().y, (float) newValue));
+                transformation.getLeftRotation().setAngleAxis(transformation.getLeftRotation().angle(), transformation.getLeftRotation().x, transformation.getLeftRotation().y, (float) newValue);
                 display.setTransformation(transformation);
             }
         });
@@ -229,7 +228,7 @@ public class PlayerInv {
             public void onClick(PlayerInteractEvent event) {
                 double newValue = InventoryUtils.changeDoubleValue(getItem(), Math.toDegrees(transformation.getLeftRotation().angle()), 10.0, 1.0, event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
                 player.getInventory().setItem(3, getItem());
-                transformation.getLeftRotation().set(new AxisAngle4f((float) Math.toRadians(newValue), transformation.getLeftRotation().x, transformation.getLeftRotation().y, transformation.getLeftRotation().z));
+                transformation.getLeftRotation().setAngleAxis((float) Math.toRadians(newValue), transformation.getLeftRotation().x, transformation.getLeftRotation().y, transformation.getLeftRotation().z);
                 display.setTransformation(transformation);
             }
         });
@@ -263,7 +262,7 @@ public class PlayerInv {
             public void onClick(PlayerInteractEvent event) {
                 double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getRightRotation().x, event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
                 player.getInventory().setItem(0, getItem());
-                transformation.getRightRotation().set(new AxisAngle4f(transformation.getRightRotation().angle(), (float) newValue, transformation.getRightRotation().y, transformation.getRightRotation().z));
+                transformation.getRightRotation().setAngleAxis(transformation.getRightRotation().angle(), (float) newValue, transformation.getRightRotation().y, transformation.getRightRotation().z);
                 display.setTransformation(transformation);
             }
         });
@@ -273,7 +272,7 @@ public class PlayerInv {
             public void onClick(PlayerInteractEvent event) {
                 double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getRightRotation().y, event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
                 player.getInventory().setItem(1, getItem());
-                transformation.getRightRotation().set(new AxisAngle4f(transformation.getRightRotation().angle(), transformation.getRightRotation().x, (float) newValue, transformation.getRightRotation().z));
+                transformation.getRightRotation().setAngleAxis(transformation.getRightRotation().angle(), transformation.getRightRotation().x, (float) newValue, transformation.getRightRotation().z);
                 display.setTransformation(transformation);
             }
         });
@@ -283,7 +282,7 @@ public class PlayerInv {
             public void onClick(PlayerInteractEvent event) {
                 double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getRightRotation().z, event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
                 player.getInventory().setItem(2, getItem());
-                transformation.getRightRotation().set(new AxisAngle4f(transformation.getRightRotation().angle(), transformation.getRightRotation().x, transformation.getRightRotation().y, (float) newValue));
+                transformation.getRightRotation().setAngleAxis(transformation.getRightRotation().angle(), transformation.getRightRotation().x, transformation.getRightRotation().y, (float) newValue);
                 display.setTransformation(transformation);
             }
         });
@@ -293,7 +292,7 @@ public class PlayerInv {
             public void onClick(PlayerInteractEvent event) {
                 double newValue = InventoryUtils.changeDoubleValue(getItem(), Math.toDegrees(transformation.getRightRotation().angle()), 10.0, 1.0, event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
                 player.getInventory().setItem(3, getItem());
-                transformation.getRightRotation().set(new AxisAngle4f((float) Math.toRadians(newValue), transformation.getRightRotation().x, transformation.getRightRotation().y, transformation.getRightRotation().z));
+                transformation.getRightRotation().setAngleAxis((float) Math.toRadians(newValue), transformation.getRightRotation().x, transformation.getRightRotation().y, transformation.getRightRotation().z);
                 display.setTransformation(transformation);
             }
         });

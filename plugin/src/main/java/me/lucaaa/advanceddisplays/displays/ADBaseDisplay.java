@@ -464,8 +464,8 @@ public class ADBaseDisplay implements BaseDisplay {
     @Override
     public void setHitboxSize(boolean override, float width, float height) {
         this.overrideHitboxSize = override;
-        this.hitboxWidth = width;
-        this.hitboxHeight = height;
+        this.hitboxWidth = (override) ? width : this.transformation.getScale().x;
+        this.hitboxHeight = (override) ? height : this.transformation.getScale().y;
 
         if (this.config != null) {
             ConfigurationSection hitboxSection = Objects.requireNonNull(this.config.getConfigurationSection("hitbox"));
@@ -475,12 +475,10 @@ public class ADBaseDisplay implements BaseDisplay {
             this.save();
         }
 
-        if (override) {
-            this.hitbox.setInteractionWidth(transformation.getScale().x);
-            this.hitbox.setInteractionHeight(transformation.getScale().y);
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                this.packets.setInteractionSize(this.hitbox.getEntityId(), width, height, onlinePlayer);
-            }
+        this.hitbox.setInteractionWidth(this.hitboxWidth);
+        this.hitbox.setInteractionHeight(this.hitboxHeight);
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            this.packets.setInteractionSize(this.hitbox.getEntityId(), this.hitboxWidth, this.hitboxHeight, onlinePlayer);
         }
     }
 
@@ -492,6 +490,11 @@ public class ADBaseDisplay implements BaseDisplay {
     @Override
     public float getHitboxHeight() {
         return this.hitboxHeight;
+    }
+
+    @Override
+    public boolean isHitboxSizeOverriden() {
+        return this.overrideHitboxSize;
     }
 
     @Override

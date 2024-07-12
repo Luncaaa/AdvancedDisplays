@@ -27,6 +27,7 @@ public class EditorItems {
     public final ItemStack CENTER;
 
     public final ItemStack BILLBOARD;
+    public final ItemStack HITBOX_OVERRIDE;
 
     public final ItemStack CURRENT_VALUE;
     public final ItemStack REMOVE;
@@ -63,6 +64,7 @@ public class EditorItems {
         CENTER = GlobalItems.create(Material.LIGHTNING_ROD, "Center", "Centers the display on the block it's on", location);
 
         BILLBOARD = GlobalItems.create(Material.STRUCTURE_VOID, "Change billboard", "Changes the display's rotation axis", display.getBillboard().name());
+        HITBOX_OVERRIDE = GlobalItems.create(Material.END_CRYSTAL, "Override hitbox size", List.of("Whether the hitbox size is set", "automatically or manually"), display.isHitboxSizeOverriden(), false);
 
         switch (display.getType()) {
             case TEXT -> CURRENT_VALUE = GlobalItems.create(Material.OAK_SIGN, "Display text", List.of("Changes the text that is being displayed", "", "&7Use &cLEFT_CLICK &7to remove an animation", "&7Use &cRIGHT_CLICK &7to add an animation"), ((TextDisplay) display).getText().size() + " text animation(s)", false, false, 0.0, 0.0);

@@ -179,6 +179,15 @@ public class EditorGUI extends InventoryMethods {
                 display.setBillboard(newBillboard);
             }
         });
+
+        addButton(12, new Button.InventoryButton(items.HITBOX_OVERRIDE) {
+            @Override
+            public void onClick(InventoryClickEvent event) {
+                boolean newValue = InventoryUtils.changeBooleanValue(getItem(), display.isHitboxSizeOverriden());
+                getInventory().setItem(12, getItem());
+                display.setHitboxSize(newValue, display.getHitboxWidth(), display.getHitboxHeight());
+            }
+        });
         // ----------
 
         // ----[ ACTIONS ]-----

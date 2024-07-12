@@ -165,6 +165,7 @@ public interface BaseDisplay {
      */
 
     void setRotation(float yaw, float pitch);
+
     /**
      * Sets the display's rotation for a specific player.
      * @param yaw The new yaw.
@@ -230,6 +231,12 @@ public interface BaseDisplay {
      * @return The height of the hitbox.
      */
     float getHitboxHeight();
+
+    /**
+     * Returns whether the display uses an automatic hitbox size or it was set automatically.
+     * @return Whether the display uses an automatic hitbox size or it was set automatically.
+     */
+    boolean isHitboxSizeOverriden();
 
     /**
      * Sets the code to run when the display is clicked.

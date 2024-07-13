@@ -213,14 +213,6 @@ public interface BaseDisplay {
     void setGlowColor(Color color, Player player);
 
     /**
-     * Sets the new size of the hitbox.
-     * @param override Whether these values should be used or not.
-     * @param width The new width of the hitbox.
-     * @param height The new height of the hitbox.
-     */
-    void setHitboxSize(boolean override, float width, float height);
-
-    /**
      * Returns the overriden width of the hitbox.
      * @return The width of the hitbox.
      */
@@ -237,6 +229,27 @@ public interface BaseDisplay {
      * @return Whether the display uses an automatic hitbox size or it was set automatically.
      */
     boolean isHitboxSizeOverriden();
+
+
+    /**
+     * Sets the new size of the hitbox.
+     * @param override Whether these values should be used or not.
+     * @param width The new width of the hitbox.
+     * @param height The new height of the hitbox.
+     */
+    void setHitboxSize(boolean override, float width, float height);
+
+    /**
+     * Returns the permission needed to see the display.
+     * @return The permission needed to see the display.
+     */
+    String getPermission();
+
+    /**
+     * Sets the permission needed to see the display.
+     * @param permission The permission needed to see the display. Use "none" if you want the display to be seen by everyone.
+     */
+    void setPermission(String permission);
 
     /**
      * Sets the code to run when the display is clicked.

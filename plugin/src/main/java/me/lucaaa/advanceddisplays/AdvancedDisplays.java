@@ -20,21 +20,13 @@ import java.util.logging.Level;
 // 2. Add more text methods (add, remove, set order, per player...)
 // 3. Animated item and block displays?
 
-// TODO
-// Move displays manager to plugin module - won't be used in the API, as the create() methods will return new TextDisplay(...).create(...)
-// Create API methods
-
-// TODO:
-// 1. Setup subcommand
-// 2. Better developer API.
-// 3. More actions on click.
-
 public class AdvancedDisplays extends JavaPlugin {
     // Config files.
     private ConfigManager mainConfig;
     private ConfigManager savesConfig;
 
     // Managers.
+    private TickManager tickManager;
     private PacketsManager packetsManager;
     private InteractionsManager interactionsManager;
     private DisplaysManager displaysManager;
@@ -61,6 +53,8 @@ public class AdvancedDisplays extends JavaPlugin {
         if (interactionsManager != null) savedApiDisplays = interactionsManager.getApiDisplays();
         if (packetsManager != null) packetsManager.removeAll(); // If the plugin has been reloaded, remove and add all players again.
         if (inventoryManager != null) inventoryManager.clearAll(); // If the plugin has been reloaded, clear the map.
+        if (tickManager != null) tickManager.stop();
+        tickManager = new TickManager(this);
         packetsManager = new PacketsManager(this, Bukkit.getServer().getBukkitVersion().split("-")[0]);
         interactionsManager = new InteractionsManager(savedApiDisplays);
         displaysManager = new DisplaysManager(this, "displays", true, false);
@@ -125,6 +119,7 @@ public class AdvancedDisplays extends JavaPlugin {
     @Override
     public void onDisable() {
         inventoryManager.clearAll();
+        tickManager.stop();
     }
 
     public ConfigManager getMainConfig() {
@@ -157,5 +152,9 @@ public class AdvancedDisplays extends JavaPlugin {
 
     public InventoryManager getInventoryManager() {
         return this.inventoryManager;
+    }
+
+    public TickManager getTickManager() {
+        return this.tickManager;
     }
 }

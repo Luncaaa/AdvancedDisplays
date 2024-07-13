@@ -114,6 +114,10 @@ public class ConversionManager {
             if (!settingsSection.contains("enchanted")) settingsSection.set("enchanted", false);
         }
 
+        if (!config.isString("permission")) {
+            config.set("permission", "none");
+        }
+
         if (!config.contains("glow")) {
             ConfigurationSection glowSection = Objects.requireNonNull(config.createSection("glow"));
             glowSection.set("glowing", false);

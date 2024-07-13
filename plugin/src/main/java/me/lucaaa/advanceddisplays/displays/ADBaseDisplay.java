@@ -7,6 +7,7 @@ import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.actions.ClickType;
 import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
+import me.lucaaa.advanceddisplays.data.Ticking;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.data.ConfigAxisAngle4f;
@@ -23,7 +24,7 @@ import org.bukkit.util.Transformation;
 
 import java.util.Objects;
 
-public class ADBaseDisplay implements BaseDisplay {
+public class ADBaseDisplay extends Ticking implements BaseDisplay {
     private final AdvancedDisplays plugin;
     protected final PacketInterface packets;
     protected final ConfigManager configManager;
@@ -33,6 +34,7 @@ public class ADBaseDisplay implements BaseDisplay {
     private final ADVisibilityManager visibilityManager = new ADVisibilityManager(this);
 
     private final String name;
+    private String permission;
     protected Display display;
     protected int displayId;
     private final boolean isApi;
@@ -53,6 +55,9 @@ public class ADBaseDisplay implements BaseDisplay {
     private float hitboxHeight;
 
     public ADBaseDisplay(AdvancedDisplays plugin, String name, DisplayType type, ConfigManager configManager, Display display, boolean isApi) {
+        super(plugin);
+        startTicking();
+
         this.plugin = plugin;
         this.packets = plugin.getPacketsManager().getPackets();
         this.name = name;
@@ -63,6 +68,7 @@ public class ADBaseDisplay implements BaseDisplay {
         this.configManager = configManager;
         this.config = configManager.getConfig();
         this.type = type;
+        this.permission = this.config.getString("permission");
         this.actionsHandler = new ActionsHandler(plugin, configManager.getConfig());
 
         ConfigurationSection locationSection = Objects.requireNonNull(this.config.getConfigurationSection("location"));
@@ -112,6 +118,9 @@ public class ADBaseDisplay implements BaseDisplay {
     }
 
     public ADBaseDisplay(AdvancedDisplays plugin, String name, DisplayType type, Display display) {
+        super(plugin);
+        stopTicking();
+
         this.plugin = plugin;
         this.packets = plugin.getPacketsManager().getPackets();
         this.name = name;
@@ -122,6 +131,7 @@ public class ADBaseDisplay implements BaseDisplay {
         this.configManager = null;
         this.config = null;
         this.type = type;
+        this.permission = "none";
         this.actionsHandler = new ActionsHandler(plugin);
 
         this.location = display.getLocation();
@@ -483,6 +493,21 @@ public class ADBaseDisplay implements BaseDisplay {
     }
 
     @Override
+    public String getPermission() {
+        return this.permission;
+    }
+
+    @Override
+    public void setPermission(String permission) {
+        this.permission = permission;
+
+        if (this.config != null) {
+            this.config.set("permission", permission);
+            this.save();
+        }
+    }
+
+    @Override
     public float getHitboxWidth() {
         return this.hitboxWidth;
     }
@@ -534,5 +559,10 @@ public class ADBaseDisplay implements BaseDisplay {
 
     protected void save() {
         this.configManager.save();
+    }
+
+    @Override
+    public void tick() {
+        this.visibilityManager.updateVisibility();
     }
 }

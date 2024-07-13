@@ -45,8 +45,7 @@ public class DisplaysManager {
                 ConfigManager configManager = new ConfigManager(this.plugin, configsFolder + File.separator + configFile.getName());
 
                 YamlConfiguration config = configManager.getConfig();
-                ConfigurationSection settingsSection = config.getConfigurationSection("settings");
-                if (config.getString("id") != null || config.getConfigurationSection("hitbox") == null || (settingsSection != null && settingsSection.isList("text"))) {
+                if (config.getString("id") != null || !config.isString("permission")) {
                     ConversionManager.setConversionNeeded(true);
                     break;
                 }
@@ -62,6 +61,7 @@ public class DisplaysManager {
 
         // Set properties in the display file.
         displayConfig.set("type", type.name());
+        displayConfig.set("permission", "none");
 
         ConfigurationSection locationSection = displayConfig.createSection("location");
         locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());
@@ -132,8 +132,8 @@ public class DisplaysManager {
             textDisplay.sendBaseMetadataPackets(onlinePlayer);
         }
 
-        this.displays.put(name, textDisplay);
         plugin.getInteractionsManager().addInteraction(textDisplay.getInteractionId(), textDisplay);
+        this.displays.put(name, textDisplay);
         return textDisplay;
     }
 
@@ -157,8 +157,8 @@ public class DisplaysManager {
             itemDisplay.sendBaseMetadataPackets(onlinePlayer);
         }
 
-        this.displays.put(name, itemDisplay);
         plugin.getInteractionsManager().addInteraction(itemDisplay.getInteractionId(), itemDisplay);
+        this.displays.put(name, itemDisplay);
         return itemDisplay;
     }
 
@@ -182,8 +182,8 @@ public class DisplaysManager {
             blockDisplay.sendBaseMetadataPackets(onlinePlayer);
         }
 
-        this.displays.put(name, blockDisplay);
         plugin.getInteractionsManager().addInteraction(blockDisplay.getInteractionId(), blockDisplay);
+        this.displays.put(name, blockDisplay);
         return blockDisplay;
     }
 
@@ -200,6 +200,7 @@ public class DisplaysManager {
 
         if (display instanceof ADTextDisplay) ((ADTextDisplay) display).stopRunnable();
         display.remove();
+        display.stopTicking();
         this.displays.remove(name);
         plugin.getInteractionsManager().removeInteraction(display.getInteractionId());
         plugin.getInventoryManager().handleRemoval(display);

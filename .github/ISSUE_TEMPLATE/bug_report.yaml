@@ -7,8 +7,15 @@ assignees:
 body:
   - type: markdown
     attributes:
-      value: |
-        Create a bug report if you think something is not working as intended.
+      value: Create a bug report if you think something is not working as intended.
+  - type: checkboxes
+    id: latest-version
+    attributes:
+      label: Latest version
+      description: By submitting this issue, you confirm that you are using the plugin's latest version. Download it [here](https://www.spigotmc.org/resources/advanceddisplays.110865/).
+      options:
+        - label: I am using the plugin's latest version.
+          required: true
   - type: textarea
     id: description
     attributes:
@@ -62,20 +69,21 @@ body:
         - "1.21"
     validations:
       required: true
-  - type: dropdown
-    id: plugin-version
-    attributes:
-      label: Plugin version
-      options:
-        - "1.0"
-        - "1.1"
-        - "1.2"
-        - "1.2.1"
-        - "1.2.2"
-        - "1.2.3"
-        - "1.3"
-        - "1.4"
-        - "1.4.1"
-        - "1.5"
-    validations:
-      required: true
+  #- type: dropdown
+  #  id: plugin-version
+  #  attributes:
+  #    label: Plugin version
+  #    options:
+  #      - "1.0"
+  #      - "1.1"
+  #      - "1.2"
+  #      - "1.2.1"
+  #      - "1.2.2"
+  #      - "1.2.3"
+  #      - "1.3"
+  #      - "1.4"
+  #      - "1.4.1"
+  #      - "1.5"
+  #      - "1.5.1"
+  #  validations:
+  #    required: true

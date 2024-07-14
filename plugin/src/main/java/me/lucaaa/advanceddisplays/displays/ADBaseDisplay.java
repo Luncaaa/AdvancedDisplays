@@ -35,6 +35,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
     private final String name;
     private String permission;
+    private double viewDistance;
     protected Display display;
     protected int displayId;
     private final boolean isApi;
@@ -69,6 +70,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.config = configManager.getConfig();
         this.type = type;
         this.permission = this.config.getString("permission");
+        this.viewDistance = this.config.getDouble("view-distance");
         this.actionsHandler = new ActionsHandler(plugin, configManager.getConfig());
 
         ConfigurationSection locationSection = Objects.requireNonNull(this.config.getConfigurationSection("location"));
@@ -132,6 +134,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.config = null;
         this.type = type;
         this.permission = "none";
+        this.viewDistance = 0.0;
         this.actionsHandler = new ActionsHandler(plugin);
 
         this.location = display.getLocation();
@@ -503,6 +506,21 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
         if (this.config != null) {
             this.config.set("permission", permission);
+            this.save();
+        }
+    }
+
+    @Override
+    public double getViewDistance() {
+        return this.viewDistance;
+    }
+
+    @Override
+    public void setViewDistance(double viewDistance) {
+        this.viewDistance = viewDistance;
+
+        if (this.config != null) {
+            this.config.set("view-distance", viewDistance);
             this.save();
         }
     }

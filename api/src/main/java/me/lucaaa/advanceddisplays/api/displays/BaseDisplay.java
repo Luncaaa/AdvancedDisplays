@@ -252,6 +252,18 @@ public interface BaseDisplay {
     void setPermission(String permission);
 
     /**
+     * The distance at which the player must be from the display to be able to see it.
+     * @return The distance at which the player must be from the display to be able to see it.
+     */
+    double getViewDistance();
+
+    /**
+     * Sets the distance at which the player must be from the display to be able to see it.
+     * @param viewDistance The distance at which the player must be from the display to be able to see it.
+     */
+    void setViewDistance(double viewDistance);
+
+    /**
      * Sets the code to run when the display is clicked.
      * @param actions The code to run.
      */

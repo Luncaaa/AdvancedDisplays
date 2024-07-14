@@ -118,6 +118,10 @@ public class ConversionManager {
             config.set("permission", "none");
         }
 
+        if (!config.isDouble("view-distance")) {
+            config.set("view-distance", 0.0);
+        }
+
         if (!config.contains("glow")) {
             ConfigurationSection glowSection = Objects.requireNonNull(config.createSection("glow"));
             glowSection.set("glowing", false);

@@ -45,7 +45,7 @@ public class DisplaysManager {
                 ConfigManager configManager = new ConfigManager(this.plugin, configsFolder + File.separator + configFile.getName());
 
                 YamlConfiguration config = configManager.getConfig();
-                if (config.getString("id") != null || !config.isString("permission")) {
+                if (config.getString("id") != null || !config.isDouble("view-distance")) {
                     ConversionManager.setConversionNeeded(true);
                     break;
                 }
@@ -62,6 +62,7 @@ public class DisplaysManager {
         // Set properties in the display file.
         displayConfig.set("type", type.name());
         displayConfig.set("permission", "none");
+        displayConfig.set("view-distance", 0.0);
 
         ConfigurationSection locationSection = displayConfig.createSection("location");
         locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());

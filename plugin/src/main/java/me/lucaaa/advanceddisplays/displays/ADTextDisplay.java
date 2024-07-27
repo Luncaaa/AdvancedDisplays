@@ -70,8 +70,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     @Override
     public void sendMetadataPackets(Player player) {
         this.sendBaseMetadataPackets(player);
-        // The text runnable will set the text automatically if there are more than one texts.
-        //if (this.texts.size() == 1 && this.refreshTime <= 0) this.packets.setText(this.displayId, String.join("\n", this.texts.values().stream().toList().get(0)), player);
+        if (this.texts.size() == 1 && this.refreshTime <= 0) this.packets.setText(this.displayId, String.join("\n", this.texts.values().stream().toList().get(0)), player);
         this.packets.setBackgroundColor(this.displayId, this.backgroundColor, player);
         this.packets.setLineWidth(this.displayId, this.lineWidth, player);
         this.packets.setTextOpacity(this.displayId, this.textOpacity, player);

@@ -76,6 +76,8 @@
                             <jarOutputDirectory>${project.basedir}</jarOutputDirectory>
                             <windowtitle>AdvancedDisplays API</windowtitle>
                             <doctitle>AdvancedDisplays API ${project.version}</doctitle>
+                            <header><![CDATA[<div style=\"font-size: 25px\"><a href=\"https://github.com/Luncaaa\">By Lucaaa</a>    |    <a href=\"https://spigotmc.org/resources/authors/lucaaa.1192446/\">More plugins</a></div>]]></header>
+                            <bottom><![CDATA[Copyright © 2024 Lucaaa. All rights reserved. Licensed under GPL 3.0. View the source code <a href=\"https://github.com/Luncaaa/AdvancedDisplays\">here</a>]]></bottom>
                             <links>
                                 <link>https://hub.spigotmc.org/javadocs/spigot</link>
                             </links>

@@ -5,7 +5,7 @@
 
     <groupId>AdvancedDisplays</groupId>
     <artifactId>parent</artifactId>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -106,6 +106,7 @@
                             <bottom><![CDATA[Copyright © 2024 Lucaaa. All rights reserved. Licensed under GPL 3.0. View the source code <a href=\"https://github.com/Luncaaa/AdvancedDisplays\">here</a>]]></bottom>
                             <links>
                                 <link>https://hub.spigotmc.org/javadocs/spigot</link>
+                                <link>https://jd.advntr.dev/api/4.17.0/</link>
                             </links>
                         </configuration>
                     </execution>

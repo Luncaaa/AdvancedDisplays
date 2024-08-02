@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.nms_common;
 
 import io.netty.channel.ChannelPipeline;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -40,7 +41,7 @@ public interface PacketInterface {
     void setGlowing(int displayId, boolean isGlowing, Color color, Player player);
 
     // -[ Text displays ]-
-    void setText(int displayId, String text, Player player);
+    void setText(int displayId, Component text, Player player);
     void setBackgroundColor(int displayId, Color color, Player player);
     void setLineWidth(int displayId, int lineWidth, Player player);
     void setTextOpacity(int displayId, byte textOpacity, Player player);

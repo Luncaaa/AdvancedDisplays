@@ -25,7 +25,7 @@ import org.bukkit.util.Transformation;
 import java.util.Objects;
 
 public class ADBaseDisplay extends Ticking implements BaseDisplay {
-    private final AdvancedDisplays plugin;
+    protected final AdvancedDisplays plugin;
     protected final PacketInterface packets;
     protected final ConfigManager configManager;
     protected final YamlConfiguration config;

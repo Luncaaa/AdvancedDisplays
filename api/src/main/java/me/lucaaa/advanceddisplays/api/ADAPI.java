@@ -4,6 +4,7 @@ import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
 import me.lucaaa.advanceddisplays.api.displays.ItemDisplay;
 import me.lucaaa.advanceddisplays.api.displays.TextDisplay;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
@@ -53,6 +54,15 @@ public interface ADAPI {
      * @return The created display or null if a display with that name already exists.
      */
     TextDisplay createTextDisplay(String name, Location location, List<String> value);
+
+    /**
+     * Creates a text display at the given location.
+     * @param name The name of the display.
+     * @param location The location of the display.
+     * @param value The text that will be displayed. If the list has multiple elements, the display will be animated.
+     * @return The created display or null if a display with that name already exists.
+     */
+    TextDisplay createTextDisplay(String name, Location location, Component value);
 
     /**
      * Gets a previously created display.

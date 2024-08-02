@@ -2,8 +2,12 @@ package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
+import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.configuration.ConfigurationSection;
@@ -12,13 +16,14 @@ import org.bukkit.entity.TextDisplay;
 
 import java.util.*;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.TextDisplay {
     private ConfigurationSection settings = null;
     private final AnimatedTextRunnable textRunnable;
     private int animationTime;
     private int refreshTime;
-    private Map<String, List<String>> texts = new HashMap<>();
+    private Map<String, Component> texts = new HashMap<>();
     private TextDisplay.TextAlignment alignment;
     private Color backgroundColor;
     private int lineWidth;
@@ -39,12 +44,12 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             ConfigurationSection textSection = this.settings.getConfigurationSection("texts");
             if (textSection == null) {
                 Logger.log(Level.SEVERE, "The text display \"" + configManager.getFile().getName() + "\" does not have a valid \"text\" section! Check the wiki for more information.");
-                texts.put("error", List.of("&cError! No valid \"texts\" section found. Check the wiki for more information."));
+                texts.put("error", LegacyComponentSerializer.legacyAmpersand().deserialize("&cError! No valid \"texts\" section found. Check the wiki for more information."));
             } else {
                 for (String sectionName : textSection.getKeys(false)) {
                     if (!textSection.isList(sectionName)) continue;
 
-                    texts.put(sectionName, textSection.getStringList(sectionName));
+                    texts.put(sectionName, ComponentSerializer.deserialize(textSection.getStringList(sectionName)));
                 }
             }
             this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
@@ -70,14 +75,14 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     @Override
     public void sendMetadataPackets(Player player) {
         this.sendBaseMetadataPackets(player);
-        if (this.texts.size() == 1 && this.refreshTime <= 0) this.packets.setText(this.displayId, String.join("\n", this.texts.values().stream().toList().get(0)), player);
+        if (this.texts.size() == 1 && this.refreshTime <= 0) this.packets.setText(this.displayId, this.texts.values().stream().toList().get(0), player);
         this.packets.setBackgroundColor(this.displayId, this.backgroundColor, player);
         this.packets.setLineWidth(this.displayId, this.lineWidth, player);
         this.packets.setTextOpacity(this.displayId, this.textOpacity, player);
         this.packets.setProperties(this.displayId, this.shadowed, this.seeThrough, this.defaultBackground, this.alignment, player);
     }
 
-    public ADTextDisplay create(List<String> text) {
+    public ADTextDisplay create(Component text) {
         if (this.config != null) this.settings = this.config.createSection("settings");
         this.setRefreshTime(10);
         this.setAnimationTime(20);
@@ -153,17 +158,17 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     }
 
     @Override
-    public Map<String, List<String>> getText() {
+    public Map<String, Component> getText() {
         return this.texts;
     }
     @Override
-    public void setAnimatedText(Map<String, List<String>> text) {
+    public void setAnimatedText(Map<String, Component> text) {
         this.texts.clear();
         this.texts = text;
         if (this.config != null) {
             ConfigurationSection textSection = this.settings.createSection("texts");
-            for (Map.Entry<String, List<String>> entry : text.entrySet()) {
-                textSection.set(entry.getKey(), entry.getValue());
+            for (Map.Entry<String, Component> entry : text.entrySet()) {
+                textSection.set(entry.getKey(), MiniMessage.miniMessage().serialize(entry.getValue()).split(Pattern.quote("\n")));
             }
             this.settings.set("texts", textSection);
             this.save();
@@ -171,25 +176,25 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         this.textRunnable.updateText(this.texts, this.animationTime, this.refreshTime);
     }
     @Override
-    public void setSingleText(String identifier, List<String> text) {
+    public void setSingleText(String identifier, Component text) {
         this.texts.clear();
         this.texts.put(identifier, text);
         if (this.config != null) {
             ConfigurationSection textSection = this.settings.createSection("texts");
-            textSection.set(identifier, text);
-            this.settings.set("texts", textSection);
+            textSection.set(identifier, MiniMessage.miniMessage().serialize(text).split(Pattern.quote("\n")));
             this.save();
         }
         this.textRunnable.updateText(this.texts, this.animationTime, this.refreshTime);
     }
+
     @Override
-    public boolean addText(String identifier, List<String> text) {
+    public boolean addText(String identifier, Component text) {
         if (this.texts.containsKey(identifier)) return false;
         this.texts.put(identifier, text);
         if (this.config != null) {
             ConfigurationSection textSection = this.settings.createSection("texts");
-            for (Map.Entry<String, List<String>> entry : texts.entrySet()) {
-                textSection.set(entry.getKey(), entry.getValue());
+            for (Map.Entry<String, Component> entry : texts.entrySet()) {
+                textSection.set(entry.getKey(), MiniMessage.miniMessage().serialize(entry.getValue()).split(Pattern.quote("\n")));
             }
             this.settings.set("texts", textSection);
             this.save();
@@ -202,12 +207,12 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         if (!this.texts.containsKey(identifier)) return false;
         this.texts.remove(identifier);
         if (this.texts.isEmpty()) {
-            this.addText("empty", List.of("There are no texts to display"));
+            this.addText("empty", LegacyComponentSerializer.legacyAmpersand().deserialize("&cThere are no texts to display"));
         }
         if (this.config != null) {
             ConfigurationSection textSection = this.settings.createSection("texts");
-            for (Map.Entry<String, List<String>> entry : texts.entrySet()) {
-                textSection.set(entry.getKey(), entry.getValue());
+            for (Map.Entry<String, Component> entry : texts.entrySet()) {
+                textSection.set(entry.getKey(), MiniMessage.miniMessage().serialize(entry.getValue()).split(Pattern.quote("\n")));
             }
             this.settings.set("texts", textSection);
             this.save();

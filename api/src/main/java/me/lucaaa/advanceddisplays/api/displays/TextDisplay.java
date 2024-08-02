@@ -1,10 +1,10 @@
 package me.lucaaa.advanceddisplays.api.displays;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay.TextAlignment;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -67,25 +67,25 @@ public interface TextDisplay extends BaseDisplay {
      * Gets the displayed text.
      * @return The displayed text. The map's key is the text's (the value) identifier.
      */
-    Map<String, List<String>> getText();
+    Map<String, Component> getText();
     /**
      * Sets the text that will be displayed. Will remove the previously set texts.
      * @param text The text that will be displayed. The map's key will be the text's (the value) identifier.
      */
-    void setAnimatedText(Map<String, List<String>> text);
+    void setAnimatedText(Map<String, Component> text);
     /**
      * Sets the text that will be displayed. Won't be animated.
      * @param identifier What the text will be identified with.
      * @param text The text that will be displayed.
      */
-    void setSingleText(String identifier, List<String> text);
+    void setSingleText(String identifier, Component text);
     /**
      * Adds new text that will be animated along with the previously set text.
      * @param identifier What this text will be identified with.
      * @param text The new lines of text.
      * @return False if a list of texts with that identifier already existed, true otherwise.
      */
-    boolean addText(String identifier, List<String> text);
+    boolean addText(String identifier, Component text);
 
     /**
      * Removes a list of text from the display.

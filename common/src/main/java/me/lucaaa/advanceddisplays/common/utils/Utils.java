@@ -16,19 +16,22 @@ public class Utils {
         return ChatColor.translateAlternateColorCodes('&', text);
     }
 
-    public static String getColoredTextWithPlaceholders(Player player, String text) {
-        return ComponentSerializer.toString(parseMessage(player, null, text, false));
+    public static String getColoredTextWithPlaceholders(Player player, Component text) {
+        String json = ComponentSerializer.toString(BungeeComponentSerializer.get().serialize(text));
+        json = json.replace("%player%", player.getName());
+
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            json = PlaceholderAPI.setPlaceholders(player, json);
+        }
+
+        return json;
     }
 
     public static BaseComponent[] getTextComponent(String message, Player clickedPlayer, Player globalPlayer, boolean useGlobalPlaceholders) {
-        return parseMessage(clickedPlayer, globalPlayer, message, useGlobalPlaceholders);
-    }
-
-    private static BaseComponent[] parseMessage(Player player, Player globalPlayer, String message, boolean useGlobalPlaceholders) {
-        message = message.replace("%player%", player.getName());
+        message = message.replace("%player%", clickedPlayer.getName());
         if (globalPlayer != null) message = message.replace("%global_player%", globalPlayer.getName());
 
-        Player placeholderPlayer = (useGlobalPlaceholders) ? globalPlayer : player;
+        Player placeholderPlayer = (useGlobalPlaceholders) ? globalPlayer : clickedPlayer;
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             message = PlaceholderAPI.setPlaceholders(placeholderPlayer, message);
         }

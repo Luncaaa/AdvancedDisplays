@@ -5,9 +5,11 @@ import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
 import me.lucaaa.advanceddisplays.api.displays.ItemDisplay;
 import me.lucaaa.advanceddisplays.api.displays.TextDisplay;
+import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
@@ -41,6 +43,11 @@ public class ADAPIImplementation implements ADAPI {
 
     @Override
     public TextDisplay createTextDisplay(String name, Location location, List<String> value) {
+        return this.createTextDisplay(name, location, ComponentSerializer.deserialize(value));
+    }
+
+    @Override
+    public TextDisplay createTextDisplay(String name, Location location, Component value) {
         TextDisplay display = this.displaysManager.createTextDisplay(location, name, value, false);
         if (display == null) Logger.log(Level.WARNING, "The display \"" + name + "\" could not be created because another display with the same name already exists.");
         return display;

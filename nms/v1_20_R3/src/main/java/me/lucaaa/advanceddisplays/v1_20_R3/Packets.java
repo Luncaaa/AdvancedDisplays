@@ -8,7 +8,6 @@ import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import net.minecraft.network.Connection;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -276,12 +275,12 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void setText(int displayId, String text, Player player) {
+    public void setText(int displayId, net.kyori.adventure.text.Component text, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
         List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.COMPONENT), Component.Serializer.fromJson(Utils.getColoredTextWithPlaceholders(player, text))));
+        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.COMPONENT), net.minecraft.network.chat.Component.Serializer.fromJson(Utils.getColoredTextWithPlaceholders(player, text))));
 
         connection.send(new ClientboundSetEntityDataPacket(displayId, data));
     }

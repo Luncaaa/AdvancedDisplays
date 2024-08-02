@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.inventory.inventories;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
+import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import me.lucaaa.advanceddisplays.inventory.*;
 import me.lucaaa.advanceddisplays.inventory.Button;
@@ -22,8 +23,6 @@ import java.awt.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.List;
-import java.util.regex.Pattern;
 
 public class EditorGUI extends InventoryMethods {
     private final BaseDisplay display;
@@ -39,8 +38,8 @@ public class EditorGUI extends InventoryMethods {
     @Override
     public void onClick(InventoryClickEvent event) {
         event.setCancelled(true);
-        //* This would be useful if the player could use their inventory to drag items into the "current value" slot.
-        /*if (display.getType() == DisplayType.TEXT || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+        /* This would be useful if the player could use their inventory to drag items into the "current value" slot.
+        if (display.getType() == DisplayType.TEXT || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
             event.setCancelled(true);
 
         } else {
@@ -207,8 +206,8 @@ public class EditorGUI extends InventoryMethods {
                         event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of a valid material.", true));
                         event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6You can find a list of them here: &ehttps://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html", true));
                     }
-                    //* This would be useful if the player could use their inventory to drag items into the "current value" slot.
-                    /*ItemStack cursorItem = Objects.requireNonNull(event.getCursor()).clone();
+                    /* This would be useful if the player could use their inventory to drag items into the "current value" slot.
+                    ItemStack cursorItem = Objects.requireNonNull(event.getCursor()).clone();
 
                     if (cursorItem.getType() == Material.AIR) return;
 
@@ -417,8 +416,8 @@ public class EditorGUI extends InventoryMethods {
                     }
 
                     String identifier = input.substring(0, firstSpace);
-                    List<String> value = Arrays.stream(input.substring(firstSpace + 1).split(Pattern.quote("\\n"))).toList();
-                    if (((TextDisplay) display).addText(identifier, value)) {
+                    String joined = input.substring(firstSpace + 1).replace("\\n", "\n");
+                    if (((TextDisplay) display).addText(identifier, ComponentSerializer.deserialize(joined))) {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + identifier + " &a has been created and added after the last animation.", true));
                     } else {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cAn animation with the name &b" + identifier + " &calready exists!", true));

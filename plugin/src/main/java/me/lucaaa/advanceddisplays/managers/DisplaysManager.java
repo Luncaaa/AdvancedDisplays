@@ -8,6 +8,7 @@ import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.data.ConfigAxisAngle4f;
 import me.lucaaa.advanceddisplays.data.ConfigVector3f;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -113,7 +114,7 @@ public class DisplaysManager {
         return displayConfigManager;
     }
 
-    public ADTextDisplay createTextDisplay(Location location, String name, List<String> value, boolean saveToConfig) {
+    public ADTextDisplay createTextDisplay(Location location, String name, Component value, boolean saveToConfig) {
         if (this.displays.containsKey(name)) {
             return null;
         }

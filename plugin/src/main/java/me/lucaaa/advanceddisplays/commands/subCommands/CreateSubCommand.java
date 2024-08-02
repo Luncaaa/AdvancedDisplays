@@ -1,6 +1,7 @@
 package me.lucaaa.advanceddisplays.commands.subCommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import org.bukkit.Material;
@@ -10,7 +11,6 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 public class CreateSubCommand extends SubCommandsFormat {
     private final ArrayList<String> blocksList = new ArrayList<>();
@@ -80,7 +80,7 @@ public class CreateSubCommand extends SubCommandsFormat {
 
         ADBaseDisplay newDisplay = null;
         switch (type) {
-            case TEXT -> newDisplay = plugin.getDisplaysManager().createTextDisplay(player.getEyeLocation(), args[2], Arrays.stream(value.split(Pattern.quote("\\n"))).toList(), true);
+            case TEXT -> newDisplay = plugin.getDisplaysManager().createTextDisplay(player.getEyeLocation(), args[2], ComponentSerializer.deserialize(value.replace("\\n", "\n")), true);
             case ITEM -> newDisplay = plugin.getDisplaysManager().createItemDisplay(player.getEyeLocation(), args[2], Material.getMaterial(value), true);
             case BLOCK -> newDisplay = plugin.getDisplaysManager().createBlockDisplay(player.getEyeLocation(), args[2], Objects.requireNonNull(Material.getMaterial(value)).createBlockData(), true);
         }

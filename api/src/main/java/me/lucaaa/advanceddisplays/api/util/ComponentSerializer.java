@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 public class ComponentSerializer {
     /**
      * Transforms a string into a component. Every "\n" will be considered as a new line.
+     * Supports Minimessage format and legacy color codes.
      * @param text The string to convert into a component.
      * @return The component.
      */
@@ -24,6 +25,7 @@ public class ComponentSerializer {
 
     /**
      * Transforms a list of strings into a component. Each element in the list will be considered a new line.
+     * Supports Minimessage format and legacy color codes.
      * @param text The list of strings to convert into a component.
      * @return The component.
      */
@@ -41,7 +43,7 @@ public class ComponentSerializer {
     }
 
     /**
-     * Transforms a component into a list of strings. Every "\n" will be considered as a new line.
+     * Transforms a component into a list of strings with Minimessage format. Every "\n" will be considered as a new line.
      * @param component The component to convert into a list of strings.
      * @return The list of strings.
      */

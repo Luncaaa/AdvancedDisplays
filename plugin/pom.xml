@@ -113,7 +113,7 @@
                     <relocations>
                         <relocation>
                             <pattern>net.kyori</pattern>
-                            <shadedPattern>shaded.net.kyori</shadedPattern>
+                            <shadedPattern>net.kyori</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

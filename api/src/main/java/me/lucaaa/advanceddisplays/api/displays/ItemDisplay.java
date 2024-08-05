@@ -1,9 +1,9 @@
 package me.lucaaa.advanceddisplays.api.displays;
 
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.ItemDisplay.ItemDisplayTransform;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * An entity which displays an item.
@@ -14,18 +14,18 @@ public interface ItemDisplay extends BaseDisplay {
      * Gets the displayed item.
      * @return The displayed item.
      */
-    Material getMaterial();
+    ItemStack getItem();
     /**
      * Sets the displayed item for everyone.
-     * @param material The new displayed item.
+     * @param item The new displayed item.
      */
-    void setMaterial(Material material);
+    void setItem(ItemStack item);
     /**
      * Sets the displayed item for a specific player.
-     * @param material The new displayed item.
+     * @param item The new displayed item.
      * @param player The player who will see the new displayed item.
      */
-    void setMaterial(Material material, Player player);
+    void setItem(ItemStack item, Player player);
 
     /**
      * Sets a head as the displayed item with a texture for everyone.

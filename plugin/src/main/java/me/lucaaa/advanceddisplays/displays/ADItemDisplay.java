@@ -3,29 +3,40 @@ package me.lucaaa.advanceddisplays.displays;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
+import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
 
 public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.ItemDisplay {
     private ConfigurationSection settings = null;
-    private Material material;
+    private ItemStack item;
     private DisplayHeadType displayHeadType;
     private String displayHeadValue;
     private boolean enchanted;
     private ItemDisplay.ItemDisplayTransform itemTransformation;
+
+    // Compatibility
+    private String oraxenId;
 
     public ADItemDisplay(AdvancedDisplays plugin, ConfigManager configManager, String name, ItemDisplay display, boolean isApi) {
         super(plugin, name, DisplayType.ITEM, configManager, display, isApi);
         this.settings = this.config.getConfigurationSection("settings");
 
         if (this.settings != null) {
-            this.material = Material.valueOf(this.settings.getString("item"));
+            if (this.settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
+                this.oraxenId = this.settings.getString("oraxen");
+                this.item = plugin.getIntegration(Compatibility.ORAXEN).getItemStack(oraxenId);
+            } else {
+                this.item = new ItemStack(Material.valueOf(this.settings.getString("item")));
+            }
+
             this.enchanted = this.settings.getBoolean("enchanted");
             this.itemTransformation = ItemDisplay.ItemDisplayTransform.valueOf(this.settings.getString("itemTransformation"));
 
@@ -51,47 +62,48 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     @Override
     public void sendMetadataPackets(Player player) {
         this.sendBaseMetadataPackets(player);
-        if (this.material == Material.PLAYER_HEAD) this.packets.setHead(this.displayId, this.enchanted, this.displayHeadType, this.displayHeadValue, player);
-        else this.packets.setItem(this.displayId, this.material, this.enchanted, player);
+        if (this.item.getType() == Material.PLAYER_HEAD) this.packets.setHead(this.displayId, this.enchanted, this.displayHeadType, this.displayHeadValue, player);
+        else this.packets.setItem(this.displayId, this.item, this.enchanted, player);
         this.packets.setItemDisplayTransformation(this.displayId, this.itemTransformation, player);
     }
 
     public ADItemDisplay create(Material item) {
         if (this.config != null) this.settings = this.config.createSection("settings");
         if (item == Material.PLAYER_HEAD) this.setMaterialHead(DisplayHeadType.PLAYER, "%player%");
-        else this.setMaterial(item);
+        else this.setItem(new ItemStack(item));
         this.setEnchanted(false);
         this.setItemTransformation(ItemDisplay.ItemDisplayTransform.FIXED);
         return this;
     }
 
     @Override
-    public Material getMaterial() {
-        return this.material;
+    public ItemStack getItem() {
+        return this.item;
     }
     @Override
-    public void setMaterial(Material material) {
-        this.material = material;
+    public void setItem(ItemStack item) {
+        this.item = item;
         if (this.config != null) {
-            this.settings.set("item", material.name());
+            if (this.oraxenId != null) this.settings.set("oraxen", this.oraxenId);
+            this.settings.set("item", this.item.getType().name());
             this.save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setMaterial(material, onlinePlayer);
+            this.setItem(item, onlinePlayer);
         }
     }
     @Override
-    public void setMaterial(Material material, Player player) {
-        this.packets.setItem(this.displayId, material, this.enchanted, player);
+    public void setItem(ItemStack item, Player player) {
+        this.packets.setItem(this.displayId, item, this.enchanted, player);
     }
 
     @Override
     public void setMaterialHead(DisplayHeadType displayHeadType, String value) {
-        this.material = Material.PLAYER_HEAD;
+        this.item = new ItemStack(Material.PLAYER_HEAD);
         this.displayHeadType = displayHeadType;
         this.displayHeadValue = value;
         if (this.config != null) {
-            this.settings.set("item", material.name());
+            this.settings.set("item", item.getType().name());
             ConfigurationSection headSection =  this.settings.createSection("head");
             headSection.set(displayHeadType.getConfigName(), value);
             this.save();
@@ -123,8 +135,8 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     }
     @Override
     public void setEnchanted(boolean enchanted, Player player) {
-        if (this.material == Material.PLAYER_HEAD) this.packets.setHead(this.displayId, enchanted, this.displayHeadType, this.displayHeadValue, player);
-        else this.packets.setItem(this.displayId, this.material, enchanted, player);
+        if (this.item.getType() == Material.PLAYER_HEAD) this.packets.setHead(this.displayId, enchanted, this.displayHeadType, this.displayHeadValue, player);
+        else this.packets.setItem(this.displayId, this.item, enchanted, player);
     }
 
     @Override

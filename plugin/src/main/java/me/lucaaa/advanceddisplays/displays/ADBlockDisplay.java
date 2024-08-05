@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
+import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.block.data.BlockData;
@@ -17,11 +18,20 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
     private ConfigurationSection settings = null;
     private BlockData block;
 
+    // Compatibility
+    private String oraxenId;
+
     public ADBlockDisplay(AdvancedDisplays plugin, ConfigManager configManager, String name, BlockDisplay display, boolean isApi) {
         super(plugin, name, DisplayType.BLOCK, configManager, display, isApi);
         this.settings = this.config.getConfigurationSection("settings");
 
         if (this.settings != null) {
+            if (this.settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
+                this.oraxenId = this.settings.getString("oraxen");
+                this.block = plugin.getIntegration(Compatibility.ORAXEN).getBlockData(oraxenId);
+                return;
+            }
+
             String blockData = "minecraft:" + Objects.requireNonNull(this.settings.getString("block")).toLowerCase() + "[";
             ConfigurationSection dataSection = Objects.requireNonNull(this.settings.getConfigurationSection("blockData"));
             ArrayList<String> dataParts = new ArrayList<>();
@@ -57,6 +67,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
         this.block = block;
 
         if (this.config != null) {
+            if (this.oraxenId != null) this.settings.set("oraxen", this.oraxenId);
             this.settings.set("block", block.getMaterial().name());
 
             ConfigurationSection dataSection = this.settings.createSection("blockData");

@@ -1,6 +1,5 @@
-.idea
-target
-*.iml
-javadoc
-*-javadoc.jar
-dependency-reduced-pom.xml
+build/
+.gradle/
+test/
+*iml
+.idea/

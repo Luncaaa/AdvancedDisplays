@@ -1,5 +1,9 @@
 package me.lucaaa.advanceddisplays;
 
+import io.th0rgal.oraxen.compatibilities.CompatibilitiesManager;
+import me.lucaaa.advanceddisplays.data.Compatibility;
+import me.lucaaa.advanceddisplays.integrations.Integration;
+import me.lucaaa.advanceddisplays.integrations.OraxenCompat;
 import me.lucaaa.advanceddisplays.managers.*;
 import me.lucaaa.advanceddisplays.events.*;
 import me.lucaaa.advanceddisplays.api.*;
@@ -12,6 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -24,6 +29,9 @@ public class AdvancedDisplays extends JavaPlugin {
     // Config files.
     private ConfigManager mainConfig;
     private ConfigManager savesConfig;
+
+    // Integrations.
+    private final Map<Compatibility, Integration> integrations = new HashMap<>();
 
     // Managers.
     private TickManager tickManager;
@@ -77,6 +85,12 @@ public class AdvancedDisplays extends JavaPlugin {
 
         ADAPIProvider.setImplementation(apiDisplays);
 
+        // Set up integrations.
+        if (Bukkit.getPluginManager().isPluginEnabled("Oraxen")) {
+            CompatibilitiesManager.addCompatibility("AdvancedDisplays", OraxenCompat.class);
+            this.integrations.put(Compatibility.ORAXEN, new OraxenCompat());
+        }
+
         // Set up files and managers.
         reloadConfigs();
 
@@ -128,6 +142,14 @@ public class AdvancedDisplays extends JavaPlugin {
 
     public ConfigManager getSavesConfig() {
         return this.savesConfig;
+    }
+
+    public boolean isIntegrationLoaded(Compatibility compatibility) {
+        return this.integrations.containsKey(compatibility);
+    }
+
+    public Integration getIntegration(Compatibility compatibility) {
+        return this.integrations.get(compatibility);
     }
 
     public PacketsManager getPacketsManager() {

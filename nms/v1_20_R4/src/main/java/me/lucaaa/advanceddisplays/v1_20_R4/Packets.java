@@ -6,8 +6,8 @@ import me.lucaaa.advanceddisplays.common.utils.HeadUtils;
 import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
-import me.lucaaa.advanceddisplays.common.utils.Utils;
 import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -20,13 +20,12 @@ import net.minecraft.world.level.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.v1_20_R4.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_20_R4.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_20_R4.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.entity.CraftEntity;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.inventory.ClickType;
@@ -275,12 +274,12 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void setText(int displayId, net.kyori.adventure.text.Component text, Player player) {
+    public void setText(int displayId, String textJSON, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
         List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.COMPONENT), net.minecraft.network.chat.Component.Serializer.fromJson(Utils.getColoredTextWithPlaceholders(player, text), cp.getHandle().registryAccess())));
+        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.COMPONENT), Objects.requireNonNull(Component.Serializer.fromJson(textJSON, cp.getHandle().registryAccess()))));
 
         connection.send(new ClientboundSetEntityDataPacket(displayId, data));
     }
@@ -351,12 +350,11 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void setItem(int displayId, Material material, boolean enchanted, Player player) {
+    public void setItem(int displayId, ItemStack item, boolean enchanted, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
         List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        ItemStack item = new ItemStack(material);
         if (enchanted) item.addUnsafeEnchantment(Enchantment.MENDING, 1);
         data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy(item)));
 

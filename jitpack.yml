@@ -1,2 +1,7 @@
+jdk:
+  - openjdk21
+before_install:
+  - sdk install java 21.0.4.7-tem
+  - sdk use java 21.0.4.7-tem
 install:
-  - mvn clean install -P jitpack
+  - ./gradlew :api:build

@@ -3,8 +3,8 @@ package me.lucaaa.advanceddisplays.api;
 import org.bukkit.plugin.Plugin;
 
 /**
- * @hidden
  * INTERNAL USE ONLY - DO NOT USE!
+ * @hidden
  */
 public abstract class ADAPIProvider {
 

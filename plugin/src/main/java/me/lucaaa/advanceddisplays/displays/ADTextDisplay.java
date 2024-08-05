@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.displays;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
+import me.lucaaa.advanceddisplays.common.utils.Utils;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import net.kyori.adventure.text.Component;
@@ -75,7 +76,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     @Override
     public void sendMetadataPackets(Player player) {
         this.sendBaseMetadataPackets(player);
-        if (this.texts.size() == 1 && this.refreshTime <= 0) this.packets.setText(this.displayId, this.texts.values().stream().toList().get(0), player);
+        if (this.texts.size() == 1 && this.refreshTime <= 0) this.packets.setText(this.displayId, Utils.getColoredTextWithPlaceholders(player, ComponentSerializer.toJSON(this.texts.values().stream().toList().get(0))), player);
         this.packets.setBackgroundColor(this.displayId, this.backgroundColor, player);
         this.packets.setLineWidth(this.displayId, this.lineWidth, player);
         this.packets.setTextOpacity(this.displayId, this.textOpacity, player);

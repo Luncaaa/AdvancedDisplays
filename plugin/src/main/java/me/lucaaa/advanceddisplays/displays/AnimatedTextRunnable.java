@@ -1,6 +1,8 @@
 package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
+import me.lucaaa.advanceddisplays.common.utils.Utils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -30,7 +32,7 @@ public class AnimatedTextRunnable {
                 @Override
                 public void run() {
                     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        plugin.getPacketsManager().getPackets().setText(displayId, textsList.values().stream().toList().get(currentIndex), onlinePlayer);
+                        plugin.getPacketsManager().getPackets().setText(displayId, Utils.getColoredTextWithPlaceholders(onlinePlayer, ComponentSerializer.toJSON(textsList.values().stream().toList().get(currentIndex))), onlinePlayer);
                     }
 
                     if (currentIndex + 1 == textsList.size()) currentIndex = 0;
@@ -46,13 +48,13 @@ public class AnimatedTextRunnable {
                 @Override
                 public void run() {
                     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        plugin.getPacketsManager().getPackets().setText(displayId, textsList.values().stream().toList().get(currentIndex), onlinePlayer);
+                        plugin.getPacketsManager().getPackets().setText(displayId, Utils.getColoredTextWithPlaceholders(onlinePlayer, ComponentSerializer.toJSON(textsList.values().stream().toList().get(currentIndex))), onlinePlayer);
                     }
                 }
             }.runTaskTimerAsynchronously(plugin, 0L, refreshTime);
         } else if (texts.size() == 1) {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                plugin.getPacketsManager().getPackets().setText(displayId, textsList.values().stream().toList().get(currentIndex), onlinePlayer);
+                plugin.getPacketsManager().getPackets().setText(displayId, Utils.getColoredTextWithPlaceholders(onlinePlayer, ComponentSerializer.toJSON(textsList.values().stream().toList().get(currentIndex))), onlinePlayer);
             }
         }
     }

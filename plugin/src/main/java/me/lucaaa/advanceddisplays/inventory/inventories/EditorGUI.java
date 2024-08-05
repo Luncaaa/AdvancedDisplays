@@ -441,7 +441,7 @@ public class EditorGUI extends InventoryMethods {
                     }
 
                     if (display.getType() == DisplayType.ITEM) {
-                        ((ItemDisplay) display).setMaterial(material);
+                        ((ItemDisplay) display).setItem(new ItemStack(material));
 
                     } else {
                         try {

@@ -2,12 +2,11 @@ package me.lucaaa.advanceddisplays.nms_common;
 
 import io.netty.channel.ChannelPipeline;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
 
 public interface PacketInterface {
@@ -41,7 +40,7 @@ public interface PacketInterface {
     void setGlowing(int displayId, boolean isGlowing, Color color, Player player);
 
     // -[ Text displays ]-
-    void setText(int displayId, Component text, Player player);
+    void setText(int displayId, String textJSON, Player player);
     void setBackgroundColor(int displayId, Color color, Player player);
     void setLineWidth(int displayId, int lineWidth, Player player);
     void setTextOpacity(int displayId, byte textOpacity, Player player);
@@ -51,7 +50,7 @@ public interface PacketInterface {
     void setBlock(int displayId, BlockData block, Player player);
 
     // -[ Item displays ]-
-    void setItem(int displayId, Material material, boolean enchanted, Player player);
+    void setItem(int displayId, ItemStack item, boolean enchanted, Player player);
     void setHead(int displayId, boolean enchanted, DisplayHeadType displayHeadType, String displayHeadValue, Player player);
     void setItemDisplayTransformation(int displayId, ItemDisplay.ItemDisplayTransform transformation, Player player);
 }

@@ -5,18 +5,16 @@ import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import me.lucaaa.advanceddisplays.inventory.Button;
 import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
-import me.lucaaa.advanceddisplays.inventory.InventoryUtils;
 import me.lucaaa.advanceddisplays.inventory.items.ColorItems;
 import me.lucaaa.advanceddisplays.inventory.items.GlobalItems;
+import me.lucaaa.advanceddisplays.inventory.items.Item;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ColorGUI extends InventoryMethods {
@@ -72,7 +70,7 @@ public class ColorGUI extends InventoryMethods {
         addButton(0, new Button.InventoryButton(items.RED_1) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                savedColor = savedColor.setRed(InventoryUtils.getUpdatedColor(redPreview.getItem(), savedColor.getRed(), 1, event.isLeftClick(), ColorItems.ColorComponent.RED));
+                savedColor = savedColor.setRed(getUpdatedColor(savedColor.getRed(), 1, event.isLeftClick()));
                 updateItems(10, redPreview.getItem(), preview.getItem());
             }
         });
@@ -80,7 +78,7 @@ public class ColorGUI extends InventoryMethods {
         addButton(9, new Button.InventoryButton(items.RED_10) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                savedColor = savedColor.setRed(InventoryUtils.getUpdatedColor(redPreview.getItem(), savedColor.getRed(), 10, event.isLeftClick(), ColorItems.ColorComponent.RED));
+                savedColor = savedColor.setRed(getUpdatedColor(savedColor.getRed(), 10, event.isLeftClick()));
                 updateItems(10, redPreview.getItem(), preview.getItem());
             }
         });
@@ -88,7 +86,7 @@ public class ColorGUI extends InventoryMethods {
         addButton(18, new Button.InventoryButton(items.RED_100) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                savedColor = savedColor.setRed(InventoryUtils.getUpdatedColor(redPreview.getItem(), savedColor.getRed(), 100, event.isLeftClick(), ColorItems.ColorComponent.RED));
+                savedColor = savedColor.setRed(getUpdatedColor(savedColor.getRed(), 100, event.isLeftClick()));
                 updateItems(10, redPreview.getItem(), preview.getItem());
             }
         });
@@ -100,7 +98,7 @@ public class ColorGUI extends InventoryMethods {
         addButton(2, new Button.InventoryButton(items.GREEN_1) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                savedColor = savedColor.setGreen(InventoryUtils.getUpdatedColor(greenPreview.getItem(), savedColor.getGreen(), 1, event.isLeftClick(), ColorItems.ColorComponent.GREEN));
+                savedColor = savedColor.setGreen(getUpdatedColor(savedColor.getGreen(), 1, event.isLeftClick()));
                 updateItems(12, greenPreview.getItem(), preview.getItem());
             }
         });
@@ -108,7 +106,7 @@ public class ColorGUI extends InventoryMethods {
         addButton(11, new Button.InventoryButton(items.GREEN_10) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                savedColor = savedColor.setGreen(InventoryUtils.getUpdatedColor(greenPreview.getItem(), savedColor.getGreen(), 10, event.isLeftClick(), ColorItems.ColorComponent.GREEN));
+                savedColor = savedColor.setGreen(getUpdatedColor(savedColor.getGreen(), 10, event.isLeftClick()));
                 updateItems(12, greenPreview.getItem(), preview.getItem());
             }
         });
@@ -116,7 +114,7 @@ public class ColorGUI extends InventoryMethods {
         addButton(20, new Button.InventoryButton(items.GREEN_100) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                savedColor = savedColor.setGreen(InventoryUtils.getUpdatedColor(greenPreview.getItem(), savedColor.getGreen(), 100, event.isLeftClick(), ColorItems.ColorComponent.GREEN));
+                savedColor = savedColor.setGreen(getUpdatedColor(savedColor.getGreen(), 100, event.isLeftClick()));
                 updateItems(12, greenPreview.getItem(), preview.getItem());
             }
         });
@@ -128,7 +126,7 @@ public class ColorGUI extends InventoryMethods {
         addButton(4, new Button.InventoryButton(items.BLUE_1) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                savedColor = savedColor.setBlue(InventoryUtils.getUpdatedColor(bluePreview.getItem(), savedColor.getBlue(), 1, event.isLeftClick(), ColorItems.ColorComponent.BLUE));
+                savedColor = savedColor.setBlue(getUpdatedColor(savedColor.getBlue(), 1, event.isLeftClick()));
                 updateItems(14, bluePreview.getItem(), preview.getItem());
             }
         });
@@ -136,7 +134,7 @@ public class ColorGUI extends InventoryMethods {
         addButton(13, new Button.InventoryButton(items.BLUE_10) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                savedColor = savedColor.setBlue(InventoryUtils.getUpdatedColor(bluePreview.getItem(), savedColor.getBlue(), 10, event.isLeftClick(), ColorItems.ColorComponent.BLUE));
+                savedColor = savedColor.setBlue(getUpdatedColor(savedColor.getBlue(), 10, event.isLeftClick()));
                 updateItems(14, bluePreview.getItem(), preview.getItem());
             }
         });
@@ -144,7 +142,7 @@ public class ColorGUI extends InventoryMethods {
         addButton(22, new Button.InventoryButton(items.BLUE_100) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                savedColor = savedColor.setBlue(InventoryUtils.getUpdatedColor(bluePreview.getItem(), savedColor.getBlue(), 100, event.isLeftClick(), ColorItems.ColorComponent.BLUE));
+                savedColor = savedColor.setBlue(getUpdatedColor(savedColor.getBlue(), 100, event.isLeftClick()));
                 updateItems(14, bluePreview.getItem(), preview.getItem());
             }
         });
@@ -157,7 +155,7 @@ public class ColorGUI extends InventoryMethods {
             addButton(6, new Button.InventoryButton(items.ALPHA_1) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
-                    savedColor = savedColor.setAlpha(InventoryUtils.getUpdatedColor(alphaPreview.getItem(), savedColor.getAlpha(), 1, event.isLeftClick(), ColorItems.ColorComponent.ALPHA));
+                    savedColor = savedColor.setAlpha(getUpdatedColor(savedColor.getAlpha(), 1, event.isLeftClick()));
                     updateItems(16, alphaPreview.getItem(), preview.getItem());
                 }
             });
@@ -165,7 +163,7 @@ public class ColorGUI extends InventoryMethods {
             addButton(15, new Button.InventoryButton(items.ALPHA_10) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
-                    savedColor = savedColor.setAlpha(InventoryUtils.getUpdatedColor(alphaPreview.getItem(), savedColor.getAlpha(), 10, event.isLeftClick(), ColorItems.ColorComponent.ALPHA));
+                    savedColor = savedColor.setAlpha(getUpdatedColor(savedColor.getAlpha(), 10, event.isLeftClick()));
                     updateItems(16, alphaPreview.getItem(), preview.getItem());
                 }
             });
@@ -173,7 +171,7 @@ public class ColorGUI extends InventoryMethods {
             addButton(24, new Button.InventoryButton(items.ALPHA_100) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
-                    savedColor = savedColor.setAlpha(InventoryUtils.getUpdatedColor(alphaPreview.getItem(), savedColor.getAlpha(), 100, event.isLeftClick(), ColorItems.ColorComponent.ALPHA));
+                    savedColor = savedColor.setAlpha(getUpdatedColor(savedColor.getAlpha(), 100, event.isLeftClick()));
                     updateItems(16, alphaPreview.getItem(), preview.getItem());
                 }
             });
@@ -217,10 +215,21 @@ public class ColorGUI extends InventoryMethods {
         }.runTask(plugin);
     }
 
-    private void updateItems(int slot, ItemStack item, ItemStack previewItem) {
-        getInventory().setItem(slot, item);
-        InventoryUtils.changeArmorColor(previewItem, savedColor);
-        previewItem.setItemMeta(ColorItems.setPreviewLore(Objects.requireNonNull(previewItem.getItemMeta()), savedColor, alphaEnabled, null));
-        getInventory().setItem(17, previewItem);
+    private void updateItems(int slot, Item item, Item previewItem) {
+        item.setArmorColor(savedColor);
+        getInventory().setItem(slot, item.getItemStack());
+        previewItem.setArmorColor(savedColor);
+        previewItem.setPreviewLore(savedColor, alphaEnabled, null);
+        getInventory().setItem(17, previewItem.getItemStack());
+    }
+
+    private int getUpdatedColor(int oldValue, int amount, boolean add) {
+        int value = (add) ? oldValue + amount : oldValue - amount;
+        if (value > 255) {
+            value = 255;
+        } else if (value < 0) {
+            value = 0;
+        }
+        return value;
     }
 }

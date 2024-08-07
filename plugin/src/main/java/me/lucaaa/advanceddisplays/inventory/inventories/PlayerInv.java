@@ -5,7 +5,6 @@ import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.data.NamedEnum;
 import me.lucaaa.advanceddisplays.inventory.Button;
 import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
-import me.lucaaa.advanceddisplays.inventory.InventoryUtils;
 import me.lucaaa.advanceddisplays.inventory.items.GlobalItems;
 import me.lucaaa.advanceddisplays.inventory.items.InventoryItems;
 import org.bukkit.entity.Player;
@@ -51,8 +50,8 @@ public class PlayerInv {
         addGlobalButton(6, new Button.PlayerButton(items.CHANGE_ROW) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                currentRow = InventoryUtils.changeEnumValue(getItem(), currentRow, true);
-                player.getInventory().setItem(8, getItem());
+                currentRow = getItem().changeEnumValue(true);
+                player.getInventory().setItem(8, getItem().getItemStack());
                 setContents(currentRow);
             }
         });
@@ -100,21 +99,21 @@ public class PlayerInv {
         // Hotbar buttons
         Map<InventoryRows, Map<Integer, Button.PlayerButton>> maps = new HashMap<>(this.rows);
         for (Map.Entry<Integer, Button.PlayerButton> entry : maps.remove(hotbarRow).entrySet()) {
-            itemArray[entry.getKey()] = entry.getValue().getItem();
+            itemArray[entry.getKey()] = entry.getValue().getItem().getItemStack();
         }
 
         // Inventory buttons
         int i = 27;
         for (Map.Entry<InventoryRows, Map<Integer, Button.PlayerButton>> entry : maps.entrySet()) {
             for (Map.Entry<Integer, Button.PlayerButton> row : entry.getValue().entrySet()) {
-                itemArray[i + row.getKey()] = row.getValue().getItem();
+                itemArray[i + row.getKey()] = row.getValue().getItem().getItemStack();
             }
             i = i - 9;
         }
 
         // Global buttons
         for (Map.Entry<Integer, Button.PlayerButton> entry : buttons.entrySet()) {
-            itemArray[entry.getKey()] = entry.getValue().getItem();
+            itemArray[entry.getKey()] = entry.getValue().getItem().getItemStack();
         }
 
         player.getInventory().setContents(itemArray);
@@ -130,8 +129,8 @@ public class PlayerInv {
         scaleTranslationMap.put(0, new Button.PlayerButton(items.SCALE_X) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getScale().x, event.getPlayer().isSneaking(), 0.0, isLeftClick(event), true);
-                player.getInventory().setItem(0, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
+                player.getInventory().setItem(0, getItem().getItemStack());
                 transformation.getScale().set(newValue, transformation.getScale().y, transformation.getScale().z);
                 display.setTransformation(transformation);
             }
@@ -140,8 +139,8 @@ public class PlayerInv {
         scaleTranslationMap.put(1, new Button.PlayerButton(items.SCALE_Y) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getScale().y, event.getPlayer().isSneaking(), 0.0, isLeftClick(event), true);
-                player.getInventory().setItem(1, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
+                player.getInventory().setItem(1, getItem().getItemStack());
                 transformation.getScale().set(transformation.getScale().x, newValue, transformation.getScale().z);
                 display.setTransformation(transformation);
             }
@@ -150,8 +149,8 @@ public class PlayerInv {
         scaleTranslationMap.put(2, new Button.PlayerButton(items.SCALE_Z) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getScale().z, event.getPlayer().isSneaking(), 0.0, isLeftClick(event), true);
-                player.getInventory().setItem(2, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
+                player.getInventory().setItem(2, getItem().getItemStack());
                 transformation.getScale().set(transformation.getScale().x, transformation.getScale().y, newValue);
                 display.setTransformation(transformation);
             }
@@ -160,8 +159,8 @@ public class PlayerInv {
         scaleTranslationMap.put(3, new Button.PlayerButton(items.TRANSLATION_X) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getTranslation().x, event.getPlayer().isSneaking(), 0.0, isLeftClick(event), true);
-                player.getInventory().setItem(3, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
+                player.getInventory().setItem(3, getItem().getItemStack());
                 transformation.getTranslation().set(newValue, transformation.getTranslation().y, transformation.getTranslation().z);
                 display.setTransformation(transformation);
             }
@@ -170,8 +169,8 @@ public class PlayerInv {
         scaleTranslationMap.put(4, new Button.PlayerButton(items.TRANSLATION_Y) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getTranslation().y, event.getPlayer().isSneaking(), 0.0, isLeftClick(event), true);
-                player.getInventory().setItem(4, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
+                player.getInventory().setItem(4, getItem().getItemStack());
                 transformation.getTranslation().set(transformation.getTranslation().x, newValue, transformation.getTranslation().z);
                 display.setTransformation(transformation);
             }
@@ -180,8 +179,8 @@ public class PlayerInv {
         scaleTranslationMap.put(5, new Button.PlayerButton(items.TRANSLATION_Z) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getTranslation().z, event.getPlayer().isSneaking(), 0.0, isLeftClick(event), true);
-                player.getInventory().setItem(5, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
+                player.getInventory().setItem(5, getItem().getItemStack());
                 transformation.getTranslation().set(transformation.getTranslation().x, transformation.getTranslation().y, newValue);
                 display.setTransformation(transformation);
             }
@@ -196,8 +195,8 @@ public class PlayerInv {
         leftRotationMap.put(0, new Button.PlayerButton(items.LEFT_ROTATION_X) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getLeftRotation().x, event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
-                player.getInventory().setItem(0, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
+                player.getInventory().setItem(0, getItem().getItemStack());
                 transformation.getLeftRotation().setAngleAxis(transformation.getLeftRotation().angle(), (float) newValue, transformation.getLeftRotation().y, transformation.getLeftRotation().z);
                 display.setTransformation(transformation);
             }
@@ -206,8 +205,8 @@ public class PlayerInv {
         leftRotationMap.put(1, new Button.PlayerButton(items.LEFT_ROTATION_Y) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getLeftRotation().y, event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
-                player.getInventory().setItem(1, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
+                player.getInventory().setItem(1, getItem().getItemStack());
                 transformation.getLeftRotation().setAngleAxis(transformation.getLeftRotation().angle(), transformation.getLeftRotation().x, (float) newValue, transformation.getLeftRotation().z);
                 display.setTransformation(transformation);
             }
@@ -216,8 +215,8 @@ public class PlayerInv {
         leftRotationMap.put(2, new Button.PlayerButton(items.LEFT_ROTATION_Z) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getLeftRotation().z, event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
-                player.getInventory().setItem(2, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
+                player.getInventory().setItem(2, getItem().getItemStack());
                 transformation.getLeftRotation().setAngleAxis(transformation.getLeftRotation().angle(), transformation.getLeftRotation().x, transformation.getLeftRotation().y, (float) newValue);
                 display.setTransformation(transformation);
             }
@@ -226,8 +225,8 @@ public class PlayerInv {
         leftRotationMap.put(3, new Button.PlayerButton(items.LEFT_ROTATION_ANGLE) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), Math.toDegrees(transformation.getLeftRotation().angle()), 10.0, 1.0, event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
-                player.getInventory().setItem(3, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
+                player.getInventory().setItem(3, getItem().getItemStack());
                 transformation.getLeftRotation().setAngleAxis((float) Math.toRadians(newValue), transformation.getLeftRotation().x, transformation.getLeftRotation().y, transformation.getLeftRotation().z);
                 display.setTransformation(transformation);
             }
@@ -236,8 +235,8 @@ public class PlayerInv {
         leftRotationMap.put(4, new Button.PlayerButton(items.YAW) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), display.getYaw(), 10.0, 1.0, event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
-                player.getInventory().setItem(4, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
+                player.getInventory().setItem(4, getItem().getItemStack());
                 display.setRotation((float) newValue, display.getPitch());
             }
         });
@@ -245,8 +244,8 @@ public class PlayerInv {
         leftRotationMap.put(5, new Button.PlayerButton(items.PITCH) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), display.getPitch(), 10.0, 1.0, event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
-                player.getInventory().setItem(5, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
+                player.getInventory().setItem(5, getItem().getItemStack());
                 display.setRotation(display.getYaw(), (float) newValue);
             }
         });
@@ -260,8 +259,8 @@ public class PlayerInv {
         rightRotationMap.put(0, new Button.PlayerButton(items.RIGHT_ROTATION_X) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getRightRotation().x, event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
-                player.getInventory().setItem(0, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
+                player.getInventory().setItem(0, getItem().getItemStack());
                 transformation.getRightRotation().setAngleAxis(transformation.getRightRotation().angle(), (float) newValue, transformation.getRightRotation().y, transformation.getRightRotation().z);
                 display.setTransformation(transformation);
             }
@@ -270,8 +269,8 @@ public class PlayerInv {
         rightRotationMap.put(1, new Button.PlayerButton(items.RIGHT_ROTATION_Y) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getRightRotation().y, event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
-                player.getInventory().setItem(1, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
+                player.getInventory().setItem(1, getItem().getItemStack());
                 transformation.getRightRotation().setAngleAxis(transformation.getRightRotation().angle(), transformation.getRightRotation().x, (float) newValue, transformation.getRightRotation().z);
                 display.setTransformation(transformation);
             }
@@ -280,8 +279,8 @@ public class PlayerInv {
         rightRotationMap.put(2, new Button.PlayerButton(items.RIGHT_ROTATION_Z) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), transformation.getRightRotation().z, event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
-                player.getInventory().setItem(2, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
+                player.getInventory().setItem(2, getItem().getItemStack());
                 transformation.getRightRotation().setAngleAxis(transformation.getRightRotation().angle(), transformation.getRightRotation().x, transformation.getRightRotation().y, (float) newValue);
                 display.setTransformation(transformation);
             }
@@ -290,8 +289,8 @@ public class PlayerInv {
         rightRotationMap.put(3, new Button.PlayerButton(items.RIGHT_ROTATION_ANGLE) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), Math.toDegrees(transformation.getRightRotation().angle()), 10.0, 1.0, event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
-                player.getInventory().setItem(3, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
+                player.getInventory().setItem(3, getItem().getItemStack());
                 transformation.getRightRotation().setAngleAxis((float) Math.toRadians(newValue), transformation.getRightRotation().x, transformation.getRightRotation().y, transformation.getRightRotation().z);
                 display.setTransformation(transformation);
             }
@@ -300,8 +299,8 @@ public class PlayerInv {
         rightRotationMap.put(4, new Button.PlayerButton(items.HITBOX_WIDTH) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), display.getHitboxWidth(), event.getPlayer().isSneaking(), 0.0, isLeftClick(event), true);
-                player.getInventory().setItem(4, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
+                player.getInventory().setItem(4, getItem().getItemStack());
                 display.setHitboxSize(true, (float) newValue, display.getHitboxHeight());
             }
         });
@@ -309,8 +308,8 @@ public class PlayerInv {
         rightRotationMap.put(5, new Button.PlayerButton(items.HITBOX_HEIGHT) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = InventoryUtils.changeDoubleValue(getItem(), display.getHitboxHeight(), event.getPlayer().isSneaking(), 0.0, isLeftClick(event), true);
-                player.getInventory().setItem(5, getItem());
+                double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
+                player.getInventory().setItem(5, getItem().getItemStack());
                 display.setHitboxSize(true, display.getHitboxWidth(), (float) newValue);
             }
         });

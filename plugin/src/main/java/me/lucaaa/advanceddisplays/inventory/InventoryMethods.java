@@ -41,12 +41,16 @@ public abstract class InventoryMethods {
         this.buttons.put(slot, button);
     }
 
+    protected Button getButton(int slot) {
+        return this.buttons.get(slot);
+    }
+
     public Inventory getInventory() {
         return this.inventory;
     }
 
     public void decorate() {
-        this.buttons.forEach((slot, button) -> this.inventory.setItem(slot, button.getItem()));
+        this.buttons.forEach((slot, button) -> this.inventory.setItem(slot, button.getItem().getItemStack()));
 
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta meta = Objects.requireNonNull(filler.getItemMeta());

@@ -1,17 +1,17 @@
 package me.lucaaa.advanceddisplays.inventory;
 
+import me.lucaaa.advanceddisplays.inventory.items.Item;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 
 public abstract class Button {
-    private final ItemStack item;
+    private final Item item;
 
-    public Button(ItemStack item) {
+    public Button(Item item) {
         this.item = item;
     }
 
-    public ItemStack getItem() {
+    public Item getItem() {
         return this.item;
     }
 
@@ -19,7 +19,7 @@ public abstract class Button {
     public abstract void onClick(PlayerInteractEvent event);
 
     public abstract static class InventoryButton extends Button {
-        public InventoryButton(ItemStack item) {
+        public InventoryButton(Item item) {
             super(item);
         }
 
@@ -33,7 +33,7 @@ public abstract class Button {
     }
 
     public abstract static class PlayerButton extends Button {
-        public PlayerButton(ItemStack item) {
+        public PlayerButton(Item item) {
             super(item);
         }
 

@@ -7,6 +7,7 @@ import me.lucaaa.advanceddisplays.common.utils.Utils;
 import me.lucaaa.advanceddisplays.inventory.Button;
 import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
 import me.lucaaa.advanceddisplays.inventory.items.GlobalItems;
+import me.lucaaa.advanceddisplays.inventory.items.Item;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -14,8 +15,6 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
@@ -116,18 +115,7 @@ public class BlockDataGUI extends InventoryMethods {
         }.runTask(plugin);
     }
 
-    private ItemStack create(String title, String value) {
-        ItemStack item = new ItemStack(Material.COMMAND_BLOCK);
-        ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
-
-        meta.setDisplayName(ChatColor.GOLD + title);
-
-        ArrayList<String> lore = new ArrayList<>();
-        lore.add(ChatColor.BLUE + "Current value: " + ChatColor.GRAY + value);
-
-        meta.setLore(lore);
-
-        item.setItemMeta(meta);
-        return item;
+    private Item create(String title, String value) {
+        return new Item(Material.COMMAND_BLOCK, ChatColor.GOLD + title, "", value);
     }
 }

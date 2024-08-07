@@ -1,11 +1,11 @@
-package me.lucaaa.advanceddisplays.commands.subCommands;
+package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class TeleportSubCommand extends SubCommandsFormat {
     public TeleportSubCommand(AdvancedDisplays plugin) {
@@ -19,8 +19,8 @@ public class TeleportSubCommand extends SubCommandsFormat {
     }
 
     @Override
-    public ArrayList<String> getTabCompletions(CommandSender sender, String[] args) {
-        return new ArrayList<>(plugin.getDisplaysManager().getDisplays().keySet().stream().toList());
+    public List<String> getTabCompletions(CommandSender sender, String[] args) {
+        return plugin.getDisplaysManager().getDisplays().keySet().stream().toList();
     }
 
     @Override

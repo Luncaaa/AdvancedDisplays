@@ -123,9 +123,7 @@ public class AdvancedDisplays extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new InventoryEventsListener(this), this);
 
         // Registers the main command and adds tab completions.
-        MainCommand commandHandler = new MainCommand(this);
-        Objects.requireNonNull(this.getCommand("ad")).setExecutor(commandHandler);
-        Objects.requireNonNull(this.getCommand("ad")).setTabCompleter(commandHandler);
+        Objects.requireNonNull(this.getCommand("ad")).setExecutor(new MainCommand(this));
 
         Bukkit.getConsoleSender().sendMessage(messagesManager.getColoredMessage("&aThe plugin has been successfully enabled! &7Version: " + this.getDescription().getVersion(), true));
     }

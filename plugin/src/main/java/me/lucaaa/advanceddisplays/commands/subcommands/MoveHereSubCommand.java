@@ -1,11 +1,10 @@
-package me.lucaaa.advanceddisplays.commands.subCommands;
+package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MoveHereSubCommand extends SubCommandsFormat {
@@ -13,18 +12,18 @@ public class MoveHereSubCommand extends SubCommandsFormat {
         super(plugin);
         this.name = "movehere";
         this.description = "Moves a display to the player's location.";
-        this.usage = "/ad movehere [name] <--center / -c>";
+        this.usage = "/ad movehere [name] <center>";
         this.minArguments = 1;
         this.executableByConsole = false;
         this.neededPermission = "ad.movehere";
     }
 
     @Override
-    public ArrayList<String> getTabCompletions(CommandSender sender, String[] args) {
+    public List<String> getTabCompletions(CommandSender sender, String[] args) {
         if (args.length == 2) {
-            return new ArrayList<>(plugin.getDisplaysManager().getDisplays().keySet().stream().toList());
+            return plugin.getDisplaysManager().getDisplays().keySet().stream().toList();
         } else {
-            return new ArrayList<>(List.of("--center", "-c"));
+            return List.of("center");
         }
     }
 
@@ -40,7 +39,7 @@ public class MoveHereSubCommand extends SubCommandsFormat {
         Player player = (Player) sender;
         display.setLocation(player.getLocation());
 
-        if (args.length >= 3 && (args[2].equalsIgnoreCase("--center") || args[2].equalsIgnoreCase("-c"))) {
+        if (args.length >= 3 && (args[2].equalsIgnoreCase("center"))) {
             display.center();
         }
 

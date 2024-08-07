@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.commands.subCommands;
+package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
@@ -10,10 +10,11 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class CreateSubCommand extends SubCommandsFormat {
-    private final ArrayList<String> blocksList = new ArrayList<>();
+    private final List<String> blocksList = new ArrayList<>();
 
     public CreateSubCommand(AdvancedDisplays plugin) {
         super(plugin);
@@ -34,20 +35,20 @@ public class CreateSubCommand extends SubCommandsFormat {
     }
 
     @Override
-    public ArrayList<String> getTabCompletions(CommandSender sender, String[] args) {
+    public List<String> getTabCompletions(CommandSender sender, String[] args) {
         if (args.length == 2) {
-            return new ArrayList<>(Arrays.stream(DisplayType.values()).map(Enum::name).toList());
+            return Arrays.stream(DisplayType.values()).map(Enum::name).toList();
 
         } else if (args.length == 4) {
             if (args[1].equalsIgnoreCase("ITEM")) {
-                return new ArrayList<>(Arrays.stream(Material.values()).map(Enum::name).toList());
+                return Arrays.stream(Material.values()).map(Enum::name).toList();
 
             } else if (args[1].equalsIgnoreCase("BLOCK")) {
                 return this.blocksList;
             }
         }
 
-        return new ArrayList<>();
+        return List.of();
     }
 
     @Override

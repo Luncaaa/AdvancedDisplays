@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.commands.subCommands;
+package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.managers.ConversionManager;

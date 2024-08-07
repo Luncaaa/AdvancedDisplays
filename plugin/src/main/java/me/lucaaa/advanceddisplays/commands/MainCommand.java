@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.commands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.commands.subCommands.*;
+import me.lucaaa.advanceddisplays.commands.subcommands.*;
 import org.bukkit.command.*;
 
 import javax.annotation.Nonnull;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainCommand implements CommandExecutor, TabCompleter {
+public class MainCommand implements TabExecutor {
     private final AdvancedDisplays plugin;
     private final HashMap<String, SubCommandsFormat> subCommands = new HashMap<>();
 
@@ -76,7 +76,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     @Nullable
     @Override
     public List<String> onTabComplete(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String alias, @Nonnull String[] args) {
-        ArrayList<String> completions = new ArrayList<>();
+        List<String> completions = new ArrayList<>();
 
         // Tab completions for each subcommand. If the user is going to type the first argument, and it does not need any permission
         // to be executed, complete it. If it needs a permission, check if the user has it and add more completions.
@@ -84,7 +84,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             for (Map.Entry<String, SubCommandsFormat> entry : subCommands.entrySet()) {
                 if (entry.getValue().neededPermission == null || sender.hasPermission(entry.getValue().neededPermission) || sender.hasPermission("ad.admin")) {
                     completions.add(entry.getKey());
-                } else if (sender.hasPermission(entry.getValue().neededPermission) || sender.hasPermission("plugin.admin")) {
+                } else if (sender.hasPermission(entry.getValue().neededPermission) || sender.hasPermission("ad.admin")) {
                     completions.add(entry.getKey());
                 }
             }

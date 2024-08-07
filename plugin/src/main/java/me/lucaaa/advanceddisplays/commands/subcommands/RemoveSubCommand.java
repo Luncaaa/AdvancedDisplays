@@ -1,9 +1,9 @@
-package me.lucaaa.advanceddisplays.commands.subCommands;
+package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import org.bukkit.command.CommandSender;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class RemoveSubCommand extends SubCommandsFormat {
     public RemoveSubCommand(AdvancedDisplays plugin) {
@@ -17,8 +17,8 @@ public class RemoveSubCommand extends SubCommandsFormat {
     }
 
     @Override
-    public ArrayList<String> getTabCompletions(CommandSender sender, String[] args) {
-        return new ArrayList<>(plugin.getDisplaysManager().getDisplays().keySet().stream().toList());
+    public List<String> getTabCompletions(CommandSender sender, String[] args) {
+        return plugin.getDisplaysManager().getDisplays().keySet().stream().toList();
     }
 
     @Override

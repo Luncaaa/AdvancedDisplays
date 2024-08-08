@@ -12,7 +12,7 @@ public class FinishEditingSubCommand extends SubCommandsFormat {
         this.usage = "/ad finishEditing";
         this.minArguments = 0;
         this.executableByConsole = false;
-        this.neededPermission = "ad.edit";
+        this.neededPermission = null;
     }
 
     @Override

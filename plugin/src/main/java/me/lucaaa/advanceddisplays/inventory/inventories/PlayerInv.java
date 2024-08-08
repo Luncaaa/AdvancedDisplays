@@ -2,22 +2,25 @@ package me.lucaaa.advanceddisplays.inventory.inventories;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
+import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.data.NamedEnum;
 import me.lucaaa.advanceddisplays.inventory.Button;
 import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
 import me.lucaaa.advanceddisplays.inventory.items.GlobalItems;
 import me.lucaaa.advanceddisplays.inventory.items.InventoryItems;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Transformation;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class PlayerInv {
     private final Player player;
+    private final List<EditorItem> disabledItems;
     private InventoryRows currentRow = InventoryRows.SCALE_TRANSLATION;
     private final Transformation transformation;
     private final BaseDisplay display;
@@ -27,8 +30,9 @@ public class PlayerInv {
     // Buttons independent of the rows
     private final Map<Integer, Button.PlayerButton> buttons = new HashMap<>();
 
-    public PlayerInv(AdvancedDisplays plugin, Player player, BaseDisplay display) {
+    public PlayerInv(AdvancedDisplays plugin, Player player, List<EditorItem> disabledItems, BaseDisplay display) {
         this.player = player;
+        this.disabledItems = disabledItems;
         this.display = display;
         this.transformation = display.getTransformation();
 
@@ -59,7 +63,7 @@ public class PlayerInv {
         addGlobalButton(7, new Button.PlayerButton(items.OPEN_GUI) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                InventoryMethods inventory = new EditorGUI(plugin, display);
+                InventoryMethods inventory = new EditorGUI(plugin, disabledItems, display);
                 plugin.getInventoryManager().handleOpen(event.getPlayer(), inventory, display);
             }
         });
@@ -126,7 +130,7 @@ public class PlayerInv {
     private void addScaleTranslationButtons(InventoryItems items) {
         Map<Integer, Button.PlayerButton> scaleTranslationMap = new HashMap<>();
 
-        scaleTranslationMap.put(0, new Button.PlayerButton(items.SCALE_X) {
+        scaleTranslationMap.put(0, getCheckedAllowed(EditorItem.SCALE, new Button.PlayerButton(items.SCALE_X) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
@@ -134,9 +138,9 @@ public class PlayerInv {
                 transformation.getScale().set(newValue, transformation.getScale().y, transformation.getScale().z);
                 display.setTransformation(transformation);
             }
-        });
+        }));
 
-        scaleTranslationMap.put(1, new Button.PlayerButton(items.SCALE_Y) {
+        scaleTranslationMap.put(1, getCheckedAllowed(EditorItem.SCALE, new Button.PlayerButton(items.SCALE_Y) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
@@ -144,9 +148,9 @@ public class PlayerInv {
                 transformation.getScale().set(transformation.getScale().x, newValue, transformation.getScale().z);
                 display.setTransformation(transformation);
             }
-        });
+        }));
 
-        scaleTranslationMap.put(2, new Button.PlayerButton(items.SCALE_Z) {
+        scaleTranslationMap.put(2, getCheckedAllowed(EditorItem.SCALE, new Button.PlayerButton(items.SCALE_Z) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
@@ -154,9 +158,9 @@ public class PlayerInv {
                 transformation.getScale().set(transformation.getScale().x, transformation.getScale().y, newValue);
                 display.setTransformation(transformation);
             }
-        });
+        }));
 
-        scaleTranslationMap.put(3, new Button.PlayerButton(items.TRANSLATION_X) {
+        scaleTranslationMap.put(3, getCheckedAllowed(EditorItem.TRANSLATION, new Button.PlayerButton(items.TRANSLATION_X) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
@@ -164,9 +168,9 @@ public class PlayerInv {
                 transformation.getTranslation().set(newValue, transformation.getTranslation().y, transformation.getTranslation().z);
                 display.setTransformation(transformation);
             }
-        });
+        }));
 
-        scaleTranslationMap.put(4, new Button.PlayerButton(items.TRANSLATION_Y) {
+        scaleTranslationMap.put(4, getCheckedAllowed(EditorItem.TRANSLATION, new Button.PlayerButton(items.TRANSLATION_Y) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
@@ -174,9 +178,9 @@ public class PlayerInv {
                 transformation.getTranslation().set(transformation.getTranslation().x, newValue, transformation.getTranslation().z);
                 display.setTransformation(transformation);
             }
-        });
+        }));
 
-        scaleTranslationMap.put(5, new Button.PlayerButton(items.TRANSLATION_Z) {
+        scaleTranslationMap.put(5, getCheckedAllowed(EditorItem.TRANSLATION, new Button.PlayerButton(items.TRANSLATION_Z) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
@@ -184,7 +188,7 @@ public class PlayerInv {
                 transformation.getTranslation().set(transformation.getTranslation().x, transformation.getTranslation().y, newValue);
                 display.setTransformation(transformation);
             }
-        });
+        }));
 
         addButtons(InventoryRows.SCALE_TRANSLATION, scaleTranslationMap);
     }
@@ -192,7 +196,7 @@ public class PlayerInv {
     private void addLeftRotButtons(InventoryItems items) {
         Map<Integer, Button.PlayerButton> leftRotationMap = new HashMap<>();
 
-        leftRotationMap.put(0, new Button.PlayerButton(items.LEFT_ROTATION_X) {
+        leftRotationMap.put(0, getCheckedAllowed(EditorItem.LEFT_ROTATION, new Button.PlayerButton(items.LEFT_ROTATION_X) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
@@ -200,9 +204,9 @@ public class PlayerInv {
                 transformation.getLeftRotation().setAngleAxis(transformation.getLeftRotation().angle(), (float) newValue, transformation.getLeftRotation().y, transformation.getLeftRotation().z);
                 display.setTransformation(transformation);
             }
-        });
+        }));
 
-        leftRotationMap.put(1, new Button.PlayerButton(items.LEFT_ROTATION_Y) {
+        leftRotationMap.put(1, getCheckedAllowed(EditorItem.LEFT_ROTATION, new Button.PlayerButton(items.LEFT_ROTATION_Y) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
@@ -210,9 +214,9 @@ public class PlayerInv {
                 transformation.getLeftRotation().setAngleAxis(transformation.getLeftRotation().angle(), transformation.getLeftRotation().x, (float) newValue, transformation.getLeftRotation().z);
                 display.setTransformation(transformation);
             }
-        });
+        }));
 
-        leftRotationMap.put(2, new Button.PlayerButton(items.LEFT_ROTATION_Z) {
+        leftRotationMap.put(2, getCheckedAllowed(EditorItem.LEFT_ROTATION, new Button.PlayerButton(items.LEFT_ROTATION_Z) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
@@ -220,9 +224,9 @@ public class PlayerInv {
                 transformation.getLeftRotation().setAngleAxis(transformation.getLeftRotation().angle(), transformation.getLeftRotation().x, transformation.getLeftRotation().y, (float) newValue);
                 display.setTransformation(transformation);
             }
-        });
+        }));
 
-        leftRotationMap.put(3, new Button.PlayerButton(items.LEFT_ROTATION_ANGLE) {
+        leftRotationMap.put(3, getCheckedAllowed(EditorItem.LEFT_ROTATION, new Button.PlayerButton(items.LEFT_ROTATION_ANGLE) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
@@ -230,25 +234,25 @@ public class PlayerInv {
                 transformation.getLeftRotation().setAngleAxis((float) Math.toRadians(newValue), transformation.getLeftRotation().x, transformation.getLeftRotation().y, transformation.getLeftRotation().z);
                 display.setTransformation(transformation);
             }
-        });
+        }));
 
-        leftRotationMap.put(4, new Button.PlayerButton(items.YAW) {
+        leftRotationMap.put(4, getCheckedAllowed(EditorItem.ROTATION, new Button.PlayerButton(items.YAW) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
                 player.getInventory().setItem(4, getItem().getItemStack());
                 display.setRotation((float) newValue, display.getPitch());
             }
-        });
+        }));
 
-        leftRotationMap.put(5, new Button.PlayerButton(items.PITCH) {
+        leftRotationMap.put(5, getCheckedAllowed(EditorItem.ROTATION, new Button.PlayerButton(items.PITCH) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
                 player.getInventory().setItem(5, getItem().getItemStack());
                 display.setRotation(display.getYaw(), (float) newValue);
             }
-        });
+        }));
 
         addButtons(InventoryRows.LEFT_ROTATION_YAW_PITCH, leftRotationMap);
     }
@@ -256,7 +260,7 @@ public class PlayerInv {
     private void addRightRotButtons(InventoryItems items) {
         Map<Integer, Button.PlayerButton> rightRotationMap = new HashMap<>();
 
-        rightRotationMap.put(0, new Button.PlayerButton(items.RIGHT_ROTATION_X) {
+        rightRotationMap.put(0, getCheckedAllowed(EditorItem.RIGHT_ROTATION, new Button.PlayerButton(items.RIGHT_ROTATION_X) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
@@ -264,9 +268,9 @@ public class PlayerInv {
                 transformation.getRightRotation().setAngleAxis(transformation.getRightRotation().angle(), (float) newValue, transformation.getRightRotation().y, transformation.getRightRotation().z);
                 display.setTransformation(transformation);
             }
-        });
+        }));
 
-        rightRotationMap.put(1, new Button.PlayerButton(items.RIGHT_ROTATION_Y) {
+        rightRotationMap.put(1, getCheckedAllowed(EditorItem.RIGHT_ROTATION, new Button.PlayerButton(items.RIGHT_ROTATION_Y) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
@@ -274,9 +278,9 @@ public class PlayerInv {
                 transformation.getRightRotation().setAngleAxis(transformation.getRightRotation().angle(), transformation.getRightRotation().x, (float) newValue, transformation.getRightRotation().z);
                 display.setTransformation(transformation);
             }
-        });
+        }));
 
-        rightRotationMap.put(2, new Button.PlayerButton(items.RIGHT_ROTATION_Z) {
+        rightRotationMap.put(2, getCheckedAllowed(EditorItem.RIGHT_ROTATION, new Button.PlayerButton(items.RIGHT_ROTATION_Z) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, 1.0, isLeftClick(event), true);
@@ -284,9 +288,9 @@ public class PlayerInv {
                 transformation.getRightRotation().setAngleAxis(transformation.getRightRotation().angle(), transformation.getRightRotation().x, transformation.getRightRotation().y, (float) newValue);
                 display.setTransformation(transformation);
             }
-        });
+        }));
 
-        rightRotationMap.put(3, new Button.PlayerButton(items.RIGHT_ROTATION_ANGLE) {
+        rightRotationMap.put(3, getCheckedAllowed(EditorItem.RIGHT_ROTATION, new Button.PlayerButton(items.RIGHT_ROTATION_ANGLE) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
@@ -294,25 +298,25 @@ public class PlayerInv {
                 transformation.getRightRotation().setAngleAxis((float) Math.toRadians(newValue), transformation.getRightRotation().x, transformation.getRightRotation().y, transformation.getRightRotation().z);
                 display.setTransformation(transformation);
             }
-        });
+        }));
 
-        rightRotationMap.put(4, new Button.PlayerButton(items.HITBOX_WIDTH) {
+        rightRotationMap.put(4, getCheckedAllowed(EditorItem.HITBOX_SIZE, new Button.PlayerButton(items.HITBOX_WIDTH) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
                 player.getInventory().setItem(4, getItem().getItemStack());
                 display.setHitboxSize(true, (float) newValue, display.getHitboxHeight());
             }
-        });
+        }));
 
-        rightRotationMap.put(5, new Button.PlayerButton(items.HITBOX_HEIGHT) {
+        rightRotationMap.put(5, getCheckedAllowed(EditorItem.HITBOX_SIZE, new Button.PlayerButton(items.HITBOX_HEIGHT) {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 double newValue = getItem().changeDoubleValue(event.getPlayer().isSneaking(), 0.0, null, isLeftClick(event), true);
                 player.getInventory().setItem(5, getItem().getItemStack());
                 display.setHitboxSize(true, display.getHitboxWidth(), (float) newValue);
             }
-        });
+        }));
 
         addButtons(InventoryRows.RIGHT_ROTATION_HITBOX, rightRotationMap);
     }
@@ -332,5 +336,36 @@ public class PlayerInv {
         public String getName() {
             return this.name;
         }
+    }
+
+    private Button.PlayerButton getCheckedAllowed(EditorItem requirement, Button.PlayerButton button) {
+        if (!disabledItems.contains(requirement)) {
+            return button;
+        }
+
+        ItemStack itemStack = button.getItem().getItemStack();
+        ItemMeta meta = Objects.requireNonNull(itemStack.getItemMeta());
+
+        meta.setDisplayName(meta.getDisplayName() + ChatColor.RED + ChatColor.BOLD + " (Disabled)");
+
+        List<String> lore = new ArrayList<>();
+        for (String line : Objects.requireNonNull(meta.getLore())) {
+            if (!line.startsWith(ChatColor.YELLOW + "")) continue;
+
+            lore.add(line);
+        }
+
+        lore.add("");
+        lore.add(ChatColor.RED + "" + ChatColor.BOLD + "Setting disabled!");
+        lore.add(ChatColor.GRAY + "You won't be able to change it");
+        lore.add("");
+        lore.add(ChatColor.BLUE + "Current value: " + ChatColor.GRAY + button.getItem().getValue());
+        meta.setLore(lore);
+        itemStack.setItemMeta(meta);
+
+        return new Button.PlayerButton(button.getItem()) {
+            @Override
+            public void onClick(PlayerInteractEvent event) {}
+        };
     }
 }

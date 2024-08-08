@@ -256,7 +256,7 @@ public class Item {
         lore.add(Utils.getColoredText("&9Current value: &7" + display));
 
         meta.setLore(lore);
-        if (itemMeta != null) item.setItemMeta(meta);
+        if (itemMeta == null) item.setItemMeta(meta);
         if (value instanceof Float f) {
             this.value = (double) f;
         } else {
@@ -314,6 +314,10 @@ public class Item {
 
         changeCurrentValue(newValue, changeTitle);
         return newValue;
+    }
+
+    public Object getValue() {
+        return this.value;
     }
 
     public ItemStack getItemStack() {

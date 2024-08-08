@@ -2,12 +2,15 @@ package me.lucaaa.advanceddisplays.api.displays;
 
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
+import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
+
+import java.util.List;
 
 /**
  * The settings that Text, Item and Block displays have in common.
@@ -33,10 +36,17 @@ public interface BaseDisplay {
     VisibilityManager getVisibilityManager();
 
     /**
-     * Opens the in-game editor for a player.
+     * Opens the in-game editor for a player with all settings being enabled.
      * @param player The player for whom the editor will be opened.
      */
     void openEditor(Player player);
+
+    /**
+     * Opens the in-game editor for a player with the specified settings being disabled.
+     * @param player The player for whom the editor will be opened.
+     * @param disabledSettings The items the player won't be able to interact with.
+     */
+    void openEditor(Player player, List<EditorItem> disabledSettings);
 
     /**
      * Closes the in-game editor for a player.

@@ -6,6 +6,7 @@ import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.actions.ClickType;
+import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
 import me.lucaaa.advanceddisplays.data.Ticking;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
@@ -22,6 +23,7 @@ import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 
+import java.util.List;
 import java.util.Objects;
 
 public class ADBaseDisplay extends Ticking implements BaseDisplay {
@@ -192,7 +194,12 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
     @Override
     public void openEditor(Player player) {
-        plugin.getInventoryManager().addEditingPlayer(player, this);
+        this.openEditor(player, List.of());
+    }
+
+    @Override
+    public void openEditor(Player player, List<EditorItem> disabledSettings) {
+        plugin.getInventoryManager().addEditingPlayer(player, disabledSettings, this);
         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are now editing the display &e" + display.getName() + "&a. Run &e/ad finishEditing &ato get your old inventory back.", true));
     }
 

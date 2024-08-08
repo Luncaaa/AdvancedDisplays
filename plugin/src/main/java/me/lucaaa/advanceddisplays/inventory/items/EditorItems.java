@@ -81,7 +81,7 @@ public class EditorItems {
 
                 TEXT_ALIGNMENT = new Item(Material.FILLED_MAP, "Text alignment", "Changes the text's alignment", textDisplay.getAlignment().name());
                 BACKGROUND_COLOR = new Item(new ItemStack(Material.LEATHER_CHESTPLATE)).setArmorColor(textDisplay.getBackgroundColor()).setPreviewLore(textDisplay.getBackgroundColor(), true, "Background Color");
-                LINE_WIDTH = new Item(Material.BLACK_DYE, "Line width", List.of("Changes the text's line width"), textDisplay.getLineWidth(), true, true, 10.0, 1.0);
+                LINE_WIDTH = new Item(Material.BLACK_DYE, "Line width", List.of("Changes the display's line width"), textDisplay.getLineWidth(), true, true, 10.0, 1.0);
                 TEXT_OPACITY = new Item(Material.GRAY_DYE, "Text opacity", List.of("Changes the text's opacity"), textDisplay.getTextOpacity(), true, true, 10.0, 1.0);
                 USE_DEFAULT_BACKGROUND = new Item(Material.WHITE_DYE, "Use default background", "Changes whether the display uses the default background or not", textDisplay.getUseDefaultBackground());
                 SEE_THROUGH = new Item(Material.TINTED_GLASS, "See through", "Changes whether the display can be seen through blocks or not", textDisplay.isSeeThrough());

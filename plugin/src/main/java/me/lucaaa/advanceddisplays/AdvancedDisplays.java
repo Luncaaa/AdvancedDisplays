@@ -67,7 +67,7 @@ public class AdvancedDisplays extends JavaPlugin {
         interactionsManager = new InteractionsManager(savedApiDisplays);
         displaysManager = new DisplaysManager(this, "displays", true, false);
         messagesManager = new MessagesManager(this.mainConfig);
-        inventoryManager = new InventoryManager(this, savesConfig);
+        inventoryManager = new InventoryManager(this, mainConfig, savesConfig);
     }
 
     @Override

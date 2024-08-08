@@ -1,1 +1,5 @@
 prefix: "&7[&6AD&7]"
+
+# List of disabled settings in the editor menu. Visit the link below for a list of settings that can be disabled.
+# https://javadoc.jitpack.io/com/github/Luncaaa/AdvancedDisplays/main-SNAPSHOT/javadoc/me/lucaaa/advanceddisplays/api/displays/enums/EditorItem.html
+disabledItems: []

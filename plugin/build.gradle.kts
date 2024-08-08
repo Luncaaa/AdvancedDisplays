@@ -26,6 +26,10 @@ dependencies {
 }
 
 tasks {
+    compileJava {
+        options.encoding = "UTF-8"
+    }
+
     shadowJar {
         minimize {
             exclude(project(":nms:v1_19_R3"))

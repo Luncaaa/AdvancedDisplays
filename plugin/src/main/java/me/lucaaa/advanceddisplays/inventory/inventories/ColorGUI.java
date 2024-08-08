@@ -25,7 +25,7 @@ public class ColorGUI extends InventoryMethods {
     private final Consumer<Color> onDone;
 
     public ColorGUI(AdvancedDisplays plugin, EditorGUI previousInventory, BaseDisplay display, boolean alphaEnabled, Color initialColor, Consumer<Color> onDone) {
-        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing glow color of: &e" + display.getName()))));
+        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing glow color of: &e" + display.getName()))), previousInventory.getDisabledSettings());
         this.previous = previousInventory;
         this.display = display;
         this.savedColor = initialColor;

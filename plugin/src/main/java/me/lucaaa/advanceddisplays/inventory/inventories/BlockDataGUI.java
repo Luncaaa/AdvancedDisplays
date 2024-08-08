@@ -29,7 +29,7 @@ public class BlockDataGUI extends InventoryMethods {
     private final Map<Player, String> editMap = new HashMap<>();
 
     public BlockDataGUI(AdvancedDisplays plugin, EditorGUI previousInventory, BlockDisplay display, Consumer<BlockData> onDone) {
-        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText("&6Editing block data of: &e" + display.getName())));
+        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText("&6Editing block data of: &e" + display.getName())), previousInventory.getDisabledSettings());
         this.previous = previousInventory;
         this.display = display;
         this.onDone = onDone;

@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.inventory.inventories;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
+import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import me.lucaaa.advanceddisplays.inventory.*;
@@ -18,19 +19,21 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.awt.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.List;
 
 public class EditorGUI extends InventoryMethods {
     private final BaseDisplay display;
     private final EditorItems items;
     private final Map<Player, EditAction> editMap = new HashMap<>();
 
-    public EditorGUI(AdvancedDisplays plugin, BaseDisplay display) {
-        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))));
+    public EditorGUI(AdvancedDisplays plugin, List<EditorItem> disabledItems, BaseDisplay display) {
+        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))), disabledItems);
         this.display = display;
         this.items = new EditorItems(display);
     }
@@ -65,7 +68,7 @@ public class EditorGUI extends InventoryMethods {
     @Override
     public void decorate() {
         // ---[ BRIGHTNESS ]----
-        addButton(0, new Button.InventoryButton(items.BLOCK_LIGHT) {
+        addIfAllowed(EditorItem.BLOCK_LIGHT, 0, new Button.InventoryButton(items.BLOCK_LIGHT) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 int newBrightness = getItem().setNewItemBrightness(event.isLeftClick());
@@ -74,7 +77,7 @@ public class EditorGUI extends InventoryMethods {
             }
         });
 
-        addButton(9, new Button.InventoryButton(items.SKY_LIGHT) {
+        addIfAllowed(EditorItem.SKY_LIGHT, 9, new Button.InventoryButton(items.SKY_LIGHT) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 int newBrightness = getItem().setNewItemBrightness(event.isLeftClick());
@@ -85,7 +88,7 @@ public class EditorGUI extends InventoryMethods {
         // ----------
 
         // ----[ SHADOW ]-----
-        addButton(1, new Button.InventoryButton(items.SHADOW_RADIUS) {
+        addIfAllowed(EditorItem.SHADOW_RADIUS, 1, new Button.InventoryButton(items.SHADOW_RADIUS) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 double newValue = getItem().changeDoubleValue(event.isShiftClick(), 0.0, null, event.isLeftClick(), false);
@@ -94,7 +97,7 @@ public class EditorGUI extends InventoryMethods {
             }
         });
 
-        addButton(10, new Button.InventoryButton(items.SHADOW_STRENGTH) {
+        addIfAllowed(EditorItem.SHADOW_STRENGTH, 10, new Button.InventoryButton(items.SHADOW_STRENGTH) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 double newValue = getItem().changeDoubleValue(event.isShiftClick(), 0.0, null, event.isLeftClick(), false);
@@ -105,7 +108,7 @@ public class EditorGUI extends InventoryMethods {
         // ----------
 
         // ----[ GLOW ]-----
-        addButton(2, new Button.InventoryButton(items.GLOW_TOGGLE) {
+        addIfAllowed(EditorItem.GLOW_TOGGLE, 2, new Button.InventoryButton(items.GLOW_TOGGLE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 boolean newValue = getItem().changeBooleanValue();
@@ -114,7 +117,7 @@ public class EditorGUI extends InventoryMethods {
             }
         });
 
-        addButton(11, new Button.InventoryButton(items.GLOW_COLOR_SELECTOR) {
+        addIfAllowed(EditorItem.GLOW_COLOR_SELECTOR, 11, new Button.InventoryButton(items.GLOW_COLOR_SELECTOR) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
@@ -130,7 +133,7 @@ public class EditorGUI extends InventoryMethods {
         // ----------
 
         // ----[ LOCATION ]-----
-        addButton(18, new Button.InventoryButton(items.TELEPORT) {
+        addIfAllowed(EditorItem.TELEPORT, 18, new Button.InventoryButton(items.TELEPORT) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
@@ -138,27 +141,19 @@ public class EditorGUI extends InventoryMethods {
             }
         });
 
-        addButton(19, new Button.InventoryButton(items.MOVE_HERE) {
-            @Override
-            public void onClick(InventoryClickEvent event) {
-                event.getWhoClicked().closeInventory();
-                display.setLocation(event.getWhoClicked().getEyeLocation());
-            }
-        });
-
-        addButton(19, new Button.InventoryButton(items.MOVE_HERE) {
+        addIfAllowed(EditorItem.MOVE_HERE, 19, new Button.InventoryButton(items.MOVE_HERE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
                 display.setLocation(event.getWhoClicked().getLocation());
-                Location loc = event.getWhoClicked().getEyeLocation();
+                Location loc = event.getWhoClicked().getLocation();
                 String location = BigDecimal.valueOf(loc.getX()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getY()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getZ()).setScale(2, RoundingMode.HALF_UP).doubleValue();
                 getItem().changeCurrentValue(location, false);
                 getInventory().setItem(19, getItem().getItemStack());
             }
         });
 
-        addButton(20, new Button.InventoryButton(items.CENTER) {
+        addIfAllowed(EditorItem.CENTER, 20, new Button.InventoryButton(items.CENTER) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 Location loc = display.center();
@@ -170,7 +165,7 @@ public class EditorGUI extends InventoryMethods {
         // ----------
 
         // ----[ OTHER ]-----
-        addButton(4, new Button.InventoryButton(items.BILLBOARD) {
+        addIfAllowed(EditorItem.BILLBOARD, 4, new Button.InventoryButton(items.BILLBOARD) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 Display.Billboard newBillboard = getItem().changeEnumValue(false);
@@ -179,7 +174,7 @@ public class EditorGUI extends InventoryMethods {
             }
         });
 
-        addButton(12, new Button.InventoryButton(items.HITBOX_OVERRIDE) {
+        addIfAllowed(EditorItem.HITBOX_OVERRIDE, 12, new Button.InventoryButton(items.HITBOX_OVERRIDE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 boolean newValue = getItem().changeBooleanValue();
@@ -190,7 +185,7 @@ public class EditorGUI extends InventoryMethods {
         // ----------
 
         // ----[ ACTIONS ]-----
-        addButton(13, new Button.InventoryButton(items.CURRENT_VALUE) {
+        addIfAllowed(EditorItem.CURRENT_VALUE, 13, new Button.InventoryButton(items.CURRENT_VALUE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
@@ -245,7 +240,7 @@ public class EditorGUI extends InventoryMethods {
             }
         });
 
-        addButton(22, new Button.InventoryButton(items.REMOVE) {
+        addIfAllowed(EditorItem.REMOVE, 22, new Button.InventoryButton(items.REMOVE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
@@ -258,7 +253,7 @@ public class EditorGUI extends InventoryMethods {
         switch (display.getType()) {
             case BLOCK -> setBlockData();
 
-            case ITEM -> addButton(8, new Button.InventoryButton(items.ITEM_TRANSFORMATION) {
+            case ITEM -> addIfAllowed(EditorItem.ITEM_TRANSFORMATION, 8, new Button.InventoryButton(items.ITEM_TRANSFORMATION) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
                     org.bukkit.entity.ItemDisplay.ItemDisplayTransform newTransform = getItem().changeEnumValue(false);
@@ -269,7 +264,7 @@ public class EditorGUI extends InventoryMethods {
 
             case TEXT -> {
                 TextDisplay textDisplay = (TextDisplay) display;
-                addButton(8, new Button.InventoryButton(items.TEXT_ALIGNMENT) {
+                addIfAllowed(EditorItem.TEXT_ALIGNMENT, 8, new Button.InventoryButton(items.TEXT_ALIGNMENT) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         org.bukkit.entity.TextDisplay.TextAlignment newAlignment = getItem().changeEnumValue(false);
@@ -278,7 +273,7 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(7, new Button.InventoryButton(items.BACKGROUND_COLOR) {
+                addIfAllowed(EditorItem.BACKGROUND_COLOR, 7, new Button.InventoryButton(items.BACKGROUND_COLOR) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         event.getWhoClicked().closeInventory();
@@ -293,7 +288,7 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(6, new Button.InventoryButton(items.LINE_WIDTH) {
+                addIfAllowed(EditorItem.LINE_WIDTH, 6, new Button.InventoryButton(items.LINE_WIDTH) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         int newValue = (int) getItem().changeDoubleValue(event.isShiftClick(), 0.0, null, event.isLeftClick(), false);
@@ -302,7 +297,7 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(17, new Button.InventoryButton(items.TEXT_OPACITY) {
+                addIfAllowed(EditorItem.TEXT_OPACITY, 17, new Button.InventoryButton(items.TEXT_OPACITY) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         byte newValue = (byte) getItem().changeDoubleValue(event.isShiftClick(), -1.0, 127.0, event.isLeftClick(), false);
@@ -311,7 +306,7 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(16, new Button.InventoryButton(items.USE_DEFAULT_BACKGROUND) {
+                addIfAllowed(EditorItem.USE_DEFAULT_BACKGROUND, 16, new Button.InventoryButton(items.USE_DEFAULT_BACKGROUND) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         boolean newValue = getItem().changeBooleanValue();
@@ -320,7 +315,7 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(15, new Button.InventoryButton(items.SEE_THROUGH) {
+                addIfAllowed(EditorItem.SEE_THROUGH, 15, new Button.InventoryButton(items.SEE_THROUGH) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         boolean newValue = getItem().changeBooleanValue();
@@ -329,7 +324,7 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(26, new Button.InventoryButton(items.SHADOWED) {
+                addIfAllowed(EditorItem.SHADOWED, 26, new Button.InventoryButton(items.SHADOWED) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         boolean newValue = getItem().changeBooleanValue();
@@ -338,7 +333,7 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(25, new Button.InventoryButton(items.ANIMATION_TIME) {
+                addIfAllowed(EditorItem.ANIMATION_TIME, 25, new Button.InventoryButton(items.ANIMATION_TIME) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         int newValue = (int) getItem().changeDoubleValue(event.isShiftClick(), 1.0, null, event.isLeftClick(), false);
@@ -347,7 +342,7 @@ public class EditorGUI extends InventoryMethods {
                     }
                 });
 
-                addButton(24, new Button.InventoryButton(items.REFRESH_TIME) {
+                addIfAllowed(EditorItem.REFRESH_TIME, 24, new Button.InventoryButton(items.REFRESH_TIME) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         int newValue = (int) getItem().changeDoubleValue(event.isShiftClick(), 0.0, null, event.isLeftClick(), false);
@@ -366,7 +361,7 @@ public class EditorGUI extends InventoryMethods {
         BlockDisplay blockDisplay = (BlockDisplay) display;
         String data = blockDisplay.getBlock().getAsString();
         if (data.contains("[")) {
-            addButton(8, new Button.InventoryButton(items.BLOCK_DATA) {
+            addIfAllowed(EditorItem.BLOCK_DATA, 8, new Button.InventoryButton(items.BLOCK_DATA) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
                     event.getWhoClicked().closeInventory();
@@ -472,5 +467,34 @@ public class EditorGUI extends InventoryMethods {
         ADD_TEXT,
         REMOVE_TEXT,
         CHANGE_MATERIAL
+    }
+
+    private void addIfAllowed(EditorItem requirement, int slot, Button button) {
+        if (!disabledSettings.contains(requirement)) {
+            addButton(slot, button);
+            return;
+        }
+
+        ItemStack itemStack = button.getItem().getItemStack();
+        ItemMeta meta = Objects.requireNonNull(itemStack.getItemMeta());
+        List<String> lore = new ArrayList<>();
+        for (String line : Objects.requireNonNull(meta.getLore())) {
+            if (!line.startsWith(ChatColor.YELLOW + "")) continue;
+
+            lore.add(line);
+        }
+
+        lore.add("");
+        lore.add(ChatColor.RED + "" + ChatColor.BOLD + "Setting disabled!");
+        lore.add(ChatColor.GRAY + "You won't be able to change it");
+        lore.add("");
+        lore.add(ChatColor.BLUE + "Current value: " + ChatColor.GRAY + button.getItem().getValue());
+        meta.setLore(lore);
+        itemStack.setItemMeta(meta);
+
+        addButton(slot, new Button.InventoryButton(button.getItem()) {
+            @Override
+            public void onClick(InventoryClickEvent event) {}
+        });
     }
 }

@@ -26,8 +26,8 @@ public class ConversionManager {
 
         if (!conversionNeeded) return;
 
-        Logger.log(Level.WARNING, "The displays configuration files are from an older version and have been changed in newer versions.");
-        Logger.log(Level.WARNING, "Run the command \"/ad convert\" to update the configuration files to newer versions.");
+        Logger.log(Level.WARNING, "The displays or the main configuration files are from an older version and have been changed in newer versions.");
+        Logger.log(Level.WARNING, "Run the command \"/ad convert\" to update the configuration files to newer versions, but make a backup first.");
         Logger.log(Level.WARNING, "Not converting the configurations will cause the plugin to malfunction. See more information at lucaaa.gitbook.io/advanceddisplays/usage/commands-and-permissions/convert-subcommand");
     }
 
@@ -142,8 +142,15 @@ public class ConversionManager {
             config.set("id", null);
         }
 
-        plugin.getMainConfig().getConfig().set("text-update", null);
-        plugin.getMainConfig().save();
+        ConfigManager mainConfig = plugin.getMainConfig();
+        YamlConfiguration yaml = mainConfig.getConfig();
+        yaml.set("text-update", null);
+        yaml.set("disabledItems", List.of());
+        yaml.setComments("disabledItems", List.of(
+                " List of disabled settings in the editor menu. Visit the link below for a list of settings that can be disabled.",
+                "https://javadoc.jitpack.io/com/github/Luncaaa/AdvancedDisplays/main-SNAPSHOT/javadoc/me/lucaaa/advanceddisplays/api/displays/enums/EditorItem.html"
+        ));
+        mainConfig.save();
 
         try {
             config.save(file);

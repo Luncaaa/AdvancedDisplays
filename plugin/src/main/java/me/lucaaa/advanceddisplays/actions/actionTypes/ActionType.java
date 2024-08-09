@@ -6,7 +6,8 @@ public enum ActionType {
     PLAYER_COMMAND("player-cmd"),
     TITLE("title"),
     ACTIONBAR("actionbar"),
-    PLAY_SOUND("play-sound");
+    PLAY_SOUND("play-sound"),
+    EFFECT("effect");
 
     private final String configName;
     ActionType(String configName) {

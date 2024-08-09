@@ -14,6 +14,7 @@ public abstract class Action {
     private final boolean globalPlaceholders;
     private boolean correctFormat = true;
     private final List<String> missingFields = new ArrayList<>();
+    protected boolean isCorrect = true;
 
     public Action(List<String> requiredFields, ConfigurationSection section, boolean canBeGlobal) {
         this.delay = section.getInt("delay", 0);
@@ -57,6 +58,10 @@ public abstract class Action {
 
     public List<String> getMissingFields() {
         return this.missingFields;
+    }
+
+    public boolean isCorrect() {
+        return this.isCorrect;
     }
 
     public BaseComponent[] getTextComponent(String message, Player clickedPlayer, Player actionPlayer) {

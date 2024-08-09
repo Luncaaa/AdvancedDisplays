@@ -7,6 +7,7 @@ import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 
@@ -38,6 +39,14 @@ public class InternalEntityClickListener implements Listener {
         }
 
         ADBaseDisplay display = plugin.getInteractionsManager().getDisplay(event.getInteractionId());
-        if (display != null) display.runActions(player,clickType);
+        if (display == null) return;
+
+        // Run sync to prevent errors
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                display.runActions(player,clickType);
+            }
+        }.runTask(plugin);
     }
 }

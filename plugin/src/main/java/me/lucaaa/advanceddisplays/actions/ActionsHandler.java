@@ -76,6 +76,7 @@ public class ActionsHandler {
                 case TITLE -> new TitleAction(actionSection);
                 case ACTIONBAR -> new ActionbarAction(plugin, actionSection);
                 case PLAY_SOUND -> new SoundAction(actionSection);
+                case EFFECT -> new EffectAction(actionSection);
             };
 
             if (!action.isFormatCorrect()) {
@@ -83,6 +84,9 @@ public class ActionsHandler {
                 Logger.log(Level.WARNING, "Your action \"" + actionSection.getName() + "\" is missing necessary fields: " + missingFields);
                 continue;
             }
+
+            // The reason why it isn't correct is handled by the action class.
+            if (!action.isCorrect()) continue;
 
             this.actionsMap.computeIfAbsent(clickType, k -> new ArrayList<>());
             this.actionsMap.get(clickType).add(action);

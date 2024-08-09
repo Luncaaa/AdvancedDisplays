@@ -1,7 +1,7 @@
 main: me.lucaaa.advanceddisplays.AdvancedDisplays
 description: "Create block, item and text displays!"
 name: "AdvancedDisplays"
-version: 1.5.2
+version: 1.5.3
 softdepend: [PlaceholderAPI, Oraxen, ItemsAdder]
 author: Lucaaa
 prefix: AD

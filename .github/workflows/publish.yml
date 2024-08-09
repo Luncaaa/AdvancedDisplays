@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          
+      - name: Build
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: build
+
+      - name: Release
+        uses: HSGamer/action-mcreleaser@main
+        with:
+          files: build/libs/AdvancedDisplays-*.jar
+        env:
+          NAME: ${{ github.event.release.name }}
+          DESCRIPTION: ${{ github.event.release.body }}
+          GAME_VERSIONS: "1.19.4 1.20 1.20.1 1.20.2 1.20.3 1.20.4 1.20.5 1.20.6 1.21"
+
+          GITHUB_TOKEN: ${{ github.token }}
+
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MODRINTH_PROJECT: tDoPNQrP
+          MODRINTH_LOADERS: "spigot paper"
+
+          HANGAR_KEY: ${{ secrets.HANGAR_KEY }}
+          HANGAR_PROJECT: AdvancedDisplays
+          HANGAR_CHANNEL: Release
+          HANGAR_PLATFORM: paper

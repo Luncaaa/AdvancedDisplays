@@ -4,10 +4,12 @@ plugins {
 
 repositories {
     maven("https://repo.oraxen.com/releases")
+    maven("https://jitpack.io")
 }
 
 dependencies {
     compileOnly("io.th0rgal:oraxen:1.173.0")
+    compileOnly("com.github.LoneDev6:API-ItemsAdder:3.6.1")
     implementation("net.kyori:adventure-api:4.17.0")
     implementation("net.kyori:adventure-text-minimessage:4.17.0")
     implementation("net.kyori:adventure-text-serializer-legacy:4.17.0")

@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.data;
 
 public enum Compatibility {
-    ORAXEN
+    ORAXEN,
+    ITEMS_ADDER
 }

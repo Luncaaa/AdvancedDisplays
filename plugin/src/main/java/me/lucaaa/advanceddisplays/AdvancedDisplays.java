@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays;
 import io.th0rgal.oraxen.compatibilities.CompatibilitiesManager;
 import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.integrations.Integration;
+import me.lucaaa.advanceddisplays.integrations.ItemsAdderCompat;
 import me.lucaaa.advanceddisplays.integrations.OraxenCompat;
 import me.lucaaa.advanceddisplays.managers.*;
 import me.lucaaa.advanceddisplays.events.*;
@@ -89,6 +90,10 @@ public class AdvancedDisplays extends JavaPlugin {
         if (Bukkit.getPluginManager().isPluginEnabled("Oraxen")) {
             CompatibilitiesManager.addCompatibility("AdvancedDisplays", OraxenCompat.class);
             this.integrations.put(Compatibility.ORAXEN, new OraxenCompat());
+        }
+
+        if (Bukkit.getPluginManager().isPluginEnabled("ItemsAdder")) {
+            this.integrations.put(Compatibility.ITEMS_ADDER, new ItemsAdderCompat());
         }
 
         // Set up files and managers.

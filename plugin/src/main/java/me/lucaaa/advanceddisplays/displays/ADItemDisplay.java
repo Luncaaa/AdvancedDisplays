@@ -24,6 +24,7 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
 
     // Compatibility
     private String oraxenId;
+    private String itemsAdderId;
 
     public ADItemDisplay(AdvancedDisplays plugin, ConfigManager configManager, String name, ItemDisplay display, boolean isApi) {
         super(plugin, name, DisplayType.ITEM, configManager, display, isApi);
@@ -33,6 +34,9 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             if (this.settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
                 this.oraxenId = this.settings.getString("oraxen");
                 this.item = plugin.getIntegration(Compatibility.ORAXEN).getItemStack(oraxenId);
+            } else if (this.settings.isString("itemsAdder") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
+                this.itemsAdderId = this.settings.getString("itemsAdder");
+                this.item = plugin.getIntegration(Compatibility.ITEMS_ADDER).getItemStack(itemsAdderId);
             } else {
                 this.item = new ItemStack(Material.valueOf(this.settings.getString("item")));
             }
@@ -85,6 +89,7 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         this.item = item;
         if (this.config != null) {
             if (this.oraxenId != null) this.settings.set("oraxen", this.oraxenId);
+            if (this.itemsAdderId != null) this.settings.set("itemsAdder", this.itemsAdderId);
             this.settings.set("item", this.item.getType().name());
             this.save();
         }

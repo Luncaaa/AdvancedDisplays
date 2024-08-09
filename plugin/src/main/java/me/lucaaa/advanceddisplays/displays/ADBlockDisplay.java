@@ -20,6 +20,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
 
     // Compatibility
     private String oraxenId;
+    private String itemsAdderId;
 
     public ADBlockDisplay(AdvancedDisplays plugin, ConfigManager configManager, String name, BlockDisplay display, boolean isApi) {
         super(plugin, name, DisplayType.BLOCK, configManager, display, isApi);
@@ -29,6 +30,12 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
             if (this.settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
                 this.oraxenId = this.settings.getString("oraxen");
                 this.block = plugin.getIntegration(Compatibility.ORAXEN).getBlockData(oraxenId);
+                return;
+            }
+
+            if (this.settings.isString("itemsAdder") && plugin.isIntegrationLoaded(Compatibility.ITEMS_ADDER)) {
+                this.itemsAdderId = this.settings.getString("itemsAdder");
+                this.block = plugin.getIntegration(Compatibility.ITEMS_ADDER).getBlockData(itemsAdderId);
                 return;
             }
 
@@ -68,6 +75,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
 
         if (this.config != null) {
             if (this.oraxenId != null) this.settings.set("oraxen", this.oraxenId);
+            if (this.itemsAdderId != null) this.settings.set("itemsAdder", this.itemsAdderId);
             this.settings.set("block", block.getMaterial().name());
 
             ConfigurationSection dataSection = this.settings.createSection("blockData");

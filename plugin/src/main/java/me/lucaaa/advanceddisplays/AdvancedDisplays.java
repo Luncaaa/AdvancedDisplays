@@ -135,8 +135,8 @@ public class AdvancedDisplays extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        inventoryManager.clearAll();
-        tickManager.stop();
+        if (inventoryManager != null) inventoryManager.clearAll();
+        if (tickManager != null) tickManager.stop();
     }
 
     public ConfigManager getMainConfig() {

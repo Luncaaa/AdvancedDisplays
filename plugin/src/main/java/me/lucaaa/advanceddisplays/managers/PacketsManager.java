@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 public class PacketsManager {
     private final AdvancedDisplays plugin;
@@ -18,7 +19,15 @@ public class PacketsManager {
     public PacketsManager(AdvancedDisplays plugin, String version) {
         this.plugin = plugin;
         try {
-            Class<?> nmsClass = Class.forName("me.lucaaa.advanceddisplays." + Version.getNMSVersion(version).name() + ".Packets");
+            Version nmsVersion = Version.getNMSVersion(version);
+            if (nmsVersion == Version.UNKNOWN) {
+                Logger.log(Level.SEVERE, "Unknown NMS version! Version: " + version);
+                Logger.log(Level.SEVERE, "The plugin may not be updated to support the server's version. The plugin will be disabled...");
+                this.packets = null;
+                plugin.getServer().getPluginManager().disablePlugin(plugin);
+                return;
+            }
+            Class<?> nmsClass = Class.forName("me.lucaaa.advanceddisplays." + nmsVersion.name() + ".Packets");
             Object nmsClassInstance = nmsClass.getConstructor().newInstance();
             this.packets = (PacketInterface) nmsClassInstance;
             this.addAll();

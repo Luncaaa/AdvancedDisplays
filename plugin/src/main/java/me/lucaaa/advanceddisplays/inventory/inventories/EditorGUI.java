@@ -412,7 +412,7 @@ public class EditorGUI extends InventoryMethods {
                     }
 
                     String identifier = input.substring(0, firstSpace);
-                    String joined = input.substring(firstSpace + 1).replace("\\n", "\n");
+                    String joined = input.substring(firstSpace + 1);
                     if (((TextDisplay) display).addText(identifier, ComponentSerializer.deserialize(joined))) {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + identifier + " &a has been created and added after the last animation.", true));
                     } else {

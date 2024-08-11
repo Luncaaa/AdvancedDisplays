@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.managers;
 import com.google.common.io.Files;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.ActionType;
+import me.lucaaa.advanceddisplays.data.AttachedDisplay;
 import me.lucaaa.advanceddisplays.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.data.ConfigAxisAngle4f;
@@ -12,10 +13,12 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.io.File;
 import java.util.*;
@@ -25,8 +28,9 @@ public class DisplaysManager {
     private final AdvancedDisplays plugin;
     private final PacketInterface packets;
     private final String configsFolder;
-    private final HashMap<String, ADBaseDisplay> displays = new HashMap<>();
+    private final Map<String, ADBaseDisplay> displays = new HashMap<>();
     private final boolean isApi;
+    private final Map<Player, AttachedDisplay> attachDisplays = new HashMap<>();
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public DisplaysManager(AdvancedDisplays plugin, String configsFolder, boolean createFolders, boolean isApi) {
@@ -112,6 +116,51 @@ public class DisplaysManager {
         actionSetting.setInlineComments("delay", List.of("In ticks"));
 
         return displayConfigManager;
+    }
+
+    public ADTextDisplay createAttachedDisplay(PlayerInteractEvent event, AttachedDisplay display) {
+        if (event.getClickedBlock() == null) return null;
+
+        Player player = event.getPlayer();
+        BlockFace clickedFace = event.getBlockFace();
+
+        float yaw;
+        if (clickedFace == BlockFace.UP || clickedFace == BlockFace.DOWN) {
+            // Get the yaw depending on where the player is facing.
+            yaw = AttachedDisplay.getYaw(player.getFacing().getOppositeFace());
+        } else {
+            // Get the yaw depending on the clicked face.
+            yaw = AttachedDisplay.getYaw(clickedFace);
+        }
+
+        float pitch = 0.0f;
+        if (clickedFace == BlockFace.UP) {
+            pitch = -90.0f;
+        } else if (clickedFace == BlockFace.DOWN) {
+            pitch = 90.0f;
+        }
+
+        Location location;
+        if (clickedFace == BlockFace.UP || clickedFace == BlockFace.DOWN) {
+            double addY = (clickedFace == BlockFace.UP) ? 1.001 : -0.001;
+            boolean add = clickedFace == BlockFace.UP;
+            Location loc = event.getClickedBlock().getLocation().clone().add(0.0, addY, 0.0);
+            float pos = AttachedDisplay.getPos(player.getFacing().getOppositeFace(), display.side());
+            location = AttachedDisplay.addSides(player.getFacing(), loc, pos, add);
+        } else {
+            float pos = AttachedDisplay.getPos(clickedFace, display.side());
+            location = AttachedDisplay.addSides(clickedFace, event.getClickedBlock().getLocation(), pos, false);
+        }
+
+        ADTextDisplay newDisplay = createTextDisplay(location, display.name(), display.content(), display.saveToConfig());
+
+        if (newDisplay != null) {
+            newDisplay.setBillboard(Display.Billboard.FIXED);
+            newDisplay.setSeeThrough(false);
+            newDisplay.setRotation(yaw, pitch);
+        }
+
+        return newDisplay;
     }
 
     public ADTextDisplay createTextDisplay(Location location, String name, Component value, boolean saveToConfig) {
@@ -209,13 +258,15 @@ public class DisplaysManager {
         return true;
     }
 
-    public void removeAllEntities() {
+    public void removeAll() {
         for (ADBaseDisplay display : this.displays.values()) {
             display.remove();
             if (display instanceof ADTextDisplay) {
                 ((ADTextDisplay) display).stopRunnable();
             }
         }
+
+        attachDisplays.clear();
     }
 
     public ADBaseDisplay getDisplayFromMap(String name) {
@@ -254,14 +305,34 @@ public class DisplaysManager {
             }
         }
 
-        this.displays.put(configManager.getFile().getName().replace(".yml", ""), newDisplay);
+        displays.put(configManager.getFile().getName().replace(".yml", ""), newDisplay);
         plugin.getInteractionsManager().addInteraction(newDisplay.getInteractionId(), newDisplay);
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             ((DisplayMethods) newDisplay).sendMetadataPackets(onlinePlayer);
         }
     }
 
+    public void addAttachingPlayer(Player player, AttachedDisplay display) {
+        attachDisplays.put(player, display);
+    }
+
+    public boolean isPlayerAttaching(Player player) {
+        return attachDisplays.containsKey(player);
+    }
+
+    public AttachedDisplay getAttachingDisplay(Player player) {
+        return attachDisplays.remove(player);
+    }
+
+    public void removeAttachingDisplay(Player player) {
+        attachDisplays.remove(player);
+    }
+
     public Map<String, ADBaseDisplay> getDisplays() {
         return this.displays;
+    }
+
+    public boolean existsDisplay(String name) {
+        return displays.containsKey(name);
     }
 }

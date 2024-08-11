@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
-import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
+import me.lucaaa.advanceddisplays.data.AttachedDisplay;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -37,7 +37,9 @@ public class CreateSubCommand extends SubCommandsFormat {
     @Override
     public List<String> getTabCompletions(CommandSender sender, String[] args) {
         if (args.length == 2) {
-            return Arrays.stream(DisplayType.values()).map(Enum::name).toList();
+            List<String> completions = new ArrayList<>(Arrays.stream(DisplayType.values()).map(Enum::name).toList());
+            completions.add("ATTACHED");
+            return completions;
 
         } else if (args.length == 4) {
             if (args[1].equalsIgnoreCase("ITEM")) {
@@ -45,6 +47,9 @@ public class CreateSubCommand extends SubCommandsFormat {
 
             } else if (args[1].equalsIgnoreCase("BLOCK")) {
                 return this.blocksList;
+
+            } else if (args[1].equalsIgnoreCase("ATTACHED")) {
+                return Arrays.stream(AttachedDisplay.Side.values()).map(Enum::name).toList();
             }
         }
 
@@ -54,6 +59,28 @@ public class CreateSubCommand extends SubCommandsFormat {
     @Override
     public void run(CommandSender sender, String[] args) {
         Player player = (Player) sender;
+
+        if (plugin.getDisplaysManager().existsDisplay(args[2])) {
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cA display with the name &b" + args[2] + " &calready exists!", true));
+            return;
+        }
+
+        if (args[1].equalsIgnoreCase("ATTACHED")) {
+            AttachedDisplay.Side side;
+            try {
+                side = AttachedDisplay.Side.valueOf(args[3].toUpperCase());
+            } catch (IllegalArgumentException e) {
+                sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe side &b" + args[3] + " &cis not a valid side.", true));
+                return;
+            }
+
+            String value = String.join(" ", Arrays.copyOfRange(args, 4, args.length));
+            plugin.getDisplaysManager().addAttachingPlayer(player, new AttachedDisplay(args[2], side, ComponentSerializer.deserialize(value), true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&6Right-click the block where you want your display to be attached or run &e/ad finish &6to cancel the action.", true));
+
+            return;
+        }
+
         DisplayType type;
         try {
             type = DisplayType.valueOf(args[1].toUpperCase());
@@ -79,17 +106,12 @@ public class CreateSubCommand extends SubCommandsFormat {
             }
         }
 
-        ADBaseDisplay newDisplay = null;
         switch (type) {
-            case TEXT -> newDisplay = plugin.getDisplaysManager().createTextDisplay(player.getEyeLocation(), args[2], ComponentSerializer.deserialize(value.replace("\\n", "\n")), true);
-            case ITEM -> newDisplay = plugin.getDisplaysManager().createItemDisplay(player.getEyeLocation(), args[2], Material.getMaterial(value), true);
-            case BLOCK -> newDisplay = plugin.getDisplaysManager().createBlockDisplay(player.getEyeLocation(), args[2], Objects.requireNonNull(Material.getMaterial(value)).createBlockData(), true);
+            case TEXT -> plugin.getDisplaysManager().createTextDisplay(player.getEyeLocation(), args[2], ComponentSerializer.deserialize(value), true);
+            case ITEM -> plugin.getDisplaysManager().createItemDisplay(player.getEyeLocation(), args[2], Material.getMaterial(value), true);
+            case BLOCK -> plugin.getDisplaysManager().createBlockDisplay(player.getEyeLocation(), args[2], Objects.requireNonNull(Material.getMaterial(value)).createBlockData(), true);
         }
 
-        if (newDisplay == null) {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cA display with the name &b" + args[2] + " &calready exists!", true));
-        } else {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[2] + " &ahas been successfully created.", true));
-        }
+        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[2] + " &ahas been successfully created.", true));
     }
 }

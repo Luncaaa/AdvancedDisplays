@@ -5,6 +5,7 @@ Create block, item and text displays!
 You can download the plugin here:
 - Spigot resource page: https://www.spigotmc.org/resources/advanceddisplays.110865/
 - Hangar resource page: https://hangar.papermc.io/Lucaaa/AdvancedDisplays
+- Modrinth resource page: https://modrinth.com/plugin/advanceddisplays
 - Wiki: https://lucaaa.gitbook.io/advanceddisplays/
 - Javadocs: https://javadoc.jitpack.io/com/github/Luncaaa/AdvancedDisplays/main-SNAPSHOT/javadoc
 

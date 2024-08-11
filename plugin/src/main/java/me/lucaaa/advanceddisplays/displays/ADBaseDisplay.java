@@ -200,7 +200,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     @Override
     public void openEditor(Player player, List<EditorItem> disabledSettings) {
         plugin.getInventoryManager().addEditingPlayer(player, disabledSettings, this);
-        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are now editing the display &e" + display.getName() + "&a. Run &e/ad finishEditing &ato get your old inventory back.", true));
+        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are now editing the display &e" + display.getName() + "&a. Run &e/ad finish &ato get your old inventory back.", true));
     }
 
     @Override

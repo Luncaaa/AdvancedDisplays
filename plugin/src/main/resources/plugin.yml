@@ -1,7 +1,7 @@
 main: me.lucaaa.advanceddisplays.AdvancedDisplays
 description: "Create block, item and text displays!"
 name: "AdvancedDisplays"
-version: 1.5.3
+version: 1.5.4
 softdepend: [PlaceholderAPI, Oraxen, ItemsAdder]
 author: Lucaaa
 prefix: AD
@@ -23,6 +23,7 @@ permissions:
       ad.movehere: true
       ad.teleport: true
       ad.edit: true
+      ad.next: true
   ad.reload:
     description: Reloads the plugin's configuration files.
     default: op
@@ -43,4 +44,7 @@ permissions:
     default: op
   ad.edit:
     description: Opens the GUI editor for a certain display.
+    default: op
+  ad.next:
+    description: Switches to the next page of a text display.
     default: op

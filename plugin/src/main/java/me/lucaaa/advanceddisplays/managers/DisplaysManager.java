@@ -275,6 +275,7 @@ public class DisplaysManager {
 
     public void spawnDisplays(Player player) {
         for (ADBaseDisplay display : this.displays.values()) {
+            if (display.getLocation().getWorld() != player.getLocation().getWorld()) continue;
             if (display.getVisibilityManager().isVisibleByPlayer(player)) display.spawnToPlayer(player);
         }
     }

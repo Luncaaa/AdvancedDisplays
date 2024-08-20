@@ -76,7 +76,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.actionsHandler = new ActionsHandler(plugin, configManager.getConfig());
 
         ConfigurationSection locationSection = Objects.requireNonNull(this.config.getConfigurationSection("location"));
-        String world = locationSection.getString("world", "world");
+        String world = locationSection.getString("world", Bukkit.getWorlds().get(0).getName());
         double x = locationSection.getDouble("x");
         double y = locationSection.getDouble("y");
         double z = locationSection.getDouble("z");

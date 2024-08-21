@@ -23,7 +23,7 @@ permissions:
       ad.movehere: true
       ad.teleport: true
       ad.edit: true
-      ad.next: true
+      ad.page: true
   ad.reload:
     description: Reloads the plugin's configuration files.
     default: op
@@ -45,6 +45,6 @@ permissions:
   ad.edit:
     description: Opens the GUI editor for a certain display.
     default: op
-  ad.next:
-    description: Switches to the next page of a text display.
+  ad.page:
+    description: Allows the player to change the displayed page on a text display.
     default: op

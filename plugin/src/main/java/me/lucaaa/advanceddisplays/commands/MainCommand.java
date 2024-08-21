@@ -27,6 +27,9 @@ public class MainCommand implements TabExecutor {
         subCommands.put("list", new ListSubCommand(plugin));
         subCommands.put("edit", new EditSubCommand(plugin));
         subCommands.put("finish", new FinishSubCommand(plugin));
+        subCommands.put("nextPage", new NextPageSubCommand(plugin));
+        subCommands.put("previousPage", new PreviousPageSubCommand(plugin));
+        subCommands.put("setPage", new SetPageSubCommand(plugin));
     }
 
     @Override

@@ -95,6 +95,23 @@ public interface TextDisplay extends BaseDisplay {
     boolean removeText(String identifier);
 
     /**
+     * Shows the next page/animation.
+     */
+    void nextPage();
+
+    /**
+     * Shows the previous page/animation.
+     */
+    void previousPage();
+
+    /**
+     * Shows the given page.
+     * @param page The page to show.
+     * @throws IllegalArgumentException If the display does not have the given page.
+     */
+    void setPage(String page);
+
+    /**
      * Gets the text's opacity.
      * @return The text's opacity.
      */

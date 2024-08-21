@@ -3,7 +3,6 @@ package me.lucaaa.advanceddisplays.displays;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
-import me.lucaaa.advanceddisplays.common.utils.Utils;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import net.kyori.adventure.text.Component;
@@ -76,7 +75,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     @Override
     public void sendMetadataPackets(Player player) {
         this.sendBaseMetadataPackets(player);
-        if (this.texts.size() == 1 && this.refreshTime <= 0) this.packets.setText(this.displayId, Utils.getColoredTextWithPlaceholders(player, ComponentSerializer.toJSON(this.texts.values().stream().toList().get(0))), player);
+        this.textRunnable.sendToPlayer(player, packets);
         this.packets.setBackgroundColor(this.displayId, this.backgroundColor, player);
         this.packets.setLineWidth(this.displayId, this.lineWidth, player);
         this.packets.setTextOpacity(this.displayId, this.textOpacity, player);
@@ -174,7 +173,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             this.settings.set("texts", textSection);
             this.save();
         }
-        this.textRunnable.updateText(this.texts, this.animationTime, this.refreshTime);
+        this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
     }
     @Override
     public void setSingleText(String identifier, Component text) {
@@ -185,7 +184,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             textSection.set(identifier, MiniMessage.miniMessage().serialize(text).split(Pattern.quote("\n")));
             this.save();
         }
-        this.textRunnable.updateText(this.texts, this.animationTime, this.refreshTime);
+        this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
     }
 
     @Override
@@ -200,7 +199,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             this.settings.set("texts", textSection);
             this.save();
         }
-        this.textRunnable.updateText(this.texts, this.animationTime, this.refreshTime);
+        this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
         return true;
     }
     @Override
@@ -218,8 +217,27 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             this.settings.set("texts", textSection);
             this.save();
         }
-        this.textRunnable.updateText(this.texts, this.animationTime, this.refreshTime);
+        this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
         return true;
+    }
+
+    @Override
+    public void nextPage() {
+        textRunnable.nextPage();
+    }
+
+    @Override
+    public void previousPage() {
+        textRunnable.previousPage();
+    }
+
+    @Override
+    public void setPage(String page) {
+        if (!texts.containsKey(page)) {
+            throw new IllegalArgumentException("The display " + getName() + " does not have a page called " + page);
+        }
+
+        textRunnable.setPage(page);
     }
 
     @Override
@@ -313,7 +331,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             this.settings.set("animationTime", animationTime);
             this.save();
         }
-        this.textRunnable.updateText(this.texts, animationTime, this.refreshTime);
+        this.textRunnable.start(this.texts, animationTime, this.refreshTime);
     }
 
     @Override
@@ -327,7 +345,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             this.settings.set("refreshTime", refreshTime);
             this.save();
         }
-        this.textRunnable.updateText(this.texts, this.animationTime, this.refreshTime);
+        this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
     }
 
     public void stopRunnable() {

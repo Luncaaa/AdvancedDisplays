@@ -10,17 +10,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class AnimatedTextRunnable {
     private final AdvancedDisplays plugin;
     private int displayId;
 
-    private Map<String, Component> textsList;
+    // Minimessage String rather than component for placeholder parsing (so that %prefix% which is <red>Owner is parsed correctly)
+    private Map<String, String> textsList;
     private int animationTime;
     private int refreshTime;
 
-    private Component displayedText;
+    private String displayedText;
     private BukkitTask animateTask;
     private BukkitTask refreshTask;
     private int nextIndex = 0;
@@ -31,14 +33,19 @@ public class AnimatedTextRunnable {
     }
 
     public void start(Map<String, Component> texts, int animationTime, int refreshTime) {
-        start(texts, animationTime, refreshTime, 0);
+        Map<String, String> mmTexts = new LinkedHashMap<>();
+        for (Map.Entry<String, Component> entry : texts.entrySet()) {
+            mmTexts.put(entry.getKey(), String.join("\n", ComponentSerializer.serialize(entry.getValue())));
+        }
+        start(mmTexts, animationTime, refreshTime, 0);
     }
 
-    public void start(Map<String, Component> texts, int animationTime, int refreshTime, int index) {
+    private void start(Map<String, String> texts, int animationTime, int refreshTime, int index) {
         stop();
         nextIndex = index;
 
         this.textsList = texts;
+        this.displayedText = textsList.values().stream().toList().get(index);
         this.animationTime = animationTime;
         this.refreshTime = refreshTime;
 
@@ -49,8 +56,11 @@ public class AnimatedTextRunnable {
                 public void run() {
                     displayedText = textsList.values().stream().toList().get(nextIndex);
 
-                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        plugin.getPacketsManager().getPackets().setText(displayId, Utils.getColoredTextWithPlaceholders(onlinePlayer, ComponentSerializer.toJSON(displayedText)), onlinePlayer);
+                    // If higher than 0, the refresh task will handle this
+                    if (refreshTime <= 0) {
+                        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                            plugin.getPacketsManager().getPackets().setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
+                        }
                     }
 
                     nextIndex = (nextIndex + 1 == texts.size()) ? 0 : nextIndex + 1;
@@ -60,8 +70,11 @@ public class AnimatedTextRunnable {
         } else {
             displayedText = textsList.values().stream().toList().get(nextIndex);
 
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                plugin.getPacketsManager().getPackets().setText(displayId, Utils.getColoredTextWithPlaceholders(onlinePlayer, ComponentSerializer.toJSON(displayedText)), onlinePlayer);
+            // If higher than 0, the refresh task will handle this
+            if (refreshTime <= 0) {
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    plugin.getPacketsManager().getPackets().setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
+                }
             }
 
             nextIndex = (nextIndex + 1 == texts.size()) ? 0 : nextIndex + 1;
@@ -73,14 +86,14 @@ public class AnimatedTextRunnable {
                 @Override
                 public void run() {
                     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        plugin.getPacketsManager().getPackets().setText(displayId, Utils.getColoredTextWithPlaceholders(onlinePlayer, ComponentSerializer.toJSON(displayedText)), onlinePlayer);
+                        plugin.getPacketsManager().getPackets().setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
                     }
                 }
             }.runTaskTimerAsynchronously(plugin, 0L, refreshTime);
 
-        } else if (texts.size() == 1) {
+        } else {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                plugin.getPacketsManager().getPackets().setText(displayId, Utils.getColoredTextWithPlaceholders(onlinePlayer, ComponentSerializer.toJSON(displayedText)), onlinePlayer);
+                plugin.getPacketsManager().getPackets().setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
             }
         }
     }
@@ -132,6 +145,6 @@ public class AnimatedTextRunnable {
         // for every online player.
         if (displayedText == null) return;
 
-        packets.setText(this.displayId, Utils.getColoredTextWithPlaceholders(player, ComponentSerializer.toJSON(displayedText)), player);
+        packets.setText(this.displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, displayedText))), player);
     }
 }

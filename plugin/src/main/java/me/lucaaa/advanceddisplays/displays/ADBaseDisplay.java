@@ -36,6 +36,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     private final ADVisibilityManager visibilityManager = new ADVisibilityManager(this);
 
     private final String name;
+    private boolean invertPermission; // If true, the player must not have the permission to see the display.
     private String permission;
     private double viewDistance;
     protected Display display;
@@ -71,7 +72,9 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.configManager = configManager;
         this.config = configManager.getConfig();
         this.type = type;
-        this.permission = this.config.getString("permission");
+        String perm = this.config.getString("permission", "none");
+        this.invertPermission = perm.startsWith("!");
+        this.permission = (this.invertPermission) ? perm.substring(1) : perm;
         this.viewDistance = this.config.getDouble("view-distance");
         this.actionsHandler = new ActionsHandler(plugin, configManager.getConfig());
 
@@ -135,6 +138,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.configManager = null;
         this.config = null;
         this.type = type;
+        this.invertPermission = false;
         this.permission = "none";
         this.viewDistance = 0.0;
         this.actionsHandler = new ActionsHandler(plugin);
@@ -508,12 +512,18 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
     @Override
     public void setPermission(String permission) {
-        this.permission = permission;
+        this.invertPermission = permission.startsWith("!");
+        this.permission = (this.invertPermission) ? permission.substring(1) : permission;
 
         if (this.config != null) {
             this.config.set("permission", permission);
             this.save();
         }
+    }
+
+    @Override
+    public boolean isPermissionInverted() {
+        return this.invertPermission;
     }
 
     @Override

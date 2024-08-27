@@ -97,18 +97,20 @@ public class ConversionManager {
             if (!settingsSection.contains("animationTime")) settingsSection.set("animationTime", 20);
             if (!settingsSection.contains("refreshTime")) settingsSection.set("refreshTime", 20);
 
-            ConfigurationSection textSection = settingsSection.createSection("texts");
-            if (settingsSection.isList("text")) {
-                List<String> oldTextLines = settingsSection.getStringList("text");
-                for (int i = 1; (i - 1) < oldTextLines.size(); i++) {
-                    textSection.set(String.valueOf(i), oldTextLines.get(i-1).split("\\n"));
-                }
+            if (!settingsSection.isConfigurationSection("texts")) {
+                ConfigurationSection textSection = settingsSection.createSection("texts");
+                if (settingsSection.isList("text")) {
+                    List<String> oldTextLines = settingsSection.getStringList("text");
+                    for (int i = 1; (i - 1) < oldTextLines.size(); i++) {
+                        textSection.set(String.valueOf(i), oldTextLines.get(i-1).split("\\n"));
+                    }
 
-            } else if (settingsSection.isString("text")) {
-                String[] separatedText = settingsSection.getString("text", "Error! No \"text\" section found.").split("\\n");
-                textSection.set("0", separatedText);
+                } else if (settingsSection.isString("text")) {
+                    String[] separatedText = settingsSection.getString("text", "Error! No \"text\" section found.").split("\\n");
+                    textSection.set("0", separatedText);
+                }
+                settingsSection.set("text", null);
             }
-            settingsSection.set("text", null);
 
         } else if (type == DisplayType.ITEM) {
             if (!settingsSection.contains("enchanted")) settingsSection.set("enchanted", false);
@@ -116,6 +118,10 @@ public class ConversionManager {
 
         if (!config.isString("permission")) {
             config.set("permission", "none");
+        }
+
+        if (!config.isString("hide-permission")) {
+            config.set("hide-permission", "none");
         }
 
         if (!config.isDouble("view-distance")) {

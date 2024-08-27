@@ -50,7 +50,7 @@ public class DisplaysManager {
                 ConfigManager configManager = new ConfigManager(this.plugin, configsFolder + File.separator + configFile.getName());
 
                 YamlConfiguration config = configManager.getConfig();
-                if (config.getString("id") != null || !config.isDouble("view-distance")) {
+                if (config.getString("id") != null || !config.isString("hide-permission")) {
                     ConversionManager.setConversionNeeded(true);
                     break;
                 }

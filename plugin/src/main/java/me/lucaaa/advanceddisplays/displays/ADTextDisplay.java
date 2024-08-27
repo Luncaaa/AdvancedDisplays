@@ -42,7 +42,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             this.refreshTime = this.settings.getInt("refreshTime");
 
             ConfigurationSection textSection = this.settings.getConfigurationSection("texts");
-            if (textSection == null) {
+            if (textSection == null || textSection.getKeys(false).isEmpty()) {
                 Logger.log(Level.SEVERE, "The text display \"" + configManager.getFile().getName() + "\" does not have a valid \"text\" section! Check the wiki for more information.");
                 texts.put("error", LegacyComponentSerializer.legacyAmpersand().deserialize("&cError! No valid \"texts\" section found. Check the wiki for more information."));
             } else {

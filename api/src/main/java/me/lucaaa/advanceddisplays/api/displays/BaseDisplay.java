@@ -257,17 +257,21 @@ public interface BaseDisplay {
 
     /**
      * Sets the permission needed to see the display.
-     * <p>
-     * Put "!" in front of the permission if you want the player NOT to have it to see the display.
-     * @param permission The permission needed to see the display. Use "none" if you want the display to be seen by everyone.
+     * @param permission The permission needed to see the display. Use "none" to disable this permission.
      */
     void setPermission(String permission);
 
     /**
-     * Returns true if the player must NOT have the permission to see the display.
-     * @return True if the player must NOT have the permission to see the display. False otherwise.
+     * Returns the permission that the players must have to not see the display.
+     * @return The permission that the players must have to not see the display.
      */
-    boolean isPermissionInverted();
+    String getHidePermission();
+
+    /**
+     * Sets the permission that the players must have to not see the display.
+     * @param permission The permission that the players must have to not see the display. Use "none" to disable this permission.
+     */
+    void setHidePermission(String permission);
 
     /**
      * The distance at which the player must be from the display to be able to see it.

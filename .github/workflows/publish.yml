@@ -20,10 +20,11 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Build
-        uses: gradle/gradle-build-action@v3
-        with:
-          arguments: build
+        run: ./gradlew build
 
       - name: Release
         uses: HSGamer/action-mcreleaser@main

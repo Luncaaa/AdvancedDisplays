@@ -84,9 +84,9 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
 
     public ADTextDisplay create(Component text) {
         if (this.config != null) this.settings = this.config.createSection("settings");
+        this.setSingleText("animation1", text);
         this.setRefreshTime(10);
         this.setAnimationTime(20);
-        this.setSingleText("animation1", text);
         this.setAlignment(TextDisplay.TextAlignment.CENTER);
         this.setBackgroundColor(Color.ORANGE);
         this.setLineWidth(250);

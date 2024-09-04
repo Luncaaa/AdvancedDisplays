@@ -19,8 +19,8 @@ public class AnimatedTextRunnable {
 
     // Minimessage String rather than component for placeholder parsing (so that %prefix% which is <red>Owner is parsed correctly)
     private Map<String, String> textsList;
-    private int animationTime;
-    private int refreshTime;
+    private int animationTime = 0;
+    private int refreshTime = 0;
 
     private String displayedText;
     private BukkitTask animateTask;

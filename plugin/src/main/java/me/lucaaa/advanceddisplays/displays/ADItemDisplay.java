@@ -11,6 +11,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Objects;
 
@@ -39,6 +40,13 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
                 this.item = plugin.getIntegration(Compatibility.ITEMS_ADDER).getItemStack(itemsAdderId);
             } else {
                 this.item = new ItemStack(Material.valueOf(this.settings.getString("item")));
+
+                int customModelData = this.settings.getInt("customModelData");
+                if (customModelData > 0) {
+                    ItemMeta meta = Objects.requireNonNull(this.item.getItemMeta());
+                    meta.setCustomModelData(customModelData);
+                    this.item.setItemMeta(meta);
+                }
             }
 
             this.enchanted = this.settings.getBoolean("enchanted");
@@ -91,6 +99,10 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             if (this.oraxenId != null) this.settings.set("oraxen", this.oraxenId);
             if (this.itemsAdderId != null) this.settings.set("itemsAdder", this.itemsAdderId);
             this.settings.set("item", this.item.getType().name());
+
+            ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
+            int customModelData = (meta.hasCustomModelData()) ? meta.getCustomModelData() : 0;
+            this.settings.set("customModelData", customModelData);
             this.save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -145,7 +157,7 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     }
 
     @Override
-    public ItemDisplay.ItemDisplayTransform  getItemTransformation() {
+    public ItemDisplay.ItemDisplayTransform getItemTransformation() {
         return this.itemTransformation;
     }
     @Override

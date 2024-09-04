@@ -114,6 +114,7 @@ public class ConversionManager {
 
         } else if (type == DisplayType.ITEM) {
             if (!settingsSection.contains("enchanted")) settingsSection.set("enchanted", false);
+            if (!settingsSection.contains("customModelData")) settingsSection.set("customModelData", 0);
         }
 
         if (!config.isString("permission")) {

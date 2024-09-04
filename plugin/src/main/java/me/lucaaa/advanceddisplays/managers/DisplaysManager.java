@@ -67,6 +67,7 @@ public class DisplaysManager {
         // Set properties in the display file.
         displayConfig.set("type", type.name());
         displayConfig.set("permission", "none");
+        displayConfig.set("hide-permission", "none");
         displayConfig.set("view-distance", 0.0);
 
         ConfigurationSection locationSection = displayConfig.createSection("location");

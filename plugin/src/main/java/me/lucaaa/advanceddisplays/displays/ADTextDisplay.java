@@ -23,7 +23,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     private final AnimatedTextRunnable textRunnable;
     private int animationTime;
     private int refreshTime;
-    private Map<String, Component> texts = new HashMap<>();
+    private Map<String, Component> texts = new LinkedHashMap<>();
     private TextDisplay.TextAlignment alignment;
     private Color backgroundColor;
     private int lineWidth;

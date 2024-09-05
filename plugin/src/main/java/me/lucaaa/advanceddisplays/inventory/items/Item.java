@@ -265,7 +265,7 @@ public class Item {
     }
 
     public double changeDoubleValue(boolean changeSmall, double min, Double max, boolean increase, boolean changeTitle) {
-        if (!(value instanceof Double) && !(value instanceof Float)) return 0.0;
+        if (!(value instanceof Number)) return 0.0;
 
         double change;
         if (changeSmall) {
@@ -275,7 +275,8 @@ public class Item {
         }
 
         // If the number is more than the max, return the max.
-        double selectMax = (max == null) ? (double) value + change : Math.min(max, (double) value + change);
+        double currentValue = (value instanceof Integer integer) ? integer : (double) value;
+        double selectMax = (max == null) ? currentValue + change : Math.min(max, currentValue + change);
         double toReturn = Math.max(min, selectMax);
 
         // Round it to 2 decimal places

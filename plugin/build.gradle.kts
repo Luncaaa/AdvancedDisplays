@@ -33,6 +33,7 @@ tasks {
     }
 
     shadowJar {
+        exclude("org/apache/commons/io/**")
         minimize {
             exclude(project(":nms:v1_19_R3"))
             exclude(project(":nms:v1_20_R1"))

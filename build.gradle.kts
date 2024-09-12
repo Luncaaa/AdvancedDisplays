@@ -30,6 +30,6 @@ subprojects {
 
     dependencies {
         compileOnly("org.spigotmc:spigot-api:1.19.4-R0.1-SNAPSHOT")
-        implementation("io.netty:netty-all:4.1.112.Final")
+        compileOnly("io.netty:netty-all:4.1.113.Final")
     }
 }

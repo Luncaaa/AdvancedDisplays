@@ -232,7 +232,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         location.setYaw(yaw);
         location.setPitch(pitch);
 
-        if (location.getWorld() == location.getWorld()) {
+        if (this.location.getWorld() == location.getWorld()) {
             display.teleport(location);
             Location location1 = location.clone();
             if (type == DisplayType.BLOCK) {
@@ -275,7 +275,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
             plugin.getInteractionsManager().addInteraction(getInteractionId(), this);
         }
-        location = location;
+        this.location = location;
     }
 
     @Override
@@ -300,7 +300,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     }
     @Override
     public void setBillboard(Display.Billboard billboard) {
-        billboard = billboard;
+        this.billboard = billboard;
         if (config != null) {
             config.set("rotationType", billboard.name());
             save();
@@ -320,7 +320,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     }
     @Override
     public void setBrightness(Display.Brightness brightness) {
-        brightness = brightness;
+        this.brightness = brightness;
         if (config != null) {
             ConfigurationSection brightnessSection = Objects.requireNonNull(config.getConfigurationSection("brightness"));
             brightnessSection.set("block", brightness.getBlockLight());
@@ -346,8 +346,8 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     }
     @Override
     public void setShadow(float shadowRadius, float shadowStrength) {
-        shadowRadius = shadowRadius;
-        shadowStrength = shadowStrength;
+        this.shadowRadius = shadowRadius;
+        this.shadowStrength = shadowStrength;
         if (config != null) {
             ConfigurationSection shadowSection = Objects.requireNonNull(config.getConfigurationSection("shadow"));
             shadowSection.set("radius", shadowRadius);
@@ -369,7 +369,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     }
     @Override
     public void setTransformation(Transformation transformation) {
-        transformation = transformation;
+        this.transformation = transformation;
         if (!overrideHitboxSize) {
             hitbox.setInteractionWidth(transformation.getScale().x);
             hitbox.setInteractionHeight(transformation.getScale().y);
@@ -418,9 +418,9 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     @Override
     public void setRotation(float yaw, float pitch) {
         location.setYaw(yaw);
-        yaw = yaw;
+        this.yaw = yaw;
         location.setPitch(pitch);
-        pitch = pitch;
+        this.pitch = pitch;
         if (config != null) {
             ConfigurationSection rotationSection = Objects.requireNonNull(config.getConfigurationSection("rotation"));
             rotationSection.set("yaw", yaw);
@@ -444,7 +444,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
     @Override
     public void setGlowing(boolean isGlowing) {
-        isGlowing = isGlowing;
+        this.isGlowing = isGlowing;
         if (config != null) {
             ConfigurationSection glowSection = Objects.requireNonNull(config.getConfigurationSection("glow"));
             glowSection.set("glowing", isGlowing);
@@ -511,7 +511,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
     @Override
     public void setPermission(String permission) {
-        permission = permission;
+        this.permission = permission;
 
         if (config != null) {
             config.set("permission", permission);
@@ -541,7 +541,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
     @Override
     public void setViewDistance(double viewDistance) {
-        viewDistance = viewDistance;
+        this.viewDistance = viewDistance;
 
         if (config != null) {
             config.set("view-distance", viewDistance);

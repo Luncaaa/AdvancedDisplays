@@ -103,7 +103,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     }
     @Override
     public void setAlignment(TextDisplay.TextAlignment alignment) {
-        alignment = alignment;
+        this.alignment = alignment;
         if (config != null) {
             settings.set("alignment", alignment.name());
             save();
@@ -266,7 +266,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     }
     @Override
     public void setUseDefaultBackground(boolean defaultBackground) {
-        defaultBackground = defaultBackground;
+        this.defaultBackground = defaultBackground;
         if (config != null) {
             settings.set("defaultBackground", defaultBackground);
             save();
@@ -286,7 +286,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     }
     @Override
     public void setSeeThrough(boolean seeThrough) {
-        seeThrough = seeThrough;
+        this.seeThrough = seeThrough;
         if (config != null) {
             settings.set("seeThrough", seeThrough);
             save();
@@ -306,7 +306,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     }
     @Override
     public void setShadowed(boolean shadowed) {
-        shadowed = shadowed;
+        this.shadowed = shadowed;
         if (config != null) {
             settings.set("shadowed", shadowed);
             save();
@@ -326,7 +326,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     }
     @Override
     public void setAnimationTime(int animationTime) {
-        animationTime = animationTime;
+        this.animationTime = animationTime;
         if (config != null) {
             settings.set("animationTime", animationTime);
             save();
@@ -340,7 +340,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     }
     @Override
     public void setRefreshTime(int refreshTime) {
-        refreshTime = refreshTime;
+        this.refreshTime = refreshTime;
         if (config != null) {
             settings.set("refreshTime", refreshTime);
             save();

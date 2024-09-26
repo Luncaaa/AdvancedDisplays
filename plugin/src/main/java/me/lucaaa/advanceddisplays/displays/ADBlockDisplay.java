@@ -71,7 +71,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
     }
     @Override
     public void setBlock(BlockData block) {
-        block = block;
+        this.block = block;
 
         if (config != null) {
             if (oraxenId != null) settings.set("oraxen", oraxenId);

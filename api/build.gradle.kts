@@ -36,7 +36,7 @@ publishing {
         val mavenJava by creating(MavenPublication::class) {
             groupId = "AdvancedDisplays"
             artifactId = "advanceddisplays-api"
-            version = "1.5.4"
+            version = "1.5.5"
 
             from(components["java"])
         }

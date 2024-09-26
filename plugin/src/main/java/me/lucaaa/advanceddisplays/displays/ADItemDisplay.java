@@ -3,17 +3,25 @@ package me.lucaaa.advanceddisplays.displays;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
+import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import org.bukkit.*;
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.banner.PatternType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.*;
+import org.bukkit.inventory.meta.trim.ArmorTrim;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 
 public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.ItemDisplay {
     private ConfigurationSection settings = null;
@@ -40,13 +48,7 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
                 this.item = plugin.getIntegration(Compatibility.ITEMS_ADDER).getItemStack(itemsAdderId);
             } else {
                 this.item = new ItemStack(Material.valueOf(settings.getString("item")));
-
-                int customModelData = settings.getInt("customModelData");
-                if (customModelData > 0) {
-                    ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
-                    meta.setCustomModelData(customModelData);
-                    item.setItemMeta(meta);
-                }
+                loadData(item, settings);
             }
 
             this.enchanted = settings.getBoolean("enchanted");
@@ -98,9 +100,7 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             if (itemsAdderId != null) settings.set("itemsAdder", itemsAdderId);
             settings.set("item", item.getType().name());
 
-            ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
-            int customModelData = (meta.hasCustomModelData()) ? meta.getCustomModelData() : 0;
-            settings.set("customModelData", customModelData);
+            saveData(item, settings);
             save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -172,5 +172,117 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     @Override
     public void setItemTransformation(ItemDisplay.ItemDisplayTransform transformation, Player player) {
         packets.setItemDisplayTransformation(displayId, transformation, player);
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    private void saveData(ItemStack item, ConfigurationSection settings) {
+        ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
+        int customModelData = (meta.hasCustomModelData()) ? meta.getCustomModelData() : 0;
+        settings.set("customModelData", customModelData);
+
+        if (meta instanceof PotionMeta potion && potion.getColor() != null) {
+            settings.set("color",
+                    potion.getColor().getRed() + ";" +
+                    potion.getColor().getGreen() + ";" +
+                    potion.getColor().getBlue());
+
+        } else if (meta instanceof ArmorMeta armor) {
+            if (armor.getTrim() != null) {
+                settings.set("trim", null); // Deletes the setting if present
+
+            } else {
+                settings.set("trim", armor.getTrim().getPattern().getKey() + ":" + armor.getTrim().getMaterial().getKey());
+            }
+
+            if (meta instanceof LeatherArmorMeta leatherArmor) {
+                settings.set("color",
+                        leatherArmor.getColor().getRed() + ";" +
+                        leatherArmor.getColor().getGreen() + ";" +
+                        leatherArmor.getColor().getBlue());
+            }
+
+        } else if (meta instanceof BannerMeta banner) {
+            List<String> patterns = new ArrayList<>();
+
+            for (Pattern pattern : banner.getPatterns()) {
+                patterns.add(pattern.getPattern().name() + ":" + pattern.getColor().name());
+            }
+
+            settings.set("patterns", patterns);
+
+        } else if (meta instanceof CompassMeta compass) {
+            if (compass.getLodestone() == null) {
+                settings.set("lodestone", null); // Deletes the setting if present
+
+            } else {
+                Location lodestone = compass.getLodestone();
+                settings.set("lodestone", lodestone.getX() + ";" + lodestone.getY() + ";" + lodestone.getZ());
+            }
+
+        } else if (meta instanceof BundleMeta bundle) {
+            settings.set("hasItems", bundle.hasItems());
+        }
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    private void loadData(ItemStack item, ConfigurationSection settings) {
+        ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
+
+        int customModelData = settings.getInt("customModelData");
+        if (customModelData > 0) {
+            meta.setCustomModelData(customModelData);
+        }
+
+        if (meta instanceof PotionMeta potion && settings.isString("color")) {
+            String[] saved = settings.getString("color", "255;255;255").split(";");
+            Color color = Color.fromRGB(Integer.parseInt(saved[0]), Integer.parseInt(saved[1]), Integer.parseInt(saved[2]));
+            potion.setColor(color);
+
+        } else if (meta instanceof ArmorMeta armor) {
+            if (settings.isString("trim")) {
+                String[] trim = settings.getString("trim", "sentry:netherite").toLowerCase().split(":");
+                TrimMaterial material = Registry.TRIM_MATERIAL.get(NamespacedKey.minecraft(trim[1]));
+                TrimPattern pattern = Registry.TRIM_PATTERN.get(NamespacedKey.minecraft(trim[0]));
+
+                if (material == null || pattern == null) {
+                    Logger.log(Level.WARNING, "Invalid armor trim for item display " + getName());
+                } else {
+                    armor.setTrim(new ArmorTrim(material, pattern));
+                }
+            }
+
+            if (meta instanceof LeatherArmorMeta leatherArmor && settings.isString("color")) {
+                String[] saved = settings.getString("color", "255;255;255").split(";");
+                Color color = Color.fromRGB(Integer.parseInt(saved[0]), Integer.parseInt(saved[1]), Integer.parseInt(saved[2]));
+                leatherArmor.setColor(color);
+            }
+
+        } else if (meta instanceof BannerMeta banner && settings.isList("patterns")) {
+            List<String> patterns = settings.getStringList("patterns");
+
+            for (String configPattern : patterns) {
+                String[] parts = configPattern.split(":");
+
+                PatternType pattern = PatternType.valueOf(parts[0]);
+                DyeColor color = DyeColor.valueOf(parts[1]);
+
+                banner.addPattern(new Pattern(color, pattern));
+            }
+
+        } else if (meta instanceof CompassMeta compass && settings.isString("lodestone")) {
+            String[] location = settings.getString("lodestone", "0.0;0.0;0.0").split(";");
+            Location lodestone = new Location(getLocation().getWorld(),
+                    Double.parseDouble(location[0]),
+                    Double.parseDouble(location[1]),
+                    Double.parseDouble(location[1]));
+            compass.setLodestone(lodestone);
+
+        } else if (meta instanceof BundleMeta bundle) {
+            if (settings.getBoolean("hasItems")) {
+                bundle.addItem(new ItemStack(Material.DIAMOND));
+            }
+        }
+
+        item.setItemMeta(meta);
     }
 }

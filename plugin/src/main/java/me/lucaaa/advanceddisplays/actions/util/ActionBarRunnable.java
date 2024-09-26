@@ -21,14 +21,14 @@ public class ActionBarRunnable {
     }
 
     public void sendToPlayer(Player clickedPlayer, Player actionPlayer) {
-        BaseComponent[] component = this.action.getTextComponent(this.message, clickedPlayer, actionPlayer);
+        BaseComponent[] component = action.getTextComponent(message, clickedPlayer, actionPlayer);
         new BukkitRunnable() {
             private  int timeLeft = duration;
             @Override
             public void run() {
                 actionPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, component);
                 --timeLeft;
-                if (timeLeft == 0) this.cancel();
+                if (timeLeft == 0) cancel();
             }
         }.runTaskTimer(plugin, 0L, 0L);
     }

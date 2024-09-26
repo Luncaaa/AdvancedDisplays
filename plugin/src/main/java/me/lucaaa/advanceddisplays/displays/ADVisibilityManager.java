@@ -25,13 +25,13 @@ public class ADVisibilityManager implements VisibilityManager {
 
     @Override
     public void setGlobalVisibility(Visibility visibility) {
-        this.globalVisibility = visibility;
-        //this.setGlobalVisibility(visibility, true);
+        globalVisibility = visibility;
+        //setGlobalVisibility(visibility, true);
     }
 
     /*@Override
     public void setGlobalVisibility(Visibility visibility, boolean modify) {
-        this.globalVisibility = visibility;
+        globalVisibility = visibility;
 
         if (!modify) return;
 
@@ -43,7 +43,7 @@ public class ADVisibilityManager implements VisibilityManager {
 
     @Override
     public Visibility getGlobalVisibility() {
-        return this.globalVisibility;
+        return globalVisibility;
     }
 
     @Override
@@ -55,26 +55,26 @@ public class ADVisibilityManager implements VisibilityManager {
 
     @Override
     public boolean isVisibleByPlayer(Player player) {
-        boolean defaultVis = this.globalVisibility == Visibility.SHOW;
-        boolean individualVis = this.individualVis.containsKey(player.getName()) && this.individualVis.get(player.getName()) == Visibility.SHOW;
-        boolean permissionVis = (display.getPermission().equalsIgnoreCase("none") || player.hasPermission(display.getPermission())) && (display.getHidePermission().equalsIgnoreCase("none") || !player.hasPermission(display.getHidePermission()));
+        boolean def = globalVisibility == Visibility.SHOW;
+        boolean individual = individualVis.containsKey(player.getName()) && individualVis.get(player.getName()) == Visibility.SHOW;
+        boolean perm = (display.getPermission().equalsIgnoreCase("none") || player.hasPermission(display.getPermission())) && (display.getHidePermission().equalsIgnoreCase("none") || !player.hasPermission(display.getHidePermission()));
         boolean inRange = display.getViewDistance() <= 0.0 || player.getLocation().distanceSquared(display.getLocation()) <= display.getViewDistance();
         boolean inWorld = display.getLocation().getWorld() == player.getLocation().getWorld();
 
-        return (defaultVis || individualVis) && permissionVis && inRange && inWorld;
+        return (def || individual) && perm && inRange && inWorld;
     }
 
     @Override
     public void removeIndividualVisibility(Player player) {
         //updateIndividualVis(player, globalVisibility);
-        this.individualVis.remove(player.getName());
+        individualVis.remove(player.getName());
     }
 
     @Override
     public void clearPlayerVisibilities() {
-        /*for (String playerName : this.individualVis.keySet()) {
+        /*for (String playerName : individualVis.keySet()) {
             Player player = Bukkit.getPlayerExact(playerName);
-            this.updateIndividualVis(player, globalVisibility);
+            updateIndividualVis(player, globalVisibility);
         }*/
 
         individualVis.clear();

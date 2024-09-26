@@ -22,6 +22,6 @@ public class PlayerCommandAction extends Action {
 
     @Override
     public void runAction(Player clickedPlayer, Player actionPlayer) {
-        actionPlayer.performCommand(this.command + " " + this.getTextString(this.arguments, clickedPlayer, actionPlayer));
+        actionPlayer.performCommand(command + " " + getTextString(arguments, clickedPlayer, actionPlayer));
     }
 }

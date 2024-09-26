@@ -50,37 +50,37 @@ public class EditingPlayer {
         this.editorInventory = new PlayerInv(plugin, player, disabledItems, display);
     }
 
-    public void setEditingInventory(InventoryMethods editingInventory) {
-        this.editingInventory = editingInventory;
+    public void setEditingInventory(InventoryMethods inventory) {
+        editingInventory = inventory;
     }
 
     public void setChatEditing(boolean chatEditing) {
-        this.isChatEditing = chatEditing;
+        isChatEditing = chatEditing;
     }
 
     public boolean isChatEditing() {
-        return this.isChatEditing;
+        return isChatEditing;
     }
 
     public void handleChatEdit(Player player, String input) {
-        this.editingInventory.handleChatEdit(player, input);
+        editingInventory.handleChatEdit(player, input);
     }
 
     public void handleClick(PlayerInteractEvent event) {
-        this.editorInventory.handleClick(player.getInventory().getHeldItemSlot(), event);
+        editorInventory.handleClick(player.getInventory().getHeldItemSlot(), event);
     }
 
     public void finishEditing() {
-        this.player.getInventory().setContents(savedInventory);
-        plugin.getInventoryManager().removeEditingPlayer(this.player);
+        player.getInventory().setContents(savedInventory);
+        plugin.getInventoryManager().removeEditingPlayer(player);
 
-        YamlConfiguration config = this.savesConfig.getConfig();
+        YamlConfiguration config = savesConfig.getConfig();
         if (!config.contains("saved")) config.createSection("saved");
         Objects.requireNonNull(config.getConfigurationSection("saved")).set(player.getName(), null);
-        this.savesConfig.save();
+        savesConfig.save();
     }
 
     public BaseDisplay getEditingDisplay() {
-        return this.editingDisplay;
+        return editingDisplay;
     }
 }

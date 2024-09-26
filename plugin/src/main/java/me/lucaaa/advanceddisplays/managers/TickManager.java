@@ -18,61 +18,61 @@ public class TickManager {
 
     public TickManager(AdvancedDisplays plugin) {
         this.plugin = plugin;
-        this.start();
+        start();
     }
 
     private synchronized void start() {
-        this.task = new BukkitRunnable() {
+        task = new BukkitRunnable() {
             @Override
             public void run() {
                 tick();
             }
-        }.runTaskTimerAsynchronously(this.plugin, 0L, 1L);
+        }.runTaskTimerAsynchronously(plugin, 0L, 1L);
     }
 
     public synchronized void stop() {
-        if (this.task != null) {
-            this.task.cancel();
-            this.task = null;
+        if (task != null) {
+            task.cancel();
+            task = null;
         }
-        this.ticking.clear();
-        this.toAdd.clear();
-        this.toRemove.clear();
+        ticking.clear();
+        toAdd.clear();
+        toRemove.clear();
     }
 
     public void addTicking(Ticking ticked) {
-        synchronized (this.toAdd) {
-            this.toAdd.add(ticked);
+        synchronized (toAdd) {
+            toAdd.add(ticked);
         }
     }
 
     public void removeTicking(Ticking ticked) {
-        synchronized (this.toRemove) {
-            this.toRemove.add(ticked);
+        synchronized (toRemove) {
+            toRemove.add(ticked);
         }
     }
 
     private void tick() {
-        if (this.isTicking) return;
+        if (isTicking) return;
 
-        this.isTicking = true;
+        isTicking = true;
 
-        synchronized (this.ticking) {
-            for (Ticking ticked : this.ticking) {
+        synchronized (ticking) {
+            for (Ticking ticked : ticking) {
                 ticked.tick();
             }
         }
 
-        synchronized (this.toAdd) {
-            this.ticking.addAll(this.toAdd);
-            this.toAdd.clear();
+        synchronized (toAdd) {
+            ticking.addAll(toAdd);
+            toAdd.clear();
         }
 
-        synchronized (this.toRemove) {
-            this.ticking.removeAll(this.toRemove);
-            this.toRemove.clear();
+        synchronized (toRemove) {
+            ticking.removeAll(toRemove);
+            toRemove.clear();
         }
 
-        this.isTicking = false;
+        isTicking = false;
     }
 }

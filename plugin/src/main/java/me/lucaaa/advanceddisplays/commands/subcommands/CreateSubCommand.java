@@ -29,7 +29,7 @@ public class CreateSubCommand extends SubCommandsFormat {
             try {
                 // If the material is a block, it will be added to the blocks list.
                 material.createBlockData();
-                this.blocksList.add(material.name());
+                blocksList.add(material.name());
             } catch (IllegalArgumentException | NullPointerException ignored) {}
         }
     }
@@ -46,7 +46,7 @@ public class CreateSubCommand extends SubCommandsFormat {
                 return Arrays.stream(Material.values()).map(Enum::name).toList();
 
             } else if (args[1].equalsIgnoreCase("BLOCK")) {
-                return this.blocksList;
+                return blocksList;
 
             } else if (args[1].equalsIgnoreCase("ATTACHED")) {
                 return Arrays.stream(AttachedDisplay.Side.values()).map(Enum::name).toList();

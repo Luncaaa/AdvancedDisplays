@@ -24,7 +24,7 @@ public class HelpSubCommand extends SubCommandsFormat {
         sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&c---------[ AdvancedDisplays help menu ]---------", false));
 
         sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cCommands: &7&o([] - mandatory args, <> - optional args)", false));
-        for (SubCommandsFormat value : this.subCommands.values()) {
+        for (SubCommandsFormat value : subCommands.values()) {
             if (value.neededPermission == null || sender.hasPermission(value.neededPermission) || sender.hasPermission("al.admin")) {
                 sender.sendMessage(plugin.getMessagesManager().getColoredMessage(" &7- &6" + value.usage + "&7: &e" + value.description, false));
             }

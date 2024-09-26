@@ -81,18 +81,18 @@ public class PlayerInv {
     }
 
     private void addButtons(InventoryRows row, Map<Integer, Button.PlayerButton> buttons) {
-        this.rows.put(row, buttons);
+        rows.put(row, buttons);
     }
 
     private void addGlobalButton(int slot, Button.PlayerButton button) {
-        this.buttons.put(slot, button);
+        buttons.put(slot, button);
     }
 
     public void handleClick(int slot, PlayerInteractEvent event) {
-        if (this.buttons.containsKey(slot)) {
-            this.buttons.get(slot).onClick(event);
+        if (buttons.containsKey(slot)) {
+            buttons.get(slot).onClick(event);
         } else {
-            this.rows.get(currentRow).get(slot).onClick(event);
+            rows.get(currentRow).get(slot).onClick(event);
         }
     }
 
@@ -101,7 +101,7 @@ public class PlayerInv {
         ItemStack[] itemArray = new ItemStack[36];
 
         // Hotbar buttons
-        Map<InventoryRows, Map<Integer, Button.PlayerButton>> maps = new HashMap<>(this.rows);
+        Map<InventoryRows, Map<Integer, Button.PlayerButton>> maps = new HashMap<>(rows);
         for (Map.Entry<Integer, Button.PlayerButton> entry : maps.remove(hotbarRow).entrySet()) {
             itemArray[entry.getKey()] = entry.getValue().getItem().getItemStack();
         }
@@ -334,7 +334,7 @@ public class PlayerInv {
 
         @Override
         public String getName() {
-            return this.name;
+            return name;
         }
     }
 

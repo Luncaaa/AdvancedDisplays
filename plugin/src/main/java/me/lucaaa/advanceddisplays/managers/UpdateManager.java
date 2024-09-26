@@ -18,9 +18,9 @@ public class UpdateManager {
     }
 
     public void getVersion(final Consumer<String> consumer) {
-        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                InputStream resourcePage = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + this.RESOURCE_ID + "/~").openStream();
+                InputStream resourcePage = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + RESOURCE_ID + "/~").openStream();
                 Scanner scanner = new Scanner(resourcePage);
                 if (scanner.hasNext()) {
                     consumer.accept(scanner.next());

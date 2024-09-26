@@ -20,6 +20,6 @@ public class ActionbarAction extends Action {
 
     @Override
     public void runAction(Player clickedPlayer, Player actionPlayer) {
-        this.runnable.sendToPlayer(clickedPlayer, actionPlayer);
+        runnable.sendToPlayer(clickedPlayer, actionPlayer);
     }
 }

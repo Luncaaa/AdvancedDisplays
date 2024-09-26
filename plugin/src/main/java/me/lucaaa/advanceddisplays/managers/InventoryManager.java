@@ -35,7 +35,7 @@ public class InventoryManager {
             for (String item : mainConfig.getConfig().getStringList("disabledItems")) {
                 try {
                     EditorItem disabledItem = EditorItem.valueOf(item.toUpperCase());
-                    this.disabledItems.add(disabledItem);
+                    disabledItems.add(disabledItem);
                 } catch(IllegalArgumentException exception) {
                     Logger.log(Level.WARNING, "Invalid item found in the \"disabledItems\" section in the config.yml file: " + item);
                 }
@@ -46,11 +46,11 @@ public class InventoryManager {
     public void handleOpen(Player player, InventoryMethods gui, BaseDisplay display) {
         gui.onOpen();
         player.openInventory(gui.getInventory());
-        this.openGUIs.put(player, gui);
-        if (this.editingData.containsKey(player)) {
-            this.editingData.get(player).setEditingInventory(gui);
+        openGUIs.put(player, gui);
+        if (editingData.containsKey(player)) {
+            editingData.get(player).setEditingInventory(gui);
         } else {
-            this.addEditingPlayer(player, gui.getDisabledSettings(), display);
+            addEditingPlayer(player, gui.getDisabledSettings(), display);
         }
     }
 
@@ -61,48 +61,48 @@ public class InventoryManager {
         }
 
         Player player = (Player) event.getWhoClicked();
-        if (!this.openGUIs.containsKey(player)) return;
+        if (!openGUIs.containsKey(player)) return;
 
-        this.openGUIs.get(player).onClick(event);
+        openGUIs.get(player).onClick(event);
     }
 
     public void handleClose(Player player) {
-        if (!this.openGUIs.containsKey(player)) return;
+        if (!openGUIs.containsKey(player)) return;
 
-        this.openGUIs.remove(player).onClose(player);
+        openGUIs.remove(player).onClose(player);
     }
 
     public void clearAll() {
-        for (Player player : this.openGUIs.keySet()) {
+        for (Player player : openGUIs.keySet()) {
             player.closeInventory();
         }
-        this.openGUIs.clear();
+        openGUIs.clear();
 
-        for (EditingPlayer player : this.editingData.values()) {
+        for (EditingPlayer player : editingData.values()) {
             player.finishEditing();
         }
-        this.editingData.clear();
+        editingData.clear();
     }
 
     public void addEditingPlayer(Player player, List<EditorItem> disabledItems, BaseDisplay display) {
-        if (this.editingData.containsKey(player)) this.editingData.get(player).finishEditing();
-        this.editingData.put(player, new EditingPlayer(plugin, savesConfig, player, disabledItems, display));
+        if (editingData.containsKey(player)) editingData.get(player).finishEditing();
+        editingData.put(player, new EditingPlayer(plugin, savesConfig, player, disabledItems, display));
     }
 
     public void removeEditingPlayer(Player player) {
-        this.editingData.remove(player);
+        editingData.remove(player);
     }
 
     public boolean isPlayerNotEditing(Player player) {
-        return !this.editingData.containsKey(player);
+        return !editingData.containsKey(player);
     }
 
     public EditingPlayer getEditingPlayer(Player player) {
-        return this.editingData.get(player);
+        return editingData.get(player);
     }
 
     public void handleRemoval(BaseDisplay display) {
-        for (EditingPlayer player : this.editingData.values()) {
+        for (EditingPlayer player : editingData.values()) {
             if (player.getEditingDisplay() != display) continue;
 
             player.finishEditing();
@@ -115,12 +115,12 @@ public class InventoryManager {
      * @param input The edition made
      */
     public void handleChatEdit(Player player, String input) {
-        if (!this.editingData.containsKey(player) || !this.editingData.get(player).isChatEditing()) return;
+        if (!editingData.containsKey(player) || !editingData.get(player).isChatEditing()) return;
 
-        this.editingData.get(player).handleChatEdit(player, input);
+        editingData.get(player).handleChatEdit(player, input);
     }
 
     public List<EditorItem> getDisabledItems() {
-        return this.disabledItems;
+        return disabledItems;
     }
 }

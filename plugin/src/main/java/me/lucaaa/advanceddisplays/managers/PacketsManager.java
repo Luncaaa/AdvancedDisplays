@@ -23,14 +23,14 @@ public class PacketsManager {
             if (nmsVersion == Version.UNKNOWN) {
                 Logger.log(Level.SEVERE, "Unknown NMS version! Version: " + version);
                 Logger.log(Level.SEVERE, "The plugin may not be updated to support the server's version. The plugin will be disabled...");
-                this.packets = null;
+                packets = null;
                 plugin.getServer().getPluginManager().disablePlugin(plugin);
                 return;
             }
             Class<?> nmsClass = Class.forName("me.lucaaa.advanceddisplays." + nmsVersion.name() + ".Packets");
             Object nmsClassInstance = nmsClass.getConstructor().newInstance();
             this.packets = (PacketInterface) nmsClassInstance;
-            this.addAll();
+            addAll();
 
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
@@ -38,7 +38,7 @@ public class PacketsManager {
     }
 
     public PacketInterface getPackets() {
-        return this.packets;
+        return packets;
     }
 
     public void add(Player player) {
@@ -56,7 +56,7 @@ public class PacketsManager {
 
     public void addAll() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            this.add(player);
+            add(player);
         }
     }
 
@@ -70,13 +70,13 @@ public class PacketsManager {
 
     public void removeAll() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            this.remove(player);
+            remove(player);
         }
     }
 
     private void playerPipelineOperation(Player player, Consumer<ChannelPipeline> operation) {
         try {
-            ChannelPipeline pipeline = this.packets.getPlayerPipeline(player);
+            ChannelPipeline pipeline = packets.getPlayerPipeline(player);
 
             EventLoop eventLoop = pipeline.channel().eventLoop();
             if (eventLoop.inEventLoop()) {

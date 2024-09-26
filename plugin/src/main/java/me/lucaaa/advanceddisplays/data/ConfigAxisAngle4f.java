@@ -45,14 +45,14 @@ public class ConfigAxisAngle4f {
 
     public Map<String, Object> serialize() {
         HashMap<String, Object> map = new HashMap<>();
-        map.put("angle", BigDecimal.valueOf(this.a).setScale(2, RoundingMode.HALF_UP).doubleValue());
-        map.put("x", BigDecimal.valueOf(this.x).setScale(2, RoundingMode.HALF_UP).doubleValue());
-        map.put("y", BigDecimal.valueOf(this.y).setScale(2, RoundingMode.HALF_UP).doubleValue());
-        map.put("z", BigDecimal.valueOf(this.z).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        map.put("angle", BigDecimal.valueOf(a).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        map.put("x", BigDecimal.valueOf(x).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        map.put("y", BigDecimal.valueOf(y).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        map.put("z", BigDecimal.valueOf(z).setScale(2, RoundingMode.HALF_UP).doubleValue());
         return map;
     }
 
     public AxisAngle4f toAxisAngle4f() {
-        return new AxisAngle4f((float) Math.toRadians(this.a), this.x, this.y, this.z);
+        return new AxisAngle4f((float) Math.toRadians(a), x, y, z);
     }
 }

@@ -17,7 +17,6 @@ public class MainCommand implements TabExecutor {
 
     public MainCommand(AdvancedDisplays plugin) {
         this.plugin = plugin;
-        subCommands.put("help", new HelpSubCommand(plugin, this.subCommands));
         subCommands.put("reload", new ReloadSubCommand(plugin));
         subCommands.put("create", new CreateSubCommand(plugin));
         subCommands.put("remove", new RemoveSubCommand(plugin));
@@ -30,6 +29,7 @@ public class MainCommand implements TabExecutor {
         subCommands.put("nextPage", new NextPageSubCommand(plugin));
         subCommands.put("previousPage", new PreviousPageSubCommand(plugin));
         subCommands.put("setPage", new SetPageSubCommand(plugin));
+        subCommands.put("help", new HelpSubCommand(plugin, subCommands));
     }
 
     @Override

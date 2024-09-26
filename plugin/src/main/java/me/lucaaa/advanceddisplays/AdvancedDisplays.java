@@ -22,10 +22,8 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 // TODO
-// 1. Fix movehere method between worlds.
-// 2. Add more text methods (add, remove, set order, per player...)
-// 3. Animated item and block displays?
-
+// 1. Add more text methods (add, remove, set order, per player...)
+// 2. Animated item and block displays?
 public class AdvancedDisplays extends JavaPlugin {
     // Config files.
     private ConfigManager mainConfig;
@@ -67,7 +65,7 @@ public class AdvancedDisplays extends JavaPlugin {
         packetsManager = new PacketsManager(this, Bukkit.getServer().getBukkitVersion().split("-")[0]);
         interactionsManager = new InteractionsManager(savedApiDisplays);
         displaysManager = new DisplaysManager(this, "displays", true, false);
-        messagesManager = new MessagesManager(this.mainConfig);
+        messagesManager = new MessagesManager(mainConfig);
         inventoryManager = new InventoryManager(this, mainConfig, savesConfig);
     }
 
@@ -89,11 +87,11 @@ public class AdvancedDisplays extends JavaPlugin {
         // Set up integrations.
         if (Bukkit.getPluginManager().isPluginEnabled("Oraxen")) {
             CompatibilitiesManager.addCompatibility("AdvancedDisplays", OraxenCompat.class);
-            this.integrations.put(Compatibility.ORAXEN, new OraxenCompat());
+            integrations.put(Compatibility.ORAXEN, new OraxenCompat());
         }
 
         if (Bukkit.getPluginManager().isPluginEnabled("ItemsAdder")) {
-            this.integrations.put(Compatibility.ITEMS_ADDER, new ItemsAdderCompat());
+            integrations.put(Compatibility.ITEMS_ADDER, new ItemsAdderCompat());
         }
 
         // Set up files and managers.
@@ -108,9 +106,9 @@ public class AdvancedDisplays extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new InventoryEventsListener(this), this);
 
         // Registers the main command and adds tab completions.
-        Objects.requireNonNull(this.getCommand("ad")).setExecutor(new MainCommand(this));
+        Objects.requireNonNull(getCommand("ad")).setExecutor(new MainCommand(this));
 
-        Bukkit.getConsoleSender().sendMessage(messagesManager.getColoredMessage("&aThe plugin has been successfully enabled! &7Version: " + this.getDescription().getVersion(), true));
+        Bukkit.getConsoleSender().sendMessage(messagesManager.getColoredMessage("&aThe plugin has been successfully enabled! &7Version: " + getDescription().getVersion(), true));
     }
 
     @Override
@@ -120,19 +118,19 @@ public class AdvancedDisplays extends JavaPlugin {
     }
 
     public ConfigManager getMainConfig() {
-        return this.mainConfig;
+        return mainConfig;
     }
 
     public ConfigManager getSavesConfig() {
-        return this.savesConfig;
+        return savesConfig;
     }
 
     public boolean isIntegrationLoaded(Compatibility compatibility) {
-        return this.integrations.containsKey(compatibility);
+        return integrations.containsKey(compatibility);
     }
 
     public Integration getIntegration(Compatibility compatibility) {
-        return this.integrations.get(compatibility);
+        return integrations.get(compatibility);
     }
 
     public PacketsManager getPacketsManager() {
@@ -140,26 +138,26 @@ public class AdvancedDisplays extends JavaPlugin {
     }
 
     public InteractionsManager getInteractionsManager() {
-        return this.interactionsManager;
+        return interactionsManager;
     }
 
     public DisplaysManager getDisplaysManager() {
-        return this.displaysManager;
+        return displaysManager;
     }
 
     public ADAPIProviderImplementation getApiDisplays() {
-        return this.apiDisplays;
+        return apiDisplays;
     }
     
     public MessagesManager getMessagesManager() {
-        return this.messagesManager;
+        return messagesManager;
     }
 
     public InventoryManager getInventoryManager() {
-        return this.inventoryManager;
+        return inventoryManager;
     }
 
     public TickManager getTickManager() {
-        return this.tickManager;
+        return tickManager;
     }
 }

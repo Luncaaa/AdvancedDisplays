@@ -7,19 +7,19 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ADAPIProviderImplementation extends ADAPIProvider {
-    private final AdvancedDisplays adPlugin;
+    private final AdvancedDisplays plugin;
     private final Map<Plugin, ADAPIImplementation> apiMap = new ConcurrentHashMap<>();
 
     public ADAPIProviderImplementation(AdvancedDisplays plugin) {
-        this.adPlugin = plugin;
+        this.plugin = plugin;
     }
 
     @Override
     public ADAPIImplementation getAPI(Plugin plugin) {
-        return this.apiMap.computeIfAbsent(plugin, p -> new ADAPIImplementation(this.adPlugin, plugin.getName()));
+        return apiMap.computeIfAbsent(plugin, p -> new ADAPIImplementation(this.plugin, plugin.getName()));
     }
 
     public Map<Plugin, ADAPIImplementation> getApiMap() {
-        return this.apiMap;
+        return apiMap;
     }
 }

@@ -12,10 +12,10 @@ public abstract class Ticking {
     public abstract void tick();
 
     public void startTicking() {
-        this.plugin.getTickManager().addTicking(this);
+        plugin.getTickManager().addTicking(this);
     }
 
     public void stopTicking() {
-        this.plugin.getTickManager().removeTicking(this);
+        plugin.getTickManager().removeTicking(this);
     }
 }

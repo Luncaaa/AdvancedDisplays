@@ -19,7 +19,7 @@ public class PlayerPacketManager extends ChannelDuplexHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object packet) throws Exception {
-        InternalEntityClickEvent clickEvent = plugin.getPacketsManager().getPackets().getClickEvent(this.player, packet);
+        InternalEntityClickEvent clickEvent = plugin.getPacketsManager().getPackets().getClickEvent(player, packet);
 
         if (clickEvent != null) {
             Bukkit.getPluginManager().callEvent(clickEvent);

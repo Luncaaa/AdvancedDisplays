@@ -44,14 +44,14 @@ public class AnimatedTextRunnable {
         stop();
         nextIndex = index;
 
-        this.textsList = texts;
-        this.displayedText = textsList.values().stream().toList().get(index);
+        textsList = texts;
+        displayedText = textsList.values().stream().toList().get(index);
         this.animationTime = animationTime;
         this.refreshTime = refreshTime;
 
         // Animated text runnable - displays new text from the list every x seconds.
         if (texts.size() > 1 && animationTime > 0) {
-            this.animateTask = new BukkitRunnable() {
+            animateTask = new BukkitRunnable() {
                 @Override
                 public void run() {
                     displayedText = textsList.values().stream().toList().get(nextIndex);
@@ -82,7 +82,7 @@ public class AnimatedTextRunnable {
 
         // Refresh text runnable - displays the current text again (to update placeholders) every x seconds.
         if (refreshTime > 0) {
-            this.refreshTask = new BukkitRunnable() {
+            refreshTask = new BukkitRunnable() {
                 @Override
                 public void run() {
                     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -99,21 +99,21 @@ public class AnimatedTextRunnable {
     }
 
     public void stop() {
-        if (this.animateTask != null) {
-            this.animateTask.cancel();
-            this.animateTask = null;
+        if (animateTask != null) {
+            animateTask.cancel();
+            animateTask = null;
         }
 
-        if (this.refreshTask != null) {
-            this.refreshTask.cancel();
-            this.refreshTask = null;
+        if (refreshTask != null) {
+            refreshTask.cancel();
+            refreshTask = null;
         }
 
-        this.textsList = null;
+        textsList = null;
     }
 
     public void updateDisplayId(int newDisplayId) {
-        this.displayId = newDisplayId;
+        displayId = newDisplayId;
     }
 
     public void nextPage() {
@@ -145,6 +145,6 @@ public class AnimatedTextRunnable {
         // for every online player.
         if (displayedText == null) return;
 
-        packets.setText(this.displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, displayedText))), player);
+        packets.setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, displayedText))), player);
     }
 }

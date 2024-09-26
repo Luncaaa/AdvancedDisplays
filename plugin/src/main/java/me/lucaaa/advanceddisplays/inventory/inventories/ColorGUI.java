@@ -35,7 +35,7 @@ public class ColorGUI extends InventoryMethods {
 
     @Override
     public void onClick(InventoryClickEvent event) {
-        if (event.getClickedInventory() == this.getInventory() || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+        if (event.getClickedInventory() == getInventory() || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
             event.setCancelled(true);
         }
 

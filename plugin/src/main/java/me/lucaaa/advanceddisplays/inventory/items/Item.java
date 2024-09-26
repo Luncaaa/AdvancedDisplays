@@ -87,7 +87,7 @@ public class Item {
         this.bigChange = bigChange;
         this.smallChange = smallChange;
 
-        this.colorComponent = null;
+        colorComponent = null;
     }
 
     public Item(String title, String rawLore, ColorItems.ColorComponent component) {
@@ -137,7 +137,7 @@ public class Item {
         };
         lore.add(Utils.getColoredText("&9Current value: " + ChatColor.of(new java.awt.Color(valueColor.asRGB())) + component + " (" + value + ")"));
         meta.setLore(lore);
-        item.setItemMeta(meta);
+        this.item.setItemMeta(meta);
 
         this.value = value;
         this.bigChange = 0.0;
@@ -318,10 +318,10 @@ public class Item {
     }
 
     public Object getValue() {
-        return this.value;
+        return value;
     }
 
     public ItemStack getItemStack() {
-        return this.item;
+        return item;
     }
 }

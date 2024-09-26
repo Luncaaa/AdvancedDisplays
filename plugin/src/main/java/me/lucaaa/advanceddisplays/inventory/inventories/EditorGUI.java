@@ -47,7 +47,7 @@ public class EditorGUI extends InventoryMethods {
 
         } else {
             // 13 is the display value slot
-            if (event.getClickedInventory() == this.getInventory() && (event.getSlot() != 13 || Objects.requireNonNull(event.getCursor()).getType() == Material.AIR)) {
+            if (event.getClickedInventory() == getInventory() && (event.getSlot() != 13 || Objects.requireNonNull(event.getCursor()).getType() == Material.AIR)) {
                 event.setCancelled(true);
 
             } else if (display.getType() == DisplayType.BLOCK && event.getCurrentItem() != null) {
@@ -60,7 +60,7 @@ public class EditorGUI extends InventoryMethods {
             }
         }*/
 
-        if (event.getClickedInventory() == this.getInventory()) {
+        if (event.getClickedInventory() == getInventory()) {
             super.onClick(event);
         }
     }

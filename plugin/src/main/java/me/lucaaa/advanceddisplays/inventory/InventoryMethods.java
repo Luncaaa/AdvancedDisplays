@@ -29,32 +29,32 @@ public abstract class InventoryMethods {
 
     public void onOpen() {
         if (loaded) return;
-        this.decorate();
+        decorate();
         loaded = true;
     }
 
     public void onClose(Player player) {}
 
     public void onClick(InventoryClickEvent event) {
-        if (!this.buttons.containsKey(event.getSlot())) return;
+        if (!buttons.containsKey(event.getSlot())) return;
 
-        this.buttons.get(event.getSlot()).onClick(event);
+        buttons.get(event.getSlot()).onClick(event);
     }
 
     protected void addButton(int slot, Button button) {
-        this.buttons.put(slot, button);
+        buttons.put(slot, button);
     }
 
     protected Button getButton(int slot) {
-        return this.buttons.get(slot);
+        return buttons.get(slot);
     }
 
     public Inventory getInventory() {
-        return this.inventory;
+        return inventory;
     }
 
     public void decorate() {
-        this.buttons.forEach((slot, button) -> this.inventory.setItem(slot, button.getItem().getItemStack()));
+        buttons.forEach((slot, button) -> inventory.setItem(slot, button.getItem().getItemStack()));
 
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta meta = Objects.requireNonNull(filler.getItemMeta());
@@ -62,15 +62,15 @@ public abstract class InventoryMethods {
         filler.setItemMeta(meta);
 
         for (int i = 0; i < getInventory().getSize(); i++) {
-            if (this.getInventory().getItem(i) != null) continue;
+            if (getInventory().getItem(i) != null) continue;
 
-            this.getInventory().setItem(i, filler);
+            getInventory().setItem(i, filler);
         }
     }
 
     public void handleChatEdit(Player player, String input) {}
 
     public List<EditorItem> getDisabledSettings() {
-        return this.disabledSettings;
+        return disabledSettings;
     }
 }

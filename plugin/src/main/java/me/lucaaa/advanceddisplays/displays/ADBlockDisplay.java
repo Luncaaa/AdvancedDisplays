@@ -24,29 +24,29 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
 
     public ADBlockDisplay(AdvancedDisplays plugin, ConfigManager configManager, String name, BlockDisplay display, boolean isApi) {
         super(plugin, name, DisplayType.BLOCK, configManager, display, isApi);
-        this.settings = this.config.getConfigurationSection("settings");
+        settings = config.getConfigurationSection("settings");
 
-        if (this.settings != null) {
-            if (this.settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
-                this.oraxenId = this.settings.getString("oraxen");
-                this.block = plugin.getIntegration(Compatibility.ORAXEN).getBlockData(oraxenId);
+        if (settings != null) {
+            if (settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
+                oraxenId = settings.getString("oraxen");
+                block = plugin.getIntegration(Compatibility.ORAXEN).getBlockData(oraxenId);
                 return;
             }
 
-            if (this.settings.isString("itemsAdder") && plugin.isIntegrationLoaded(Compatibility.ITEMS_ADDER)) {
-                this.itemsAdderId = this.settings.getString("itemsAdder");
-                this.block = plugin.getIntegration(Compatibility.ITEMS_ADDER).getBlockData(itemsAdderId);
+            if (settings.isString("itemsAdder") && plugin.isIntegrationLoaded(Compatibility.ITEMS_ADDER)) {
+                itemsAdderId = settings.getString("itemsAdder");
+                block = plugin.getIntegration(Compatibility.ITEMS_ADDER).getBlockData(itemsAdderId);
                 return;
             }
 
-            String blockData = "minecraft:" + Objects.requireNonNull(this.settings.getString("block")).toLowerCase() + "[";
-            ConfigurationSection dataSection = Objects.requireNonNull(this.settings.getConfigurationSection("blockData"));
+            String blockData = "minecraft:" + Objects.requireNonNull(settings.getString("block")).toLowerCase() + "[";
+            ConfigurationSection dataSection = Objects.requireNonNull(settings.getConfigurationSection("blockData"));
             ArrayList<String> dataParts = new ArrayList<>();
             for (String dataKey : dataSection.getKeys(false)) {
                 dataParts.add(dataKey + "=" + dataSection.get(dataKey));
             }
             blockData = blockData.concat(String.join(",", dataParts));
-            this.block = Bukkit.getServer().createBlockData(blockData + "]");
+            block = Bukkit.getServer().createBlockData(blockData + "]");
         }
     }
     public ADBlockDisplay(AdvancedDisplays plugin, String name, BlockDisplay display) {
@@ -55,30 +55,30 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
 
     @Override
     public void sendMetadataPackets(Player player) {
-        this.sendBaseMetadataPackets(player);
-        this.packets.setBlock(this.displayId, this.block, player);
+        sendBaseMetadataPackets(player);
+        packets.setBlock(displayId, block, player);
     }
 
     public ADBlockDisplay create(BlockData block) {
-        if (this.config != null) this.settings = this.config.createSection("settings");
-        this.setBlock(block);
+        if (config != null) settings = config.createSection("settings");
+        setBlock(block);
         return this;
     }
 
     @Override
     public BlockData getBlock() {
-        return this.block;
+        return block;
     }
     @Override
     public void setBlock(BlockData block) {
-        this.block = block;
+        block = block;
 
-        if (this.config != null) {
-            if (this.oraxenId != null) this.settings.set("oraxen", this.oraxenId);
-            if (this.itemsAdderId != null) this.settings.set("itemsAdder", this.itemsAdderId);
-            this.settings.set("block", block.getMaterial().name());
+        if (config != null) {
+            if (oraxenId != null) settings.set("oraxen", oraxenId);
+            if (itemsAdderId != null) settings.set("itemsAdder", itemsAdderId);
+            settings.set("block", block.getMaterial().name());
 
-            ConfigurationSection dataSection = this.settings.createSection("blockData");
+            ConfigurationSection dataSection = settings.createSection("blockData");
             if (block.getAsString().indexOf("[") > 0) {
                 String fullData = block.getAsString().substring(block.getAsString().indexOf("[") + 1, block.getAsString().lastIndexOf("]"));
                 for (String data : fullData.split(",")) {
@@ -86,15 +86,15 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
                     dataSection.set(dataPart[0], dataPart[1]);
                 }
             }
-            this.settings.setComments("blockData", List.of("For more information about what these values are, visit https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/data/BlockData.html"));
-            this.save();
+            settings.setComments("blockData", List.of("For more information about what these values are, visit https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/data/BlockData.html"));
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setBlock(block, onlinePlayer);
+            setBlock(block, onlinePlayer);
         }
     }
     @Override
     public void setBlock(BlockData block, Player player) {
-        this.packets.setBlock(this.displayId, block, player);
+        packets.setBlock(displayId, block, player);
     }
 }

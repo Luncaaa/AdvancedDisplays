@@ -23,6 +23,6 @@ public class ConsoleCommandAction extends Action {
 
     @Override
     public void runAction(Player clickedPlayer, Player actionPlayer) {
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), this.command + " " + this.getTextString(this.arguments, clickedPlayer, actionPlayer));
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command + " " + getTextString(arguments, clickedPlayer, actionPlayer));
     }
 }

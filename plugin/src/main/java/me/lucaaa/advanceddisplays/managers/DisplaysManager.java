@@ -47,7 +47,7 @@ public class DisplaysManager {
         if (displaysFolder.exists()) {
             for (File configFile : Objects.requireNonNull(displaysFolder.listFiles())) {
                 if (configFile.isDirectory()) continue;
-                ConfigManager configManager = new ConfigManager(this.plugin, configsFolder + File.separator + configFile.getName());
+                ConfigManager configManager = new ConfigManager(plugin, configsFolder + File.separator + configFile.getName());
 
                 YamlConfiguration config = configManager.getConfig();
                 if (config.getString("id") != null || !config.isString("hide-permission")) {
@@ -55,13 +55,13 @@ public class DisplaysManager {
                     break;
                 }
 
-                this.loadDisplay(configManager);
+                loadDisplay(configManager);
             }
         }
     }
 
     private ConfigManager createConfigManager(String name, DisplayType type, Location location) {
-        ConfigManager displayConfigManager = new ConfigManager(this.plugin, this.configsFolder + File.separator + name + ".yml");
+        ConfigManager displayConfigManager = new ConfigManager(plugin, configsFolder + File.separator + name + ".yml");
         YamlConfiguration displayConfig = displayConfigManager.getConfig();
 
         // Set properties in the display file.
@@ -165,7 +165,7 @@ public class DisplaysManager {
     }
 
     public ADTextDisplay createTextDisplay(Location location, String name, Component value, boolean saveToConfig) {
-        if (this.displays.containsKey(name)) {
+        if (displays.containsKey(name)) {
             return null;
         }
 
@@ -173,8 +173,8 @@ public class DisplaysManager {
         ADTextDisplay textDisplay;
 
         if (saveToConfig) {
-            ConfigManager configManager = this.createConfigManager(name, DisplayType.TEXT, location);
-            textDisplay = new ADTextDisplay(plugin, configManager, name, newDisplayPacket, this.isApi).create(value);
+            ConfigManager configManager = createConfigManager(name, DisplayType.TEXT, location);
+            textDisplay = new ADTextDisplay(plugin, configManager, name, newDisplayPacket, isApi).create(value);
             configManager.save();
         } else {
             textDisplay = new ADTextDisplay(plugin, name, newDisplayPacket).create(value);
@@ -185,12 +185,12 @@ public class DisplaysManager {
         }
 
         plugin.getInteractionsManager().addInteraction(textDisplay.getInteractionId(), textDisplay);
-        this.displays.put(name, textDisplay);
+        displays.put(name, textDisplay);
         return textDisplay;
     }
 
     public ADItemDisplay createItemDisplay(Location location, String name, Material value, boolean saveToConfig) {
-        if (this.displays.containsKey(name)) {
+        if (displays.containsKey(name)) {
             return null;
         }
 
@@ -198,8 +198,8 @@ public class DisplaysManager {
         ADItemDisplay itemDisplay;
 
         if (saveToConfig) {
-            ConfigManager configManager = this.createConfigManager(name, DisplayType.ITEM, location);
-            itemDisplay = new ADItemDisplay(plugin, configManager, name, newDisplayPacket, this.isApi).create(value);
+            ConfigManager configManager = createConfigManager(name, DisplayType.ITEM, location);
+            itemDisplay = new ADItemDisplay(plugin, configManager, name, newDisplayPacket, isApi).create(value);
             configManager.save();
         } else {
             itemDisplay = new ADItemDisplay(plugin, name, newDisplayPacket).create(value);
@@ -210,12 +210,12 @@ public class DisplaysManager {
         }
 
         plugin.getInteractionsManager().addInteraction(itemDisplay.getInteractionId(), itemDisplay);
-        this.displays.put(name, itemDisplay);
+        displays.put(name, itemDisplay);
         return itemDisplay;
     }
 
     public ADBlockDisplay createBlockDisplay(Location location, String name, BlockData value, boolean saveToConfig) {
-        if (this.displays.containsKey(name)) {
+        if (displays.containsKey(name)) {
             return null;
         }
 
@@ -223,8 +223,8 @@ public class DisplaysManager {
         ADBlockDisplay blockDisplay;
 
         if (saveToConfig) {
-            ConfigManager configManager = this.createConfigManager(name, DisplayType.BLOCK, location);
-            blockDisplay = new ADBlockDisplay(plugin, configManager, name, newDisplayPacket, this.isApi).create(value);
+            ConfigManager configManager = createConfigManager(name, DisplayType.BLOCK, location);
+            blockDisplay = new ADBlockDisplay(plugin, configManager, name, newDisplayPacket, isApi).create(value);
             configManager.save();
         } else {
             blockDisplay = new ADBlockDisplay(plugin, name, newDisplayPacket).create(value);
@@ -235,17 +235,17 @@ public class DisplaysManager {
         }
 
         plugin.getInteractionsManager().addInteraction(blockDisplay.getInteractionId(), blockDisplay);
-        this.displays.put(name, blockDisplay);
+        displays.put(name, blockDisplay);
         return blockDisplay;
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public boolean removeDisplay(String name) {
-        if (!this.displays.containsKey(name)) {
+        if (!displays.containsKey(name)) {
             return false;
         }
 
-        ADBaseDisplay display = this.displays.get(name);
+        ADBaseDisplay display = displays.get(name);
         if (display.getConfigManager() != null) {
             display.getConfigManager().getFile().delete();
         }
@@ -253,14 +253,14 @@ public class DisplaysManager {
         if (display instanceof ADTextDisplay) ((ADTextDisplay) display).stopRunnable();
         display.remove();
         display.stopTicking();
-        this.displays.remove(name);
+        displays.remove(name);
         plugin.getInteractionsManager().removeInteraction(display.getInteractionId());
         plugin.getInventoryManager().handleRemoval(display);
         return true;
     }
 
     public void removeAll() {
-        for (ADBaseDisplay display : this.displays.values()) {
+        for (ADBaseDisplay display : displays.values()) {
             display.remove();
             if (display instanceof ADTextDisplay) {
                 ((ADTextDisplay) display).stopRunnable();
@@ -271,11 +271,11 @@ public class DisplaysManager {
     }
 
     public ADBaseDisplay getDisplayFromMap(String name) {
-        return this.displays.get(name);
+        return displays.get(name);
     }
 
     public void spawnDisplays(Player player) {
-        for (ADBaseDisplay display : this.displays.values()) {
+        for (ADBaseDisplay display : displays.values()) {
             if (display.getLocation().getWorld() != player.getLocation().getWorld()) continue;
             if (display.getVisibilityManager().isVisibleByPlayer(player)) display.spawnToPlayer(player);
         }
@@ -295,15 +295,15 @@ public class DisplaysManager {
         switch (displayType) {
             case BLOCK -> {
                 BlockDisplay newDisplayPacket = packets.createBlockDisplay(location);
-                newDisplay = new ADBlockDisplay(plugin, configManager, name, newDisplayPacket, this.isApi);
+                newDisplay = new ADBlockDisplay(plugin, configManager, name, newDisplayPacket, isApi);
             }
             case TEXT -> {
                 TextDisplay newDisplayPacket = packets.createTextDisplay(location);
-                newDisplay = new ADTextDisplay(plugin, configManager, name, newDisplayPacket, this.isApi);
+                newDisplay = new ADTextDisplay(plugin, configManager, name, newDisplayPacket, isApi);
             }
             case ITEM -> {
                 ItemDisplay newDisplayPacket = packets.createItemDisplay(location);
-                newDisplay = new ADItemDisplay(plugin, configManager, name, newDisplayPacket, this.isApi);
+                newDisplay = new ADItemDisplay(plugin, configManager, name, newDisplayPacket, isApi);
             }
         }
 
@@ -331,7 +331,7 @@ public class DisplaysManager {
     }
 
     public Map<String, ADBaseDisplay> getDisplays() {
-        return this.displays;
+        return displays;
     }
 
     public boolean existsDisplay(String name) {

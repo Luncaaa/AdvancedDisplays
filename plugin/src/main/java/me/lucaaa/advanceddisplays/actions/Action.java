@@ -23,7 +23,7 @@ public abstract class Action {
 
         for (String requiredField : requiredFields) {
             if (section.get(requiredField) == null) {
-                missingFields.add(requiredField);
+                this.missingFields.add(requiredField);
                 this.correctFormat = false;
             }
         }
@@ -41,27 +41,27 @@ public abstract class Action {
     public abstract void runAction(Player clickedPlayer, Player actionPlayer);
 
     public int getDelay() {
-        return this.delay;
+        return delay;
     }
 
     public boolean isGlobal() {
-        return this.global;
+        return global;
     }
 
     public boolean useGlobalPlaceholders() {
-        return this.globalPlaceholders;
+        return globalPlaceholders;
     }
 
     public boolean isFormatCorrect() {
-        return this.correctFormat;
+        return correctFormat;
     }
 
     public List<String> getMissingFields() {
-        return this.missingFields;
+        return missingFields;
     }
 
     public boolean isCorrect() {
-        return this.isCorrect;
+        return isCorrect;
     }
 
     public BaseComponent[] getTextComponent(String message, Player clickedPlayer, Player actionPlayer) {

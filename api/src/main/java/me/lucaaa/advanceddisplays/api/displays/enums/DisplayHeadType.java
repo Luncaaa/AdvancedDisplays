@@ -26,6 +26,6 @@ public enum DisplayHeadType {
      * @hidden
      */
     public String getConfigName() {
-        return this.configName;
+        return configName;
     }
 }

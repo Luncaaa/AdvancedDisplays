@@ -15,7 +15,7 @@ public enum ActionType {
     }
 
     public String getConfigName() {
-        return this.configName;
+        return configName;
     }
 
     public static ActionType getFromConfigName(String configName) {

@@ -14,26 +14,26 @@ public class InteractionsManager {
 
     public void addInteraction(int interactionId, ADBaseDisplay display) {
         if (display.isApi()) {
-            this.apiDisplaysMap.put(interactionId, display);
+            apiDisplaysMap.put(interactionId, display);
         } else {
-            this.displaysMap.put(interactionId, display);
+            displaysMap.put(interactionId, display);
         }
     }
 
     public void removeInteraction(int interactionId) {
-        this.displaysMap.remove(interactionId);
-        this.apiDisplaysMap.remove(interactionId);
+        displaysMap.remove(interactionId);
+        apiDisplaysMap.remove(interactionId);
     }
 
     public ADBaseDisplay getDisplay(int interactionId) {
-        if (this.displaysMap.get(interactionId) != null) {
-            return this.displaysMap.get(interactionId);
+        if (displaysMap.get(interactionId) != null) {
+            return displaysMap.get(interactionId);
         } else {
-            return this.apiDisplaysMap.get(interactionId);
+            return apiDisplaysMap.get(interactionId);
         }
     }
 
     public HashMap<Integer, ADBaseDisplay> getApiDisplays() {
-        return this.apiDisplaysMap;
+        return apiDisplaysMap;
     }
 }

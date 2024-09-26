@@ -32,15 +32,15 @@ public class InternalEntityClickEvent extends Event {
     }
 
     public Player getPlayer() {
-        return this.player;
+        return player;
     }
 
     public ClickType getClickType() {
-        return this.clickType;
+        return clickType;
     }
 
     public int getInteractionId() {
-        return this.interactionId;
+        return interactionId;
     }
 
     public static ClickType getClickTypeFromPacket(boolean isSneaking, int clickTypeNumber) {

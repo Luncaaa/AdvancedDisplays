@@ -45,7 +45,7 @@ public class BlockDataGUI extends InventoryMethods {
 
     @Override
     public void onClick(InventoryClickEvent event) {
-        if (event.getClickedInventory() == this.getInventory() || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+        if (event.getClickedInventory() == getInventory() || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
             event.setCancelled(true);
         }
 
@@ -55,7 +55,7 @@ public class BlockDataGUI extends InventoryMethods {
     @Override
     public void decorate() {
         int slot = 0;
-        for (Map.Entry<String, String> entry : this.dataMap.entrySet()) {
+        for (Map.Entry<String, String> entry : dataMap.entrySet()) {
             addButton(slot, new Button.InventoryButton(create(entry.getKey(), entry.getValue())) {
                 @Override
                 public void onClick(InventoryClickEvent event) {

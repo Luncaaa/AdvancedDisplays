@@ -16,6 +16,6 @@ public class MessageAction extends Action {
 
     @Override
     public void runAction(Player clickedPlayer, Player actionPlayer) {
-        actionPlayer.spigot().sendMessage(this.getTextComponent(this.message, clickedPlayer, actionPlayer));
+        actionPlayer.spigot().sendMessage(getTextComponent(message, clickedPlayer, actionPlayer));
     }
 }

@@ -12,7 +12,7 @@ public abstract class Button {
     }
 
     public Item getItem() {
-        return this.item;
+        return item;
     }
 
     public abstract void onClick(InventoryClickEvent event);

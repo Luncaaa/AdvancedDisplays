@@ -24,8 +24,8 @@ public class TitleAction extends Action {
 
     @Override
     public void runAction(Player clickedPlayer, Player actionPlayer) {
-        String title = this.getTextString(this.title, clickedPlayer, actionPlayer);
-        String subtitle = this.getTextString(this.subtitle, clickedPlayer, actionPlayer);
-        actionPlayer.sendTitle(title, subtitle, this.fadeIn, this.stay, this.fadeOut);
+        String top = getTextString(title, clickedPlayer, actionPlayer);
+        String bottom = getTextString(subtitle, clickedPlayer, actionPlayer);
+        actionPlayer.sendTitle(top, bottom, fadeIn, stay, fadeOut);
     }
 }

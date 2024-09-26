@@ -29,31 +29,31 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
 
     public ADItemDisplay(AdvancedDisplays plugin, ConfigManager configManager, String name, ItemDisplay display, boolean isApi) {
         super(plugin, name, DisplayType.ITEM, configManager, display, isApi);
-        this.settings = this.config.getConfigurationSection("settings");
+        settings = config.getConfigurationSection("settings");
 
-        if (this.settings != null) {
-            if (this.settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
-                this.oraxenId = this.settings.getString("oraxen");
+        if (settings != null) {
+            if (settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
+                this.oraxenId = settings.getString("oraxen");
                 this.item = plugin.getIntegration(Compatibility.ORAXEN).getItemStack(oraxenId);
-            } else if (this.settings.isString("itemsAdder") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
-                this.itemsAdderId = this.settings.getString("itemsAdder");
+            } else if (settings.isString("itemsAdder") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
+                this.itemsAdderId = settings.getString("itemsAdder");
                 this.item = plugin.getIntegration(Compatibility.ITEMS_ADDER).getItemStack(itemsAdderId);
             } else {
-                this.item = new ItemStack(Material.valueOf(this.settings.getString("item")));
+                this.item = new ItemStack(Material.valueOf(settings.getString("item")));
 
-                int customModelData = this.settings.getInt("customModelData");
+                int customModelData = settings.getInt("customModelData");
                 if (customModelData > 0) {
-                    ItemMeta meta = Objects.requireNonNull(this.item.getItemMeta());
+                    ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
                     meta.setCustomModelData(customModelData);
-                    this.item.setItemMeta(meta);
+                    item.setItemMeta(meta);
                 }
             }
 
-            this.enchanted = this.settings.getBoolean("enchanted");
-            this.itemTransformation = ItemDisplay.ItemDisplayTransform.valueOf(this.settings.getString("itemTransformation"));
+            this.enchanted = settings.getBoolean("enchanted");
+            this.itemTransformation = ItemDisplay.ItemDisplayTransform.valueOf(settings.getString("itemTransformation"));
 
-            if (this.settings.contains("head")) {
-                ConfigurationSection headSection = this.settings.getConfigurationSection("head");
+            if (settings.contains("head")) {
+                ConfigurationSection headSection = settings.getConfigurationSection("head");
                 if (Objects.requireNonNull(headSection).contains("player"))  {
                     this.displayHeadType = DisplayHeadType.PLAYER;
                     this.displayHeadValue = headSection.getString("player");
@@ -62,8 +62,6 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
                     this.displayHeadType = DisplayHeadType.BASE64;
                     this.displayHeadValue = headSection.getString("base64");
                 }
-            } else {
-                this.displayHeadType = null;
             }
         }
     }
@@ -73,106 +71,106 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
 
     @Override
     public void sendMetadataPackets(Player player) {
-        this.sendBaseMetadataPackets(player);
-        if (this.item.getType() == Material.PLAYER_HEAD) this.packets.setHead(this.displayId, this.enchanted, this.displayHeadType, this.displayHeadValue, player);
-        else this.packets.setItem(this.displayId, this.item, this.enchanted, player);
-        this.packets.setItemDisplayTransformation(this.displayId, this.itemTransformation, player);
+        sendBaseMetadataPackets(player);
+        if (item.getType() == Material.PLAYER_HEAD) packets.setHead(displayId, enchanted, displayHeadType, displayHeadValue, player);
+        else packets.setItem(displayId, item, enchanted, player);
+        packets.setItemDisplayTransformation(displayId, itemTransformation, player);
     }
 
     public ADItemDisplay create(Material item) {
-        if (this.config != null) this.settings = this.config.createSection("settings");
-        if (item == Material.PLAYER_HEAD) this.setMaterialHead(DisplayHeadType.PLAYER, "%player%");
-        else this.setItem(new ItemStack(item));
-        this.setEnchanted(false);
-        this.setItemTransformation(ItemDisplay.ItemDisplayTransform.FIXED);
+        if (config != null) settings = config.createSection("settings");
+        if (item == Material.PLAYER_HEAD) setMaterialHead(DisplayHeadType.PLAYER, "%player%");
+        else setItem(new ItemStack(item));
+        setEnchanted(false);
+        setItemTransformation(ItemDisplay.ItemDisplayTransform.FIXED);
         return this;
     }
 
     @Override
     public ItemStack getItem() {
-        return this.item;
+        return item;
     }
     @Override
     public void setItem(ItemStack item) {
         this.item = item;
-        if (this.config != null) {
-            if (this.oraxenId != null) this.settings.set("oraxen", this.oraxenId);
-            if (this.itemsAdderId != null) this.settings.set("itemsAdder", this.itemsAdderId);
-            this.settings.set("item", this.item.getType().name());
+        if (config != null) {
+            if (oraxenId != null) settings.set("oraxen", oraxenId);
+            if (itemsAdderId != null) settings.set("itemsAdder", itemsAdderId);
+            settings.set("item", item.getType().name());
 
             ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
             int customModelData = (meta.hasCustomModelData()) ? meta.getCustomModelData() : 0;
-            this.settings.set("customModelData", customModelData);
-            this.save();
+            settings.set("customModelData", customModelData);
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setItem(item, onlinePlayer);
+            setItem(item, onlinePlayer);
         }
     }
     @Override
     public void setItem(ItemStack item, Player player) {
-        this.packets.setItem(this.displayId, item, this.enchanted, player);
+        packets.setItem(displayId, item, enchanted, player);
     }
 
     @Override
     public void setMaterialHead(DisplayHeadType displayHeadType, String value) {
-        this.item = new ItemStack(Material.PLAYER_HEAD);
+        item = new ItemStack(Material.PLAYER_HEAD);
         this.displayHeadType = displayHeadType;
-        this.displayHeadValue = value;
-        if (this.config != null) {
-            this.settings.set("item", item.getType().name());
-            ConfigurationSection headSection =  this.settings.createSection("head");
+        displayHeadValue = value;
+        if (config != null) {
+            settings.set("item", item.getType().name());
+            ConfigurationSection headSection =  settings.createSection("head");
             headSection.set(displayHeadType.getConfigName(), value);
-            this.save();
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setMaterialHead(displayHeadType, value, onlinePlayer);
+            setMaterialHead(displayHeadType, value, onlinePlayer);
         }
     }
     @Override
     public void setMaterialHead(DisplayHeadType displayHeadType, String value, Player player) {
-        this.packets.setHead(this.displayId, this.enchanted, displayHeadType, value, player);
+        packets.setHead(displayId, enchanted, displayHeadType, value, player);
     }
 
     @Override
     public boolean isEnchanted() {
-        return this.enchanted;
+        return enchanted;
     }
     @Override
     public void setEnchanted(boolean enchanted) {
         this.enchanted = enchanted;
-        if (this.config != null) {
-            this.settings.set("enchanted", enchanted);
-            this.save();
+        if (config != null) {
+            settings.set("enchanted", enchanted);
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setEnchanted(enchanted, onlinePlayer);
+            setEnchanted(enchanted, onlinePlayer);
         }
 
     }
     @Override
     public void setEnchanted(boolean enchanted, Player player) {
-        if (this.item.getType() == Material.PLAYER_HEAD) this.packets.setHead(this.displayId, enchanted, this.displayHeadType, this.displayHeadValue, player);
-        else this.packets.setItem(this.displayId, this.item, enchanted, player);
+        if (item.getType() == Material.PLAYER_HEAD) packets.setHead(displayId, enchanted, displayHeadType, displayHeadValue, player);
+        else packets.setItem(displayId, item, enchanted, player);
     }
 
     @Override
     public ItemDisplay.ItemDisplayTransform getItemTransformation() {
-        return this.itemTransformation;
+        return itemTransformation;
     }
     @Override
     public void setItemTransformation(ItemDisplay.ItemDisplayTransform transformation) {
-        this.itemTransformation = transformation;
-        if (this.config != null) {
-            this.settings.set("itemTransformation", transformation.name());
-            this.save();
+        itemTransformation = transformation;
+        if (config != null) {
+            settings.set("itemTransformation", transformation.name());
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setItemTransformation(transformation, onlinePlayer);
+            setItemTransformation(transformation, onlinePlayer);
         }
     }
     @Override
     public void setItemTransformation(ItemDisplay.ItemDisplayTransform transformation, Player player) {
-        this.packets.setItemDisplayTransformation(this.displayId, transformation, player);
+        packets.setItemDisplayTransformation(displayId, transformation, player);
     }
 }

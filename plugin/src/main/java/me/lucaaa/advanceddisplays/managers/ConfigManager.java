@@ -12,22 +12,22 @@ public class ConfigManager {
 
     public ConfigManager(Plugin plugin, String path) {
         this.file = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + path);
-        this.config = YamlConfiguration.loadConfiguration(this.file);
+        this.config = YamlConfiguration.loadConfiguration(file);
     }
 
     public void save() {
         try {
-            this.config.save(this.file);
+            config.save(file);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public File getFile() {
-        return this.file;
+        return file;
     }
 
     public YamlConfiguration getConfig() {
-        return this.config;
+        return config;
     }
 }

@@ -29,22 +29,22 @@ public class ConvertSubCommand extends SubCommandsFormat {
 
         if (!hasRunOnce) {
             sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aRun the command again to confirm the conversion. It is highly recommended to create a backup of the displays folder before running the command again.", true));
-            this.hasRunOnce = true;
+            hasRunOnce = true;
             return;
         }
 
-        this.loopFiles(new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "displays"));
+        loopFiles(new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "displays"));
 
         ConversionManager.setConversionNeeded(false);
         plugin.reloadConfigs();
         sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe displays have been successfully converted!", true));
-        this.hasRunOnce = false;
+        hasRunOnce = false;
     }
 
     private void loopFiles(File fileOrDir) {
         if (fileOrDir.isDirectory()) {
             for (File insideFileOrDir : Objects.requireNonNull(fileOrDir.listFiles())) {
-                this.loopFiles(insideFileOrDir);
+                loopFiles(insideFileOrDir);
             }
 
         } else {

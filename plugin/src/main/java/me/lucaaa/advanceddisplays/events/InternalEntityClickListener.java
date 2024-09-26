@@ -28,13 +28,13 @@ public class InternalEntityClickListener implements Listener {
         // Because the event is fired twice, the current time is stored in a map along with the player that interacted with the display.
         // When the event is called again, the current time and the one stored in the map are compared. If less than or 20ms have passed, ignore this event.
         if (clickType == ClickType.RIGHT || clickType == ClickType.SHIFT_RIGHT) {
-            if (this.pastInteractions.containsKey(player)) {
+            if (pastInteractions.containsKey(player)) {
                 long now = System.currentTimeMillis();
-                if (now - this.pastInteractions.remove(player) <= 500) {
+                if (now - pastInteractions.remove(player) <= 500) {
                     return;
                 }
             } else {
-                this.pastInteractions.put(player, System.currentTimeMillis());
+                pastInteractions.put(player, System.currentTimeMillis());
             }
         }
 

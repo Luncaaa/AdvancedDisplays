@@ -38,13 +38,13 @@ public class ConfigVector3f {
 
     public Map<String, Object> serialize() {
         HashMap<String, Object> map = new HashMap<>();
-        map.put("x", BigDecimal.valueOf(this.x).setScale(2, RoundingMode.HALF_UP).doubleValue());
-        map.put("y", BigDecimal.valueOf(this.y).setScale(2, RoundingMode.HALF_UP).doubleValue());
-        map.put("z", BigDecimal.valueOf(this.z).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        map.put("x", BigDecimal.valueOf(x).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        map.put("y", BigDecimal.valueOf(y).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        map.put("z", BigDecimal.valueOf(z).setScale(2, RoundingMode.HALF_UP).doubleValue());
         return map;
     }
 
     public Vector3f toVector3f() {
-        return new Vector3f(this.x, this.y, this.z);
+        return new Vector3f(x, y, z);
     }
 }

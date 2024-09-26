@@ -32,17 +32,17 @@ public class ActionsHandler {
         for (String clickTypeKey : actionsSection.getKeys(false)) {
             if (clickTypeKey.equalsIgnoreCase("ANY")) {
                 for (ClickType clickType : ClickType.values()) {
-                    this.addAction(clickType, actionsSection.getConfigurationSection(clickTypeKey));
+                    addAction(clickType, actionsSection.getConfigurationSection(clickTypeKey));
                 }
 
             } else if (clickTypeKey.contains(";")) {
                 String[] clickTypes = clickTypeKey.split(";");
                 for (String clickType : clickTypes) {
-                    this.addAction(ClickType.valueOf(clickType), actionsSection.getConfigurationSection(clickTypeKey));
+                    addAction(ClickType.valueOf(clickType), actionsSection.getConfigurationSection(clickTypeKey));
                 }
 
             } else {
-                this.addAction(ClickType.valueOf(clickTypeKey), actionsSection.getConfigurationSection(clickTypeKey));
+                addAction(ClickType.valueOf(clickTypeKey), actionsSection.getConfigurationSection(clickTypeKey));
             }
         }
     }
@@ -60,8 +60,8 @@ public class ActionsHandler {
     private void addAction(ClickType clickType, ConfigurationSection actionsSection) {
         if (actionsSection == null) return;
 
-        for (Map.Entry<String, Object> actionsMap : actionsSection.getValues(false).entrySet()) {
-            ConfigurationSection actionSection = (ConfigurationSection) actionsMap.getValue();
+        for (Map.Entry<String, Object> actions : actionsSection.getValues(false).entrySet()) {
+            ConfigurationSection actionSection = (ConfigurationSection) actions.getValue();
             ActionType actionType = ActionType.getFromConfigName(actionSection.getString("type"));
 
             if (actionType == null) {
@@ -88,26 +88,26 @@ public class ActionsHandler {
             // The reason why it isn't correct is handled by the action class.
             if (!action.isCorrect()) continue;
 
-            this.actionsMap.computeIfAbsent(clickType, k -> new ArrayList<>());
-            this.actionsMap.get(clickType).add(action);
+            actionsMap.computeIfAbsent(clickType, k -> new ArrayList<>());
+            actionsMap.get(clickType).add(action);
         }
     }
 
     public void runActions(Player player, ClickType clickType, ADBaseDisplay display) {
-        if (this.isApiDisplay && this.clickActions != null) {
-            this.clickActions.onClick(player, clickType, display);
+        if (isApiDisplay && clickActions != null) {
+            clickActions.onClick(player, clickType, display);
 
         } else {
-            ArrayList<Action> actionsToRun = this.actionsMap.get(clickType);
+            ArrayList<Action> actionsToRun = actionsMap.get(clickType);
             if (actionsToRun == null) return;
 
             for (Action action : actionsToRun) {
                 if (action.isGlobal()) {
                     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        this.executeAction(action, player, onlinePlayer);
+                        executeAction(action, player, onlinePlayer);
                     }
                 } else {
-                    this.executeAction(action, player, player);
+                    executeAction(action, player, player);
                 }
             }
         }

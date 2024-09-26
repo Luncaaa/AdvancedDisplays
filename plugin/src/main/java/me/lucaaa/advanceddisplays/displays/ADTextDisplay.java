@@ -34,14 +34,14 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
 
     public ADTextDisplay(AdvancedDisplays plugin, ConfigManager configManager, String name, TextDisplay display, boolean isApi) {
         super(plugin, name, DisplayType.TEXT, configManager, display, isApi);
-        this.settings = this.config.getConfigurationSection("settings");
-        this.textRunnable = new AnimatedTextRunnable(plugin, this.displayId);
+        this.settings = config.getConfigurationSection("settings");
+        this.textRunnable = new AnimatedTextRunnable(plugin, displayId);
 
-        if (this.settings != null) {
-            this.animationTime = this.settings.getInt("animationTime");
-            this.refreshTime = this.settings.getInt("refreshTime");
+        if (settings != null) {
+            this.animationTime = settings.getInt("animationTime");
+            this.refreshTime = settings.getInt("refreshTime");
 
-            ConfigurationSection textSection = this.settings.getConfigurationSection("texts");
+            ConfigurationSection textSection = settings.getConfigurationSection("texts");
             if (textSection == null || textSection.getKeys(false).isEmpty()) {
                 Logger.log(Level.SEVERE, "The text display \"" + configManager.getFile().getName() + "\" does not have a valid \"text\" section! Check the wiki for more information.");
                 texts.put("error", LegacyComponentSerializer.legacyAmpersand().deserialize("&cError! No valid \"texts\" section found. Check the wiki for more information."));
@@ -52,172 +52,172 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
                     texts.put(sectionName, ComponentSerializer.deserialize(textSection.getStringList(sectionName)));
                 }
             }
-            this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
+            textRunnable.start(texts, animationTime, refreshTime);
 
-            this.alignment = TextDisplay.TextAlignment.valueOf(this.settings.getString("alignment"));
+            this.alignment = TextDisplay.TextAlignment.valueOf(settings.getString("alignment"));
 
-            String[] colorParts = Objects.requireNonNull(this.settings.getString("backgroundColor")).split(";");
+            String[] colorParts = Objects.requireNonNull(settings.getString("backgroundColor")).split(";");
             this.backgroundColor = Color.fromARGB(Integer.parseInt(colorParts[3]), Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]));
 
-            this.lineWidth = this.settings.getInt("lineWidth");
-            this.textOpacity = (byte) this.settings.getInt("textOpacity");
-            this.defaultBackground = this.settings.getBoolean("defaultBackground");
-            this.seeThrough = this.settings.getBoolean("seeThrough");
-            this.shadowed = this.settings.getBoolean("shadowed");
+            this.lineWidth = settings.getInt("lineWidth");
+            this.textOpacity = (byte) settings.getInt("textOpacity");
+            this.defaultBackground = settings.getBoolean("defaultBackground");
+            this.seeThrough = settings.getBoolean("seeThrough");
+            this.shadowed = settings.getBoolean("shadowed");
         }
     }
 
     public ADTextDisplay(AdvancedDisplays plugin, String name, TextDisplay display) {
         super(plugin, name, DisplayType.TEXT, display);
-        this.textRunnable = new AnimatedTextRunnable(plugin, this.displayId);
+        this.textRunnable = new AnimatedTextRunnable(plugin, displayId);
     }
 
     @Override
     public void sendMetadataPackets(Player player) {
-        this.sendBaseMetadataPackets(player);
-        this.textRunnable.sendToPlayer(player, packets);
-        this.packets.setBackgroundColor(this.displayId, this.backgroundColor, player);
-        this.packets.setLineWidth(this.displayId, this.lineWidth, player);
-        this.packets.setTextOpacity(this.displayId, this.textOpacity, player);
-        this.packets.setProperties(this.displayId, this.shadowed, this.seeThrough, this.defaultBackground, this.alignment, player);
+        sendBaseMetadataPackets(player);
+        textRunnable.sendToPlayer(player, packets);
+        packets.setBackgroundColor(displayId, backgroundColor, player);
+        packets.setLineWidth(displayId, lineWidth, player);
+        packets.setTextOpacity(displayId, textOpacity, player);
+        packets.setProperties(displayId, shadowed, seeThrough, defaultBackground, alignment, player);
     }
 
     public ADTextDisplay create(Component text) {
-        if (this.config != null) this.settings = this.config.createSection("settings");
-        this.setSingleText("animation1", text);
-        this.setRefreshTime(10);
-        this.setAnimationTime(20);
-        this.setAlignment(TextDisplay.TextAlignment.CENTER);
-        this.setBackgroundColor(Color.ORANGE);
-        this.setLineWidth(250);
-        this.setTextOpacity((byte) -1);
-        this.setUseDefaultBackground(true);
-        this.setSeeThrough(true);
-        this.setShadowed(true);
+        if (config != null) settings = config.createSection("settings");
+        setSingleText("animation1", text);
+        setRefreshTime(10);
+        setAnimationTime(20);
+        setAlignment(TextDisplay.TextAlignment.CENTER);
+        setBackgroundColor(Color.ORANGE);
+        setLineWidth(250);
+        setTextOpacity((byte) -1);
+        setUseDefaultBackground(true);
+        setSeeThrough(true);
+        setShadowed(true);
         return this;
     }
 
     @Override
     public TextDisplay.TextAlignment getAlignment() {
-        return this.alignment;
+        return alignment;
     }
     @Override
     public void setAlignment(TextDisplay.TextAlignment alignment) {
-        this.alignment = alignment;
-        if (this.config != null) {
-            this.settings.set("alignment", alignment.name());
-            this.save();
+        alignment = alignment;
+        if (config != null) {
+            settings.set("alignment", alignment.name());
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setAlignment(alignment, onlinePlayer);
+            setAlignment(alignment, onlinePlayer);
         }
     }
     @Override
     public void setAlignment(TextDisplay.TextAlignment alignment, Player player) {
-        this.packets.setProperties(this.displayId, this.shadowed, this.seeThrough, this.defaultBackground, alignment, player);
+        packets.setProperties(displayId, shadowed, seeThrough, defaultBackground, alignment, player);
     }
 
     @Override
     public Color getBackgroundColor() {
-        return this.backgroundColor;
+        return backgroundColor;
     }
     @Override
     public void setBackgroundColor(Color color) {
-        this.backgroundColor = color;
-        if (this.config != null) {
-            this.settings.set("backgroundColor", color.getRed() + ";" + color.getGreen() + ";" + color.getBlue() + ";" + color.getAlpha());
-            this.save();
+        backgroundColor = color;
+        if (config != null) {
+            settings.set("backgroundColor", color.getRed() + ";" + color.getGreen() + ";" + color.getBlue() + ";" + color.getAlpha());
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setBackgroundColor(color, onlinePlayer);
+            setBackgroundColor(color, onlinePlayer);
         }
     }
     @Override
     public void setBackgroundColor(Color color, Player player) {
-        this.packets.setBackgroundColor(this.displayId, color, player);
+        packets.setBackgroundColor(displayId, color, player);
     }
 
     @Override
     public int getLineWidth() {
-        return this.lineWidth;
+        return lineWidth;
     }
     @Override
     public void setLineWidth(int width) {
-        this.lineWidth = width;
-        if (this.config != null) {
-            this.settings.set("lineWidth", width);
-            this.save();
+        lineWidth = width;
+        if (config != null) {
+            settings.set("lineWidth", width);
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setLineWidth(width, onlinePlayer);
+            setLineWidth(width, onlinePlayer);
         }
     }
     @Override
     public void setLineWidth(int width, Player player) {
-        this.packets.setLineWidth(this.displayId, width, player);
+        packets.setLineWidth(displayId, width, player);
     }
 
     @Override
     public Map<String, Component> getText() {
-        return this.texts;
+        return texts;
     }
     @Override
     public void setAnimatedText(Map<String, Component> text) {
-        this.texts.clear();
-        this.texts = text;
-        if (this.config != null) {
-            ConfigurationSection textSection = this.settings.createSection("texts");
+        texts.clear();
+        texts = text;
+        if (config != null) {
+            ConfigurationSection textSection = settings.createSection("texts");
             for (Map.Entry<String, Component> entry : text.entrySet()) {
                 textSection.set(entry.getKey(), MiniMessage.miniMessage().serialize(entry.getValue()).split(Pattern.quote("\n")));
             }
-            this.settings.set("texts", textSection);
-            this.save();
+            settings.set("texts", textSection);
+            save();
         }
-        this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
+        textRunnable.start(texts, animationTime, refreshTime);
     }
     @Override
     public void setSingleText(String identifier, Component text) {
-        this.texts.clear();
-        this.texts.put(identifier, text);
-        if (this.config != null) {
-            ConfigurationSection textSection = this.settings.createSection("texts");
+        texts.clear();
+        texts.put(identifier, text);
+        if (config != null) {
+            ConfigurationSection textSection = settings.createSection("texts");
             textSection.set(identifier, MiniMessage.miniMessage().serialize(text).split(Pattern.quote("\n")));
-            this.save();
+            save();
         }
-        this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
+        textRunnable.start(texts, animationTime, refreshTime);
     }
 
     @Override
     public boolean addText(String identifier, Component text) {
-        if (this.texts.containsKey(identifier)) return false;
-        this.texts.put(identifier, text);
-        if (this.config != null) {
-            ConfigurationSection textSection = this.settings.createSection("texts");
+        if (texts.containsKey(identifier)) return false;
+        texts.put(identifier, text);
+        if (config != null) {
+            ConfigurationSection textSection = settings.createSection("texts");
             for (Map.Entry<String, Component> entry : texts.entrySet()) {
                 textSection.set(entry.getKey(), MiniMessage.miniMessage().serialize(entry.getValue()).split(Pattern.quote("\n")));
             }
-            this.settings.set("texts", textSection);
-            this.save();
+            settings.set("texts", textSection);
+            save();
         }
-        this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
+        textRunnable.start(texts, animationTime, refreshTime);
         return true;
     }
     @Override
     public boolean removeText(String identifier) {
-        if (!this.texts.containsKey(identifier)) return false;
-        this.texts.remove(identifier);
-        if (this.texts.isEmpty()) {
-            this.addText("empty", LegacyComponentSerializer.legacyAmpersand().deserialize("&cThere are no texts to display"));
+        if (!texts.containsKey(identifier)) return false;
+        texts.remove(identifier);
+        if (texts.isEmpty()) {
+            addText("empty", LegacyComponentSerializer.legacyAmpersand().deserialize("&cThere are no texts to display"));
         }
-        if (this.config != null) {
-            ConfigurationSection textSection = this.settings.createSection("texts");
+        if (config != null) {
+            ConfigurationSection textSection = settings.createSection("texts");
             for (Map.Entry<String, Component> entry : texts.entrySet()) {
                 textSection.set(entry.getKey(), MiniMessage.miniMessage().serialize(entry.getValue()).split(Pattern.quote("\n")));
             }
-            this.settings.set("texts", textSection);
-            this.save();
+            settings.set("texts", textSection);
+            save();
         }
-        this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
+        textRunnable.start(texts, animationTime, refreshTime);
         return true;
     }
 
@@ -242,118 +242,118 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
 
     @Override
     public byte getTextOpacity() {
-        return this.textOpacity;
+        return textOpacity;
     }
     @Override
     public void setTextOpacity(byte opacity) {
-        this.textOpacity = opacity;
-        if (this.config != null) {
-            this.settings.set("textOpacity", opacity);
-            this.save();
+        textOpacity = opacity;
+        if (config != null) {
+            settings.set("textOpacity", opacity);
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setTextOpacity(opacity, onlinePlayer);
+            setTextOpacity(opacity, onlinePlayer);
         }
     }
     @Override
     public void setTextOpacity(byte opacity, Player player) {
-        this.packets.setTextOpacity(this.displayId, opacity, player);
+        packets.setTextOpacity(displayId, opacity, player);
     }
 
     @Override
     public boolean getUseDefaultBackground() {
-        return this.defaultBackground;
+        return defaultBackground;
     }
     @Override
     public void setUseDefaultBackground(boolean defaultBackground) {
-        this.defaultBackground = defaultBackground;
-        if (this.config != null) {
-            this.settings.set("defaultBackground", defaultBackground);
-            this.save();
+        defaultBackground = defaultBackground;
+        if (config != null) {
+            settings.set("defaultBackground", defaultBackground);
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setUseDefaultBackground(defaultBackground, onlinePlayer);
+            setUseDefaultBackground(defaultBackground, onlinePlayer);
         }
     }
     @Override
     public void setUseDefaultBackground(boolean defaultBackground, Player player) {
-        this.packets.setProperties(this.displayId, this.shadowed, this.seeThrough, defaultBackground, this.alignment, player);
+        packets.setProperties(displayId, shadowed, seeThrough, defaultBackground, alignment, player);
     }
 
     @Override
     public boolean isSeeThrough() {
-        return this.seeThrough;
+        return seeThrough;
     }
     @Override
     public void setSeeThrough(boolean seeThrough) {
-        this.seeThrough = seeThrough;
-        if (this.config != null) {
-            this.settings.set("seeThrough", seeThrough);
-            this.save();
+        seeThrough = seeThrough;
+        if (config != null) {
+            settings.set("seeThrough", seeThrough);
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setSeeThrough(seeThrough, onlinePlayer);
+            setSeeThrough(seeThrough, onlinePlayer);
         }
     }
     @Override
     public void setSeeThrough(boolean seeThrough, Player player) {
-        this.packets.setProperties(this.displayId, this.shadowed, seeThrough, this.defaultBackground, this.alignment, player);
+        packets.setProperties(displayId, shadowed, seeThrough, defaultBackground, alignment, player);
     }
 
     @Override
     public boolean isShadowed() {
-        return this.shadowed;
+        return shadowed;
     }
     @Override
     public void setShadowed(boolean shadowed) {
-        this.shadowed = shadowed;
-        if (this.config != null) {
-            this.settings.set("shadowed", shadowed);
-            this.save();
+        shadowed = shadowed;
+        if (config != null) {
+            settings.set("shadowed", shadowed);
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setShadowed(shadowed, onlinePlayer);
+            setShadowed(shadowed, onlinePlayer);
         }
     }
     @Override
     public void setShadowed(boolean shadowed, Player player) {
-        this.packets.setProperties(this.displayId, shadowed, this.seeThrough, this.defaultBackground, this.alignment, player);
+        packets.setProperties(displayId, shadowed, seeThrough, defaultBackground, alignment, player);
     }
 
     @Override
     public int getAnimationTime() {
-        return this.animationTime;
+        return animationTime;
     }
     @Override
     public void setAnimationTime(int animationTime) {
-        this.animationTime = animationTime;
-        if (this.config != null) {
-            this.settings.set("animationTime", animationTime);
-            this.save();
+        animationTime = animationTime;
+        if (config != null) {
+            settings.set("animationTime", animationTime);
+            save();
         }
-        this.textRunnable.start(this.texts, animationTime, this.refreshTime);
+        textRunnable.start(texts, animationTime, refreshTime);
     }
 
     @Override
     public int getRefreshTime() {
-        return this.refreshTime;
+        return refreshTime;
     }
     @Override
     public void setRefreshTime(int refreshTime) {
-        this.refreshTime = refreshTime;
-        if (this.config != null) {
-            this.settings.set("refreshTime", refreshTime);
-            this.save();
+        refreshTime = refreshTime;
+        if (config != null) {
+            settings.set("refreshTime", refreshTime);
+            save();
         }
-        this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
+        textRunnable.start(texts, animationTime, refreshTime);
     }
 
     public void stopRunnable() {
-        this.textRunnable.stop();
+        textRunnable.stop();
     }
     public void restartRunnable() {
-        this.textRunnable.stop();
-        this.textRunnable.updateDisplayId(this.displayId);
-        this.textRunnable.start(this.texts, this.animationTime, this.refreshTime);
+        textRunnable.stop();
+        textRunnable.updateDisplayId(displayId);
+        textRunnable.start(texts, animationTime, refreshTime);
     }
 }

@@ -72,28 +72,28 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.configManager = configManager;
         this.config = configManager.getConfig();
         this.type = type;
-        this.permission = this.config.getString("permission", "none");
-        this.hidePermission = this.config.getString("hide-permission", "none");
-        this.viewDistance = this.config.getDouble("view-distance");
+        this.permission = config.getString("permission", "none");
+        this.hidePermission = config.getString("hide-permission", "none");
+        this.viewDistance = config.getDouble("view-distance");
         this.actionsHandler = new ActionsHandler(plugin, configManager.getConfig());
 
-        ConfigurationSection locationSection = Objects.requireNonNull(this.config.getConfigurationSection("location"));
+        ConfigurationSection locationSection = Objects.requireNonNull(config.getConfigurationSection("location"));
         String world = locationSection.getString("world", Bukkit.getWorlds().get(0).getName());
         double x = locationSection.getDouble("x");
         double y = locationSection.getDouble("y");
         double z = locationSection.getDouble("z");
         this.location = new Location(Bukkit.getWorld(world), x, y, z);
 
-        this.billboard = Display.Billboard.valueOf(this.config.getString("rotationType"));
+        this.billboard = Display.Billboard.valueOf(config.getString("rotationType"));
 
-        ConfigurationSection brightnessSection = Objects.requireNonNull(this.config.getConfigurationSection("brightness"));
+        ConfigurationSection brightnessSection = Objects.requireNonNull(config.getConfigurationSection("brightness"));
         this.brightness = new Display.Brightness(brightnessSection.getInt("block"), brightnessSection.getInt("sky"));
 
-        ConfigurationSection shadowSection = Objects.requireNonNull(this.config.getConfigurationSection("shadow"));
+        ConfigurationSection shadowSection = Objects.requireNonNull(config.getConfigurationSection("shadow"));
         this.shadowRadius = (float) shadowSection.getDouble("radius");
         this.shadowStrength = (float) shadowSection.getDouble("strength");
 
-        ConfigurationSection transformationSection = Objects.requireNonNull(this.config.getConfigurationSection("transformation"));
+        ConfigurationSection transformationSection = Objects.requireNonNull(config.getConfigurationSection("transformation"));
         this.transformation = new Transformation(
                 new ConfigVector3f(Objects.requireNonNull(transformationSection.getConfigurationSection("translation")).getValues(false)).toVector3f(),
                 new ConfigAxisAngle4f(Objects.requireNonNull(transformationSection.getConfigurationSection("leftRotation")).getValues(false)).toAxisAngle4f(),
@@ -101,23 +101,23 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
                 new ConfigAxisAngle4f(Objects.requireNonNull(transformationSection.getConfigurationSection("rightRotation")).getValues(false)).toAxisAngle4f()
         );
 
-        ConfigurationSection rotationSection = Objects.requireNonNull(this.config.getConfigurationSection("rotation"));
+        ConfigurationSection rotationSection = Objects.requireNonNull(config.getConfigurationSection("rotation"));
         this.yaw = (float) rotationSection.getDouble("yaw");
         this.pitch = (float) rotationSection.getDouble("pitch");
 
-        ConfigurationSection glowSection = Objects.requireNonNull(this.config.getConfigurationSection("glow"));
+        ConfigurationSection glowSection = Objects.requireNonNull(config.getConfigurationSection("glow"));
         this.isGlowing = glowSection.getBoolean("glowing");
         String[] colorParts = Objects.requireNonNull(glowSection.getString("color")).split(";");
         this.glowColor = Color.fromRGB(Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]));
 
-        Location location1 = this.location.clone();
-        if (this.type == DisplayType.BLOCK) {
-            double x1 = this.transformation.getScale().x / 2;
-            double z1 = this.transformation.getScale().z / 2;
+        Location location1 = location.clone();
+        if (type == DisplayType.BLOCK) {
+            double x1 = transformation.getScale().x / 2;
+            double z1 = transformation.getScale().z / 2;
             location1.add(x1, 0.0, z1);
         }
-        this.hitbox = this.packets.createInteractionEntity(location1);
-        ConfigurationSection hitboxSection = Objects.requireNonNull(this.config.getConfigurationSection("hitbox"));
+        this.hitbox = packets.createInteractionEntity(location1);
+        ConfigurationSection hitboxSection = Objects.requireNonNull(config.getConfigurationSection("hitbox"));
         this.overrideHitboxSize = hitboxSection.getBoolean("override");
         this.hitboxWidth = (float) hitboxSection.getDouble("width");
         this.hitboxHeight = (float) hitboxSection.getDouble("height");
@@ -155,49 +155,49 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
         Location location1 = this.location;
         if (this.type == DisplayType.BLOCK) {
-            double x1 = this.transformation.getScale().x / 2;
-            double z1 = this.transformation.getScale().z / 2;
+            double x1 = transformation.getScale().x / 2;
+            double z1 = transformation.getScale().z / 2;
             location1.add(x1, 0.0, z1);
         }
-        this.hitbox = this.packets.createInteractionEntity(location1);
+        this.hitbox = packets.createInteractionEntity(location1);
         this.overrideHitboxSize = false;
-        this.hitboxWidth = this.transformation.getScale().x;
-        this.hitboxHeight = this.transformation.getScale().z;
+        this.hitboxWidth = transformation.getScale().x;
+        this.hitboxHeight = transformation.getScale().z;
     }
 
     public void sendBaseMetadataPackets(Player player) {
-        this.packets.setLocation(this.display, player);
-        this.packets.setRotation(this.displayId, this.yaw, this.pitch, player);
-        this.packets.setTransformation(this.displayId, this.transformation, player);
-        if (!this.overrideHitboxSize) {
-            this.packets.setInteractionSize(this.hitbox.getEntityId(), this.transformation.getScale().x, this.transformation.getScale().y, player);
+        packets.setLocation(display, player);
+        packets.setRotation(displayId, yaw, pitch, player);
+        packets.setTransformation(displayId, transformation, player);
+        if (!overrideHitboxSize) {
+            packets.setInteractionSize(hitbox.getEntityId(), transformation.getScale().x, transformation.getScale().y, player);
         } else {
-            this.packets.setInteractionSize(this.hitbox.getEntityId(), this.hitboxWidth, this.hitboxHeight, player);
+            packets.setInteractionSize(hitbox.getEntityId(), hitboxWidth, hitboxHeight, player);
         }
-        this.packets.setBillboard(this.displayId, this.billboard, player);
-        this.packets.setBrightness(this.displayId, this.brightness, player);
-        this.packets.setShadow(this.displayId, this.shadowRadius, this.shadowStrength, player);
-        this.packets.setGlowing(this.displayId, this.isGlowing, this.glowColor, player);
+        packets.setBillboard(displayId, billboard, player);
+        packets.setBrightness(displayId, brightness, player);
+        packets.setShadow(displayId, shadowRadius, shadowStrength, player);
+        packets.setGlowing(displayId, isGlowing, glowColor, player);
     }
 
     @Override
     public String getName() {
-        return this.name;
+        return name;
     }
 
     @Override
     public DisplayType getType() {
-        return this.type;
+        return type;
     }
 
     @Override
     public VisibilityManager getVisibilityManager() {
-        return this.visibilityManager;
+        return visibilityManager;
     }
 
     @Override
     public void openEditor(Player player) {
-        this.openEditor(player, List.of());
+        openEditor(player, List.of());
     }
 
     @Override
@@ -216,55 +216,55 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
     @Override
     public Location getLocation() {
-        return this.location;
+        return location;
     }
     @Override
     public void setLocation(Location location) {
-        if (this.config != null) {
-            ConfigurationSection locationSection = Objects.requireNonNull(this.config.getConfigurationSection("location"));
+        if (config != null) {
+            ConfigurationSection locationSection = Objects.requireNonNull(config.getConfigurationSection("location"));
             locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());
             locationSection.set("x", location.getX());
             locationSection.set("y", location.getY());
             locationSection.set("z", location.getZ());
-            this.save();
+            save();
         }
 
-        location.setYaw(this.yaw);
-        location.setPitch(this.pitch);
+        location.setYaw(yaw);
+        location.setPitch(pitch);
 
-        if (this.location.getWorld() == location.getWorld()) {
-            this.display.teleport(location);
+        if (location.getWorld() == location.getWorld()) {
+            display.teleport(location);
             Location location1 = location.clone();
-            if (this.type == DisplayType.BLOCK) {
-                double x1 = this.transformation.getScale().x / 2;
-                double z1 = this.transformation.getScale().z / 2;
+            if (type == DisplayType.BLOCK) {
+                double x1 = transformation.getScale().x / 2;
+                double z1 = transformation.getScale().z / 2;
                 location1.add(x1, 0.0, z1);
             }
-            this.hitbox.teleport(location1);
+            hitbox.teleport(location1);
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                this.packets.setLocation(this.display, onlinePlayer);
-                this.packets.setLocation(this.hitbox, onlinePlayer);
+                packets.setLocation(display, onlinePlayer);
+                packets.setLocation(hitbox, onlinePlayer);
             }
         } else {
             // Because entities cannot be teleported across worlds, the old one is removed and a new one is created
             // in the new location (another world)
-            this.packets.removeEntity(this.displayId);
-            this.packets.removeEntity(this.hitbox.getEntityId());
+            packets.removeEntity(displayId);
+            packets.removeEntity(hitbox.getEntityId());
 
-            plugin.getInteractionsManager().removeInteraction(this.getInteractionId());
+            plugin.getInteractionsManager().removeInteraction(getInteractionId());
 
-            this.display = switch (this.type) {
-                case BLOCK -> this.packets.createBlockDisplay(location);
-                case TEXT -> this.packets.createTextDisplay(location);
-                case ITEM -> this.packets.createItemDisplay(location);
+            display = switch (type) {
+                case BLOCK -> packets.createBlockDisplay(location);
+                case TEXT -> packets.createTextDisplay(location);
+                case ITEM -> packets.createItemDisplay(location);
             };
-            this.displayId = this.display.getEntityId();
-            if (this.type == DisplayType.BLOCK) {
-                double x1 = this.transformation.getScale().x / 2;
-                double z1 = this.transformation.getScale().z / 2;
+            displayId = display.getEntityId();
+            if (type == DisplayType.BLOCK) {
+                double x1 = transformation.getScale().x / 2;
+                double z1 = transformation.getScale().z / 2;
                 location.add(x1, 0.0, z1);
             }
-            this.hitbox = this.packets.createInteractionEntity(location);
+            hitbox = packets.createInteractionEntity(location);
 
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 if (this instanceof ADTextDisplay textDisplay) {
@@ -273,338 +273,338 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
                 ((DisplayMethods) this).sendMetadataPackets(onlinePlayer);
             }
 
-            plugin.getInteractionsManager().addInteraction(this.getInteractionId(), this);
+            plugin.getInteractionsManager().addInteraction(getInteractionId(), this);
         }
-        this.location = location;
+        location = location;
     }
 
     @Override
     public Location center() {
-        Location centered = this.location.clone();
+        Location centered = location.clone();
 
         centered.setX(location.getBlockX());
         centered.setY(location.getBlockY());
         centered.setZ(location.getBlockZ());
 
-        if (this.type != DisplayType.BLOCK) {
+        if (type != DisplayType.BLOCK) {
             centered.add(0.5, 0.0, 0.5);
         }
 
-        this.setLocation(centered);
+        setLocation(centered);
         return centered;
     }
 
     @Override
     public Display.Billboard getBillboard() {
-        return this.billboard;
+        return billboard;
     }
     @Override
     public void setBillboard(Display.Billboard billboard) {
-        this.billboard = billboard;
-        if (this.config != null) {
-            this.config.set("rotationType", billboard.name());
-            this.save();
+        billboard = billboard;
+        if (config != null) {
+            config.set("rotationType", billboard.name());
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setBillboard(billboard, onlinePlayer);
+            setBillboard(billboard, onlinePlayer);
         }
     }
     @Override
     public void setBillboard(Display.Billboard billboard, Player player) {
-        this.packets.setBillboard(this.displayId, billboard, player);
+        packets.setBillboard(displayId, billboard, player);
     }
 
     @Override
     public Display.Brightness getBrightness() {
-        return this.brightness;
+        return brightness;
     }
     @Override
     public void setBrightness(Display.Brightness brightness) {
-        this.brightness = brightness;
-        if (this.config != null) {
-            ConfigurationSection brightnessSection = Objects.requireNonNull(this.config.getConfigurationSection("brightness"));
+        brightness = brightness;
+        if (config != null) {
+            ConfigurationSection brightnessSection = Objects.requireNonNull(config.getConfigurationSection("brightness"));
             brightnessSection.set("block", brightness.getBlockLight());
             brightnessSection.set("sky", brightness.getSkyLight());
-            this.save();
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setBrightness(brightness, onlinePlayer);
+            setBrightness(brightness, onlinePlayer);
         }
     }
     @Override
     public void setBrightness(Display.Brightness brightness, Player player) {
-        this.packets.setBrightness(this.displayId, brightness, player);
+        packets.setBrightness(displayId, brightness, player);
     }
 
     @Override
     public float getShadowRadius() {
-        return this.shadowRadius;
+        return shadowRadius;
     }
     @Override
     public float getShadowStrength() {
-        return this.shadowStrength;
+        return shadowStrength;
     }
     @Override
     public void setShadow(float shadowRadius, float shadowStrength) {
-        this.shadowRadius = shadowRadius;
-        this.shadowStrength = shadowStrength;
-        if (this.config != null) {
-            ConfigurationSection shadowSection = Objects.requireNonNull(this.config.getConfigurationSection("shadow"));
+        shadowRadius = shadowRadius;
+        shadowStrength = shadowStrength;
+        if (config != null) {
+            ConfigurationSection shadowSection = Objects.requireNonNull(config.getConfigurationSection("shadow"));
             shadowSection.set("radius", shadowRadius);
             shadowSection.set("strength", shadowStrength);
-            this.save();
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setShadow(shadowRadius, shadowStrength, onlinePlayer);
+            setShadow(shadowRadius, shadowStrength, onlinePlayer);
         }
     }
     @Override
     public void setShadow(float shadowRadius, float shadowStrength, Player player) {
-        this.packets.setShadow(this.displayId, shadowRadius, shadowStrength, player);
+        packets.setShadow(displayId, shadowRadius, shadowStrength, player);
     }
 
     @Override
     public Transformation getTransformation() {
-        return this.transformation;
+        return transformation;
     }
     @Override
     public void setTransformation(Transformation transformation) {
-        this.transformation = transformation;
-        if (!this.overrideHitboxSize) {
-            this.hitbox.setInteractionWidth(transformation.getScale().x);
-            this.hitbox.setInteractionHeight(transformation.getScale().y);
+        transformation = transformation;
+        if (!overrideHitboxSize) {
+            hitbox.setInteractionWidth(transformation.getScale().x);
+            hitbox.setInteractionHeight(transformation.getScale().y);
         }
 
-        if (this.config != null) {
-            ConfigurationSection transformationSection = Objects.requireNonNull(this.config.getConfigurationSection("transformation"));
+        if (config != null) {
+            ConfigurationSection transformationSection = Objects.requireNonNull(config.getConfigurationSection("transformation"));
             transformationSection.createSection("translation", new ConfigVector3f(transformation.getTranslation()).serialize());
             transformationSection.createSection("leftRotation", new ConfigAxisAngle4f(transformation.getLeftRotation()).serialize());
             transformationSection.createSection("scale", new ConfigVector3f(transformation.getScale()).serialize());
             transformationSection.createSection("rightRotation", new ConfigAxisAngle4f(transformation.getRightRotation()).serialize());
-            this.save();
+            save();
         }
 
         // Centers the block in the hitbox when size changes
-        Location location1 = this.location.clone();
-        if (this.type == DisplayType.BLOCK) {
-            double x1 = this.transformation.getScale().x / 2;
-            double z1 = this.transformation.getScale().z / 2;
+        Location location1 = location.clone();
+        if (type == DisplayType.BLOCK) {
+            double x1 = transformation.getScale().x / 2;
+            double z1 = transformation.getScale().z / 2;
             location1.add(x1, 0.0, z1);
         }
-        this.hitbox.teleport(location1);
+        hitbox.teleport(location1);
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setTransformation(transformation, onlinePlayer);
-            this.packets.setLocation(this.hitbox, onlinePlayer);
+            setTransformation(transformation, onlinePlayer);
+            packets.setLocation(hitbox, onlinePlayer);
         }
 
     }
     @Override
     public void setTransformation(Transformation transformation, Player player) {
-        this.packets.setTransformation(this.displayId, transformation, player);
-        if (!this.overrideHitboxSize) {
-            this.packets.setInteractionSize(this.hitbox.getEntityId(), transformation.getScale().x, transformation.getScale().y, player);
+        packets.setTransformation(displayId, transformation, player);
+        if (!overrideHitboxSize) {
+            packets.setInteractionSize(hitbox.getEntityId(), transformation.getScale().x, transformation.getScale().y, player);
         }
     }
 
     @Override
     public float getYaw() {
-        return this.yaw;
+        return yaw;
     }
     @Override
     public float getPitch() {
-        return this.pitch;
+        return pitch;
     }
     @Override
     public void setRotation(float yaw, float pitch) {
-        this.location.setYaw(yaw);
-        this.yaw = yaw;
-        this.location.setPitch(pitch);
-        this.pitch = pitch;
-        if (this.config != null) {
-            ConfigurationSection rotationSection = Objects.requireNonNull(this.config.getConfigurationSection("rotation"));
+        location.setYaw(yaw);
+        yaw = yaw;
+        location.setPitch(pitch);
+        pitch = pitch;
+        if (config != null) {
+            ConfigurationSection rotationSection = Objects.requireNonNull(config.getConfigurationSection("rotation"));
             rotationSection.set("yaw", yaw);
             rotationSection.set("pitch", pitch);
-            this.save();
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setRotation(yaw, pitch, onlinePlayer);
+            setRotation(yaw, pitch, onlinePlayer);
         }
 
     }
     @Override
     public void setRotation(float yaw, float pitch, Player player) {
-        this.packets.setRotation(this.displayId, yaw, pitch, player);
+        packets.setRotation(displayId, yaw, pitch, player);
     }
 
     @Override
     public boolean isGlowing() {
-        return this.isGlowing;
+        return isGlowing;
     }
 
     @Override
     public void setGlowing(boolean isGlowing) {
-        this.isGlowing = isGlowing;
-        if (this.config != null) {
-            ConfigurationSection glowSection = Objects.requireNonNull(this.config.getConfigurationSection("glow"));
+        isGlowing = isGlowing;
+        if (config != null) {
+            ConfigurationSection glowSection = Objects.requireNonNull(config.getConfigurationSection("glow"));
             glowSection.set("glowing", isGlowing);
-            this.save();
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setGlowing(isGlowing, onlinePlayer);
+            setGlowing(isGlowing, onlinePlayer);
         }
     }
 
     @Override
     public void setGlowing(boolean isGlowing, Player player) {
-        this.packets.setGlowing(this.displayId, isGlowing, this.glowColor, player);
+        packets.setGlowing(displayId, isGlowing, glowColor, player);
     }
 
     @Override
     public Color getGlowColor() {
-        return this.glowColor;
+        return glowColor;
     }
 
     @Override
     public void setGlowColor(Color color) {
-        this.glowColor = color;
-        if (this.config != null) {
-            ConfigurationSection glowSection = Objects.requireNonNull(this.config.getConfigurationSection("glow"));
+        glowColor = color;
+        if (config != null) {
+            ConfigurationSection glowSection = Objects.requireNonNull(config.getConfigurationSection("glow"));
             glowSection.set("color", color.getRed() + ";" + color.getGreen() + ";" + color.getBlue());
-            this.save();
+            save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.setGlowColor(color, onlinePlayer);
+            setGlowColor(color, onlinePlayer);
         }
     }
 
     @Override
     public void setGlowColor(Color color, Player player) {
-        this.packets.setGlowing(this.displayId, this.isGlowing, color, player);
+        packets.setGlowing(displayId, isGlowing, color, player);
     }
 
     @Override
     public void setHitboxSize(boolean override, float width, float height) {
-        this.overrideHitboxSize = override;
-        this.hitboxWidth = (override) ? width : this.transformation.getScale().x;
-        this.hitboxHeight = (override) ? height : this.transformation.getScale().y;
+        overrideHitboxSize = override;
+        hitboxWidth = (override) ? width : transformation.getScale().x;
+        hitboxHeight = (override) ? height : transformation.getScale().y;
 
-        if (this.config != null) {
-            ConfigurationSection hitboxSection = Objects.requireNonNull(this.config.getConfigurationSection("hitbox"));
+        if (config != null) {
+            ConfigurationSection hitboxSection = Objects.requireNonNull(config.getConfigurationSection("hitbox"));
             hitboxSection.set("override", override);
             hitboxSection.set("width", width);
             hitboxSection.set("height", height);
-            this.save();
+            save();
         }
 
-        this.hitbox.setInteractionWidth(this.hitboxWidth);
-        this.hitbox.setInteractionHeight(this.hitboxHeight);
+        hitbox.setInteractionWidth(hitboxWidth);
+        hitbox.setInteractionHeight(hitboxHeight);
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            this.packets.setInteractionSize(this.hitbox.getEntityId(), this.hitboxWidth, this.hitboxHeight, onlinePlayer);
+            packets.setInteractionSize(hitbox.getEntityId(), hitboxWidth, hitboxHeight, onlinePlayer);
         }
     }
 
     @Override
     public String getPermission() {
-        return this.permission;
+        return permission;
     }
 
     @Override
     public void setPermission(String permission) {
-        this.permission = permission;
+        permission = permission;
 
-        if (this.config != null) {
-            this.config.set("permission", permission);
-            this.save();
+        if (config != null) {
+            config.set("permission", permission);
+            save();
         }
     }
 
     @Override
     public String getHidePermission() {
-        return this.hidePermission;
+        return hidePermission;
     }
 
     @Override
     public void setHidePermission(String permission) {
-        this.hidePermission = permission;
+        hidePermission = permission;
 
-        if (this.config != null) {
-            this.config.set("hide-permission", permission);
-            this.save();
+        if (config != null) {
+            config.set("hide-permission", permission);
+            save();
         }
     }
 
     @Override
     public double getViewDistance() {
-        return this.viewDistance;
+        return viewDistance;
     }
 
     @Override
     public void setViewDistance(double viewDistance) {
-        this.viewDistance = viewDistance;
+        viewDistance = viewDistance;
 
-        if (this.config != null) {
-            this.config.set("view-distance", viewDistance);
-            this.save();
+        if (config != null) {
+            config.set("view-distance", viewDistance);
+            save();
         }
     }
 
     @Override
     public float getHitboxWidth() {
-        return this.hitboxWidth;
+        return hitboxWidth;
     }
 
     @Override
     public float getHitboxHeight() {
-        return this.hitboxHeight;
+        return hitboxHeight;
     }
 
     @Override
     public boolean isHitboxSizeOverriden() {
-        return this.overrideHitboxSize;
+        return overrideHitboxSize;
     }
 
     @Override
     public void setClickActions(DisplayActions actions) {
-        this.actionsHandler.setClickActions(actions);
+        actionsHandler.setClickActions(actions);
     }
 
     public void runActions(Player player, ClickType clickType) {
-        this.actionsHandler.runActions(player, clickType, this);
+        actionsHandler.runActions(player, clickType, this);
     }
 
     public void spawnToPlayer(Player player) {
-        this.packets.spawnEntity(this.display, player);
-        this.packets.spawnEntity(this.hitbox, player);
+        packets.spawnEntity(display, player);
+        packets.spawnEntity(hitbox, player);
         ((DisplayMethods) this).sendMetadataPackets(player);
     }
 
     public void removeToPlayer(Player player) {
-        this.packets.removeEntity(this.displayId, player);
-        this.packets.removeEntity(this.getInteractionId(), player);
+        packets.removeEntity(displayId, player);
+        packets.removeEntity(getInteractionId(), player);
     }
 
     public void remove() {
-        this.packets.removeEntity(this.displayId);
-        this.packets.removeEntity(this.hitbox.getEntityId());
+        packets.removeEntity(displayId);
+        packets.removeEntity(hitbox.getEntityId());
     }
     public int getInteractionId() {
-        return this.hitbox.getEntityId();
+        return hitbox.getEntityId();
     }
     public boolean isApi() {
-        return this.isApi;
+        return isApi;
     }
 
     public ConfigManager getConfigManager() {
-        return this.configManager;
+        return configManager;
     }
 
     protected void save() {
-        this.configManager.save();
+        configManager.save();
     }
 
     @Override
     public void tick() {
-        this.visibilityManager.updateVisibility();
+        visibilityManager.updateVisibility();
     }
 }

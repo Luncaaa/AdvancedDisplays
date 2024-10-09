@@ -4,25 +4,26 @@ import me.lucaaa.advanceddisplays.actions.Action;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
-// TODO: Command list support
 public class PlayerCommandAction extends Action {
-    private final String command;
-    private final String arguments;
+    private final List<String> commands;
 
     public PlayerCommandAction(ConfigurationSection actionSection) {
         super(List.of("command"), actionSection);
 
-        List<String> fullCommand = new LinkedList<>(Arrays.asList(actionSection.getString("command", "").split(" ")));
-        this.command = fullCommand.remove(0);
-        this.arguments = String.join(" ", fullCommand);
+        if (actionSection.isList("command")) {
+            this.commands = actionSection.getStringList("command");
+
+        } else {
+            this.commands = List.of(actionSection.getString("command", ""));
+        }
     }
 
     @Override
     public void runAction(Player clickedPlayer, Player actionPlayer) {
-        actionPlayer.performCommand(command + " " + getTextString(arguments, clickedPlayer, actionPlayer));
+        for (String command : commands) {
+            actionPlayer.performCommand(getTextString(command, clickedPlayer, actionPlayer));
+        }
     }
 }

@@ -7,8 +7,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 public class MessageAction extends Action {
-    private String message;
-    private List<String> messages;
+    private final List<String> messages;
 
     public MessageAction(ConfigurationSection actionSection) {
         super(List.of("message"), actionSection);
@@ -16,18 +15,14 @@ public class MessageAction extends Action {
         if (actionSection.isList("message")) {
             this.messages = actionSection.getStringList("message");
         } else {
-            this.message = actionSection.getString("message");
+            this.messages = List.of(actionSection.getString("message", "No message set"));
         }
     }
 
     @Override
     public void runAction(Player clickedPlayer, Player actionPlayer) {
-        if (message != null) {
+        for (String message : messages) {
             actionPlayer.spigot().sendMessage(getTextComponent(message, clickedPlayer, actionPlayer));
-        } else {
-            for (String message : messages) {
-                actionPlayer.spigot().sendMessage(getTextComponent(message, clickedPlayer, actionPlayer));
-            }
         }
     }
 }

@@ -49,11 +49,16 @@ public class DisplaysManager {
                 if (configFile.isDirectory()) continue;
                 ConfigManager configManager = new ConfigManager(plugin, configsFolder + File.separator + configFile.getName());
 
-                YamlConfiguration config = configManager.getConfig();
-                if (config.getString("id") != null || !config.isString("hide-permission")) {
+                if (!plugin.getMainConfig().getConfig().isBoolean("updateChecker")) {
                     ConversionManager.setConversionNeeded(true);
                     break;
                 }
+
+                /*YamlConfiguration config = configManager.getConfig();
+                if (config.getString("id") != null || !config.isString("hide-permission")) {
+                    ConversionManager.setConversionNeeded(true);
+                    break;
+                }*/
 
                 loadDisplay(configManager);
             }

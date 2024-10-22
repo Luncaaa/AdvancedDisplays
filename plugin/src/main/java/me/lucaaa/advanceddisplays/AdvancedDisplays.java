@@ -98,7 +98,9 @@ public class AdvancedDisplays extends JavaPlugin {
         reloadConfigs();
 
         // Look for updates.
-        new UpdateManager(this).getVersion(v -> UpdateManager.sendStatus(this, v, getDescription().getVersion()));
+        if (mainConfig.getConfig().getBoolean("updateChecker", true)) {
+            new UpdateManager(this).getVersion(v -> UpdateManager.sendStatus(this, v, getDescription().getVersion()));
+        }
 
         // Register events.
         getServer().getPluginManager().registerEvents(new PlayerEventsListener(this), this);

@@ -152,11 +152,18 @@ public class ConversionManager {
         ConfigManager mainConfig = plugin.getMainConfig();
         YamlConfiguration yaml = mainConfig.getConfig();
         yaml.set("text-update", null);
-        yaml.set("disabledItems", List.of());
-        yaml.setComments("disabledItems", List.of(
-                " List of disabled settings in the editor menu. Visit the link below for a list of settings that can be disabled.",
-                "https://javadoc.jitpack.io/com/github/Luncaaa/AdvancedDisplays/main-SNAPSHOT/javadoc/me/lucaaa/advanceddisplays/api/displays/enums/EditorItem.html"
-        ));
+
+        if (!yaml.isBoolean("updateChecker")) {
+            yaml.set("updateChecker", true);
+        }
+
+        if (!yaml.isList("disabledItems")) {
+            yaml.set("disabledItems", List.of());
+            yaml.setComments("disabledItems", List.of(
+                    " List of disabled settings in the editor menu. Visit the link below for a list of settings that can be disabled.",
+                    "https://javadoc.jitpack.io/com/github/Luncaaa/AdvancedDisplays/main-SNAPSHOT/javadoc/me/lucaaa/advanceddisplays/api/displays/enums/EditorItem.html"
+            ));
+        }
         mainConfig.save();
 
         try {

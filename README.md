@@ -8,6 +8,7 @@ You can download the plugin here:
 - Modrinth resource page: https://modrinth.com/plugin/advanceddisplays
 - Wiki: https://lucaaa.gitbook.io/advanceddisplays/
 - Javadocs: https://javadoc.jitpack.io/com/github/Luncaaa/AdvancedDisplays/main-SNAPSHOT/javadoc
+- Dev build: https://github.com/Luncaaa/AdvancedDisplays/releases/tag/dev
 
 If you have an issue, found a bug or want to suggest something, you can do it here:
 - Spigot discussion page: https://www.spigotmc.org/threads/advanceddisplays.609868/

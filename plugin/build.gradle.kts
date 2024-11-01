@@ -25,6 +25,7 @@ dependencies {
     implementation(project(":nms:v1_20_R3", "reobf"))
     implementation(project(":nms:v1_20_R4", "reobf"))
     implementation(project(":nms:v1_21_R1", "reobf"))
+    implementation(project(":nms:v1_21_R2", "reobf"))
 }
 
 tasks {
@@ -41,6 +42,7 @@ tasks {
             exclude(project(":nms:v1_20_R3"))
             exclude(project(":nms:v1_20_R4"))
             exclude(project(":nms:v1_21_R1"))
+            exclude(project(":nms:v1_21_R2"))
         }
         relocate("net.kyori", "net.kyori")
         archiveFileName.set("${project.parent?.name}-${project.version}.jar")

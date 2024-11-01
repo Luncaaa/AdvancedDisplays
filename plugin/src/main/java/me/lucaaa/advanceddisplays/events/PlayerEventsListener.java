@@ -91,6 +91,7 @@ public class PlayerEventsListener implements Listener {
 
         DisplaysManager manager = plugin.getDisplaysManager();
         if (manager.isPlayerAttaching(player) && action == Action.RIGHT_CLICK_BLOCK) {
+            event.setCancelled(true);
             AttachedDisplay display = manager.getAttachingDisplay(player);
             ADTextDisplay newDisplay = manager.createAttachedDisplay(event, display);
             if (newDisplay == null) {

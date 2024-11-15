@@ -58,7 +58,7 @@ public class ADVisibilityManager implements VisibilityManager {
         boolean def = globalVisibility == Visibility.SHOW;
         boolean individual = individualVis.containsKey(player.getName()) && individualVis.get(player.getName()) == Visibility.SHOW;
         boolean perm = (display.getPermission().equalsIgnoreCase("none") || player.hasPermission(display.getPermission())) && (display.getHidePermission().equalsIgnoreCase("none") || !player.hasPermission(display.getHidePermission()));
-        boolean inRange = display.getViewDistance() <= 0.0 || player.getLocation().distanceSquared(display.getLocation()) <= display.getViewDistance();
+        boolean inRange = display.getViewDistance() <= 0.0 || player.getLocation().distance(display.getLocation()) <= display.getViewDistance();
         boolean inWorld = display.getLocation().getWorld() == player.getLocation().getWorld();
 
         return (def || individual) && perm && inRange && inWorld;

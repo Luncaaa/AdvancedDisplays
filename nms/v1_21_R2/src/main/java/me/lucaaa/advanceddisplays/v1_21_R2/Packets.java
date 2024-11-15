@@ -59,8 +59,11 @@ public class Packets implements PacketInterface {
 
     @Override
     public InternalEntityClickEvent getClickEvent(Player player, Object anyPacket) {
-        if (!(anyPacket instanceof ServerboundInteractPacket packet)) return null;
+        // Some plugins may send their own packet implementing the interact packet, making using "instanceof"
+        // not valid in this case because it'll return "true" but might not have the necessary methods o field.
+        if (!anyPacket.getClass().equals(ServerboundInteractPacket.class)) return null;
 
+        ServerboundInteractPacket packet = (ServerboundInteractPacket) anyPacket;
         try {
             Field idField = packet.getClass().getDeclaredField("b");
             idField.setAccessible(true);

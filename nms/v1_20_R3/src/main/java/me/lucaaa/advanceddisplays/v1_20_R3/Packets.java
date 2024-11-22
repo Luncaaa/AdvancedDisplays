@@ -75,7 +75,7 @@ public class Packets implements PacketInterface {
 
             ClickType clickType = InternalEntityClickEvent.getClickTypeFromPacket(packet.isUsingSecondaryAction(), clickTypeNumber);
 
-            return new InternalEntityClickEvent(player, clickType, interactionId);
+            return new InternalEntityClickEvent(clickType, interactionId);
 
         } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             Logger.logError(java.util.logging.Level.SEVERE, "An error occurred while handling a click on a display: ", e);

@@ -104,7 +104,6 @@ public class AdvancedDisplays extends JavaPlugin {
 
         // Register events.
         getServer().getPluginManager().registerEvents(new PlayerEventsListener(this), this);
-        getServer().getPluginManager().registerEvents(new InternalEntityClickListener(this), this);
         getServer().getPluginManager().registerEvents(new InventoryEventsListener(this), this);
 
         // Registers the main command and adds tab completions.

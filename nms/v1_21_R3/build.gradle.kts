@@ -1,5 +1,14 @@
 plugins {
-    id("io.papermc.paperweight.userdev") version "1.7.7"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.11"
+}
+
+configurations.all {
+    resolutionStrategy.capabilitiesResolution.withCapability("org.spigotmc:spigot-api") {
+        val toBeSelected = candidates.firstOrNull { it.id.let { id -> id is ModuleComponentIdentifier && id.module == "spigot-api" } }
+        if (toBeSelected != null) {
+            select(toBeSelected)
+        }
+    }
 }
 
 dependencies {

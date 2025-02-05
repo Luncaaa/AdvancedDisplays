@@ -54,12 +54,6 @@ public class DisplaysManager {
                     break;
                 }
 
-                /*YamlConfiguration config = configManager.getConfig();
-                if (config.getString("id") != null || !config.isString("hide-permission")) {
-                    ConversionManager.setConversionNeeded(true);
-                    break;
-                }*/
-
                 loadDisplay(configManager);
             }
         }

@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays;
 
 import io.th0rgal.oraxen.compatibilities.CompatibilitiesManager;
 import me.lucaaa.advanceddisplays.data.Compatibility;
+import me.lucaaa.advanceddisplays.data.Version;
 import me.lucaaa.advanceddisplays.integrations.Integration;
 import me.lucaaa.advanceddisplays.integrations.ItemsAdderCompat;
 import me.lucaaa.advanceddisplays.integrations.OraxenCompat;
@@ -15,7 +16,6 @@ import me.lucaaa.advanceddisplays.common.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -28,6 +28,9 @@ public class AdvancedDisplays extends JavaPlugin {
     // Config files.
     private ConfigManager mainConfig;
     private ConfigManager savesConfig;
+
+    // Other.
+    private Version nmsVersion;
 
     // Integrations.
     private final Map<Compatibility, Integration> integrations = new HashMap<>();
@@ -46,10 +49,8 @@ public class AdvancedDisplays extends JavaPlugin {
     // Reload the config files.
     public void reloadConfigs() {
         // Creates the config file.
-        if (!new File(getDataFolder().getAbsolutePath() + File.separator + "config.yml").exists())
-            saveResource("config.yml", false);
-        if (!new File(getDataFolder().getAbsolutePath() + File.separator + "saved-inventories.yml").exists())
-            saveResource("saved-inventories.yml", false);
+        saveResource("config.yml", false);
+        saveResource("saved-inventories.yml", false);
 
         mainConfig = new ConfigManager(this, "config.yml");
         savesConfig = new ConfigManager(this, "saved-inventories.yml");
@@ -62,7 +63,7 @@ public class AdvancedDisplays extends JavaPlugin {
         if (inventoryManager != null) inventoryManager.clearAll(); // If the plugin has been reloaded, clear the map.
         if (tickManager != null) tickManager.stop();
         tickManager = new TickManager(this);
-        packetsManager = new PacketsManager(this, Bukkit.getServer().getBukkitVersion().split("-")[0]);
+        packetsManager = new PacketsManager(this);
         interactionsManager = new InteractionsManager(savedApiDisplays);
         displaysManager = new DisplaysManager(this, "displays", true, false);
         messagesManager = new MessagesManager(mainConfig);
@@ -72,12 +73,12 @@ public class AdvancedDisplays extends JavaPlugin {
     @Override
     public void onEnable() {
         String version = getServer().getBukkitVersion().split("-")[0];
-        String[] parts = version.split("\\.");
-        int majorNumber = Integer.parseInt(parts[1]);
-        int minorNumber = (parts.length == 2) ? 0 : Integer.parseInt(parts[2]);
-        if (majorNumber < 19 || (majorNumber == 19 && minorNumber < 4)) {
-            Logger.log(Level.SEVERE, "The plugin will not work on this version as displays were not added until 1.19.4");
-            Logger.log(Level.SEVERE, "Please update your server to 1.19.4 or higher to use this plugin.");
+        nmsVersion = Version.getNMSVersion(version);
+        if (nmsVersion == Version.UNKNOWN) {
+            Logger.log(Level.SEVERE, "Unknown NMS version! Version: " + version);
+            Logger.log(Level.SEVERE, "The plugin may not be updated to support the server's version.");
+            Logger.log(Level.SEVERE, "If you're using a version lower than 1.19.4, upgrade to 1.19.4 or higher to use this plugin.");
+            Logger.log(Level.SEVERE, "The plugin will be disabled...");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -124,6 +125,10 @@ public class AdvancedDisplays extends JavaPlugin {
 
     public ConfigManager getSavesConfig() {
         return savesConfig;
+    }
+
+    public Version getNmsVersion() {
+        return nmsVersion;
     }
 
     public boolean isIntegrationLoaded(Compatibility compatibility) {

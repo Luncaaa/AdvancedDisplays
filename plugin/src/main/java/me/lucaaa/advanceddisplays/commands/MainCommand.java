@@ -87,8 +87,6 @@ public class MainCommand implements TabExecutor {
             for (Map.Entry<String, SubCommandsFormat> entry : subCommands.entrySet()) {
                 if (entry.getValue().neededPermission == null || sender.hasPermission(entry.getValue().neededPermission) || sender.hasPermission("ad.admin")) {
                     completions.add(entry.getKey());
-                } else if (sender.hasPermission(entry.getValue().neededPermission) || sender.hasPermission("ad.admin")) {
-                    completions.add(entry.getKey());
                 }
             }
         }

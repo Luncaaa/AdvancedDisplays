@@ -49,7 +49,7 @@ public class AdvancedDisplays extends JavaPlugin {
     // Reload the config files.
     public void reloadConfigs() {
         // Creates the config file.
-        saveResource("config.yml", false);
+        saveDefaultConfig();
         saveResource("saved-inventories.yml", false);
 
         mainConfig = new ConfigManager(this, "config.yml");

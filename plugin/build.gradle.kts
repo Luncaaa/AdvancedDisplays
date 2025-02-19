@@ -10,10 +10,6 @@ repositories {
 dependencies {
     compileOnly("io.th0rgal:oraxen:1.186.0")
     compileOnly("com.github.LoneDev6:API-ItemsAdder:3.6.3-beta-14")
-    implementation("net.kyori:adventure-api:4.18.0")
-    implementation("net.kyori:adventure-text-minimessage:4.18.0")
-    implementation("net.kyori:adventure-text-serializer-legacy:4.18.0")
-    implementation("net.kyori:adventure-platform-bungeecord:4.3.4")
 
     implementation(project(":api"))
     implementation(project(":common"))

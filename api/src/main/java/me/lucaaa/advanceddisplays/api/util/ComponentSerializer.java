@@ -2,9 +2,8 @@ package me.lucaaa.advanceddisplays.api.util;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.md_5.bungee.api.chat.BaseComponent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,20 +43,12 @@ public interface ComponentSerializer {
     }
 
     /**
-     * Transforms a string into a Bungee component. Every "\n" will be considered as a new line.
-     * Supports Minimessage format and legacy color codes.
-     * @param text The string to convert into a component.
-     * @return The component.
-     */
-    static BaseComponent[] toBaseComponent(String text) {
-        return BungeeComponentSerializer.get().serialize(deserialize(text));
-    }
-
-    /**
      * Transforms a component into a list of strings with Minimessage format. Every "\n" will be considered as a new line.
      * @param component The component to convert into a list of strings.
      * @return The list of strings.
+     * @deprecated Should not be used in any case, so it's susceptible for removal.
      */
+    @Deprecated
     static List<String> serialize(Component component) {
         return Arrays.stream(MiniMessage.miniMessage().serialize(component).split(Pattern.quote("\n"))).toList();
     }
@@ -68,6 +59,6 @@ public interface ComponentSerializer {
      * @return The JSON string.
      */
     static String toJSON(Component component) {
-        return net.md_5.bungee.chat.ComponentSerializer.toString(BungeeComponentSerializer.get().serialize(component));
+        return GsonComponentSerializer.gson().serialize(component);
     }
 }

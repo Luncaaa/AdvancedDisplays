@@ -67,18 +67,36 @@ public interface TextDisplay extends BaseDisplay {
      * Gets the displayed text.
      * @return The displayed text. The map's key is the text's (the value) identifier.
      */
-    Map<String, Component> getText();
+    Map<String, String> getText();
     /**
      * Sets the text that will be displayed. Will remove the previously set texts.
      * @param text The text that will be displayed. The map's key will be the text's (the value) identifier.
      */
-    void setAnimatedText(Map<String, Component> text);
+    void setAnimatedText(Map<String, String> text);
+    /**
+     * Sets the text that will be displayed. Will remove the previously set texts.
+     * @param text The text that will be displayed. The map's key will be the text's (the value) identifier.
+     */
+    void setAnimatedTextComponent(Map<String, Component> text);
+    /**
+     * Sets the text that will be displayed. Won't be animated.
+     * @param identifier What the text will be identified with.
+     * @param text The text that will be displayed.
+     */
+    void setSingleText(String identifier, String text);
     /**
      * Sets the text that will be displayed. Won't be animated.
      * @param identifier What the text will be identified with.
      * @param text The text that will be displayed.
      */
     void setSingleText(String identifier, Component text);
+    /**
+     * Adds new text that will be animated along with the previously set text.
+     * @param identifier What this text will be identified with.
+     * @param text The new lines of text.
+     * @return False if a list of texts with that identifier already existed, true otherwise.
+     */
+    boolean addText(String identifier, String text);
     /**
      * Adds new text that will be animated along with the previously set text.
      * @param identifier What this text will be identified with.

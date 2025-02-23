@@ -50,7 +50,7 @@ public interface ADAPI {
      * Creates a text display at the given location.
      * @param name The name of the display.
      * @param location The location of the display.
-     * @param value The text that will be displayed. If the list has multiple elements, the display will be animated.
+     * @param value The text that will be displayed. Every element of the list will be a new line.
      * @return The created display or null if a display with that name already exists.
      */
     TextDisplay createTextDisplay(String name, Location location, List<String> value);
@@ -59,7 +59,7 @@ public interface ADAPI {
      * Creates a text display at the given location.
      * @param name The name of the display.
      * @param location The location of the display.
-     * @param value The text that will be displayed. If the list has multiple elements, the display will be animated.
+     * @param value The text that will be displayed.
      * @return The created display or null if a display with that name already exists.
      */
     TextDisplay createTextDisplay(String name, Location location, Component value);

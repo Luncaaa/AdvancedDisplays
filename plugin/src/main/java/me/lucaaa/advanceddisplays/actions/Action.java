@@ -1,7 +1,6 @@
 package me.lucaaa.advanceddisplays.actions;
 
 import me.lucaaa.advanceddisplays.common.utils.Utils;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -64,11 +63,7 @@ public abstract class Action {
         return isCorrect;
     }
 
-    public BaseComponent[] getTextComponent(String message, Player clickedPlayer, Player actionPlayer) {
-        return Utils.getTextComponent(message, clickedPlayer, actionPlayer, useGlobalPlaceholders());
-    }
-
     public String getTextString(String message, Player clickedPlayer, Player actionPlayer) {
-        return BaseComponent.toLegacyText(Utils.getTextComponent(message, clickedPlayer, actionPlayer, useGlobalPlaceholders()));
+        return Utils.getTextString(message, clickedPlayer, actionPlayer, useGlobalPlaceholders());
     }
 }

@@ -22,7 +22,7 @@ public class MessageAction extends Action {
     @Override
     public void runAction(Player clickedPlayer, Player actionPlayer) {
         for (String message : messages) {
-            actionPlayer.spigot().sendMessage(getTextComponent(message, clickedPlayer, actionPlayer));
+            actionPlayer.sendMessage(getTextString(message, clickedPlayer, actionPlayer));
         }
     }
 }

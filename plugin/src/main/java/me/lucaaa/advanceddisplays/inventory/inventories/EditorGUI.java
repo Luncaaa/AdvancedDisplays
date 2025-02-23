@@ -4,7 +4,6 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
-import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import me.lucaaa.advanceddisplays.inventory.*;
 import me.lucaaa.advanceddisplays.inventory.Button;
@@ -412,8 +411,8 @@ public class EditorGUI extends InventoryMethods {
                     }
 
                     String identifier = input.substring(0, firstSpace);
-                    String joined = input.substring(firstSpace + 1);
-                    if (((TextDisplay) display).addText(identifier, ComponentSerializer.deserialize(joined))) {
+                    String joined = input.substring(firstSpace + 1).replace("\\n", "\n");
+                    if (((TextDisplay) display).addText(identifier, joined)) {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + identifier + " &a has been created and added after the last animation.", true));
                     } else {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cAn animation with the name &b" + identifier + " &calready exists!", true));

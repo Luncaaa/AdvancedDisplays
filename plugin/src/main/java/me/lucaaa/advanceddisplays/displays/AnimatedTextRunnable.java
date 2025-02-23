@@ -4,17 +4,16 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class AnimatedTextRunnable {
     private final AdvancedDisplays plugin;
+    private final PacketInterface packets;
     private int displayId;
 
     // Minimessage String rather than component for placeholder parsing (so that %prefix% which is <red>Owner is parsed correctly)
@@ -29,15 +28,12 @@ public class AnimatedTextRunnable {
 
     public AnimatedTextRunnable(AdvancedDisplays plugin, int displayId) {
         this.plugin = plugin;
+        this.packets = plugin.getPacketsManager().getPackets();
         this.displayId = displayId;
     }
 
-    public void start(Map<String, Component> texts, int animationTime, int refreshTime) {
-        Map<String, String> mmTexts = new LinkedHashMap<>();
-        for (Map.Entry<String, Component> entry : texts.entrySet()) {
-            mmTexts.put(entry.getKey(), String.join("\n", ComponentSerializer.serialize(entry.getValue())));
-        }
-        start(mmTexts, animationTime, refreshTime, 0);
+    public void start(Map<String, String> texts, int animationTime, int refreshTime) {
+        start(texts, animationTime, refreshTime, 0);
     }
 
     private void start(Map<String, String> texts, int animationTime, int refreshTime, int index) {
@@ -59,7 +55,7 @@ public class AnimatedTextRunnable {
                     // If higher than 0, the refresh task will handle this
                     if (refreshTime <= 0) {
                         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                            plugin.getPacketsManager().getPackets().setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
+                            packets.setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
                         }
                     }
 
@@ -73,7 +69,7 @@ public class AnimatedTextRunnable {
             // If higher than 0, the refresh task will handle this
             if (refreshTime <= 0) {
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    plugin.getPacketsManager().getPackets().setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
+                    packets.setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
                 }
             }
 
@@ -86,14 +82,14 @@ public class AnimatedTextRunnable {
                 @Override
                 public void run() {
                     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        plugin.getPacketsManager().getPackets().setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
+                        packets.setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
                     }
                 }
             }.runTaskTimerAsynchronously(plugin, 0L, refreshTime);
 
         } else {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                plugin.getPacketsManager().getPackets().setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
+                packets.setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
             }
         }
     }

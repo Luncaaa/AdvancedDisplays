@@ -2,12 +2,10 @@ package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
-import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.configuration.ConfigurationSection;
@@ -23,7 +21,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     private final AnimatedTextRunnable textRunnable;
     private int animationTime;
     private int refreshTime;
-    private Map<String, Component> texts = new LinkedHashMap<>();
+    private Map<String, String> texts = new LinkedHashMap<>();
     private TextDisplay.TextAlignment alignment;
     private Color backgroundColor;
     private int lineWidth;
@@ -44,12 +42,12 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             ConfigurationSection textSection = settings.getConfigurationSection("texts");
             if (textSection == null || textSection.getKeys(false).isEmpty()) {
                 Logger.log(Level.SEVERE, "The text display \"" + configManager.getFile().getName() + "\" does not have a valid \"text\" section! Check the wiki for more information.");
-                texts.put("error", LegacyComponentSerializer.legacyAmpersand().deserialize("&cError! No valid \"texts\" section found. Check the wiki for more information."));
+                texts.put("error", "&cError! No valid \"texts\" section found. Check the wiki for more information.");
             } else {
                 for (String sectionName : textSection.getKeys(false)) {
                     if (!textSection.isList(sectionName)) continue;
 
-                    texts.put(sectionName, ComponentSerializer.deserialize(textSection.getStringList(sectionName)));
+                    texts.put(sectionName, String.join("\n", textSection.getStringList(sectionName)));
                 }
             }
             textRunnable.start(texts, animationTime, refreshTime);
@@ -82,9 +80,21 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         packets.setProperties(displayId, shadowed, seeThrough, defaultBackground, alignment, player);
     }
 
+    public ADTextDisplay create(String text) {
+        if (config != null) settings = config.createSection("settings");
+        setSingleText("animation1", text);
+        setInitialValues();
+        return this;
+    }
+
     public ADTextDisplay create(Component text) {
         if (config != null) settings = config.createSection("settings");
         setSingleText("animation1", text);
+        setInitialValues();
+        return this;
+    }
+
+    private void setInitialValues() {
         setRefreshTime(10);
         setAnimationTime(20);
         setAlignment(TextDisplay.TextAlignment.CENTER);
@@ -94,7 +104,6 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         setUseDefaultBackground(true);
         setSeeThrough(true);
         setShadowed(true);
-        return this;
     }
 
     @Override
@@ -158,43 +167,59 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     }
 
     @Override
-    public Map<String, Component> getText() {
+    public Map<String, String> getText() {
         return texts;
     }
     @Override
-    public void setAnimatedText(Map<String, Component> text) {
+    public void setAnimatedText(Map<String, String> text) {
         texts.clear();
         texts = text;
         if (config != null) {
             ConfigurationSection textSection = settings.createSection("texts");
-            for (Map.Entry<String, Component> entry : text.entrySet()) {
-                textSection.set(entry.getKey(), MiniMessage.miniMessage().serialize(entry.getValue()).split(Pattern.quote("\n")));
+            for (Map.Entry<String, String> entry : text.entrySet()) {
+                textSection.set(entry.getKey(), entry.getValue().split(Pattern.quote("\n")));
             }
             settings.set("texts", textSection);
             save();
         }
         textRunnable.start(texts, animationTime, refreshTime);
     }
+
     @Override
-    public void setSingleText(String identifier, Component text) {
+    public void setAnimatedTextComponent(Map<String, Component> text) {
+        Map<String, String> parsedTexts = new HashMap<>();
+        for (Map.Entry<String, Component> entry : text.entrySet()) {
+            parsedTexts.put(entry.getKey(), MiniMessage.miniMessage().serialize(entry.getValue()));
+        }
+
+        setAnimatedText(parsedTexts);
+    }
+
+    @Override
+    public void setSingleText(String identifier, String text) {
         texts.clear();
         texts.put(identifier, text);
         if (config != null) {
             ConfigurationSection textSection = settings.createSection("texts");
-            textSection.set(identifier, MiniMessage.miniMessage().serialize(text).split(Pattern.quote("\n")));
+            textSection.set(identifier, text.split(Pattern.quote("\n")));
             save();
         }
         textRunnable.start(texts, animationTime, refreshTime);
     }
 
     @Override
-    public boolean addText(String identifier, Component text) {
+    public void setSingleText(String identifier, Component text) {
+        setSingleText(identifier, MiniMessage.miniMessage().serialize(text));
+    }
+
+    @Override
+    public boolean addText(String identifier, String text) {
         if (texts.containsKey(identifier)) return false;
         texts.put(identifier, text);
         if (config != null) {
             ConfigurationSection textSection = settings.createSection("texts");
-            for (Map.Entry<String, Component> entry : texts.entrySet()) {
-                textSection.set(entry.getKey(), MiniMessage.miniMessage().serialize(entry.getValue()).split(Pattern.quote("\n")));
+            for (Map.Entry<String, String> entry : texts.entrySet()) {
+                textSection.set(entry.getKey(), entry.getValue().split(Pattern.quote("\n")));
             }
             settings.set("texts", textSection);
             save();
@@ -202,17 +227,23 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         textRunnable.start(texts, animationTime, refreshTime);
         return true;
     }
+
+    @Override
+    public boolean addText(String identifier, Component text) {
+        return addText(identifier, MiniMessage.miniMessage().serialize(text));
+    }
+
     @Override
     public boolean removeText(String identifier) {
         if (!texts.containsKey(identifier)) return false;
         texts.remove(identifier);
         if (texts.isEmpty()) {
-            addText("empty", LegacyComponentSerializer.legacyAmpersand().deserialize("&cThere are no texts to display"));
+            addText("empty", "&cThere are no texts to display");
         }
         if (config != null) {
             ConfigurationSection textSection = settings.createSection("texts");
-            for (Map.Entry<String, Component> entry : texts.entrySet()) {
-                textSection.set(entry.getKey(), MiniMessage.miniMessage().serialize(entry.getValue()).split(Pattern.quote("\n")));
+            for (Map.Entry<String, String> entry : texts.entrySet()) {
+                textSection.set(entry.getKey(), entry.getValue().split(Pattern.quote("\n")));
             }
             settings.set("texts", textSection);
             save();

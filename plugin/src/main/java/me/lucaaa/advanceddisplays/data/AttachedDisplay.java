@@ -1,10 +1,9 @@
 package me.lucaaa.advanceddisplays.data;
 
-import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 
-public record AttachedDisplay(String name, Side side, Component content, boolean saveToConfig) {
+public record AttachedDisplay(String name, Side side, String content, boolean saveToConfig) {
     public enum Side {
         LEFT,
         RIGHT,

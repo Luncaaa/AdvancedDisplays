@@ -163,6 +163,31 @@ public class DisplaysManager {
         return newDisplay;
     }
 
+    public ADTextDisplay createTextDisplay(Location location, String name, String value, boolean saveToConfig) {
+        if (displays.containsKey(name)) {
+            return null;
+        }
+
+        TextDisplay newDisplayPacket = packets.createTextDisplay(location);
+        ADTextDisplay textDisplay;
+
+        if (saveToConfig) {
+            ConfigManager configManager = createConfigManager(name, DisplayType.TEXT, location);
+            textDisplay = new ADTextDisplay(plugin, configManager, name, newDisplayPacket, isApi).create(value);
+            configManager.save();
+        } else {
+            textDisplay = new ADTextDisplay(plugin, name, newDisplayPacket).create(value);
+        }
+
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            textDisplay.sendBaseMetadataPackets(onlinePlayer);
+        }
+
+        plugin.getInteractionsManager().addInteraction(textDisplay.getInteractionId(), textDisplay);
+        displays.put(name, textDisplay);
+        return textDisplay;
+    }
+
     public ADTextDisplay createTextDisplay(Location location, String name, Component value, boolean saveToConfig) {
         if (displays.containsKey(name)) {
             return null;

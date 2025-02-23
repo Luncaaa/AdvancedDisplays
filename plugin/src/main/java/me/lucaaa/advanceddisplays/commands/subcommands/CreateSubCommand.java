@@ -1,7 +1,6 @@
 package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.data.AttachedDisplay;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import org.bukkit.Material;
@@ -75,7 +74,7 @@ public class CreateSubCommand extends SubCommandsFormat {
             }
 
             String value = String.join(" ", Arrays.copyOfRange(args, 4, args.length));
-            plugin.getDisplaysManager().addAttachingPlayer(player, new AttachedDisplay(args[2], side, ComponentSerializer.deserialize(value), true));
+            plugin.getDisplaysManager().addAttachingPlayer(player, new AttachedDisplay(args[2], side, value , true));
             sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&6Right-click the block where you want your display to be attached or run &e/ad finish &6to cancel the action.", true));
 
             return;
@@ -107,7 +106,7 @@ public class CreateSubCommand extends SubCommandsFormat {
         }
 
         switch (type) {
-            case TEXT -> plugin.getDisplaysManager().createTextDisplay(player.getEyeLocation(), args[2], ComponentSerializer.deserialize(value), true);
+            case TEXT -> plugin.getDisplaysManager().createTextDisplay(player.getEyeLocation(), args[2], value.replace("\\n", "\n"), true);
             case ITEM -> plugin.getDisplaysManager().createItemDisplay(player.getEyeLocation(), args[2], Material.getMaterial(value), true);
             case BLOCK -> plugin.getDisplaysManager().createBlockDisplay(player.getEyeLocation(), args[2], Objects.requireNonNull(Material.getMaterial(value)).createBlockData(), true);
         }

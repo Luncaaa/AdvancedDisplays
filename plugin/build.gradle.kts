@@ -27,13 +27,13 @@ tasks {
     }
 
     shadowJar {
-        exclude("org/apache/commons/io/**")
+        exclude("org/apache/commons/io/**", "com/google/gson/**")
         minimize {
             file("${rootDir}/nms").listFiles()!!.filter { it.isDirectory && it.name.startsWith("v") }.forEach {
                 exclude(project(":nms:${it.name}"))
             }
         }
-        relocate("net.kyori", "net.kyori")
+        relocate("net.kyori", "shaded.net.kyori")
         archiveFileName.set("${project.parent?.name}-${project.version}.jar")
         destinationDirectory.set(file("../build/libs"))
     }

@@ -30,7 +30,7 @@ subprojects {
 
     dependencies {
         compileOnly("org.spigotmc:spigot-api:1.19.4-R0.1-SNAPSHOT")
-        compileOnly("io.netty:netty-all:4.1.117.Final")
+        compileOnly("io.netty:netty-all:4.1.118.Final")
         implementation("net.kyori:adventure-api:4.19.0")
         implementation("net.kyori:adventure-text-minimessage:4.19.0")
         implementation("net.kyori:adventure-text-serializer-legacy:4.19.0")

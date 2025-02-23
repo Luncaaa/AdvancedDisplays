@@ -79,7 +79,7 @@ public class EditorItems {
             case TEXT -> {
                 TextDisplay textDisplay = (TextDisplay) display;
 
-                TEXT_ALIGNMENT = new Item(Material.FILLED_MAP, "Text alignment", "Changes the text's alignment", textDisplay.getAlignment().name());
+                TEXT_ALIGNMENT = new Item(Material.FILLED_MAP, "Text alignment", "Changes the text's alignment", textDisplay.getAlignment());
                 BACKGROUND_COLOR = new Item(new ItemStack(Material.LEATHER_CHESTPLATE)).setArmorColor(textDisplay.getBackgroundColor()).setPreviewLore(textDisplay.getBackgroundColor(), true, "Background Color");
                 LINE_WIDTH = new Item(Material.BLACK_DYE, "Line width", List.of("Changes the display's line width"), textDisplay.getLineWidth(), true, true, 10.0, 1.0);
                 TEXT_OPACITY = new Item(Material.GRAY_DYE, "Text opacity", List.of("Changes the text's opacity"), textDisplay.getTextOpacity(), true, true, 10.0, 1.0);

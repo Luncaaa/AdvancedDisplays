@@ -10,8 +10,13 @@ public class ConfigManager {
     private final File file;
     private final YamlConfiguration config;
 
-    public ConfigManager(Plugin plugin, String path) {
+    public ConfigManager(Plugin plugin, String path, boolean createIfNotExists) {
         this.file = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + path);
+
+        if (!file.exists() && createIfNotExists) {
+            plugin.saveResource(path, false);
+        }
+
         this.config = YamlConfiguration.loadConfiguration(file);
     }
 

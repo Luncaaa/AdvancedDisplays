@@ -22,8 +22,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 // TODO
-// 1. Add more text methods (add, remove, set order, per player...)
-// 2. Animated item and block displays?
+// 1. Animated item and block displays?
 public class AdvancedDisplays extends JavaPlugin {
     // Config files.
     private ConfigManager mainConfig;
@@ -48,12 +47,9 @@ public class AdvancedDisplays extends JavaPlugin {
 
     // Reload the config files.
     public void reloadConfigs() {
-        // Creates the config file.
-        saveDefaultConfig();
-        saveResource("saved-inventories.yml", false);
-
-        mainConfig = new ConfigManager(this, "config.yml");
-        savesConfig = new ConfigManager(this, "saved-inventories.yml");
+        // Config files
+        mainConfig = new ConfigManager(this, "config.yml", true);
+        savesConfig = new ConfigManager(this, "saved-inventories.yml", true);
 
         // Managers
         HashMap<Integer, ADBaseDisplay> savedApiDisplays = new HashMap<>(); // If the plugin is reloaded, this will save the click actions for API displays.

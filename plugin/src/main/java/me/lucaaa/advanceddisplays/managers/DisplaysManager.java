@@ -47,7 +47,7 @@ public class DisplaysManager {
         if (displaysFolder.exists()) {
             for (File configFile : Objects.requireNonNull(displaysFolder.listFiles())) {
                 if (configFile.isDirectory()) continue;
-                ConfigManager configManager = new ConfigManager(plugin, configsFolder + File.separator + configFile.getName());
+                ConfigManager configManager = new ConfigManager(plugin, configsFolder + File.separator + configFile.getName(), false);
 
                 if (!plugin.getMainConfig().getConfig().isBoolean("updateChecker")) {
                     ConversionManager.setConversionNeeded(true);
@@ -60,7 +60,7 @@ public class DisplaysManager {
     }
 
     private ConfigManager createConfigManager(String name, DisplayType type, Location location) {
-        ConfigManager displayConfigManager = new ConfigManager(plugin, configsFolder + File.separator + name + ".yml");
+        ConfigManager displayConfigManager = new ConfigManager(plugin, configsFolder + File.separator + name + ".yml", false);
         YamlConfiguration displayConfig = displayConfigManager.getConfig();
 
         // Set properties in the display file.

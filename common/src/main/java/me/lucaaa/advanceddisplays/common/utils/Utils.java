@@ -2,12 +2,17 @@ package me.lucaaa.advanceddisplays.common.utils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class Utils {
+    private static final LegacyComponentSerializer legacy = LegacyComponentSerializer.builder().hexColors().useUnusualXRepeatedCharacterHexFormat().build();
+
     public static String getColoredText(String text) {
         return ChatColor.translateAlternateColorCodes('&', text);
     }
@@ -23,6 +28,14 @@ public class Utils {
     }
 
     public static String getTextString(String message, Player clickedPlayer, Player globalPlayer, boolean useGlobalPlaceholders) {
+        return legacy.serialize(getText(message, clickedPlayer, globalPlayer, useGlobalPlaceholders));
+    }
+
+    public static BaseComponent[] getTextComponent(String message, Player clickedPlayer, Player globalPlayer, boolean useGlobalPlaceholders) {
+        return BungeeComponentSerializer.get().serialize(getText(message, clickedPlayer, globalPlayer, useGlobalPlaceholders));
+    }
+
+    private static Component getText(String message, Player clickedPlayer, Player globalPlayer, boolean useGlobalPlaceholders) {
         message = message.replace("%player%", clickedPlayer.getName());
         if (globalPlayer != null) message = message.replace("%global_player%", globalPlayer.getName());
 
@@ -31,6 +44,6 @@ public class Utils {
             message = PlaceholderAPI.setPlaceholders(placeholderPlayer, message);
         }
 
-        return LegacyComponentSerializer.builder().hexColors().useUnusualXRepeatedCharacterHexFormat().build().serialize(ComponentSerializer.deserialize(message));
+        return ComponentSerializer.deserialize(message);
     }
 }

@@ -15,6 +15,12 @@ import java.util.regex.Pattern;
 @SuppressWarnings("unused")
 public interface ComponentSerializer {
     /**
+     * Minimessage variable. Internal use only.
+     * @hidden
+     */
+    MiniMessage mm = MiniMessage.miniMessage();
+
+    /**
      * Transforms a string into a component. Every "\n" will be considered as a new line.
      * Supports Minimessage format and legacy color codes.
      * @param text The string to convert into a component.
@@ -25,9 +31,9 @@ public interface ComponentSerializer {
         // From legacy and minimessage format to a component
         Component legacy = LegacyComponentSerializer.legacyAmpersand().deserialize(text);
         // From component to Minimessage String. Replacing the "\" with nothing makes the minimessage formats work.
-        String minimessage = MiniMessage.miniMessage().serialize(legacy).replace("\\", "");
+        String minimessage = mm.serialize(legacy).replace("\\", "");
         // From Minimessage String to Minimessage component
-        return MiniMessage.miniMessage().deserialize(minimessage);
+        return mm.deserialize(minimessage);
         // From Minimessage component to legacy string.
         // return BungeeComponentSerializer.get().serialize(component);
     }
@@ -50,7 +56,7 @@ public interface ComponentSerializer {
      */
     @Deprecated
     static List<String> serialize(Component component) {
-        return Arrays.stream(MiniMessage.miniMessage().serialize(component).split(Pattern.quote("\n"))).toList();
+        return Arrays.stream(mm.serialize(component).split(Pattern.quote("\n"))).toList();
     }
 
     /**

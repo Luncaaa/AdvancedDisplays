@@ -4,7 +4,6 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.ActionbarAction;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -22,7 +21,7 @@ public class ActionBarRunnable {
     }
 
     public void sendToPlayer(Player clickedPlayer, Player actionPlayer) {
-        BaseComponent[] component = TextComponent.fromLegacyText(action.getTextString(message, clickedPlayer, actionPlayer));
+        BaseComponent[] component = action.getTextComponent(message, clickedPlayer, actionPlayer);
         new BukkitRunnable() {
             private  int timeLeft = duration;
             @Override

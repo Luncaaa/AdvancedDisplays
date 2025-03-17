@@ -1,6 +1,7 @@
 package me.lucaaa.advanceddisplays.actions;
 
 import me.lucaaa.advanceddisplays.common.utils.Utils;
+import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -70,5 +71,9 @@ public abstract class Action {
 
     public BaseComponent[] getTextComponent(String message, Player clickedPlayer, Player actionPlayer) {
         return Utils.getTextComponent(message, clickedPlayer, actionPlayer, useGlobalPlaceholders());
+    }
+
+    public Component getText(String message, Player clickedPlayer, Player actionPlayer) {
+        return Utils.getText(message, clickedPlayer, actionPlayer, useGlobalPlaceholders());
     }
 }

@@ -77,6 +77,7 @@ public class ActionsHandler {
                 case ACTIONBAR -> new ActionbarAction(plugin, actionSection);
                 case PLAY_SOUND -> new SoundAction(actionSection);
                 case EFFECT -> new EffectAction(actionSection);
+                case TOAST -> new ToastAction(plugin, actionSection);
             };
 
             if (!action.isFormatCorrect()) {

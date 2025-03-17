@@ -35,7 +35,7 @@ public class Utils {
         return BungeeComponentSerializer.get().serialize(getText(message, clickedPlayer, globalPlayer, useGlobalPlaceholders));
     }
 
-    private static Component getText(String message, Player clickedPlayer, Player globalPlayer, boolean useGlobalPlaceholders) {
+    public static Component getText(String message, Player clickedPlayer, Player globalPlayer, boolean useGlobalPlaceholders) {
         message = message.replace("%player%", clickedPlayer.getName());
         if (globalPlayer != null) message = message.replace("%global_player%", globalPlayer.getName());
 
@@ -45,5 +45,9 @@ public class Utils {
         }
 
         return ComponentSerializer.deserialize(message);
+    }
+
+    public static Component combine(Component component1, Component component2) {
+        return component1.appendNewline().append(component2);
     }
 }

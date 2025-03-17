@@ -7,7 +7,8 @@ public enum ActionType {
     TITLE("title"),
     ACTIONBAR("actionbar"),
     PLAY_SOUND("play-sound"),
-    EFFECT("effect");
+    EFFECT("effect"),
+    TOAST("toast");
 
     private final String configName;
     ActionType(String configName) {

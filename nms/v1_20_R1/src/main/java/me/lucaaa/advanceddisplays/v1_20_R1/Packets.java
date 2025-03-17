@@ -6,12 +6,15 @@ import me.lucaaa.advanceddisplays.common.utils.HeadUtils;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
+import net.minecraft.advancements.*;
+import net.minecraft.advancements.critereon.ImpossibleTrigger;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
@@ -20,6 +23,7 @@ import net.minecraft.world.level.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.advancement.AdvancementDisplayType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R1.block.data.CraftBlockData;
@@ -30,6 +34,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
 
 import java.lang.reflect.Field;
@@ -393,5 +399,60 @@ public class Packets implements PacketInterface {
         data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.BYTE), transform.getId()));
 
         connection.send(new ClientboundSetEntityDataPacket(displayId, data));
+    }
+
+    @Override
+    public void sendToast(JavaPlugin plugin, Player player, ItemStack item, String titleJSON, String descriptionJSON, AdvancementDisplayType type) {
+        CraftPlayer cp = (CraftPlayer) player;
+        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
+
+        ResourceLocation resourceLocation = new ResourceLocation("advanceddisplays", UUID.randomUUID().toString());
+
+        DisplayInfo info = new DisplayInfo(
+                CraftItemStack.asNMSCopy(item),
+                Objects.requireNonNull(Component.Serializer.fromJson(titleJSON)),
+                Objects.requireNonNull(Component.Serializer.fromJson(descriptionJSON)),
+                null,
+                FrameType.valueOf(type.name()),
+                true,
+                false,
+                true
+        );
+
+        Map<String, Criterion> criteria = Map.of("impossible", new Criterion(new ImpossibleTrigger.TriggerInstance()));
+        String[][] requirements = new String[][]{{"impossible"}};
+
+        Advancement advancement = new Advancement(
+                resourceLocation,
+                null,
+                info,
+                AdvancementRewards.EMPTY,
+                criteria,
+                requirements,
+                false
+        );
+
+        AdvancementProgress progress = new AdvancementProgress();
+        progress.update(criteria, requirements);
+        Objects.requireNonNull(progress.getCriterion("impossible")).grant();
+
+        connection.send(new ClientboundUpdateAdvancementsPacket(
+                false,
+                List.of(advancement),
+                Set.of(),
+                Map.of(resourceLocation, progress)
+        ));
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                connection.send(new ClientboundUpdateAdvancementsPacket(
+                        false,
+                        List.of(),
+                        Set.of(resourceLocation),
+                        Map.of()
+                ));
+            }
+        }.runTaskLater(plugin, 0L);
     }
 }

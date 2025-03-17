@@ -6,6 +6,8 @@ import me.lucaaa.advanceddisplays.common.utils.HeadUtils;
 import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
+import net.minecraft.advancements.*;
+import net.minecraft.advancements.critereon.ImpossibleTrigger;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -13,6 +15,7 @@ import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Display;
@@ -23,6 +26,7 @@ import net.minecraft.world.level.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.advancement.AdvancementDisplayType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
@@ -33,6 +37,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
 
 import java.lang.reflect.Field;
@@ -93,7 +99,8 @@ public class Packets implements PacketInterface {
 
         net.minecraft.world.entity.Interaction interactionEntity = new net.minecraft.world.entity.Interaction(EntityType.INTERACTION, level);
         interactionEntity.setPos(location.getX(), location.getY(), location.getZ());
-        Packet<ClientGamePacketListener> packet = interactionEntity.getAddEntityPacket(new ServerEntity(level.getMinecraftWorld(), interactionEntity, 0, false, consumer -> {}, Set.of()));
+        Packet<ClientGamePacketListener> packet = interactionEntity.getAddEntityPacket(new ServerEntity(level.getMinecraftWorld(), interactionEntity, 0, false, consumer -> {
+        }, Set.of()));
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             CraftPlayer cp = (CraftPlayer) onlinePlayer;
@@ -124,7 +131,8 @@ public class Packets implements PacketInterface {
 
         Display.TextDisplay display = new Display.TextDisplay(EntityType.TEXT_DISPLAY, level);
         display.setPos(location.getX(), location.getY(), location.getZ());
-        Packet<ClientGamePacketListener> packet = display.getAddEntityPacket(new ServerEntity(level.getMinecraftWorld(), display, 0, false, consumer -> {}, Set.of()));
+        Packet<ClientGamePacketListener> packet = display.getAddEntityPacket(new ServerEntity(level.getMinecraftWorld(), display, 0, false, consumer -> {
+        }, Set.of()));
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             CraftPlayer cp = (CraftPlayer) onlinePlayer;
@@ -143,7 +151,8 @@ public class Packets implements PacketInterface {
 
         Display.ItemDisplay display = new Display.ItemDisplay(EntityType.ITEM_DISPLAY, level);
         display.setPos(location.getX(), location.getY(), location.getZ());
-        Packet<ClientGamePacketListener> packet = display.getAddEntityPacket(new ServerEntity(level.getMinecraftWorld(), display, 0, false, consumer -> {}, Set.of()));
+        Packet<ClientGamePacketListener> packet = display.getAddEntityPacket(new ServerEntity(level.getMinecraftWorld(), display, 0, false, consumer -> {
+        }, Set.of()));
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             CraftPlayer cp = (CraftPlayer) onlinePlayer;
@@ -162,7 +171,8 @@ public class Packets implements PacketInterface {
 
         Display.BlockDisplay display = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, level);
         display.setPos(location.getX(), location.getY(), location.getZ());
-        Packet<ClientGamePacketListener> packet = display.getAddEntityPacket(new ServerEntity(level.getMinecraftWorld(), display, 0, false, consumer -> {}, Set.of()));
+        Packet<ClientGamePacketListener> packet = display.getAddEntityPacket(new ServerEntity(level.getMinecraftWorld(), display, 0, false, consumer -> {
+        }, Set.of()));
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             CraftPlayer cp = (CraftPlayer) onlinePlayer;
@@ -180,7 +190,8 @@ public class Packets implements PacketInterface {
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
         net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) entity).getHandle();
-        Packet<ClientGamePacketListener> packet = nmsEntity.getAddEntityPacket(new ServerEntity(((CraftWorld) entity.getWorld()).getHandle(), nmsEntity, 0, false, consumer -> {}, Set.of()));
+        Packet<ClientGamePacketListener> packet = nmsEntity.getAddEntityPacket(new ServerEntity(((CraftWorld) entity.getWorld()).getHandle(), nmsEntity, 0, false, consumer -> {
+        }, Set.of()));
         connection.send(packet);
     }
 
@@ -340,7 +351,8 @@ public class Packets implements PacketInterface {
         if (isSeeThrough) options = (byte) (options | 0x02);
         if (defaultBackground) options = (byte) (options | 0x04);
         switch (alignment) {
-            case CENTER -> {}
+            case CENTER -> {
+            }
             case LEFT -> options = (byte) (options | 0x08);
             case RIGHT -> options = (byte) (options | 0x10);
         }
@@ -403,5 +415,59 @@ public class Packets implements PacketInterface {
         data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(24, EntityDataSerializers.BYTE), transform.getId()));
 
         connection.send(new ClientboundSetEntityDataPacket(displayId, data));
+    }
+
+    @Override
+    public void sendToast(JavaPlugin plugin, Player player, ItemStack item, String titleJSON, String descriptionJSON, AdvancementDisplayType type) {
+        CraftPlayer cp = (CraftPlayer) player;
+        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
+
+        ResourceLocation resourceLocation = ResourceLocation.fromNamespaceAndPath("advanceddisplays", UUID.randomUUID().toString());
+
+        DisplayInfo info = new DisplayInfo(
+                CraftItemStack.asNMSCopy(item),
+                Objects.requireNonNull(Component.Serializer.fromJson(titleJSON, cp.getHandle().registryAccess())),
+                Objects.requireNonNull(Component.Serializer.fromJson(descriptionJSON, cp.getHandle().registryAccess())),
+                Optional.empty(),
+                AdvancementType.valueOf(type.name()),
+                true,
+                false,
+                true
+        );
+
+        Map<String, Criterion<?>> criteria = Map.of("impossible", new Criterion<>(new ImpossibleTrigger(), new ImpossibleTrigger.TriggerInstance()));
+        AdvancementRequirements requirements = new AdvancementRequirements(List.of(List.of("impossible")));
+
+        Advancement advancement = new Advancement(
+                Optional.empty(),
+                Optional.of(info),
+                AdvancementRewards.EMPTY,
+                criteria,
+                requirements,
+                false
+        );
+
+        AdvancementProgress progress = new AdvancementProgress();
+        progress.update(requirements);
+        Objects.requireNonNull(progress.getCriterion("impossible")).grant();
+
+        connection.send(new ClientboundUpdateAdvancementsPacket(
+                false,
+                List.of(new AdvancementHolder(resourceLocation, advancement)),
+                Set.of(),
+                Map.of(resourceLocation, progress)
+        ));
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                connection.send(new ClientboundUpdateAdvancementsPacket(
+                        false,
+                        List.of(),
+                        Set.of(resourceLocation),
+                        Map.of()
+                ));
+            }
+        }.runTaskLater(plugin, 0L);
     }
 }

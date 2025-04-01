@@ -43,6 +43,13 @@ public class Item {
     }
 
     public Item(Material material, String title, List<String> rawLore, Object value, boolean bigClicks, boolean smallClicks, double bigChange, double smallChange, boolean setTitle) {
+        ArrayList<String> lore = new ArrayList<>(rawLore.stream().map(line -> "&e" + line).toList());
+
+        if (!material.isItem()) {
+            material = Material.BARRIER;
+            lore.add("&cDisplayed material does not have an item!");
+        }
+
         ItemStack item = new ItemStack(material);
         ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
 
@@ -57,7 +64,6 @@ public class Item {
             meta.setDisplayName(Utils.getColoredText("&6" + title));
         }
 
-        ArrayList<String> lore = new ArrayList<>(rawLore.stream().map(line -> "&e" + line).toList());
         if (bigClicks) {
             lore.add("");
             lore.add("&7Use &cLEFT_CLICK &7to add " + bigChange);

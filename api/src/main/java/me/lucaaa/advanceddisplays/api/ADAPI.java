@@ -72,6 +72,25 @@ public interface ADAPI {
     BaseDisplay getDisplay(String name);
 
     /**
+     * Gets a display within a specific distance from the given location.
+     * @param location The location to check.
+     * @param radius The maximum distance.
+     * @return A display within a specific distance from the given location or null if none found.
+     */
+    default BaseDisplay getDisplayFromLoc(Location location, double radius) {
+        return getDisplayFromLoc(location, radius, true);
+    }
+
+    /**
+     * Gets a display within a specific distance from the given location.
+     * @param location The location to check.
+     * @param radius The maximum distance.
+     * @param closest Whether the display should be the closest one to the given location or the first one found.
+     * @return A display within a specific distance from the given location or null if none found.
+     */
+    BaseDisplay getDisplayFromLoc(Location location, double radius, boolean closest);
+
+    /**
      * Removes a previously created display. Deletes the entity from the world and removes the display from the list.
      * @param name The name of the display.
      */

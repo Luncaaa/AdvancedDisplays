@@ -60,6 +60,11 @@ public class ADAPIImplementation implements ADAPI {
     }
 
     @Override
+    public BaseDisplay getDisplayFromLoc(Location location, double radius, boolean closest) {
+        return displaysManager.getDisplayFromLoc(location, radius, closest);
+    }
+
+    @Override
     public void removeDisplay(String name) {
         ADBaseDisplay display = displaysManager.getDisplayFromMap(name);
 

@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.managers;
 import com.google.common.io.Files;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.ActionType;
+import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.data.AttachedDisplay;
 import me.lucaaa.advanceddisplays.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
@@ -336,6 +337,28 @@ public class DisplaysManager {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             ((DisplayMethods) newDisplay).sendMetadataPackets(onlinePlayer);
         }
+    }
+
+    public BaseDisplay getDisplayFromLoc(Location location, double radius, boolean closest) {
+        double closestDistance = radius;
+        BaseDisplay closestDisplay = null;
+
+        for (BaseDisplay display : displays.values()) {
+            double distanceSquared = display.getLocation().distanceSquared(location);
+            boolean isInRadius = distanceSquared <= Math.pow(radius, 2);
+
+            if (closest && isInRadius) {
+                if (closestDistance > distanceSquared) {
+                    closestDistance = distanceSquared;
+                    closestDisplay = display;
+                }
+
+            } else if (isInRadius) {
+                return display;
+            }
+        }
+
+        return closestDisplay;
     }
 
     public void addAttachingPlayer(Player player, AttachedDisplay display) {

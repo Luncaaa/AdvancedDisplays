@@ -8,10 +8,6 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * The commented out code is from the old version of VisibilityManager.
- * Because {@link ADVisibilityManager#updateVisibility()} is now run every tick, the commented code is redundant.
- */
 public class ADVisibilityManager implements VisibilityManager {
     private final ADBaseDisplay display;
     // String, not player, because players leaving a joining again are totally different objects.
@@ -26,20 +22,7 @@ public class ADVisibilityManager implements VisibilityManager {
     @Override
     public void setGlobalVisibility(Visibility visibility) {
         globalVisibility = visibility;
-        //setGlobalVisibility(visibility, true);
     }
-
-    /*@Override
-    public void setGlobalVisibility(Visibility visibility, boolean modify) {
-        globalVisibility = visibility;
-
-        if (!modify) return;
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (individualVis.containsKey(player.getName())) continue;
-            updateIndividualVis(player, visibility);
-        }
-    }*/
 
     @Override
     public Visibility getGlobalVisibility() {
@@ -49,8 +32,6 @@ public class ADVisibilityManager implements VisibilityManager {
     @Override
     public void setVisibility(Visibility visibility, Player player) {
         individualVis.put(player.getName(), visibility);
-
-        //updateIndividualVis(player, visibility);
     }
 
     @Override
@@ -60,33 +41,20 @@ public class ADVisibilityManager implements VisibilityManager {
         boolean def = globalVisibility == Visibility.SHOW;
         boolean individual = individualVis.containsKey(player.getName()) && individualVis.get(player.getName()) == Visibility.SHOW;
         boolean perm = (display.getPermission().equalsIgnoreCase("none") || player.hasPermission(display.getPermission())) && (display.getHidePermission().equalsIgnoreCase("none") || !player.hasPermission(display.getHidePermission()));
-        boolean inRange = display.getViewDistance() <= 0.0 || player.getLocation().distance(display.getLocation()) <= display.getViewDistance();
+        boolean inRange = display.getViewDistance() <= 0.0 || player.getLocation().distanceSquared(display.getLocation()) <= Math.pow(display.getViewDistance(), 2);
 
         return (def || individual) && perm && inRange;
     }
 
     @Override
     public void removeIndividualVisibility(Player player) {
-        //updateIndividualVis(player, globalVisibility);
         individualVis.remove(player.getName());
     }
 
     @Override
     public void clearPlayerVisibilities() {
-        /*for (String playerName : individualVis.keySet()) {
-            Player player = Bukkit.getPlayerExact(playerName);
-            updateIndividualVis(player, globalVisibility);
-        }*/
-
         individualVis.clear();
     }
-
-    /*private void updateIndividualVis(Player player, Visibility visibility) {
-        switch (visibility) {
-            case SHOW -> display.spawnToPlayer(player);
-            case HIDE -> display.removeToPlayer(player);
-        }
-    }*/
 
     public void updateVisibility() {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {

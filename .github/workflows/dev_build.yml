@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -27,11 +29,36 @@ jobs:
       - name: Build
         run: ./gradlew build
 
+      - name: Generate changelog
+        id: changelog
+        run: |
+          ALL_TAGS=$(git tag --sort=-v:refname)
+          
+          LATEST_TAG=""
+          for tag in $ALL_TAGS; do
+            if [[ $tag != "dev" ]]; then
+              LATEST_TAG=$tag
+              break
+            fi
+          done
+          
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_ENV
+          
+          if [ -z "$LATEST_TAG" ]; then
+            COMMIT_LOG=$(git log --pretty=format:'- [`%h`](https://github.com/${{ github.repository }}/commit/%H) %s (%an)')
+          else
+           COMMIT_LOG=$(git log $LATEST_TAG..HEAD --pretty=format:'- [`%h`](https://github.com/${{ github.repository }}/commit/%H) %s (%an)')
+          fi
+          
+          echo "commits<<EOF" >> $GITHUB_ENV
+          echo "$COMMIT_LOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
       - name: Create Release
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: "dev"
+          tag_name: dev
+          name: Development Build
           prerelease: true
-          title: "Development Build"
+          body: ${{ env.commits || 'No changelog generated' }}
           files: build/libs/AdvancedDisplays-*.jar

@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.actions.actionTypes;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.Action;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -9,8 +10,8 @@ import java.util.List;
 public class MessageAction extends Action {
     private final List<String> messages;
 
-    public MessageAction(ConfigurationSection actionSection) {
-        super(List.of("message"), actionSection);
+    public MessageAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
+        super(plugin, List.of("message"), actionSection);
 
         if (actionSection.isList("message")) {
             this.messages = actionSection.getStringList("message");

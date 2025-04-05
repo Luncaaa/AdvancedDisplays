@@ -4,7 +4,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
-import me.lucaaa.advanceddisplays.common.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -74,9 +73,10 @@ public class PacketsManager {
             } else {
                 eventLoop.execute(() -> playerPipelineOperation(player, operation));
             }
+            eventLoop.close();
 
         } catch (Exception e) {
-            Logger.logError(java.util.logging.Level.WARNING, "An error occurred while executing an operation on a player's pipeline! Player: " + player.getName(), e);
+            plugin.logError(java.util.logging.Level.WARNING, "An error occurred while executing an operation on a player's pipeline! Player: " + player.getName(), e);
         }
     }
 }

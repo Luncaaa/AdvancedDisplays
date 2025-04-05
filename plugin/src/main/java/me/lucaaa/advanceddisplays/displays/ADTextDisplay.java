@@ -3,7 +3,6 @@ package me.lucaaa.advanceddisplays.displays;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
-import me.lucaaa.advanceddisplays.common.utils.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -41,7 +40,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
 
             ConfigurationSection textSection = settings.getConfigurationSection("texts");
             if (textSection == null || textSection.getKeys(false).isEmpty()) {
-                Logger.log(Level.SEVERE, "The text display \"" + configManager.getFile().getName() + "\" does not have a valid \"text\" section! Check the wiki for more information.");
+                plugin.log(Level.SEVERE, "The text display \"" + configManager.getFile().getName() + "\" does not have a valid \"text\" section! Check the wiki for more information.");
                 texts.put("error", "&cError! No valid \"texts\" section found. Check the wiki for more information.");
             } else {
                 for (String sectionName : textSection.getKeys(false)) {

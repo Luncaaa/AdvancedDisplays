@@ -1,6 +1,5 @@
 package me.lucaaa.advanceddisplays;
 
-import io.th0rgal.oraxen.compatibilities.CompatibilitiesManager;
 import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.data.Version;
 import me.lucaaa.advanceddisplays.integrations.Integration;
@@ -23,7 +22,7 @@ import java.util.logging.Level;
 
 // TODO
 // 1. Animated item and block displays?
-public class AdvancedDisplays extends JavaPlugin {
+public class AdvancedDisplays extends JavaPlugin implements Logger {
     // Config files.
     private ConfigManager mainConfig;
     private ConfigManager savesConfig;
@@ -71,10 +70,10 @@ public class AdvancedDisplays extends JavaPlugin {
         String version = getServer().getBukkitVersion().split("-")[0];
         nmsVersion = Version.getNMSVersion(version);
         if (nmsVersion == Version.UNKNOWN) {
-            Logger.log(Level.SEVERE, "Unknown NMS version! Version: " + version);
-            Logger.log(Level.SEVERE, "The plugin may not be updated to support the server's version.");
-            Logger.log(Level.SEVERE, "If you're using a version lower than 1.19.4, upgrade to 1.19.4 or higher to use this plugin.");
-            Logger.log(Level.SEVERE, "The plugin will be disabled...");
+            log(Level.SEVERE, "Unknown NMS version! Version: " + version);
+            log(Level.SEVERE, "The plugin may not be updated to support the server's version.");
+            log(Level.SEVERE, "If you're using a version lower than 1.19.4, upgrade to 1.19.4 or higher to use this plugin.");
+            log(Level.SEVERE, "The plugin will be disabled...");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -83,12 +82,11 @@ public class AdvancedDisplays extends JavaPlugin {
 
         // Set up integrations.
         if (Bukkit.getPluginManager().isPluginEnabled("Oraxen")) {
-            CompatibilitiesManager.addCompatibility("AdvancedDisplays", OraxenCompat.class);
-            integrations.put(Compatibility.ORAXEN, new OraxenCompat());
+            integrations.put(Compatibility.ORAXEN, new OraxenCompat(this));
         }
 
         if (Bukkit.getPluginManager().isPluginEnabled("ItemsAdder")) {
-            integrations.put(Compatibility.ITEMS_ADDER, new ItemsAdderCompat());
+            integrations.put(Compatibility.ITEMS_ADDER, new ItemsAdderCompat(this));
         }
 
         // Set up files and managers.
@@ -161,5 +159,15 @@ public class AdvancedDisplays extends JavaPlugin {
 
     public TickManager getTickManager() {
         return tickManager;
+    }
+
+    @Override
+    public void log(Level level, String message) {
+        getLogger().log(level, message);
+    }
+
+    @Override
+    public void logError(Level level, String message, Throwable error) {
+        getLogger().log(level, message, error);
     }
 }

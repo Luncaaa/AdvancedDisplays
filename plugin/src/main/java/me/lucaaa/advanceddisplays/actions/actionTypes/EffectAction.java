@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.actions.actionTypes;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.Action;
-import me.lucaaa.advanceddisplays.common.utils.Logger;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -14,12 +14,12 @@ import java.util.logging.Level;
 public class EffectAction extends Action {
     private final PotionEffect effect;
 
-    public EffectAction(ConfigurationSection actionSection) {
-        super(List.of("effect", "duration", "amplifier"), actionSection);
+    public EffectAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
+        super(plugin, List.of("effect", "duration", "amplifier"), actionSection);
         PotionEffectType type = PotionEffectType.getByName(Objects.requireNonNull(actionSection.getString("effect")));
 
         if (type == null) {
-            Logger.log(Level.WARNING, "Invalid effect type found on action \"" + actionSection.getName() + "\": " + actionSection.getString("effect"));
+            plugin.log(Level.WARNING, "Invalid effect type found on action \"" + actionSection.getName() + "\": " + actionSection.getString("effect"));
             this.effect = null;
             this.isCorrect = false;
             return;

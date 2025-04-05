@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.actions.actionTypes;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.Action;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -13,8 +14,8 @@ public class TitleAction extends Action {
     private final int stay;
     private final int fadeOut;
 
-    public TitleAction(ConfigurationSection actionSection) {
-        super(List.of("title", "subtitle", "fadeIn", "stay", "fadeOut"), actionSection);
+    public TitleAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
+        super(plugin, List.of("title", "subtitle", "fadeIn", "stay", "fadeOut"), actionSection);
         this.title = actionSection.getString("title");
         this.subtitle = actionSection.getString("subtitle");
         this.fadeIn = actionSection.getInt("fadeIn", 20);

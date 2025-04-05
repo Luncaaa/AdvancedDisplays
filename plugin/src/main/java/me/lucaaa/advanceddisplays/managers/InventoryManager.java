@@ -3,7 +3,6 @@ package me.lucaaa.advanceddisplays.managers;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
-import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.data.EditingPlayer;
 import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
 import org.bukkit.entity.Player;
@@ -37,7 +36,7 @@ public class InventoryManager {
                     EditorItem disabledItem = EditorItem.valueOf(item.toUpperCase());
                     disabledItems.add(disabledItem);
                 } catch(IllegalArgumentException exception) {
-                    Logger.log(Level.WARNING, "Invalid item found in the \"disabledItems\" section in the config.yml file: " + item);
+                    plugin.log(Level.WARNING, "Invalid item found in the \"disabledItems\" section in the config.yml file: " + item);
                 }
             }
         }

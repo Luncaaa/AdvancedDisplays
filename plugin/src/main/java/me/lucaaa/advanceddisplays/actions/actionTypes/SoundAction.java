@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.actions.actionTypes;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.Action;
-import me.lucaaa.advanceddisplays.common.utils.Logger;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -14,13 +14,13 @@ public class SoundAction extends Action {
     private final float volume;
     private final float pitch;
 
-    public SoundAction(ConfigurationSection actionSection) {
-        super(List.of("sound", "volume", "pitch"), actionSection);
+    public SoundAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
+        super(plugin, List.of("sound", "volume", "pitch"), actionSection);
         Sound sound = null;
         try {
             sound = Sound.valueOf(actionSection.getString("sound"));
         } catch (IllegalArgumentException exception) {
-            Logger.log(Level.WARNING, "Invalid sound found on action \"" + actionSection.getName() + "\": " + actionSection.getString("sound"));
+            plugin.log(Level.WARNING, "Invalid sound found on action \"" + actionSection.getName() + "\": " + actionSection.getString("sound"));
             this.isCorrect = false;
         }
 

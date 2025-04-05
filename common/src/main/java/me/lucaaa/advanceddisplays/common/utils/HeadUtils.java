@@ -8,7 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
@@ -18,23 +17,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public class HeadUtils {
-    public static ItemStack getHead(String base64, String title, List<String> lore) {
-        ItemStack head = getHead(DisplayHeadType.BASE64, base64, null);
-        ItemMeta meta = Objects.requireNonNull(head.getItemMeta());
-
-        meta.setDisplayName(Utils.getColoredText(title));
-        meta.setLore(lore.stream().map(Utils::getColoredText).toList());
-
-        head.setItemMeta(meta);
-        return head;
-    }
-
-    public static ItemStack getHead(DisplayHeadType displayHeadType, String displayHeadValue, Player player) {
+    public static ItemStack getHead(DisplayHeadType displayHeadType, String displayHeadValue, Player player, Logger logger) {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
 
         SkullMeta skullMeta = (SkullMeta) Objects.requireNonNull(item.getItemMeta());
@@ -56,7 +43,7 @@ public class HeadUtils {
                 base64 = profileObject.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
 
             } catch (IOException e) {
-                Logger.log(java.util.logging.Level.WARNING, "The player name " + value + " does not exist!");
+                logger.log(java.util.logging.Level.WARNING, "The player name " + value + " does not exist!");
                 return item;
             }
 
@@ -78,7 +65,7 @@ public class HeadUtils {
             skullMeta.setOwnerProfile(profile);
 
         } catch (IllegalArgumentException | MalformedURLException e) {
-            Logger.logError(java.util.logging.Level.WARNING, "An error occurred while parsing a head! Head value: " + value, e);
+            logger.logError(java.util.logging.Level.WARNING, "An error occurred while parsing a head! Head value: " + value, e);
             return item;
         }
 

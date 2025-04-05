@@ -2,7 +2,6 @@ package me.lucaaa.advanceddisplays.managers;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
-import me.lucaaa.advanceddisplays.common.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
@@ -21,14 +20,14 @@ import java.util.logging.Level;
 public class ConversionManager {
     private static boolean conversionNeeded;
 
-    public static void setConversionNeeded(boolean needsConversion) {
+    public static void setConversionNeeded(AdvancedDisplays plugin, boolean needsConversion) {
         conversionNeeded = needsConversion;
 
         if (!conversionNeeded) return;
 
-        Logger.log(Level.WARNING, "The displays or the main configuration files are from an older version and have been changed in newer versions.");
-        Logger.log(Level.WARNING, "Run the command \"/ad convert\" to update the configuration files to newer versions, but make a backup first.");
-        Logger.log(Level.WARNING, "Not converting the configurations will cause the plugin to malfunction. See more information at lucaaa.gitbook.io/advanceddisplays/usage/commands-and-permissions/convert-subcommand");
+        plugin.log(Level.WARNING, "The displays or the main configuration files are from an older version and have been changed in newer versions.");
+        plugin.log(Level.WARNING, "Run the command \"/ad convert\" to update the configuration files to newer versions, but make a backup first.");
+        plugin.log(Level.WARNING, "Not converting the configurations will cause the plugin to malfunction. See more information at lucaaa.gitbook.io/advanceddisplays/usage/commands-and-permissions/convert-subcommand");
     }
 
     public static boolean isConversionNeeded() {

@@ -4,7 +4,6 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.*;
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
 import me.lucaaa.advanceddisplays.api.actions.ClickType;
-import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -65,24 +64,24 @@ public class ActionsHandler {
             ActionType actionType = ActionType.getFromConfigName(actionSection.getString("type"));
 
             if (actionType == null) {
-                Logger.log(Level.WARNING, "Invalid action type detected in \"" + actionSection.getName() + "\" for click type " + clickType.name() + actionSection.getString("type"));
+                plugin.log(Level.WARNING, "Invalid action type detected in \"" + actionSection.getName() + "\" for click type " + clickType.name() + actionSection.getString("type"));
                 continue;
             }
 
             Action action = switch (actionType) {
-                case MESSAGE -> new MessageAction(actionSection);
-                case CONSOLE_COMMAND -> new ConsoleCommandAction(actionSection);
-                case PLAYER_COMMAND -> new PlayerCommandAction(actionSection);
-                case TITLE -> new TitleAction(actionSection);
+                case MESSAGE -> new MessageAction(plugin, actionSection);
+                case CONSOLE_COMMAND -> new ConsoleCommandAction(plugin, actionSection);
+                case PLAYER_COMMAND -> new PlayerCommandAction(plugin, actionSection);
+                case TITLE -> new TitleAction(plugin, actionSection);
                 case ACTIONBAR -> new ActionbarAction(plugin, actionSection);
-                case PLAY_SOUND -> new SoundAction(actionSection);
-                case EFFECT -> new EffectAction(actionSection);
+                case PLAY_SOUND -> new SoundAction(plugin, actionSection);
+                case EFFECT -> new EffectAction(plugin, actionSection);
                 case TOAST -> new ToastAction(plugin, actionSection);
             };
 
             if (!action.isFormatCorrect()) {
                 String missingFields = String.join(", ", action.getMissingFields());
-                Logger.log(Level.WARNING, "Your action \"" + actionSection.getName() + "\" is missing necessary fields: " + missingFields);
+                plugin.log(Level.WARNING, "Your action \"" + actionSection.getName() + "\" is missing necessary fields: " + missingFields);
                 continue;
             }
 

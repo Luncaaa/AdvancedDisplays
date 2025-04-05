@@ -8,7 +8,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public interface ADAPI {
      * @param plugin An instance of your plugin
      * @return The instance of the API.
      */
-    static ADAPI getInstance(Plugin plugin) {
+    static ADAPI getInstance(JavaPlugin plugin) {
         return ADAPIProvider.getImplementation().getAPI(plugin);
     }
 

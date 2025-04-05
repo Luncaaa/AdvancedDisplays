@@ -1,6 +1,6 @@
 package me.lucaaa.advanceddisplays.api;
 
-import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * INTERNAL USE ONLY - DO NOT USE!
@@ -24,6 +24,5 @@ public abstract class ADAPIProvider {
         ADAPIProvider.implementation = implementation;
     }
 
-    public abstract ADAPI getAPI(Plugin plugin);
-
+    public abstract ADAPI getAPI(JavaPlugin plugin);
 }

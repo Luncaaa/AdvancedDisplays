@@ -3,7 +3,6 @@ package me.lucaaa.advanceddisplays.displays;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
-import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import org.bukkit.*;
@@ -245,7 +244,7 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
                 TrimPattern pattern = Registry.TRIM_PATTERN.get(NamespacedKey.minecraft(trim[0]));
 
                 if (material == null || pattern == null) {
-                    Logger.log(Level.WARNING, "Invalid armor trim for item display " + getName());
+                    plugin.log(Level.WARNING, "Invalid armor trim for item display " + getName());
                 } else {
                     armor.setTrim(new ArmorTrim(material, pattern));
                 }

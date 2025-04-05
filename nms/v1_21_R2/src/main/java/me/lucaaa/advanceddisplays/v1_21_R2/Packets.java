@@ -48,6 +48,12 @@ import java.util.*;
 
 @SuppressWarnings("unused")
 public class Packets implements PacketInterface {
+    private final Logger logger;
+
+    public Packets(Logger logger) {
+        this.logger = logger;
+    }
+
     @Override
     public ChannelPipeline getPlayerPipeline(Player player) {
         CraftPlayer craftPlayer = (CraftPlayer) player;
@@ -58,7 +64,7 @@ public class Packets implements PacketInterface {
             return ((Connection) field.get(craftPlayer.getHandle().connection)).channel.pipeline();
 
         } catch (Exception e) {
-            Logger.logError(java.util.logging.Level.SEVERE, "An error occurred while getting " + player.getName() + "'s pipeline: ", e);
+            logger.logError(java.util.logging.Level.SEVERE, "An error occurred while getting " + player.getName() + "'s pipeline: ", e);
             return null;
         }
     }
@@ -87,7 +93,7 @@ public class Packets implements PacketInterface {
             return new InternalEntityClickEvent(clickType, interactionId);
 
         } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            Logger.logError(java.util.logging.Level.SEVERE, "An error occurred while handling a click on a display: ", e);
+            logger.logError(java.util.logging.Level.SEVERE, "An error occurred while handling a click on a display: ", e);
             return null;
         }
     }
@@ -386,7 +392,7 @@ public class Packets implements PacketInterface {
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
         List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        ItemStack head = HeadUtils.getHead(displayHeadType, displayHeadValue, player);
+        ItemStack head = HeadUtils.getHead(displayHeadType, displayHeadValue, player, logger);
         if (enchanted) head.addUnsafeEnchantment(Enchantment.MENDING, 1);
 
         data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy(head)));

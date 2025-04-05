@@ -51,7 +51,7 @@ public class DisplaysManager {
                 ConfigManager configManager = new ConfigManager(plugin, configsFolder + File.separator + configFile.getName(), false);
 
                 if (!plugin.getMainConfig().getConfig().isBoolean("updateChecker")) {
-                    ConversionManager.setConversionNeeded(true);
+                    ConversionManager.setConversionNeeded(plugin, true);
                     break;
                 }
 

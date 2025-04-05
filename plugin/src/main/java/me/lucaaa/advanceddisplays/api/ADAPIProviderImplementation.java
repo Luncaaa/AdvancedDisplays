@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.api;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,8 +16,8 @@ public class ADAPIProviderImplementation extends ADAPIProvider {
     }
 
     @Override
-    public ADAPIImplementation getAPI(Plugin plugin) {
-        return apiMap.computeIfAbsent(plugin, p -> new ADAPIImplementation(this.plugin, plugin.getName()));
+    public ADAPIImplementation getAPI(JavaPlugin apiPlugin) {
+        return apiMap.computeIfAbsent(plugin, p -> new ADAPIImplementation(this.plugin, apiPlugin));
     }
 
     public Map<Plugin, ADAPIImplementation> getApiMap() {

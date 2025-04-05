@@ -2,15 +2,15 @@ package me.lucaaa.advanceddisplays.integrations;
 
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
-import me.lucaaa.advanceddisplays.common.utils.Logger;
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.logging.Level;
 
 public class ItemsAdderCompat implements Integration {
-    public ItemsAdderCompat() {
-        Logger.log(Level.INFO, "ItemsAdder detected. Hooking up implementation...");
+    public ItemsAdderCompat(AdvancedDisplays plugin) {
+        plugin.log(Level.INFO, "ItemsAdder detected. Hooking up implementation...");
     }
 
     @Override

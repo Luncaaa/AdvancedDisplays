@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.actions.actionTypes;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.Action;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -9,8 +10,8 @@ import java.util.*;
 public class PlayerCommandAction extends Action {
     private final List<String> commands;
 
-    public PlayerCommandAction(ConfigurationSection actionSection) {
-        super(List.of("command"), actionSection);
+    public PlayerCommandAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
+        super(plugin, List.of("command"), actionSection);
 
         if (actionSection.isList("command")) {
             this.commands = actionSection.getStringList("command");

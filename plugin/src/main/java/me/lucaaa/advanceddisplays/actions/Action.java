@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.actions;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Action {
+    protected final AdvancedDisplays plugin;
     private final int delay;
     private final boolean global;
     private final boolean globalPlaceholders;
@@ -17,7 +19,8 @@ public abstract class Action {
     private final List<String> missingFields = new ArrayList<>();
     protected boolean isCorrect = true;
 
-    public Action(List<String> requiredFields, ConfigurationSection section, boolean canBeGlobal) {
+    public Action(AdvancedDisplays plugin, List<String> requiredFields, ConfigurationSection section, boolean canBeGlobal) {
+        this.plugin = plugin;
         this.delay = section.getInt("delay", 0);
         this.global = canBeGlobal && section.getBoolean("global", false);
         this.globalPlaceholders = section.getBoolean("global-placeholders", true);
@@ -30,8 +33,8 @@ public abstract class Action {
         }
     }
 
-    public Action(List<String> requiredFields, ConfigurationSection section) {
-        this(requiredFields, section, true);
+    public Action(AdvancedDisplays plugin, List<String> requiredFields, ConfigurationSection section) {
+        this(plugin, requiredFields, section, true);
     }
 
     /**

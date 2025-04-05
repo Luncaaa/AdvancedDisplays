@@ -3,7 +3,6 @@ package me.lucaaa.advanceddisplays.actions.actionTypes;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.Action;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
-import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -25,7 +24,7 @@ public class ToastAction extends Action {
     private final boolean animate;
 
     public ToastAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
-        super(List.of("material", "enchanted", "title", "description", "frame", "animate"), actionSection);
+        super(plugin, List.of("material", "enchanted", "title", "description", "frame", "animate"), actionSection);
         this.plugin = plugin;
 
         Material material;
@@ -33,7 +32,7 @@ public class ToastAction extends Action {
             material = Material.valueOf(actionSection.getString("material"));
         } catch (IllegalArgumentException exception) {
             material = Material.AIR;
-            Logger.log(Level.WARNING, "Invalid material found on action \"" + actionSection.getName() + "\": " + actionSection.getString("material"));
+            plugin.log(Level.WARNING, "Invalid material found on action \"" + actionSection.getName() + "\": " + actionSection.getString("material"));
             this.isCorrect = false;
         }
         this.item = new ItemStack(material);
@@ -49,7 +48,7 @@ public class ToastAction extends Action {
             frame = AdvancementDisplayType.valueOf(actionSection.getString("frame"));
         } catch (IllegalArgumentException exception) {
             frame = AdvancementDisplayType.TASK;
-            Logger.log(Level.WARNING, "Invalid frame type found on action \"" + actionSection.getName() + "\": " + actionSection.getString("frame"));
+            plugin.log(Level.WARNING, "Invalid frame type found on action \"" + actionSection.getName() + "\": " + actionSection.getString("frame"));
             this.isCorrect = false;
         }
         this.frame = frame;

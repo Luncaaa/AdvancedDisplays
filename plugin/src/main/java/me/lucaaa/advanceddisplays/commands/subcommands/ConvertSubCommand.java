@@ -23,12 +23,12 @@ public class ConvertSubCommand extends SubCommandsFormat {
     @Override
     public void run(CommandSender sender, String[] args) {
         if (!ConversionManager.isConversionNeeded()) {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aConfiguration files seem to be up-to-date. If this is an error, please report it on GitHub.", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aConfiguration files seem to be up-to-date. If this is an error, please report it on GitHub."));
             return;
         }
 
         if (!hasRunOnce) {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aRun the command again to confirm the conversion. It is highly recommended to create a backup of the displays folder before running the command again.", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aRun the command again to confirm the conversion. It is highly recommended to create a backup of the displays folder before running the command again."));
             hasRunOnce = true;
             return;
         }
@@ -37,7 +37,7 @@ public class ConvertSubCommand extends SubCommandsFormat {
 
         ConversionManager.setConversionNeeded(false);
         plugin.reloadConfigs();
-        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe displays have been successfully converted!", true));
+        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe displays have been successfully converted!"));
         hasRunOnce = false;
     }
 

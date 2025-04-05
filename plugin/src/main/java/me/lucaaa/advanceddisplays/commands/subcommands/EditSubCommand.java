@@ -28,11 +28,11 @@ public class EditSubCommand extends SubCommandsFormat {
         ADBaseDisplay display = plugin.getDisplaysManager().getDisplays().get(args[1]);
 
         if (display == null) {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!"));
             return;
         }
 
         plugin.getInventoryManager().addEditingPlayer((Player) sender, plugin.getInventoryManager().getDisabledItems(), display);
-        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are now editing the display &e" + display.getName() + "&a. Run &e/ad finish &ato get your old inventory back.", true));
+        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are now editing the display &e" + display.getName() + "&a. Run &e/ad finish &ato get your old inventory back."));
     }
 }

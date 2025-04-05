@@ -95,9 +95,9 @@ public class PlayerEventsListener implements Listener {
             AttachedDisplay display = manager.getAttachingDisplay(player);
             ADTextDisplay newDisplay = manager.createAttachedDisplay(event, display);
             if (newDisplay == null) {
-                player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cA display with the name &b" + display.name() + " &calready exists!", true));
+                player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cA display with the name &b" + display.name() + " &calready exists!"));
             } else {
-                player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + display.name() + " &ahas been successfully created.", true));
+                player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + display.name() + " &ahas been successfully created."));
             }
         }
 

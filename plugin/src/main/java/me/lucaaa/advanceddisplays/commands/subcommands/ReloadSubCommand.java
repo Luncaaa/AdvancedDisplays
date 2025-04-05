@@ -17,6 +17,6 @@ public class ReloadSubCommand extends SubCommandsFormat {
     @Override
     public void run(CommandSender sender, String[] args) {
         plugin.reloadConfigs();
-        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe configuration file has been reloaded successfully.", true));
+        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe configuration file has been reloaded successfully."));
     }
 }

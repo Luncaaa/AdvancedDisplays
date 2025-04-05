@@ -26,9 +26,9 @@ public class RemoveSubCommand extends SubCommandsFormat {
         boolean couldRemoveDisplay = plugin.getDisplaysManager().removeDisplay(args[1]);
 
         if (couldRemoveDisplay) {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[1] + " &ahas been successfully removed.", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[1] + " &ahas been successfully removed."));
         } else {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!"));
         }
     }
 }

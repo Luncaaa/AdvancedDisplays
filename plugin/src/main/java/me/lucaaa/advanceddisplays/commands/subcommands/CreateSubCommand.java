@@ -60,7 +60,7 @@ public class CreateSubCommand extends SubCommandsFormat {
         Player player = (Player) sender;
 
         if (plugin.getDisplaysManager().existsDisplay(args[2])) {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cA display with the name &b" + args[2] + " &calready exists!", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cA display with the name &b" + args[2] + " &calready exists!"));
             return;
         }
 
@@ -69,13 +69,13 @@ public class CreateSubCommand extends SubCommandsFormat {
             try {
                 side = AttachedDisplay.Side.valueOf(args[3].toUpperCase());
             } catch (IllegalArgumentException e) {
-                sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe side &b" + args[3] + " &cis not a valid side.", true));
+                sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe side &b" + args[3] + " &cis not a valid side."));
                 return;
             }
 
             String value = String.join(" ", Arrays.copyOfRange(args, 4, args.length));
             plugin.getDisplaysManager().addAttachingPlayer(player, new AttachedDisplay(args[2], side, value , true));
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&6Right-click the block where you want your display to be attached or run &e/ad finish &6to cancel the action.", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&6Right-click the block where you want your display to be attached or run &e/ad finish &6to cancel the action."));
 
             return;
         }
@@ -84,14 +84,14 @@ public class CreateSubCommand extends SubCommandsFormat {
         try {
             type = DisplayType.valueOf(args[1].toUpperCase());
         } catch (IllegalArgumentException e) {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe type &b" + args[1] + " &cis not a valid display type.", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe type &b" + args[1] + " &cis not a valid display type."));
             return;
         }
         String value = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
 
         if (type == DisplayType.BLOCK || type == DisplayType.ITEM) {
             if (Material.getMaterial(value) == null) {
-                sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + value + " &cis not a valid material!", true));
+                sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + value + " &cis not a valid material!"));
                 return;
             }
         }
@@ -100,7 +100,7 @@ public class CreateSubCommand extends SubCommandsFormat {
             try {
                 Objects.requireNonNull(Material.getMaterial(value)).createBlockData();
             } catch (IllegalArgumentException e) {
-                sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe material &b" + value + " &cis not a valid block.", true));
+                sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe material &b" + value + " &cis not a valid block."));
                 return;
             }
         }
@@ -111,6 +111,6 @@ public class CreateSubCommand extends SubCommandsFormat {
             case BLOCK -> plugin.getDisplaysManager().createBlockDisplay(player.getEyeLocation(), args[2], Objects.requireNonNull(Material.getMaterial(value)).createBlockData(), true);
         }
 
-        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[2] + " &ahas been successfully created.", true));
+        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[2] + " &ahas been successfully created."));
     }
 }

@@ -32,7 +32,7 @@ public class MoveHereSubCommand extends SubCommandsFormat {
         ADBaseDisplay display = plugin.getDisplaysManager().getDisplayFromMap(args[1]);
 
         if (display == null) {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!"));
             return;
         }
 
@@ -43,6 +43,6 @@ public class MoveHereSubCommand extends SubCommandsFormat {
             display.center();
         }
 
-        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[1] + " &ahas been successfully moved.", true));
+        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[1] + " &ahas been successfully moved."));
     }
 }

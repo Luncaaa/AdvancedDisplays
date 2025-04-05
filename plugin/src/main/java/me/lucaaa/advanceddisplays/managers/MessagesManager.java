@@ -9,9 +9,8 @@ public class MessagesManager {
         this.prefix = mainConfigManager.getConfig().getString("prefix");
     }
     
-    public String getColoredMessage(String message, boolean addPrefix) {
-        String messageToSend = message;
-        if (addPrefix) messageToSend =  prefix + " " + messageToSend;
+    public String getColoredMessage(String message) {
+        String messageToSend = prefix + " " + message;
 
         return ChatColor.translateAlternateColorCodes('&', messageToSend);
     }

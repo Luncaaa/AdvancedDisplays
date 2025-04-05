@@ -36,21 +36,21 @@ public class SetPageSubCommand extends SubCommandsFormat {
         ADBaseDisplay display = plugin.getDisplaysManager().getDisplayFromMap(args[1]);
 
         if (display == null) {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!"));
             return;
         }
 
         if (!(display instanceof ADTextDisplay textDisplay)) {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cis not a text display!", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cis not a text display!"));
             return;
         }
 
         if (!textDisplay.getText().containsKey(args[2])) {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not have a page named &b" + args[2] + "&c!", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not have a page named &b" + args[2] + "&c!"));
             return;
         }
 
         textDisplay.setPage(args[2]);
-        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[1] + " &ais now showing its next page.", true));
+        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[1] + " &ais now showing its next page."));
     }
 }

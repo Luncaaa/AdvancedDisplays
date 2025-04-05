@@ -30,9 +30,9 @@ public class TeleportSubCommand extends SubCommandsFormat {
         if (display != null) {
             Player player = (Player) sender;
             player.teleport(display.getLocation());
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[1] + " &ahas been successfully removed.", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[1] + " &ahas been successfully removed."));
         } else {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!", true));
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!"));
         }
     }
 }

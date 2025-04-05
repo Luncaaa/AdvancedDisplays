@@ -193,11 +193,11 @@ public class EditorGUI extends InventoryMethods {
                 if (display.getType() != DisplayType.TEXT) {
                     editMap.put((Player) event.getWhoClicked(), EditAction.CHANGE_MATERIAL);
                     if (display.getType() == DisplayType.BLOCK) {
-                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of a valid block.", true));
-                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6You can find a list of them here: &ehttps://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/BlockType.html", true));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of a valid block."));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6You can find a list of them here: &ehttps://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/BlockType.html"));
                     } else {
-                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of a valid material.", true));
-                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6You can find a list of them here: &ehttps://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html", true));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of a valid material."));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6You can find a list of them here: &ehttps://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html"));
                     }
                     /* This would be useful if the player could use their inventory to drag items into the "current value" slot.
                     ItemStack cursorItem = Objects.requireNonNull(event.getCursor()).clone();
@@ -227,13 +227,13 @@ public class EditorGUI extends InventoryMethods {
                 } else {
                     if (event.isLeftClick()) {
                         editMap.put((Player) event.getWhoClicked(), EditAction.REMOVE_TEXT);
-                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of the animation to remove. Valid animations: &e" + String.join("&6, &e", ((TextDisplay) display).getText().keySet()), true));
-                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Type \"&ecancel&6\" to cancel the operation.", true));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of the animation to remove. Valid animations: &e" + String.join("&6, &e", ((TextDisplay) display).getText().keySet())));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Type \"&ecancel&6\" to cancel the operation."));
                     } else {
                         editMap.put((Player) event.getWhoClicked(), EditAction.ADD_TEXT);
-                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of the animation to add along with its value. The name must not include spaces. You may use legacy color codes, minimessage format, placeholders and '\\n' to add a new line.", true));
-                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Example: \"&emyAnimation3 <red>Hello %player%\\n<yellow>How are you?&6\"", true));
-                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Type \"&ecancel&6\" to cancel the operation.", true));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of the animation to add along with its value. The name must not include spaces. You may use legacy color codes, minimessage format, placeholders and '\\n' to add a new line."));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Example: \"&emyAnimation3 <red>Hello %player%\\n<yellow>How are you?&6\""));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Type \"&ecancel&6\" to cancel the operation."));
                     }
                 }
             }
@@ -393,9 +393,9 @@ public class EditorGUI extends InventoryMethods {
             switch (editMap.get(player)) {
                 case REMOVE_TEXT -> {
                     if (((TextDisplay) display).removeText(input)) {
-                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + input + " &a has been removed. If it didn't exist, nothing will be changed.", true));
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + input + " &a has been removed. If it didn't exist, nothing will be changed."));
                     } else {
-                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe animation &b" + input + " &cdoes not exist!", true));
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe animation &b" + input + " &cdoes not exist!"));
                         return;
                     }
 
@@ -406,16 +406,16 @@ public class EditorGUI extends InventoryMethods {
                     int firstSpace = input.indexOf(" ");
 
                     if (firstSpace == -1){
-                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe text you have entered is invalid. Remember that the format is &b<animation name (no spaces)> <animation text>", true));
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe text you have entered is invalid. Remember that the format is &b<animation name (no spaces)> <animation text>"));
                         return;
                     }
 
                     String identifier = input.substring(0, firstSpace);
                     String joined = input.substring(firstSpace + 1).replace("\\n", "\n");
                     if (((TextDisplay) display).addText(identifier, joined)) {
-                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + identifier + " &a has been created and added after the last animation.", true));
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + identifier + " &a has been created and added after the last animation."));
                     } else {
-                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cAn animation with the name &b" + identifier + " &calready exists!", true));
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cAn animation with the name &b" + identifier + " &calready exists!"));
                         return;
                     }
 
@@ -426,12 +426,12 @@ public class EditorGUI extends InventoryMethods {
                     Material material = Material.getMaterial(input.toUpperCase());
 
                     if (material == null) {
-                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + input + " &cis not a valid material!", true));
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + input + " &cis not a valid material!"));
                         return;
                     }
 
                     if (material == Material.AIR) {
-                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe material cannot be air!", true));
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe material cannot be air!"));
                         return;
                     }
 
@@ -445,7 +445,7 @@ public class EditorGUI extends InventoryMethods {
                             setBlockData();
 
                         } catch (IllegalArgumentException | NullPointerException ignored) {
-                            player.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + material.name() + " &cis not a valid block!", true));
+                            player.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + material.name() + " &cis not a valid block!"));
                             return;
                         }
                     }

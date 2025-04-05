@@ -24,17 +24,17 @@ public class FinishSubCommand extends SubCommandsFormat {
         if (plugin.getDisplaysManager().isPlayerAttaching(player)) {
             sendError = false;
             plugin.getDisplaysManager().removeAttachingDisplay(player);
-            player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are no longer creating an ATTACHED display.", true));
+            player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are no longer creating an ATTACHED display."));
         }
 
         if (!plugin.getInventoryManager().isPlayerNotEditing(player)) {
             sendError = false;
             plugin.getInventoryManager().getEditingPlayer(player).finishEditing();
-            player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been successfully given back to you.", true));
+            player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been successfully given back to you."));
         }
 
         if (sendError) {
-            player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cYou are not editing or creating any display!", true));
+            player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cYou are not editing or creating any display!"));
         }
     }
 }

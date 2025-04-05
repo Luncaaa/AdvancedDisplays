@@ -17,6 +17,6 @@ public class ListSubCommand extends SubCommandsFormat{
     @Override
     public void run(CommandSender sender, String[] args) {
         String list = String.join("&6,&e ", plugin.getDisplaysManager().getDisplays().keySet());
-        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&6List of displays: &e" + list, true));
+        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&6List of displays: &e" + list));
     }
 }

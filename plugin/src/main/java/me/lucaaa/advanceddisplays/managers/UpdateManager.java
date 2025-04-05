@@ -41,15 +41,15 @@ public class UpdateManager {
         double pluginVerMinor = (pluginVerDivided.length > 2) ? Integer.parseInt(pluginVerDivided[2]) : 0;
 
         if (spigotVerMajor == pluginVerMajor && spigotVerMinor == pluginVerMinor) {
-            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe plugin is up to date! &7(v" + pluginVersion + ")", true));
+            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe plugin is up to date! &7(v" + pluginVersion + ")"));
 
         } else if (spigotVerMajor > pluginVerMajor || (spigotVerMajor == pluginVerMajor && spigotVerMinor > pluginVerMinor)) {
-            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6There's a new update available on Spigot! &c" + pluginVersion + " &7-> &a" + spigotVersion, true));
-            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Download it at &7https://www.spigotmc.org/resources/advanceddisplays.110865/", true));
+            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6There's a new update available on Spigot! &c" + pluginVersion + " &7-> &a" + spigotVersion));
+            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Download it at &7https://www.spigotmc.org/resources/advanceddisplays.110865/"));
 
         } else {
-            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Your plugin version is newer than the Spigot version! &a" + pluginVersion + " &7-> &c" + spigotVersion, true));
-            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6There may be bugs and/or untested features!", true));
+            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Your plugin version is newer than the Spigot version! &a" + pluginVersion + " &7-> &c" + spigotVersion));
+            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6There may be bugs and/or untested features!"));
         }
     }
 }

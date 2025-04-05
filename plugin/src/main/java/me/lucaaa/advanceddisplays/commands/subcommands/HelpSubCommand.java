@@ -1,6 +1,7 @@
 package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.common.utils.Utils;
 import org.bukkit.command.CommandSender;
 
 import java.util.Map;
@@ -21,12 +22,12 @@ public class HelpSubCommand extends SubCommandsFormat {
 
     @Override
     public void run(CommandSender sender, String[] args) {
-        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&c---------[ AdvancedDisplays help menu ]---------", false));
+        sender.sendMessage(Utils.getColoredText("&c---------[ AdvancedDisplays help menu ]---------"));
 
-        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cCommands: &7&o([] - mandatory args, <> - optional args)", false));
+        sender.sendMessage(Utils.getColoredText("&cCommands: &7&o([] - mandatory args, <> - optional args)"));
         for (SubCommandsFormat value : subCommands.values()) {
             if (value.neededPermission == null || sender.hasPermission(value.neededPermission) || sender.hasPermission("ad.admin")) {
-                sender.sendMessage(plugin.getMessagesManager().getColoredMessage(" &7- &6" + value.usage + "&7: &e" + value.description, false));
+                sender.sendMessage(Utils.getColoredText(" &7- &6" + value.usage + "&7: &e" + value.description));
             }
         }
     }

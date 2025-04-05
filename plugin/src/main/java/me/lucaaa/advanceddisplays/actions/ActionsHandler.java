@@ -4,6 +4,9 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.*;
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
 import me.lucaaa.advanceddisplays.api.actions.ClickType;
+import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
+import me.lucaaa.advanceddisplays.common.utils.Utils;
+import me.lucaaa.advanceddisplays.conditions.ConditionsHandler;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -12,21 +15,29 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
 public class ActionsHandler {
     private final AdvancedDisplays plugin;
+    private final ConditionsHandler conditionsHandler;
+    private final String conditionsNotMetMessage;
     private final Map<ClickType, ArrayList<Action>> actionsMap = new EnumMap<>(ClickType.class);
     private DisplayActions clickActions = null;
-    private final boolean isApiDisplay;
 
-    public ActionsHandler(AdvancedDisplays plugin, YamlConfiguration config) {
+    public ActionsHandler(AdvancedDisplays plugin, BaseDisplay display, YamlConfiguration config) {
         this.plugin = plugin;
-        this.isApiDisplay = false;
 
         ConfigurationSection actionsSection = config.getConfigurationSection("actions");
-        if (actionsSection == null) return;
+        if (actionsSection == null) {
+            this.conditionsHandler = null;
+            this.conditionsNotMetMessage = null;
+            return;
+        } else {
+            this.conditionsHandler = new ConditionsHandler(plugin, display, actionsSection.getConfigurationSection("conditions"));
+            this.conditionsNotMetMessage = actionsSection.getString("conditions-not-met", null);
+        }
 
         for (String clickTypeKey : actionsSection.getKeys(false)) {
             if (clickTypeKey.equalsIgnoreCase("ANY")) {
@@ -48,7 +59,8 @@ public class ActionsHandler {
 
     public ActionsHandler(AdvancedDisplays plugin) {
         this.plugin = plugin;
-        this.isApiDisplay = true;
+        this.conditionsHandler = null;
+        this.conditionsNotMetMessage = null;
     }
 
     /**
@@ -79,9 +91,10 @@ public class ActionsHandler {
                 case TOAST -> new ToastAction(plugin, actionSection);
             };
 
-            if (!action.isFormatCorrect()) {
-                String missingFields = String.join(", ", action.getMissingFields());
-                plugin.log(Level.WARNING, "Your action \"" + actionSection.getName() + "\" is missing necessary fields: " + missingFields);
+            List<String> missingFields = action.getMissingFields();
+            if (!missingFields.isEmpty()) {
+                String missing = String.join(", ", missingFields);
+                plugin.log(Level.WARNING, "Your action \"" + actionSection.getName() + "\" is missing necessary fields: " + missing);
                 continue;
             }
 
@@ -94,7 +107,16 @@ public class ActionsHandler {
     }
 
     public void runActions(Player player, ClickType clickType, ADBaseDisplay display) {
-        if (isApiDisplay && clickActions != null) {
+        boolean meetsConditions = conditionsHandler.checkConditions(player);
+
+        if (!meetsConditions) {
+            if (!conditionsNotMetMessage.isEmpty() && !conditionsNotMetMessage.isBlank()) {
+                player.spigot().sendMessage(Utils.getTextComponent(conditionsNotMetMessage, player, null, false));
+            }
+            return;
+        }
+
+        if (clickActions != null) {
             clickActions.onClick(player, clickType, display);
 
         } else {

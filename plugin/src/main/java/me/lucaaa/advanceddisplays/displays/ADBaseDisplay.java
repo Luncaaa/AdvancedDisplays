@@ -33,7 +33,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     protected final YamlConfiguration config;
     protected final DisplayType type;
     private final ActionsHandler actionsHandler;
-    private final ADVisibilityManager visibilityManager = new ADVisibilityManager(this);
+    private final ADVisibilityManager visibilityManager;
 
     private final String name;
     private String permission;
@@ -75,7 +75,8 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.permission = config.getString("permission", "none");
         this.hidePermission = config.getString("hide-permission", "none");
         this.viewDistance = config.getDouble("view-distance");
-        this.actionsHandler = new ActionsHandler(plugin, configManager.getConfig());
+        this.actionsHandler = new ActionsHandler(plugin, this, configManager.getConfig());
+        this.visibilityManager = new ADVisibilityManager(plugin, this);
 
         ConfigurationSection locationSection = Objects.requireNonNull(config.getConfigurationSection("location"));
         String world = locationSection.getString("world", Bukkit.getWorlds().get(0).getName());
@@ -141,6 +142,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.hidePermission = "none";
         this.viewDistance = 0.0;
         this.actionsHandler = new ActionsHandler(plugin);
+        this.visibilityManager = new ADVisibilityManager(plugin, this);
 
         this.location = display.getLocation();
         this.billboard = display.getBillboard();

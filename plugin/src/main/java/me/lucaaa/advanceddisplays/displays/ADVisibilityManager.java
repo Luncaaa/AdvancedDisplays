@@ -1,7 +1,9 @@
 package me.lucaaa.advanceddisplays.displays;
 
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.visibility.Visibility;
 import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
+import me.lucaaa.advanceddisplays.conditions.ConditionsHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -10,13 +12,15 @@ import java.util.Map;
 
 public class ADVisibilityManager implements VisibilityManager {
     private final ADBaseDisplay display;
+    private final ConditionsHandler conditionsHandler;
     // String, not player, because players leaving a joining again are totally different objects.
     private final Map<String, Visibility> individualVis = new HashMap<>();
     private Visibility globalVisibility = Visibility.SHOW;
     private final Map<Player, Boolean> cachedVis = new HashMap<>();
 
-    public ADVisibilityManager(ADBaseDisplay display) {
+    public ADVisibilityManager(AdvancedDisplays plugin, ADBaseDisplay display) {
         this.display = display;
+        this.conditionsHandler = new ConditionsHandler(plugin, display, display.getConfigManager().getConfig().getConfigurationSection("view-conditions"));
     }
 
     @Override
@@ -40,10 +44,9 @@ public class ADVisibilityManager implements VisibilityManager {
 
         boolean def = globalVisibility == Visibility.SHOW;
         boolean individual = individualVis.containsKey(player.getName()) && individualVis.get(player.getName()) == Visibility.SHOW;
-        boolean perm = (display.getPermission().equalsIgnoreCase("none") || player.hasPermission(display.getPermission())) && (display.getHidePermission().equalsIgnoreCase("none") || !player.hasPermission(display.getHidePermission()));
-        boolean inRange = display.getViewDistance() <= 0.0 || player.getLocation().distanceSquared(display.getLocation()) <= Math.pow(display.getViewDistance(), 2);
+        boolean meetsConditions = conditionsHandler.checkConditions(player);
 
-        return (def || individual) && perm && inRange;
+        return (def || individual) && meetsConditions;
     }
 
     @Override

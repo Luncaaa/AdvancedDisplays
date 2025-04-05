@@ -50,7 +50,7 @@ public class DisplaysManager {
                 if (configFile.isDirectory()) continue;
                 ConfigManager configManager = new ConfigManager(plugin, configsFolder + File.separator + configFile.getName(), false);
 
-                if (!plugin.getMainConfig().getConfig().isBoolean("updateChecker")) {
+                if (!configManager.getConfig().isConfigurationSection("view-conditions")) {
                     ConversionManager.setConversionNeeded(plugin, true);
                     break;
                 }
@@ -66,9 +66,10 @@ public class DisplaysManager {
 
         // Set properties in the display file.
         displayConfig.set("type", type.name());
-        displayConfig.set("permission", "none");
-        displayConfig.set("hide-permission", "none");
-        displayConfig.set("view-distance", 0.0);
+        ConfigurationSection viewConditionsSection = displayConfig.createSection("view-conditions");
+        viewConditionsSection.createSection("distance").set("distance", 0.0);
+        viewConditionsSection.createSection("has-permission").set("permission", "none");
+        viewConditionsSection.createSection("lacks-permission").set("permission", "none");
 
         ConfigurationSection locationSection = displayConfig.createSection("location");
         locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());

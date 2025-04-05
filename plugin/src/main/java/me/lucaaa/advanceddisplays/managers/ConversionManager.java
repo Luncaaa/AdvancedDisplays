@@ -116,20 +116,23 @@ public class ConversionManager {
             if (!settingsSection.contains("customModelData")) settingsSection.set("customModelData", 0);
         }
 
-        if (!config.isString("permission")) {
-            config.set("permission", "none");
+        String hasPermission = config.getString("permission", "none");
+        String lacksPermission = config.getString("hide-permission", "none");
+        double distance = config.getDouble("view-distance");
+
+        if (!config.isConfigurationSection("view-conditions")) {
+            ConfigurationSection viewConditionsSection = config.createSection("view-conditions");
+            viewConditionsSection.createSection("distance").set("distance", distance);
+            viewConditionsSection.createSection("has-permission").set("permission", hasPermission);
+            viewConditionsSection.createSection("lacks-permission").set("permission", lacksPermission);
         }
 
-        if (!config.isString("hide-permission")) {
-            config.set("hide-permission", "none");
-        }
-
-        if (!config.isDouble("view-distance")) {
-            config.set("view-distance", 0.0);
-        }
+        config.set("permission", null);
+        config.set("hide-permission", null);
+        config.set("view-distance", null);
 
         if (!config.contains("glow")) {
-            ConfigurationSection glowSection = Objects.requireNonNull(config.createSection("glow"));
+            ConfigurationSection glowSection = config.createSection("glow");
             glowSection.set("glowing", false);
             glowSection.set("color", "255;170;0");
         }

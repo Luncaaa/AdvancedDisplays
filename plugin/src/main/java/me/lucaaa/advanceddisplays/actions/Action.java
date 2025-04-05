@@ -15,7 +15,6 @@ public abstract class Action {
     private final int delay;
     private final boolean global;
     private final boolean globalPlaceholders;
-    private boolean correctFormat = true;
     private final List<String> missingFields = new ArrayList<>();
     protected boolean isCorrect = true;
 
@@ -28,7 +27,6 @@ public abstract class Action {
         for (String requiredField : requiredFields) {
             if (section.get(requiredField) == null) {
                 this.missingFields.add(requiredField);
-                this.correctFormat = false;
             }
         }
     }
@@ -54,10 +52,6 @@ public abstract class Action {
 
     public boolean useGlobalPlaceholders() {
         return globalPlaceholders;
-    }
-
-    public boolean isFormatCorrect() {
-        return correctFormat;
     }
 
     public List<String> getMissingFields() {

@@ -3,7 +3,6 @@ package me.lucaaa.advanceddisplays.actions;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.*;
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
-import me.lucaaa.advanceddisplays.api.actions.ClickType;
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import me.lucaaa.advanceddisplays.conditions.ConditionsHandler;
@@ -12,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -39,20 +39,31 @@ public class ActionsHandler {
             this.conditionsNotMetMessage = actionsSection.getString("conditions-not-met", null);
         }
 
+        List<ClickType> validClickTypes = List.of(ClickType.LEFT, ClickType.RIGHT, ClickType.SHIFT_LEFT, ClickType.SHIFT_RIGHT);
         for (String clickTypeKey : actionsSection.getKeys(false)) {
             if (clickTypeKey.equalsIgnoreCase("ANY")) {
-                for (ClickType clickType : ClickType.values()) {
+                for (ClickType clickType : validClickTypes) {
                     addAction(clickType, actionsSection.getConfigurationSection(clickTypeKey));
                 }
 
             } else if (clickTypeKey.contains(";")) {
                 String[] clickTypes = clickTypeKey.split(";");
                 for (String clickType : clickTypes) {
-                    addAction(ClickType.valueOf(clickType), actionsSection.getConfigurationSection(clickTypeKey));
+                    try {
+                        addAction(ClickType.valueOf(clickType), actionsSection.getConfigurationSection(clickTypeKey));
+                    } catch (IllegalArgumentException e) {
+                        plugin.log(Level.WARNING, "Invalid click type found for display \"" + display.getName() + "\": " + clickType);
+                    }
                 }
 
             } else {
-                addAction(ClickType.valueOf(clickTypeKey), actionsSection.getConfigurationSection(clickTypeKey));
+                try {
+                    addAction(ClickType.valueOf(clickTypeKey), actionsSection.getConfigurationSection(clickTypeKey));
+                } catch (IllegalArgumentException e) {
+                    if (!clickTypeKey.equals("conditions") && !clickTypeKey.equals("conditions-not-met")) {
+                        plugin.log(Level.WARNING, "Invalid click type found for display \"" + display.getName() + "\": " + clickTypeKey);
+                    }
+                }
             }
         }
     }

@@ -5,6 +5,7 @@ import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.common.utils.DisplayHeadType;
 import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
+import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import org.bukkit.*;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
@@ -34,8 +35,8 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     private String oraxenId;
     private String itemsAdderId;
 
-    public ADItemDisplay(AdvancedDisplays plugin, ConfigManager configManager, String name, ItemDisplay display, boolean isApi) {
-        super(plugin, name, DisplayType.ITEM, configManager, display, isApi);
+    public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, ItemDisplay display) {
+        super(plugin, displaysManager, name, DisplayType.ITEM, configManager, display);
         settings = config.getConfigurationSection("settings");
 
         if (settings != null) {
@@ -66,8 +67,8 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             }
         }
     }
-    public ADItemDisplay(AdvancedDisplays plugin, String name, ItemDisplay display) {
-        super(plugin, name, DisplayType.ITEM, display);
+    public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, ItemDisplay display) {
+        super(plugin, displaysManager, name, DisplayType.ITEM, display);
     }
 
     @Override

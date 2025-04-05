@@ -52,7 +52,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
 
         // Managers
         HashMap<Integer, ADBaseDisplay> savedApiDisplays = new HashMap<>(); // If the plugin is reloaded, this will save the click actions for API displays.
-        if (displaysManager != null) displaysManager.removeAll(); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
+        if (displaysManager != null) displaysManager.removeAll(true); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
         if (interactionsManager != null) savedApiDisplays = interactionsManager.getApiDisplays();
         if (packetsManager != null) packetsManager.removeAll(); // If the plugin has been reloaded, remove and add all players again.
         if (inventoryManager != null) inventoryManager.clearAll(); // If the plugin has been reloaded, clear the map.
@@ -60,7 +60,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         tickManager = new TickManager(this);
         packetsManager = new PacketsManager(this);
         interactionsManager = new InteractionsManager(savedApiDisplays);
-        displaysManager = new DisplaysManager(this, "displays", true, false);
+        displaysManager = new DisplaysManager(this, "displays", true);
         messagesManager = new MessagesManager(mainConfig);
         inventoryManager = new InventoryManager(this, mainConfig, savesConfig);
     }

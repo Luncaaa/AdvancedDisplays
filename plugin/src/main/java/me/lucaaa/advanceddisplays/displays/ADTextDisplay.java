@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.displays;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
+import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -29,8 +30,8 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     private boolean seeThrough;
     private boolean shadowed;
 
-    public ADTextDisplay(AdvancedDisplays plugin, ConfigManager configManager, String name, TextDisplay display, boolean isApi) {
-        super(plugin, name, DisplayType.TEXT, configManager, display, isApi);
+    public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, TextDisplay display) {
+        super(plugin, displaysManager, name, DisplayType.TEXT, configManager, display);
         this.settings = config.getConfigurationSection("settings");
         this.textRunnable = new AnimatedTextRunnable(plugin, displayId);
 
@@ -64,8 +65,8 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         }
     }
 
-    public ADTextDisplay(AdvancedDisplays plugin, String name, TextDisplay display) {
-        super(plugin, name, DisplayType.TEXT, display);
+    public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, TextDisplay display) {
+        super(plugin, displaysManager, name, DisplayType.TEXT, display);
         this.textRunnable = new AnimatedTextRunnable(plugin, displayId);
     }
 

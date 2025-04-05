@@ -290,4 +290,17 @@ public interface BaseDisplay {
      * @param actions The code to run.
      */
     void setClickActions(DisplayActions actions);
+
+    /**
+     * Deletes the hologram.
+     * <p>
+     * Online players will stop seeing it, and it won't be spawned for new players.
+     */
+    void remove();
+
+    /**
+     * Checks whether the hologram is removed or not.
+     * @return Whether the hologram is removed or not.
+     */
+    boolean isRemoved();
 }

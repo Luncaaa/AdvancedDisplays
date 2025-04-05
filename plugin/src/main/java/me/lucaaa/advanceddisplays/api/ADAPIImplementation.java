@@ -25,7 +25,7 @@ public class ADAPIImplementation implements ADAPI {
     public ADAPIImplementation(AdvancedDisplays plugin, JavaPlugin apiPlugin) {
         this.plugin = plugin;
         this.apiPlugin = apiPlugin;
-        this.displaysManager = new DisplaysManager(plugin, "displays" + File.separator + apiPlugin.getName(), false, true);
+        this.displaysManager = new DisplaysManager(plugin, "displays" + File.separator + apiPlugin.getName(), false);
     }
 
     @Override
@@ -71,9 +71,13 @@ public class ADAPIImplementation implements ADAPI {
         ADBaseDisplay display = displaysManager.getDisplayFromMap(name);
 
         if (display != null) {
-            plugin.getInteractionsManager().removeInteraction(display.getInteractionId());
-            displaysManager.removeDisplay(name);
+            displaysManager.removeDisplay(display, true);
         }
+    }
+
+    @Override
+    public void removeAll() {
+        displaysManager.removeAll(false);
     }
 
     private void logWarning(String name) {

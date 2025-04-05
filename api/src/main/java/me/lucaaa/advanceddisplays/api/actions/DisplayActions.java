@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.api.actions;
 
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 
 /**
  * Contains a method that will be executed when a display created by the API is clicked.

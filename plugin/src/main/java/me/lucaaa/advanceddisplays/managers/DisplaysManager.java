@@ -30,15 +30,13 @@ public class DisplaysManager {
     private final PacketInterface packets;
     private final String configsFolder;
     private final Map<String, ADBaseDisplay> displays = new HashMap<>();
-    private final boolean isApi;
     private final Map<Player, AttachedDisplay> attachDisplays = new HashMap<>();
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public DisplaysManager(AdvancedDisplays plugin, String configsFolder, boolean createFolders, boolean isApi) {
+    public DisplaysManager(AdvancedDisplays plugin, String configsFolder, boolean createFolders) {
         this.plugin = plugin;
         this.packets = plugin.getPacketsManager().getPackets();
         this.configsFolder = configsFolder;
-        this.isApi = isApi;
 
         // Gets the displays folder and creates it if it doesn't exist.
         File displaysFolder = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + configsFolder);
@@ -175,10 +173,10 @@ public class DisplaysManager {
 
         if (saveToConfig) {
             ConfigManager configManager = createConfigManager(name, DisplayType.TEXT, location);
-            textDisplay = new ADTextDisplay(plugin, configManager, name, newDisplayPacket, isApi).create(value);
+            textDisplay = new ADTextDisplay(plugin, this, configManager, name, newDisplayPacket).create(value);
             configManager.save();
         } else {
-            textDisplay = new ADTextDisplay(plugin, name, newDisplayPacket).create(value);
+            textDisplay = new ADTextDisplay(plugin, this, name, newDisplayPacket).create(value);
         }
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -200,10 +198,10 @@ public class DisplaysManager {
 
         if (saveToConfig) {
             ConfigManager configManager = createConfigManager(name, DisplayType.TEXT, location);
-            textDisplay = new ADTextDisplay(plugin, configManager, name, newDisplayPacket, isApi).create(value);
+            textDisplay = new ADTextDisplay(plugin, this, configManager, name, newDisplayPacket).create(value);
             configManager.save();
         } else {
-            textDisplay = new ADTextDisplay(plugin, name, newDisplayPacket).create(value);
+            textDisplay = new ADTextDisplay(plugin, this, name, newDisplayPacket).create(value);
         }
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -225,10 +223,10 @@ public class DisplaysManager {
 
         if (saveToConfig) {
             ConfigManager configManager = createConfigManager(name, DisplayType.ITEM, location);
-            itemDisplay = new ADItemDisplay(plugin, configManager, name, newDisplayPacket, isApi).create(value);
+            itemDisplay = new ADItemDisplay(plugin, this, configManager, name, newDisplayPacket).create(value);
             configManager.save();
         } else {
-            itemDisplay = new ADItemDisplay(plugin, name, newDisplayPacket).create(value);
+            itemDisplay = new ADItemDisplay(plugin, this, name, newDisplayPacket).create(value);
         }
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -250,10 +248,10 @@ public class DisplaysManager {
 
         if (saveToConfig) {
             ConfigManager configManager = createConfigManager(name, DisplayType.BLOCK, location);
-            blockDisplay = new ADBlockDisplay(plugin, configManager, name, newDisplayPacket, isApi).create(value);
+            blockDisplay = new ADBlockDisplay(plugin, this, configManager, name, newDisplayPacket).create(value);
             configManager.save();
         } else {
-            blockDisplay = new ADBlockDisplay(plugin, name, newDisplayPacket).create(value);
+            blockDisplay = new ADBlockDisplay(plugin, this, name, newDisplayPacket).create(value);
         }
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -265,32 +263,33 @@ public class DisplaysManager {
         return blockDisplay;
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public boolean removeDisplay(String name) {
         if (!displays.containsKey(name)) {
             return false;
         }
 
-        ADBaseDisplay display = displays.get(name);
-        if (display.getConfigManager() != null) {
+        removeDisplay(displays.get(name), true);
+        return true;
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public void removeDisplay(ADBaseDisplay display, boolean deleteFile) {
+        if (display.getConfigManager() != null && deleteFile) {
             display.getConfigManager().getFile().delete();
         }
 
         if (display instanceof ADTextDisplay) ((ADTextDisplay) display).stopRunnable();
-        display.remove();
+        display.destroy();
         display.stopTicking();
-        displays.remove(name);
         plugin.getInteractionsManager().removeInteraction(display.getInteractionId());
         plugin.getInventoryManager().handleRemoval(display);
-        return true;
+        displays.remove(display.getName());
+        display.setRemoved();
     }
 
-    public void removeAll() {
+    public void removeAll(boolean onReload) {
         for (ADBaseDisplay display : displays.values()) {
-            display.remove();
-            if (display instanceof ADTextDisplay) {
-                ((ADTextDisplay) display).stopRunnable();
-            }
+            removeDisplay(display, !onReload);
         }
 
         attachDisplays.clear();
@@ -321,15 +320,15 @@ public class DisplaysManager {
         switch (displayType) {
             case BLOCK -> {
                 BlockDisplay newDisplayPacket = packets.createBlockDisplay(location);
-                newDisplay = new ADBlockDisplay(plugin, configManager, name, newDisplayPacket, isApi);
+                newDisplay = new ADBlockDisplay(plugin, this, configManager, name, newDisplayPacket);
             }
             case TEXT -> {
                 TextDisplay newDisplayPacket = packets.createTextDisplay(location);
-                newDisplay = new ADTextDisplay(plugin, configManager, name, newDisplayPacket, isApi);
+                newDisplay = new ADTextDisplay(plugin, this, configManager, name, newDisplayPacket);
             }
             case ITEM -> {
                 ItemDisplay newDisplayPacket = packets.createItemDisplay(location);
-                newDisplay = new ADItemDisplay(plugin, configManager, name, newDisplayPacket, isApi);
+                newDisplay = new ADItemDisplay(plugin, this, configManager, name, newDisplayPacket);
             }
         }
 

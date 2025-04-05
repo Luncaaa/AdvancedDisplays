@@ -4,6 +4,7 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
+import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import org.bukkit.Bukkit;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
@@ -22,8 +23,8 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
     private String oraxenId;
     private String itemsAdderId;
 
-    public ADBlockDisplay(AdvancedDisplays plugin, ConfigManager configManager, String name, BlockDisplay display, boolean isApi) {
-        super(plugin, name, DisplayType.BLOCK, configManager, display, isApi);
+    public ADBlockDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, BlockDisplay display) {
+        super(plugin, displaysManager, name, DisplayType.BLOCK, configManager, display);
         settings = config.getConfigurationSection("settings");
 
         if (settings != null) {
@@ -49,8 +50,8 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
             block = Bukkit.getServer().createBlockData(blockData + "]");
         }
     }
-    public ADBlockDisplay(AdvancedDisplays plugin, String name, BlockDisplay display) {
-        super(plugin, name, DisplayType.BLOCK, display);
+    public ADBlockDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, BlockDisplay display) {
+        super(plugin, displaysManager, name, DisplayType.BLOCK, display);
     }
 
     @Override

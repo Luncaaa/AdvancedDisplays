@@ -5,10 +5,10 @@ import me.lucaaa.advanceddisplays.actions.ActionsHandler;
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
-import me.lucaaa.advanceddisplays.api.actions.ClickType;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
 import me.lucaaa.advanceddisplays.data.Ticking;
+import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.data.ConfigAxisAngle4f;
@@ -21,6 +21,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.util.Transformation;
 
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.Objects;
 
 public class ADBaseDisplay extends Ticking implements BaseDisplay {
     protected final AdvancedDisplays plugin;
+    private final DisplaysManager displaysManager;
     protected final PacketInterface packets;
     protected final ConfigManager configManager;
     protected final YamlConfiguration config;
@@ -42,6 +44,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     protected Display display;
     protected int displayId;
     private final boolean isApi;
+    private boolean isRemoved = false;
     private Location location;
 
     private Display.Billboard billboard;
@@ -58,16 +61,17 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     private float hitboxWidth;
     private float hitboxHeight;
 
-    public ADBaseDisplay(AdvancedDisplays plugin, String name, DisplayType type, ConfigManager configManager, Display display, boolean isApi) {
+    public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, ConfigManager configManager, Display display) {
         super(plugin);
         startTicking();
 
         this.plugin = plugin;
+        this.displaysManager = displaysManager;
         this.packets = plugin.getPacketsManager().getPackets();
         this.name = name;
         this.display = display;
         this.displayId = display.getEntityId();
-        this.isApi = isApi;
+        this.isApi = plugin.getDisplaysManager() == displaysManager;
 
         this.configManager = configManager;
         this.config = configManager.getConfig();
@@ -124,11 +128,12 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.hitboxHeight = (float) hitboxSection.getDouble("height");
     }
 
-    public ADBaseDisplay(AdvancedDisplays plugin, String name, DisplayType type, Display display) {
+    public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, Display display) {
         super(plugin);
         stopTicking();
 
         this.plugin = plugin;
+        this.displaysManager = displaysManager;
         this.packets = plugin.getPacketsManager().getPackets();
         this.name = name;
         this.display = display;
@@ -586,10 +591,25 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         packets.removeEntity(getInteractionId(), player);
     }
 
-    public void remove() {
+    public void destroy() {
         packets.removeEntity(displayId);
         packets.removeEntity(hitbox.getEntityId());
     }
+
+    @Override
+    public void remove() {
+        displaysManager.removeDisplay(this, true);
+    }
+
+    public void setRemoved() {
+        isRemoved = true;
+    }
+
+    @Override
+    public boolean isRemoved() {
+        return isRemoved;
+    }
+
     public int getInteractionId() {
         return hitbox.getEntityId();
     }

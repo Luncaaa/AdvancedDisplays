@@ -95,4 +95,9 @@ public interface ADAPI {
      * @param name The name of the display.
      */
     void removeDisplay(String name);
+
+    /**
+     * Removes all displays.
+     */
+    void removeAll();
 }

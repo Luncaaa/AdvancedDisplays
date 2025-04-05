@@ -3,10 +3,10 @@ package me.lucaaa.advanceddisplays.managers;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.api.actions.ClickType;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class PlayerPacketManager extends ChannelDuplexHandler {
@@ -27,7 +27,7 @@ public class PlayerPacketManager extends ChannelDuplexHandler {
         InternalEntityClickEvent clickEvent = plugin.getPacketsManager().getPackets().getClickEvent(player, packet);
         if (clickEvent == null) return;
 
-        ClickType clickType = ClickType.getFromBukkit(clickEvent.clickType());
+        ClickType clickType = clickEvent.clickType();
 
         // Because the event is fired twice, the first time the event is run and the variable is set to "true".
         // The second time, when the variable is true, the event will be ignored.

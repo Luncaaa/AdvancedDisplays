@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.managers;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -17,7 +18,7 @@ public class PacketsManager {
         this.plugin = plugin;
         try {
             Class<?> nmsClass = Class.forName("me.lucaaa.advanceddisplays." + plugin.getNmsVersion().name() + ".Packets");
-            Object nmsClassInstance = nmsClass.getConstructor().newInstance();
+            Object nmsClassInstance = nmsClass.getConstructor(Logger.class).newInstance(plugin);
             this.packets = (PacketInterface) nmsClassInstance;
             addAll();
 

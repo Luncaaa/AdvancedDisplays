@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
-import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
+import me.lucaaa.advanceddisplays.common.utils.DisplayHeadType;
 import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import org.bukkit.*;
@@ -80,7 +80,7 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
 
     public ADItemDisplay create(Material item) {
         if (config != null) settings = config.createSection("settings");
-        if (item == Material.PLAYER_HEAD) setMaterialHead(DisplayHeadType.PLAYER, "%player%");
+        if (item == Material.PLAYER_HEAD) setViewerHead();
         else setItem(new ItemStack(item));
         setEnchanted(false);
         setItemTransformation(ItemDisplay.ItemDisplayTransform.FIXED);
@@ -112,23 +112,52 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     }
 
     @Override
-    public void setMaterialHead(DisplayHeadType displayHeadType, String value) {
+    public void setBase64Head(String base64) {
         item = new ItemStack(Material.PLAYER_HEAD);
-        this.displayHeadType = displayHeadType;
-        displayHeadValue = value;
+        displayHeadType = DisplayHeadType.BASE64;
+        displayHeadValue = base64;
         if (config != null) {
             settings.set("item", item.getType().name());
             ConfigurationSection headSection =  settings.createSection("head");
-            headSection.set(displayHeadType.getConfigName(), value);
+            headSection.set(displayHeadType.getConfigName(), base64);
             save();
         }
+
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            setMaterialHead(displayHeadType, value, onlinePlayer);
+            setBase64Head(base64, onlinePlayer);
         }
     }
+
     @Override
-    public void setMaterialHead(DisplayHeadType displayHeadType, String value, Player player) {
-        packets.setHead(displayId, enchanted, displayHeadType, value, player);
+    public void setBase64Head(String base64, Player player) {
+        packets.setHead(displayId, enchanted, displayHeadType, base64, player);
+    }
+
+    @Override
+    public void setPlayerHead(String playerName) {
+        item = new ItemStack(Material.PLAYER_HEAD);
+        displayHeadType = DisplayHeadType.PLAYER;
+        displayHeadValue = playerName;
+        if (config != null) {
+            settings.set("item", item.getType().name());
+            ConfigurationSection headSection =  settings.createSection("head");
+            headSection.set(displayHeadType.getConfigName(), playerName);
+            save();
+        }
+
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            setPlayerHead(playerName, onlinePlayer);
+        }
+    }
+
+    @Override
+    public void setPlayerHead(String playerName, Player player) {
+        packets.setHead(displayId, enchanted, displayHeadType, playerName, player);
+    }
+
+    @Override
+    public void setViewerHead() {
+        setPlayerHead("%player%");
     }
 
     @Override

@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.v1_19_R3;
 
 import io.netty.channel.ChannelPipeline;
-import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
+import me.lucaaa.advanceddisplays.common.utils.DisplayHeadType;
 import me.lucaaa.advanceddisplays.common.utils.HeadUtils;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;

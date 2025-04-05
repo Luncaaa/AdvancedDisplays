@@ -73,7 +73,6 @@ public class PacketsManager {
             } else {
                 eventLoop.execute(() -> playerPipelineOperation(player, operation));
             }
-            eventLoop.close();
 
         } catch (Exception e) {
             plugin.logError(java.util.logging.Level.WARNING, "An error occurred while executing an operation on a player's pipeline! Player: " + player.getName(), e);

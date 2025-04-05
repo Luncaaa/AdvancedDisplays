@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.api.displays.enums;
+package me.lucaaa.advanceddisplays.common.utils;
 
 /**
  * If the item display is a head, if can display a player skin or a custom texture.

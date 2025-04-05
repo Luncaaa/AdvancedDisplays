@@ -1,6 +1,5 @@
 package me.lucaaa.advanceddisplays.api.displays;
 
-import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.ItemDisplay.ItemDisplayTransform;
 import org.bukkit.inventory.ItemStack;
@@ -29,17 +28,30 @@ public interface ItemDisplay extends BaseDisplay {
 
     /**
      * Sets a head as the displayed item with a texture for everyone.
-     * @param displayHeadType What the head will show: a player skin or a base64 texture.
-     * @param value The name of a player or a base64 texture value.
+     * @param base64 The base64 texture value.
      */
-    void setMaterialHead(DisplayHeadType displayHeadType, String value);
+    void setBase64Head(String base64);
     /**
      * Sets a head as the displayed item with a texture for a specific player.
-     * @param displayHeadType What the head will show: a player skin or a base64 texture.
-     * @param value The name of a player or a base64 texture value.
+     * @param base64 The base64 texture value.
      * @param player The player who will see the head.
      */
-    void setMaterialHead(DisplayHeadType displayHeadType, String value, Player player);
+    void setBase64Head(String base64, Player player);
+    /**
+     * Sets a head as the displayed item with a player skin for everyone.
+     * @param playerName The name of the displayed player.
+     */
+    void setPlayerHead(String playerName);
+    /**
+     * Sets a head as the displayed item with a player skin for a specific player.
+     * @param playerName The name of the displayed player.
+     * @param player The player who will see the head.
+     */
+    void setPlayerHead(String playerName, Player player);
+    /**
+     * Sets the head texture to the skin of the player who is viewing it.
+     */
+    void setViewerHead();
 
     /**
      * Gets whether the display item is enchanted.

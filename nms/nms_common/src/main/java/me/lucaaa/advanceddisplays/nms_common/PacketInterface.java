@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.nms_common;
 
 import io.netty.channel.ChannelPipeline;
-import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
+import me.lucaaa.advanceddisplays.common.utils.DisplayHeadType;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.advancement.AdvancementDisplayType;

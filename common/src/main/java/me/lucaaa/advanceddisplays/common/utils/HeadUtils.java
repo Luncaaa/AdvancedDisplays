@@ -2,7 +2,6 @@ package me.lucaaa.advanceddisplays.common.utils;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import me.lucaaa.advanceddisplays.api.displays.enums.DisplayHeadType;
 import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

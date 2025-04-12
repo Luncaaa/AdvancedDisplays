@@ -8,11 +8,13 @@ import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
 public class PacketsManager {
     private final AdvancedDisplays plugin;
     private final PacketInterface packets;
+    private static final String TAIL_CONTEXT_IDENTIFIER = "DefaultChannelPipeline$TailContext#0";
 
     public PacketsManager(AdvancedDisplays plugin) {
         this.plugin = plugin;
@@ -36,11 +38,20 @@ public class PacketsManager {
             if (pipeline.get(PlayerPacketManager.IDENTIFIER) != null) {
                 pipeline.remove(PlayerPacketManager.IDENTIFIER);
             }
-            pipeline.addBefore(
-                    "packet_handler",
-                    PlayerPacketManager.IDENTIFIER,
-                    new PlayerPacketManager(plugin, player)
-            );
+
+            try {
+                pipeline.addBefore(
+                        "packet_handler",
+                        PlayerPacketManager.IDENTIFIER,
+                        new PlayerPacketManager(plugin, player)
+                );
+
+            } catch (NoSuchElementException e) {
+                String firstName = pipeline.names().isEmpty() ? null : pipeline.names().get(0);
+                if (!TAIL_CONTEXT_IDENTIFIER.equals(firstName)) {
+                    throw e;
+                }
+            }
         });
     }
 

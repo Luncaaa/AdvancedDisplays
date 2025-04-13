@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.api;
 
+import me.lucaaa.advanceddisplays.api.conditions.ConditionsFactory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -25,4 +26,6 @@ public abstract class ADAPIProvider {
     }
 
     public abstract ADAPI getAPI(JavaPlugin plugin);
+
+    public abstract ConditionsFactory getConditionsFactory();
 }

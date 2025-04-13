@@ -1,23 +1,27 @@
 package me.lucaaa.advanceddisplays.conditions.conditionTypes;
 
-import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.conditions.Condition;
+import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
+import me.lucaaa.advanceddisplays.conditions.ADCondition;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class HasPermissionCondition extends Condition {
+public class HasPermissionCondition extends ADCondition {
     private final String permission;
 
-    public HasPermissionCondition(AdvancedDisplays plugin, ConfigurationSection section) {
-        super(plugin, List.of("permission"), section);
-
+    public HasPermissionCondition(ConfigurationSection section) {
+        super(List.of("permission"), section);
         this.permission = section.getString("permission");
     }
 
+    public HasPermissionCondition(String permission) {
+        super(List.of(), null);
+        this.permission = permission;
+    }
+
     @Override
-    public boolean meetsConditions(Player player) {
+    public boolean meetsCondition(BaseDisplay display, Player player) {
         if (permission.equalsIgnoreCase("none")) return true;
         return player.hasPermission(permission);
     }

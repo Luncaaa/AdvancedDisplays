@@ -17,7 +17,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
@@ -31,16 +30,12 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     protected final AdvancedDisplays plugin;
     private final DisplaysManager displaysManager;
     protected final PacketInterface packets;
-    protected final ConfigManager configManager;
-    protected final YamlConfiguration config;
+    protected final ConfigManager config;
     protected final DisplayType type;
     private final ActionsHandler actionsHandler;
     private final ADVisibilityManager visibilityManager;
 
     private final String name;
-    private String permission;
-    private String hidePermission;
-    private double viewDistance;
     protected Display display;
     protected int displayId;
     private final boolean isApi;
@@ -61,7 +56,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     private float hitboxWidth;
     private float hitboxHeight;
 
-    public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, ConfigManager configManager, Display display) {
+    public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, ConfigManager config, Display display) {
         super(plugin);
         startTicking();
 
@@ -73,32 +68,28 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.displayId = display.getEntityId();
         this.isApi = plugin.getDisplaysManager() == displaysManager;
 
-        this.configManager = configManager;
-        this.config = configManager.getConfig();
+        this.config = config;
         this.type = type;
-        this.permission = config.getString("permission", "none");
-        this.hidePermission = config.getString("hide-permission", "none");
-        this.viewDistance = config.getDouble("view-distance");
-        this.actionsHandler = new ActionsHandler(plugin, this, configManager.getConfig());
+        this.actionsHandler = new ActionsHandler(plugin, this, config.getConfig());
         this.visibilityManager = new ADVisibilityManager(plugin, this);
 
-        ConfigurationSection locationSection = Objects.requireNonNull(config.getConfigurationSection("location"));
+        ConfigurationSection locationSection = config.getSection("location");
         String world = locationSection.getString("world", Bukkit.getWorlds().get(0).getName());
         double x = locationSection.getDouble("x");
         double y = locationSection.getDouble("y");
         double z = locationSection.getDouble("z");
         this.location = new Location(Bukkit.getWorld(world), x, y, z);
 
-        this.billboard = Display.Billboard.valueOf(config.getString("rotationType"));
+        this.billboard = Display.Billboard.valueOf(config.getOrDefault("rotationType", "FIXED"));
 
-        ConfigurationSection brightnessSection = Objects.requireNonNull(config.getConfigurationSection("brightness"));
+        ConfigurationSection brightnessSection = config.getSection("brightness");
         this.brightness = new Display.Brightness(brightnessSection.getInt("block"), brightnessSection.getInt("sky"));
 
-        ConfigurationSection shadowSection = Objects.requireNonNull(config.getConfigurationSection("shadow"));
+        ConfigurationSection shadowSection = config.getSection("shadow");
         this.shadowRadius = (float) shadowSection.getDouble("radius");
         this.shadowStrength = (float) shadowSection.getDouble("strength");
 
-        ConfigurationSection transformationSection = Objects.requireNonNull(config.getConfigurationSection("transformation"));
+        ConfigurationSection transformationSection = config.getSection("transformation");
         this.transformation = new Transformation(
                 new ConfigVector3f(Objects.requireNonNull(transformationSection.getConfigurationSection("translation")).getValues(false)).toVector3f(),
                 new ConfigAxisAngle4f(Objects.requireNonNull(transformationSection.getConfigurationSection("leftRotation")).getValues(false)).toAxisAngle4f(),
@@ -106,11 +97,11 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
                 new ConfigAxisAngle4f(Objects.requireNonNull(transformationSection.getConfigurationSection("rightRotation")).getValues(false)).toAxisAngle4f()
         );
 
-        ConfigurationSection rotationSection = Objects.requireNonNull(config.getConfigurationSection("rotation"));
+        ConfigurationSection rotationSection = config.getSection("rotation");
         this.yaw = (float) rotationSection.getDouble("yaw");
         this.pitch = (float) rotationSection.getDouble("pitch");
 
-        ConfigurationSection glowSection = Objects.requireNonNull(config.getConfigurationSection("glow"));
+        ConfigurationSection glowSection = config.getSection("glow");
         this.isGlowing = glowSection.getBoolean("glowing");
         String[] colorParts = Objects.requireNonNull(glowSection.getString("color")).split(";");
         this.glowColor = Color.fromRGB(Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]));
@@ -122,7 +113,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
             location1.add(x1, 0.0, z1);
         }
         this.hitbox = packets.createInteractionEntity(location1);
-        ConfigurationSection hitboxSection = Objects.requireNonNull(config.getConfigurationSection("hitbox"));
+        ConfigurationSection hitboxSection = config.getSection("hitbox");
         this.overrideHitboxSize = hitboxSection.getBoolean("override");
         this.hitboxWidth = (float) hitboxSection.getDouble("width");
         this.hitboxHeight = (float) hitboxSection.getDouble("height");
@@ -130,7 +121,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
     public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, Display display) {
         super(plugin);
-        stopTicking();
+        startTicking();
 
         this.plugin = plugin;
         this.displaysManager = displaysManager;
@@ -140,12 +131,8 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.displayId = display.getEntityId();
         this.isApi = true;
 
-        this.configManager = null;
         this.config = null;
         this.type = type;
-        this.permission = "none";
-        this.hidePermission = "none";
-        this.viewDistance = 0.0;
         this.actionsHandler = new ActionsHandler(plugin);
         this.visibilityManager = new ADVisibilityManager(plugin, this);
 
@@ -228,7 +215,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     @Override
     public void setLocation(Location location) {
         if (config != null) {
-            ConfigurationSection locationSection = Objects.requireNonNull(config.getConfigurationSection("location"));
+            ConfigurationSection locationSection = config.getSection("location");
             locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());
             locationSection.set("x", location.getX());
             locationSection.set("y", location.getY());
@@ -329,7 +316,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     public void setBrightness(Display.Brightness brightness) {
         this.brightness = brightness;
         if (config != null) {
-            ConfigurationSection brightnessSection = Objects.requireNonNull(config.getConfigurationSection("brightness"));
+            ConfigurationSection brightnessSection = config.getSection("brightness");
             brightnessSection.set("block", brightness.getBlockLight());
             brightnessSection.set("sky", brightness.getSkyLight());
             save();
@@ -356,7 +343,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.shadowRadius = shadowRadius;
         this.shadowStrength = shadowStrength;
         if (config != null) {
-            ConfigurationSection shadowSection = Objects.requireNonNull(config.getConfigurationSection("shadow"));
+            ConfigurationSection shadowSection = config.getSection("shadow");
             shadowSection.set("radius", shadowRadius);
             shadowSection.set("strength", shadowStrength);
             save();
@@ -383,7 +370,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         }
 
         if (config != null) {
-            ConfigurationSection transformationSection = Objects.requireNonNull(config.getConfigurationSection("transformation"));
+            ConfigurationSection transformationSection = config.getSection("transformation");
             transformationSection.createSection("translation", new ConfigVector3f(transformation.getTranslation()).serialize());
             transformationSection.createSection("leftRotation", new ConfigAxisAngle4f(transformation.getLeftRotation()).serialize());
             transformationSection.createSection("scale", new ConfigVector3f(transformation.getScale()).serialize());
@@ -429,7 +416,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         location.setPitch(pitch);
         this.pitch = pitch;
         if (config != null) {
-            ConfigurationSection rotationSection = Objects.requireNonNull(config.getConfigurationSection("rotation"));
+            ConfigurationSection rotationSection = config.getSection("rotation");
             rotationSection.set("yaw", yaw);
             rotationSection.set("pitch", pitch);
             save();
@@ -453,7 +440,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     public void setGlowing(boolean isGlowing) {
         this.isGlowing = isGlowing;
         if (config != null) {
-            ConfigurationSection glowSection = Objects.requireNonNull(config.getConfigurationSection("glow"));
+            ConfigurationSection glowSection = config.getSection("glow");
             glowSection.set("glowing", isGlowing);
             save();
         }
@@ -476,7 +463,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     public void setGlowColor(Color color) {
         glowColor = color;
         if (config != null) {
-            ConfigurationSection glowSection = Objects.requireNonNull(config.getConfigurationSection("glow"));
+            ConfigurationSection glowSection = config.getSection("glow");
             glowSection.set("color", color.getRed() + ";" + color.getGreen() + ";" + color.getBlue());
             save();
         }
@@ -497,7 +484,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         hitboxHeight = (override) ? height : transformation.getScale().y;
 
         if (config != null) {
-            ConfigurationSection hitboxSection = Objects.requireNonNull(config.getConfigurationSection("hitbox"));
+            ConfigurationSection hitboxSection = config.getSection("hitbox");
             hitboxSection.set("override", override);
             hitboxSection.set("width", width);
             hitboxSection.set("height", height);
@@ -508,51 +495,6 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         hitbox.setInteractionHeight(hitboxHeight);
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             packets.setInteractionSize(hitbox.getEntityId(), hitboxWidth, hitboxHeight, onlinePlayer);
-        }
-    }
-
-    @Override
-    public String getPermission() {
-        return permission;
-    }
-
-    @Override
-    public void setPermission(String permission) {
-        this.permission = permission;
-
-        if (config != null) {
-            config.set("permission", permission);
-            save();
-        }
-    }
-
-    @Override
-    public String getHidePermission() {
-        return hidePermission;
-    }
-
-    @Override
-    public void setHidePermission(String permission) {
-        hidePermission = permission;
-
-        if (config != null) {
-            config.set("hide-permission", permission);
-            save();
-        }
-    }
-
-    @Override
-    public double getViewDistance() {
-        return viewDistance;
-    }
-
-    @Override
-    public void setViewDistance(double viewDistance) {
-        this.viewDistance = viewDistance;
-
-        if (config != null) {
-            config.set("view-distance", viewDistance);
-            save();
         }
     }
 
@@ -618,11 +560,11 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     }
 
     public ConfigManager getConfigManager() {
-        return configManager;
+        return config;
     }
 
     protected void save() {
-        configManager.save();
+        config.save();
     }
 
     @Override

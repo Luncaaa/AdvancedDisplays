@@ -118,6 +118,13 @@ public class ActionsHandler {
     }
 
     public void runActions(Player player, ClickType clickType, ADBaseDisplay display) {
+        if (clickActions != null) {
+            clickActions.onClick(player, clickType, display);
+            return;
+        }
+
+        if (display.isApi()) return;
+
         boolean meetsConditions = conditionsHandler.checkConditions(player);
 
         if (!meetsConditions) {

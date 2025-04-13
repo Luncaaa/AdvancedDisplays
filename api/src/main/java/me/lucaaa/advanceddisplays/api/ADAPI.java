@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.api;
 
+import me.lucaaa.advanceddisplays.api.conditions.ConditionsFactory;
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
 import me.lucaaa.advanceddisplays.api.displays.ItemDisplay;
@@ -26,6 +27,14 @@ public interface ADAPI {
      */
     static ADAPI getInstance(JavaPlugin plugin) {
         return ADAPIProvider.getImplementation().getAPI(plugin);
+    }
+
+    /**
+     * Gets an instance of the ConditionsFactory interface.
+     * @return The instance of the ConditionsFactory interface.
+     */
+    static ConditionsFactory getConditionsFactory() {
+        return ADAPIProvider.getImplementation().getConditionsFactory();
     }
 
     /**

@@ -1,6 +1,6 @@
 package me.lucaaa.advanceddisplays.api.displays.visibility;
 
-import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
+import me.lucaaa.advanceddisplays.api.conditions.Condition;
 import org.bukkit.entity.Player;
 
 /**
@@ -29,10 +29,10 @@ public interface VisibilityManager {
     void setVisibility(Visibility visibility, Player player);
 
     /**
-     * Returns whether the player can see the display or not. If not set by {@link VisibilityManager#setVisibility(Visibility, Player)}, it will return if the display is globally visible or not.
+     * Returns whether the player can see the display or not. If not set by {@link #setVisibility(Visibility, Player)}, it will return if the display is globally visible or not.
      * <p>
      * To return true, the display's default visibility or the player's individual visibility must be SHOW and the player must have permission to see the display.
-     * Additionally, the player must be in the display's view range (set by using the {@link BaseDisplay#setViewDistance(double)} method).
+     * Additionally, the player must meet all the conditions set by {@link #addViewCondition(Condition)}
      *
      * @param player The player you want to check if they can see the display or not.
      * @return Whether the player can see the display or not.
@@ -49,4 +49,15 @@ public interface VisibilityManager {
      * Clears the individual visibilities and sets every player's visibility to the default visibility.
      */
     void clearPlayerVisibilities();
+
+    /**
+     * Adds a condition that the player must meet to see the display.
+     * @param condition The condition that the player must meet.
+     */
+    void addViewCondition(Condition condition);
+
+    /**
+     * Removes all the conditions.
+     */
+    void clearConditions();
 }

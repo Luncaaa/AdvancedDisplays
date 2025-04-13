@@ -1,11 +1,9 @@
 package me.lucaaa.advanceddisplays.conditions;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.api.conditions.Condition;
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
-import me.lucaaa.advanceddisplays.conditions.conditionTypes.ConditionType;
-import me.lucaaa.advanceddisplays.conditions.conditionTypes.DistanceCondition;
-import me.lucaaa.advanceddisplays.conditions.conditionTypes.HasPermissionCondition;
-import me.lucaaa.advanceddisplays.conditions.conditionTypes.LacksPermissionCondition;
+import me.lucaaa.advanceddisplays.conditions.conditionTypes.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -29,6 +27,11 @@ public class ConditionsHandler {
         }
     }
 
+    public ConditionsHandler(AdvancedDisplays plugin, BaseDisplay display) {
+        this.plugin = plugin;
+        this.display = display;
+    }
+
     /**
      * Adds a condition to the list.
      * @param conditionSection The section with the condition data.
@@ -43,10 +46,10 @@ public class ConditionsHandler {
             return;
         }
 
-        Condition condition = switch (conditionType) {
-            case DISTANCE -> new DistanceCondition(plugin, conditionSection, display);
-            case HAS_PERMISSION -> new HasPermissionCondition(plugin, conditionSection);
-            case LACKS_PERMISSION -> new LacksPermissionCondition(plugin, conditionSection);
+        ADCondition condition = switch (conditionType) {
+            case DISTANCE -> new DistanceCondition(conditionSection);
+            case HAS_PERMISSION -> new HasPermissionCondition(conditionSection);
+            case LACKS_PERMISSION -> new LacksPermissionCondition(conditionSection);
         };
 
         List<String> missingFields = condition.getMissingFields();
@@ -62,6 +65,14 @@ public class ConditionsHandler {
         conditionsList.add(condition);
     }
 
+    public void addCondition(Condition condition) {
+        conditionsList.add(condition);
+    }
+
+    public void clearConditions() {
+        conditionsList.clear();
+    }
+
     /**
      * Check the conditions for a player.
      * @param player The player for whom to check the conditions.
@@ -69,7 +80,7 @@ public class ConditionsHandler {
      */
     public boolean checkConditions(Player player) {
         for (Condition condition : conditionsList) {
-            if (!condition.meetsConditions(player)) return false;
+            if (!condition.meetsCondition(display, player)) return false;
         }
 
         return true;

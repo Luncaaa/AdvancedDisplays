@@ -32,7 +32,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
 
     public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, TextDisplay display) {
         super(plugin, displaysManager, name, DisplayType.TEXT, configManager, display);
-        this.settings = config.getConfigurationSection("settings");
+        this.settings = config.getSection("settings", false);
         this.textRunnable = new AnimatedTextRunnable(plugin, displayId);
 
         if (settings != null) {
@@ -81,14 +81,14 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     }
 
     public ADTextDisplay create(String text) {
-        if (config != null) settings = config.createSection("settings");
+        if (config != null) settings = config.getConfig().createSection("settings");
         setSingleText("animation1", text);
         setInitialValues();
         return this;
     }
 
     public ADTextDisplay create(Component text) {
-        if (config != null) settings = config.createSection("settings");
+        if (config != null) settings = config.getConfig().createSection("settings");
         setSingleText("animation1", text);
         setInitialValues();
         return this;

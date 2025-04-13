@@ -25,7 +25,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
 
     public ADBlockDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, BlockDisplay display) {
         super(plugin, displaysManager, name, DisplayType.BLOCK, configManager, display);
-        settings = config.getConfigurationSection("settings");
+        settings = config.getSection("settings", false);
 
         if (settings != null) {
             if (settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
@@ -50,6 +50,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
             block = Bukkit.getServer().createBlockData(blockData + "]");
         }
     }
+
     public ADBlockDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, BlockDisplay display) {
         super(plugin, displaysManager, name, DisplayType.BLOCK, display);
     }
@@ -61,7 +62,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
     }
 
     public ADBlockDisplay create(BlockData block) {
-        if (config != null) settings = config.createSection("settings");
+        if (config != null) settings = config.getConfig().createSection("settings");
         setBlock(block);
         return this;
     }

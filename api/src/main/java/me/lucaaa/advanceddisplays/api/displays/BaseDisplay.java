@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.api.displays;
 
+import me.lucaaa.advanceddisplays.api.conditions.Condition;
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
@@ -250,40 +251,19 @@ public interface BaseDisplay {
     void setHitboxSize(boolean override, float width, float height);
 
     /**
-     * Returns the permission needed to see the display.
-     * @return The permission needed to see the display.
+     * Adds a condition that the player must meet to see the display.
+     * @param condition The condition that the player must meet.
      */
-    String getPermission();
+    default void addViewCondition(Condition condition) {
+        getVisibilityManager().addViewCondition(condition);
+    }
 
     /**
-     * Sets the permission needed to see the display.
-     * @param permission The permission needed to see the display. Use "none" to disable this permission.
+     * Removes all the conditions.
      */
-    void setPermission(String permission);
-
-    /**
-     * Returns the permission that the players must have to not see the display.
-     * @return The permission that the players must have to not see the display.
-     */
-    String getHidePermission();
-
-    /**
-     * Sets the permission that the players must have to not see the display.
-     * @param permission The permission that the players must have to not see the display. Use "none" to disable this permission.
-     */
-    void setHidePermission(String permission);
-
-    /**
-     * The distance at which the player must be from the display to be able to see it.
-     * @return The distance at which the player must be from the display to be able to see it.
-     */
-    double getViewDistance();
-
-    /**
-     * Sets the distance at which the player must be from the display to be able to see it.
-     * @param viewDistance The distance at which the player must be from the display to be able to see it.
-     */
-    void setViewDistance(double viewDistance);
+    default void clearConditions() {
+        getVisibilityManager().clearConditions();
+    }
 
     /**
      * Sets the code to run when the display is clicked.

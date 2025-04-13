@@ -1,6 +1,7 @@
 package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.api.conditions.Condition;
 import me.lucaaa.advanceddisplays.api.displays.visibility.Visibility;
 import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
 import me.lucaaa.advanceddisplays.conditions.ConditionsHandler;
@@ -20,7 +21,11 @@ public class ADVisibilityManager implements VisibilityManager {
 
     public ADVisibilityManager(AdvancedDisplays plugin, ADBaseDisplay display) {
         this.display = display;
-        this.conditionsHandler = new ConditionsHandler(plugin, display, display.getConfigManager().getConfig().getConfigurationSection("view-conditions"));
+        if (display.isApi()) {
+            this.conditionsHandler = new ConditionsHandler(plugin, display);
+        } else {
+            this.conditionsHandler = new ConditionsHandler(plugin, display, display.getConfigManager().getConfig().getConfigurationSection("view-conditions"));
+        }
     }
 
     @Override
@@ -57,6 +62,16 @@ public class ADVisibilityManager implements VisibilityManager {
     @Override
     public void clearPlayerVisibilities() {
         individualVis.clear();
+    }
+
+    @Override
+    public void addViewCondition(Condition condition) {
+        conditionsHandler.addCondition(condition);
+    }
+
+    @Override
+    public void clearConditions() {
+        conditionsHandler.clearConditions();
     }
 
     public void updateVisibility() {

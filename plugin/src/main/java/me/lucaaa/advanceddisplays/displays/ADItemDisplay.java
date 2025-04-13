@@ -37,7 +37,7 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
 
     public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, ItemDisplay display) {
         super(plugin, displaysManager, name, DisplayType.ITEM, configManager, display);
-        settings = config.getConfigurationSection("settings");
+        settings = config.getSection("settings", false);
 
         if (settings != null) {
             if (settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
@@ -67,6 +67,7 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
             }
         }
     }
+
     public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, ItemDisplay display) {
         super(plugin, displaysManager, name, DisplayType.ITEM, display);
     }
@@ -80,7 +81,7 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
     }
 
     public ADItemDisplay create(Material item) {
-        if (config != null) settings = config.createSection("settings");
+        if (config != null) settings = config.getConfig().createSection("settings");
         if (item == Material.PLAYER_HEAD) setViewerHead();
         else setItem(new ItemStack(item));
         setEnchanted(false);

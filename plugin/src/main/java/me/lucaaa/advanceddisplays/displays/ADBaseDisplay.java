@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.ActionsHandler;
+import me.lucaaa.advanceddisplays.actions.actionTypes.ActionType;
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
@@ -17,12 +18,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.util.Transformation;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -66,7 +70,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.name = name;
         this.display = display;
         this.displayId = display.getEntityId();
-        this.isApi = plugin.getDisplaysManager() == displaysManager;
+        this.isApi = plugin.getDisplaysManager() != displaysManager;
 
         this.config = config;
         this.type = type;
@@ -119,7 +123,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.hitboxHeight = (float) hitboxSection.getDouble("height");
     }
 
-    public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, Display display) {
+    public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, Display display, boolean saveToConfig) {
         super(plugin);
         startTicking();
 
@@ -129,15 +133,15 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.name = name;
         this.display = display;
         this.displayId = display.getEntityId();
-        this.isApi = true;
+        this.isApi = plugin.getDisplaysManager() != displaysManager;
 
-        this.config = null;
         this.type = type;
+        this.config = (saveToConfig) ? createConfig(display.getLocation()) : null;
         this.actionsHandler = new ActionsHandler(plugin);
         this.visibilityManager = new ADVisibilityManager(plugin, this);
 
         this.location = display.getLocation();
-        this.billboard = display.getBillboard();
+        this.billboard = Display.Billboard.CENTER; // Text displays will be easier to spot.
         this.brightness = new Display.Brightness(15, 15);
         this.shadowRadius = display.getShadowRadius();
         this.shadowStrength = display.getShadowStrength();
@@ -157,6 +161,67 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.overrideHitboxSize = false;
         this.hitboxWidth = transformation.getScale().x;
         this.hitboxHeight = transformation.getScale().z;
+    }
+
+    private ConfigManager createConfig(Location location) {
+        ConfigManager displayConfigManager = new ConfigManager(plugin, displaysManager.getConfigsFolder() + File.separator + name + ".yml", false);
+        YamlConfiguration displayConfig = displayConfigManager.getConfig();
+
+        // Set properties in the display file.
+        displayConfig.set("type", type.name());
+        ConfigurationSection viewConditionsSection = displayConfig.createSection("view-conditions");
+        viewConditionsSection.createSection("distance").set("distance", 0.0);
+        viewConditionsSection.createSection("has-permission").set("permission", "none");
+        viewConditionsSection.createSection("lacks-permission").set("permission", "none");
+
+        ConfigurationSection locationSection = displayConfig.createSection("location");
+        locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());
+        locationSection.set("x", location.getX());
+        locationSection.set("y", location.getY());
+        locationSection.set("z", location.getZ());
+
+        displayConfig.set("rotationType", org.bukkit.entity.Display.Billboard.CENTER.name());
+
+        ConfigurationSection brightnessSection = displayConfig.createSection("brightness");
+        brightnessSection.set("block", 15);
+        brightnessSection.set("sky", 15);
+
+        ConfigurationSection shadowSection = displayConfig.createSection("shadow");
+        shadowSection.set("radius", 5.0);
+        shadowSection.set("strength", 1.0);
+
+        ConfigurationSection transformationSection = displayConfig.createSection("transformation");
+        transformationSection.createSection("translation", new ConfigVector3f().serialize());
+        transformationSection.createSection("leftRotation", new ConfigAxisAngle4f().serialize());
+        transformationSection.createSection("scale", new ConfigVector3f(1.0f, 1.0f, 1.0f).serialize());
+        transformationSection.createSection("rightRotation", new ConfigAxisAngle4f().serialize());
+
+        ConfigurationSection rotationSection = displayConfig.createSection("rotation");
+        rotationSection.set("yaw", 0.0);
+        rotationSection.set("pitch", 0.0);
+
+        ConfigurationSection glowSection = displayConfig.createSection("glow");
+        glowSection.set("glowing", false);
+        glowSection.set("color", "255;170;0");
+
+        ConfigurationSection hitboxSection = displayConfig.createSection("hitbox");
+        hitboxSection.set("override", false);
+        hitboxSection.set("width", 1.0f);
+        hitboxSection.set("height", 1.0f);
+        displayConfig.setComments("hitbox", Arrays.asList("Displays don't have hitboxes of their own, so to have click actions independent entities have to be created.", "These settings allow you to control the hitbox of the display.", "(Use F3 + B to see the hitboxes)"));
+
+        ConfigurationSection actionsSection = displayConfig.createSection("actions");
+        ConfigurationSection anySection = actionsSection.createSection("ANY");
+        ConfigurationSection actionSetting = anySection.createSection("messagePlayer");
+        actionSetting.set("type", ActionType.MESSAGE.getConfigName());
+        actionSetting.set("message", "You clicked me, %player_name%!");
+        actionSetting.set("delay", 0);
+        actionSetting.set("global", false);
+        actionSetting.set("global-placeholders", true);
+        actionSetting.setInlineComments("delay", List.of("In ticks"));
+        displayConfigManager.save();
+
+        return displayConfigManager;
     }
 
     public void sendBaseMetadataPackets(Player player) {

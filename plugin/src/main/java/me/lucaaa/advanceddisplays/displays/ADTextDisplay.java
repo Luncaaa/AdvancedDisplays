@@ -65,8 +65,8 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         }
     }
 
-    public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, TextDisplay display) {
-        super(plugin, displaysManager, name, DisplayType.TEXT, display);
+    public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, TextDisplay display, boolean saveToConfig) {
+        super(plugin, displaysManager, name, DisplayType.TEXT, display, saveToConfig);
         this.textRunnable = new AnimatedTextRunnable(plugin, displayId);
     }
 

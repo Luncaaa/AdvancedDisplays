@@ -51,8 +51,8 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
         }
     }
 
-    public ADBlockDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, BlockDisplay display) {
-        super(plugin, displaysManager, name, DisplayType.BLOCK, display);
+    public ADBlockDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, BlockDisplay display, boolean saveToConfig) {
+        super(plugin, displaysManager, name, DisplayType.BLOCK, display, saveToConfig);
     }
 
     @Override

@@ -68,8 +68,8 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
         }
     }
 
-    public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, ItemDisplay display) {
-        super(plugin, displaysManager, name, DisplayType.ITEM, display);
+    public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, ItemDisplay display, boolean saveToConfig) {
+        super(plugin, displaysManager, name, DisplayType.ITEM, display, saveToConfig);
     }
 
     @Override

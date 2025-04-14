@@ -2,13 +2,10 @@ package me.lucaaa.advanceddisplays.managers;
 
 import com.google.common.io.Files;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.actions.actionTypes.ActionType;
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.data.AttachedDisplay;
 import me.lucaaa.advanceddisplays.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
-import me.lucaaa.advanceddisplays.data.ConfigAxisAngle4f;
-import me.lucaaa.advanceddisplays.data.ConfigVector3f;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -17,13 +14,11 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.io.File;
 import java.util.*;
-import java.util.List;
 
 public class DisplaysManager {
     private final AdvancedDisplays plugin;
@@ -56,66 +51,6 @@ public class DisplaysManager {
                 loadDisplay(configManager);
             }
         }
-    }
-
-    private ConfigManager createConfigManager(String name, DisplayType type, Location location) {
-        ConfigManager displayConfigManager = new ConfigManager(plugin, configsFolder + File.separator + name + ".yml", false);
-        YamlConfiguration displayConfig = displayConfigManager.getConfig();
-
-        // Set properties in the display file.
-        displayConfig.set("type", type.name());
-        ConfigurationSection viewConditionsSection = displayConfig.createSection("view-conditions");
-        viewConditionsSection.createSection("distance").set("distance", 0.0);
-        viewConditionsSection.createSection("has-permission").set("permission", "none");
-        viewConditionsSection.createSection("lacks-permission").set("permission", "none");
-
-        ConfigurationSection locationSection = displayConfig.createSection("location");
-        locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());
-        locationSection.set("x", location.getX());
-        locationSection.set("y", location.getY());
-        locationSection.set("z", location.getZ());
-
-        displayConfig.set("rotationType", org.bukkit.entity.Display.Billboard.CENTER.name());
-
-        ConfigurationSection brightnessSection = displayConfig.createSection("brightness");
-        brightnessSection.set("block", 15);
-        brightnessSection.set("sky", 15);
-
-        ConfigurationSection shadowSection = displayConfig.createSection("shadow");
-        shadowSection.set("radius", 5.0);
-        shadowSection.set("strength", 1.0);
-
-        ConfigurationSection transformationSection = displayConfig.createSection("transformation");
-        transformationSection.createSection("translation", new ConfigVector3f().serialize());
-        transformationSection.createSection("leftRotation", new ConfigAxisAngle4f().serialize());
-        transformationSection.createSection("scale", new ConfigVector3f(1.0f, 1.0f, 1.0f).serialize());
-        transformationSection.createSection("rightRotation", new ConfigAxisAngle4f().serialize());
-
-        ConfigurationSection rotationSection = displayConfig.createSection("rotation");
-        rotationSection.set("yaw", 0.0);
-        rotationSection.set("pitch", 0.0);
-
-        ConfigurationSection glowSection = displayConfig.createSection("glow");
-        glowSection.set("glowing", false);
-        glowSection.set("color", "255;170;0");
-
-        ConfigurationSection hitboxSection = displayConfig.createSection("hitbox");
-        hitboxSection.set("override", false);
-        hitboxSection.set("width", 1.0f);
-        hitboxSection.set("height", 1.0f);
-        displayConfig.setComments("hitbox", Arrays.asList("Displays don't have hitboxes of their own, so to have click actions independent entities have to be created.", "These settings allow you to control the hitbox of the display.", "(Use F3 + B to see the hitboxes)"));
-
-        ConfigurationSection actionsSection = displayConfig.createSection("actions");
-        ConfigurationSection anySection = actionsSection.createSection("ANY");
-        ConfigurationSection actionSetting = anySection.createSection("messagePlayer");
-        actionSetting.set("type", ActionType.MESSAGE.getConfigName());
-        actionSetting.set("message", "You clicked me, %player_name%!");
-        actionSetting.set("delay", 20);
-        actionSetting.set("global", false);
-        actionSetting.set("global-placeholders", true);
-        actionSetting.setInlineComments("delay", List.of("In ticks"));
-
-        return displayConfigManager;
     }
 
     public ADTextDisplay createAttachedDisplay(PlayerInteractEvent event, AttachedDisplay display) {
@@ -169,23 +104,9 @@ public class DisplaysManager {
         }
 
         TextDisplay newDisplayPacket = packets.createTextDisplay(location);
-        ADTextDisplay textDisplay;
-
-        if (saveToConfig) {
-            ConfigManager configManager = createConfigManager(name, DisplayType.TEXT, location);
-            textDisplay = new ADTextDisplay(plugin, this, configManager, name, newDisplayPacket).create(value);
-            configManager.save();
-        } else {
-            textDisplay = new ADTextDisplay(plugin, this, name, newDisplayPacket).create(value);
-        }
-
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            textDisplay.sendBaseMetadataPackets(onlinePlayer);
-        }
-
-        plugin.getInteractionsManager().addInteraction(textDisplay.getInteractionId(), textDisplay);
-        displays.put(name, textDisplay);
-        return textDisplay;
+        ADTextDisplay display = new ADTextDisplay(plugin, this, name, newDisplayPacket, saveToConfig).create(value);
+        createGeneral(name, display);
+        return display;
     }
 
     public ADTextDisplay createTextDisplay(Location location, String name, Component value, boolean saveToConfig) {
@@ -194,23 +115,9 @@ public class DisplaysManager {
         }
 
         TextDisplay newDisplayPacket = packets.createTextDisplay(location);
-        ADTextDisplay textDisplay;
-
-        if (saveToConfig) {
-            ConfigManager configManager = createConfigManager(name, DisplayType.TEXT, location);
-            textDisplay = new ADTextDisplay(plugin, this, configManager, name, newDisplayPacket).create(value);
-            configManager.save();
-        } else {
-            textDisplay = new ADTextDisplay(plugin, this, name, newDisplayPacket).create(value);
-        }
-
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            textDisplay.sendBaseMetadataPackets(onlinePlayer);
-        }
-
-        plugin.getInteractionsManager().addInteraction(textDisplay.getInteractionId(), textDisplay);
-        displays.put(name, textDisplay);
-        return textDisplay;
+        ADTextDisplay display = new ADTextDisplay(plugin, this, name, newDisplayPacket, saveToConfig).create(value);
+        createGeneral(name, display);
+        return display;
     }
 
     public ADItemDisplay createItemDisplay(Location location, String name, Material value, boolean saveToConfig) {
@@ -219,23 +126,9 @@ public class DisplaysManager {
         }
 
         ItemDisplay newDisplayPacket = packets.createItemDisplay(location);
-        ADItemDisplay itemDisplay;
-
-        if (saveToConfig) {
-            ConfigManager configManager = createConfigManager(name, DisplayType.ITEM, location);
-            itemDisplay = new ADItemDisplay(plugin, this, configManager, name, newDisplayPacket).create(value);
-            configManager.save();
-        } else {
-            itemDisplay = new ADItemDisplay(plugin, this, name, newDisplayPacket).create(value);
-        }
-
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            itemDisplay.sendBaseMetadataPackets(onlinePlayer);
-        }
-
-        plugin.getInteractionsManager().addInteraction(itemDisplay.getInteractionId(), itemDisplay);
-        displays.put(name, itemDisplay);
-        return itemDisplay;
+        ADItemDisplay display = new ADItemDisplay(plugin, this, name, newDisplayPacket, saveToConfig).create(value);
+        createGeneral(name, display);
+        return display;
     }
 
     public ADBlockDisplay createBlockDisplay(Location location, String name, BlockData value, boolean saveToConfig) {
@@ -244,23 +137,18 @@ public class DisplaysManager {
         }
 
         BlockDisplay newDisplayPacket = packets.createBlockDisplay(location);
-        ADBlockDisplay blockDisplay;
+        ADBlockDisplay display = new ADBlockDisplay(plugin, this, name, newDisplayPacket, saveToConfig).create(value);
+        createGeneral(name, display);
+        return display;
+    }
 
-        if (saveToConfig) {
-            ConfigManager configManager = createConfigManager(name, DisplayType.BLOCK, location);
-            blockDisplay = new ADBlockDisplay(plugin, this, configManager, name, newDisplayPacket).create(value);
-            configManager.save();
-        } else {
-            blockDisplay = new ADBlockDisplay(plugin, this, name, newDisplayPacket).create(value);
-        }
-
+    private void createGeneral(String name, ADBaseDisplay display) {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            blockDisplay.sendBaseMetadataPackets(onlinePlayer);
+            display.sendBaseMetadataPackets(onlinePlayer);
         }
 
-        plugin.getInteractionsManager().addInteraction(blockDisplay.getInteractionId(), blockDisplay);
-        displays.put(name, blockDisplay);
-        return blockDisplay;
+        plugin.getInteractionsManager().addInteraction(display.getInteractionId(), display);
+        displays.put(name, display);
     }
 
     public boolean removeDisplay(String name) {
@@ -383,5 +271,9 @@ public class DisplaysManager {
 
     public boolean existsDisplay(String name) {
         return displays.containsKey(name);
+    }
+
+    public String getConfigsFolder() {
+        return configsFolder;
     }
 }

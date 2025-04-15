@@ -122,9 +122,9 @@ public class ConversionManager {
 
         if (!config.isConfigurationSection("view-conditions")) {
             ConfigurationSection viewConditionsSection = config.createSection("view-conditions");
-            viewConditionsSection.createSection("distance").set("distance", distance);
-            viewConditionsSection.createSection("has-permission").set("permission", hasPermission);
-            viewConditionsSection.createSection("lacks-permission").set("permission", lacksPermission);
+            viewConditionsSection.set("distance", distance);
+            viewConditionsSection.set("has-permission", hasPermission);
+            viewConditionsSection.set("lacks-permission", lacksPermission);
         }
 
         config.set("permission", null);

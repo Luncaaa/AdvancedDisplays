@@ -70,7 +70,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.name = name;
         this.display = display;
         this.displayId = display.getEntityId();
-        this.isApi = plugin.getDisplaysManager() != displaysManager;
+        this.isApi = displaysManager.isApi();
 
         this.config = config;
         this.type = type;
@@ -133,7 +133,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.name = name;
         this.display = display;
         this.displayId = display.getEntityId();
-        this.isApi = plugin.getDisplaysManager() != displaysManager;
+        this.isApi = displaysManager.isApi();
 
         this.type = type;
         this.config = (saveToConfig) ? createConfig(display.getLocation()) : null;
@@ -170,9 +170,9 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         // Set properties in the display file.
         displayConfig.set("type", type.name());
         ConfigurationSection viewConditionsSection = displayConfig.createSection("view-conditions");
-        viewConditionsSection.createSection("distance").set("distance", 0.0);
-        viewConditionsSection.createSection("has-permission").set("permission", "none");
-        viewConditionsSection.createSection("lacks-permission").set("permission", "none");
+        viewConditionsSection.set("distance", 0.0);
+        viewConditionsSection.set("has-permission", "none");
+        viewConditionsSection.set("lacks-permission", "none");
 
         ConfigurationSection locationSection = displayConfig.createSection("location");
         locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());

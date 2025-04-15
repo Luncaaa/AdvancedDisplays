@@ -2,21 +2,16 @@ package me.lucaaa.advanceddisplays.conditions.conditionTypes;
 
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.conditions.ADCondition;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 public class HasPermissionCondition extends ADCondition {
     private final String permission;
 
-    public HasPermissionCondition(ConfigurationSection section) {
-        super(List.of("permission"), section);
-        this.permission = section.getString("permission");
+    public HasPermissionCondition(Object permission) {
+        this.permission = (String) permission;
     }
 
     public HasPermissionCondition(String permission) {
-        super(List.of(), null);
         this.permission = permission;
     }
 

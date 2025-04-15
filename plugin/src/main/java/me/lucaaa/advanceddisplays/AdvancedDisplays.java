@@ -29,6 +29,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
 
     // Other.
     private Version nmsVersion;
+    private boolean isRunning = false;
 
     // Integrations.
     private final Map<Compatibility, Integration> integrations = new HashMap<>();
@@ -52,15 +53,17 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
 
         // Managers
         HashMap<Integer, ADBaseDisplay> savedApiDisplays = new HashMap<>(); // If the plugin is reloaded, this will save the click actions for API displays.
-        if (displaysManager != null) displaysManager.removeAll(true); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
-        if (interactionsManager != null) savedApiDisplays = interactionsManager.getApiDisplays();
-        if (packetsManager != null) packetsManager.removeAll(); // If the plugin has been reloaded, remove and add all players again.
-        if (inventoryManager != null) inventoryManager.clearAll(); // If the plugin has been reloaded, clear the map.
-        if (tickManager != null) tickManager.stop();
+        if (isRunning) {
+            displaysManager.removeAll(true); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
+            savedApiDisplays = interactionsManager.getApiDisplays();
+            packetsManager.removeAll(); // If the plugin has been reloaded, remove and add all players again.
+            inventoryManager.clearAll(); // If the plugin has been reloaded, clear the map.
+            tickManager.stop();
+        }
         tickManager = new TickManager(this);
         packetsManager = new PacketsManager(this);
         interactionsManager = new InteractionsManager(savedApiDisplays);
-        displaysManager = new DisplaysManager(this, "displays", true);
+        displaysManager = new DisplaysManager(this, "displays", true, false);
         messagesManager = new MessagesManager(mainConfig);
         inventoryManager = new InventoryManager(this, mainConfig, savesConfig);
     }
@@ -104,6 +107,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         // Registers the main command and adds tab completions.
         Objects.requireNonNull(getCommand("ad")).setExecutor(new MainCommand(this));
 
+        isRunning = true;
         Bukkit.getConsoleSender().sendMessage(messagesManager.getColoredMessage("&aThe plugin has been successfully enabled! &7Version: " + getDescription().getVersion()));
     }
 

@@ -23,7 +23,7 @@ public class ActionsHandler {
     private final AdvancedDisplays plugin;
     private final ConditionsHandler conditionsHandler;
     private final String conditionsNotMetMessage;
-    private final Map<ClickType, ArrayList<Action>> actionsMap = new EnumMap<>(ClickType.class);
+    private final Map<ClickType, List<Action>> actionsMap = new EnumMap<>(ClickType.class);
     private DisplayActions clickActions = null;
 
     public ActionsHandler(AdvancedDisplays plugin, BaseDisplay display, YamlConfiguration config) {
@@ -123,12 +123,12 @@ public class ActionsHandler {
             return;
         }
 
-        if (display.isApi()) return;
+        if (display.isApi() || conditionsHandler == null) return;
 
         boolean meetsConditions = conditionsHandler.checkConditions(player);
 
         if (!meetsConditions) {
-            if (!conditionsNotMetMessage.isEmpty() && !conditionsNotMetMessage.isBlank()) {
+            if (conditionsNotMetMessage != null && !conditionsNotMetMessage.isBlank()) {
                 player.spigot().sendMessage(Utils.getTextComponent(conditionsNotMetMessage, player, null, false));
             }
             return;
@@ -138,7 +138,7 @@ public class ActionsHandler {
             clickActions.onClick(player, clickType, display);
 
         } else {
-            ArrayList<Action> actionsToRun = actionsMap.get(clickType);
+            List<Action> actionsToRun = actionsMap.get(clickType);
             if (actionsToRun == null) return;
 
             for (Action action : actionsToRun) {

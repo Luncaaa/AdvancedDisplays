@@ -22,7 +22,7 @@ public class ConditionsHandler {
 
         if (conditionsSection != null) {
             for (String conditionTypeKey : conditionsSection.getKeys(false)) {
-                addCondition(conditionsSection.getConfigurationSection(conditionTypeKey));
+                addCondition(conditionTypeKey, conditionsSection.get(conditionTypeKey));
             }
         }
     }
@@ -34,30 +34,27 @@ public class ConditionsHandler {
 
     /**
      * Adds a condition to the list.
-     * @param conditionSection The section with the condition data.
+     * @param key The type of the condition
+     * @param value The condition's value
      */
-    private void addCondition(ConfigurationSection conditionSection) {
-        if (conditionSection == null) return;
-
-        ConditionType conditionType = ConditionType.getFromConfigName(conditionSection.getName());
+    private void addCondition(String key, Object value) {
+        ConditionType conditionType = ConditionType.getFromConfigName(key);
 
         if (conditionType == null) {
-            plugin.log(Level.WARNING, "Invalid condition type detected for display \"" + display.getName() + "\": " + conditionSection.getName());
+            plugin.log(Level.WARNING, "Invalid condition type detected for display \"" + display.getName() + "\": " + key);
+            return;
+        }
+
+        if (!value.getClass().equals(conditionType.getType())) {
+            plugin.log(Level.WARNING, "Your condition \"" + key + "\" is not a valid " + conditionType.getType().getSimpleName() + " for display \"" + display.getName() + "\"!");
             return;
         }
 
         ADCondition condition = switch (conditionType) {
-            case DISTANCE -> new DistanceCondition(conditionSection);
-            case HAS_PERMISSION -> new HasPermissionCondition(conditionSection);
-            case LACKS_PERMISSION -> new LacksPermissionCondition(conditionSection);
+            case DISTANCE -> new DistanceCondition(value);
+            case HAS_PERMISSION -> new HasPermissionCondition(value);
+            case LACKS_PERMISSION -> new LacksPermissionCondition(value);
         };
-
-        List<String> missingFields = condition.getMissingFields();
-        if (!missingFields.isEmpty()) {
-            String missing = String.join(", ", missingFields);
-            plugin.log(Level.WARNING, "Your condition \"" + conditionSection.getName() + "\" is missing necessary fields: " + missing);
-            return;
-        }
 
         // The reason why it isn't correct is handled by the action class.
         if (!condition.isCorrect()) return;

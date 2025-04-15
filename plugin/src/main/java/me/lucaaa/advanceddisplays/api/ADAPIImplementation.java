@@ -25,7 +25,7 @@ public class ADAPIImplementation implements ADAPI {
     public ADAPIImplementation(AdvancedDisplays plugin, JavaPlugin apiPlugin) {
         this.plugin = plugin;
         this.apiPlugin = apiPlugin;
-        this.displaysManager = new DisplaysManager(plugin, "displays" + File.separator + apiPlugin.getName(), false);
+        this.displaysManager = new DisplaysManager(plugin, "displays" + File.separator + apiPlugin.getName(), false, true);
     }
 
     @Override

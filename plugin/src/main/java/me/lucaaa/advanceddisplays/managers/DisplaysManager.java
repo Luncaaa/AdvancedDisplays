@@ -24,14 +24,16 @@ public class DisplaysManager {
     private final AdvancedDisplays plugin;
     private final PacketInterface packets;
     private final String configsFolder;
+    private final boolean isApi;
     private final Map<String, ADBaseDisplay> displays = new HashMap<>();
     private final Map<Player, AttachedDisplay> attachDisplays = new HashMap<>();
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public DisplaysManager(AdvancedDisplays plugin, String configsFolder, boolean createFolders) {
+    public DisplaysManager(AdvancedDisplays plugin, String configsFolder, boolean createFolders, boolean isApi) {
         this.plugin = plugin;
         this.packets = plugin.getPacketsManager().getPackets();
         this.configsFolder = configsFolder;
+        this.isApi = isApi;
 
         // Gets the displays folder and creates it if it doesn't exist.
         File displaysFolder = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + configsFolder);
@@ -275,5 +277,9 @@ public class DisplaysManager {
 
     public String getConfigsFolder() {
         return configsFolder;
+    }
+
+    public boolean isApi() {
+        return isApi;
     }
 }

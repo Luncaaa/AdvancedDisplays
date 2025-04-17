@@ -230,7 +230,7 @@ public class DisplaysManager {
     }
 
     public BaseDisplay getDisplayFromLoc(Location location, double radius, boolean closest) {
-        double closestDistance = radius;
+        double closestDistance = Math.pow(radius, 2);
         BaseDisplay closestDisplay = null;
 
         for (BaseDisplay display : displays.values()) {

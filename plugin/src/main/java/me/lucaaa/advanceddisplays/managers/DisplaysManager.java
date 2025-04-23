@@ -158,12 +158,12 @@ public class DisplaysManager {
             return false;
         }
 
-        removeDisplay(displays.get(name), true);
+        removeDisplay(displays.get(name), true, true);
         return true;
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public void removeDisplay(ADBaseDisplay display, boolean deleteFile) {
+    public void removeDisplay(ADBaseDisplay display, boolean deleteFile, boolean removeFromList) {
         if (display.getConfigManager() != null && deleteFile) {
             display.getConfigManager().getFile().delete();
         }
@@ -173,13 +173,13 @@ public class DisplaysManager {
         display.stopTicking();
         plugin.getInteractionsManager().removeInteraction(display.getInteractionId());
         plugin.getInventoryManager().handleRemoval(display);
-        displays.remove(display.getName());
+        if (removeFromList) displays.remove(display.getName());
         display.setRemoved();
     }
 
     public void removeAll(boolean onReload) {
         for (ADBaseDisplay display : displays.values()) {
-            removeDisplay(display, !onReload);
+            removeDisplay(display, !onReload, false); // false to prevent ConcurrentModificationException
         }
 
         attachDisplays.clear();

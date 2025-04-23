@@ -71,7 +71,7 @@ public class ADAPIImplementation implements ADAPI {
         ADBaseDisplay display = displaysManager.getDisplayFromMap(name);
 
         if (display != null) {
-            displaysManager.removeDisplay(display, true);
+            displaysManager.removeDisplay(display, true, true);
         }
     }
 

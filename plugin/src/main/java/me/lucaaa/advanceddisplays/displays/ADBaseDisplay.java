@@ -605,7 +605,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
     @Override
     public void remove() {
-        displaysManager.removeDisplay(this, true);
+        displaysManager.removeDisplay(this, true, true);
     }
 
     public void setRemoved() {

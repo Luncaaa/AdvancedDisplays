@@ -54,6 +54,41 @@ jobs:
           echo "$COMMIT_LOG" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
+      - name: Delete dev release
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Get all releases and fetch the one with "dev" tag
+            const { data: releases } = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            const devRelease = releases.find(release => release.tag_name === 'dev');
+            
+            // Delete the "dev" release and tag if it's found.
+            if (devRelease) {
+              await github.rest.repos.deleteRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: devRelease.id
+              });
+              console.log(`Successfully deleted the dev release. ID: ${devRelease.id}`);
+            
+              // Delete the tag
+              try {
+                await github.rest.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: 'tags/dev'
+                });
+                console.log('Successfully deleted the "dev" tag.');
+              } catch (error) {
+                console.log(`Error deleting tag: ${error.message}`);
+              }
+            }
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:

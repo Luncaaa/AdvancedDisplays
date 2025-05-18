@@ -5,7 +5,7 @@ version: 1.7
 softdepend: [PlaceholderAPI, Oraxen, ItemsAdder]
 author: Lucaaa
 prefix: AD
-api-version: 1.19.4
+api-version: 1.19
 
 commands:
   ad:

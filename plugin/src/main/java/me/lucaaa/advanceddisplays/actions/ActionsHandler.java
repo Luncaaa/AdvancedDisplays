@@ -29,6 +29,12 @@ public class ActionsHandler {
     public ActionsHandler(AdvancedDisplays plugin, BaseDisplay display, YamlConfiguration config) {
         this.plugin = plugin;
 
+        if (config == null) {
+            this.conditionsHandler = null;
+            this.conditionsNotMetMessage = null;
+            return;
+        }
+
         ConfigurationSection actionsSection = config.getConfigurationSection("actions");
         if (actionsSection == null) {
             this.conditionsHandler = null;
@@ -66,12 +72,6 @@ public class ActionsHandler {
                 }
             }
         }
-    }
-
-    public ActionsHandler(AdvancedDisplays plugin) {
-        this.plugin = plugin;
-        this.conditionsHandler = null;
-        this.conditionsNotMetMessage = null;
     }
 
     /**
@@ -134,21 +134,16 @@ public class ActionsHandler {
             return;
         }
 
-        if (clickActions != null) {
-            clickActions.onClick(player, clickType, display);
+        List<Action> actionsToRun = actionsMap.get(clickType);
+        if (actionsToRun == null) return;
 
-        } else {
-            List<Action> actionsToRun = actionsMap.get(clickType);
-            if (actionsToRun == null) return;
-
-            for (Action action : actionsToRun) {
-                if (action.isGlobal()) {
-                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        executeAction(action, player, onlinePlayer);
-                    }
-                } else {
-                    executeAction(action, player, player);
+        for (Action action : actionsToRun) {
+            if (action.isGlobal()) {
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    executeAction(action, player, onlinePlayer);
                 }
+            } else {
+                executeAction(action, player, player);
             }
         }
     }

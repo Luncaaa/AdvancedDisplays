@@ -27,7 +27,7 @@ public class FinishSubCommand extends SubCommandsFormat {
             player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are no longer creating an ATTACHED display."));
         }
 
-        if (!plugin.getInventoryManager().isPlayerNotEditing(player)) {
+        if (plugin.getInventoryManager().isPlayerEditing(player)) {
             sendError = false;
             plugin.getInventoryManager().getEditingPlayer(player).finishEditing();
             player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been successfully given back to you."));

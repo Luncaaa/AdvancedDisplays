@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -18,13 +19,13 @@ public abstract class InventoryMethods {
     protected final AdvancedDisplays plugin;
     protected final List<EditorItem> disabledSettings;
     private final Inventory inventory;
-    private final Map<Integer, Button> buttons = new HashMap<>();
+    private final Map<Integer, Button<?>> buttons = new HashMap<>();
     private boolean loaded = false;
 
-    public InventoryMethods(AdvancedDisplays plugin, Inventory inventory, List<EditorItem> disabledSettings) {
+    public InventoryMethods(AdvancedDisplays plugin, Inventory inventory) {
         this.plugin = plugin;
         this.inventory = inventory;
-        this.disabledSettings = disabledSettings;
+        this.disabledSettings = plugin.getInventoryManager().getDisabledItems();
     }
 
     public void onOpen() {
@@ -41,11 +42,11 @@ public abstract class InventoryMethods {
         buttons.get(event.getSlot()).onClick(event);
     }
 
-    protected void addButton(int slot, Button button) {
+    protected void addButton(int slot, Button<?> button) {
         buttons.put(slot, button);
     }
 
-    protected Button getButton(int slot) {
+    protected Button<?> getButton(int slot) {
         return buttons.get(slot);
     }
 
@@ -54,11 +55,12 @@ public abstract class InventoryMethods {
     }
 
     public void decorate() {
-        buttons.forEach((slot, button) -> inventory.setItem(slot, button.getItem().getItemStack()));
+        buttons.forEach((slot, button) -> inventory.setItem(slot, button.getItem().getStack()));
 
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta meta = Objects.requireNonNull(filler.getItemMeta());
         meta.setDisplayName(" ");
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         filler.setItemMeta(meta);
 
         for (int i = 0; i < getInventory().getSize(); i++) {
@@ -69,8 +71,4 @@ public abstract class InventoryMethods {
     }
 
     public void handleChatEdit(Player player, String input) {}
-
-    public List<EditorItem> getDisabledSettings() {
-        return disabledSettings;
-    }
 }

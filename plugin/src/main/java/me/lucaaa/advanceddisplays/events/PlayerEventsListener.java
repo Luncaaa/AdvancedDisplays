@@ -64,15 +64,18 @@ public class PlayerEventsListener implements Listener {
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        plugin.getPacketsManager().remove(event.getPlayer());
-        if (plugin.getInventoryManager().isPlayerNotEditing(event.getPlayer())) return;
-        plugin.getInventoryManager().getEditingPlayer(event.getPlayer()).finishEditing();
-        plugin.getDisplaysManager().removeAttachingDisplay(event.getPlayer());
+        Player player = event.getPlayer();
+
+        plugin.getPacketsManager().remove(player);
+        if (plugin.getInventoryManager().isPlayerEditing(player)) {
+            plugin.getInventoryManager().getEditingPlayer(event.getPlayer()).finishEditing();
+        }
+        plugin.getDisplaysManager().removeAttachingDisplay(player);
     }
 
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
-        if (plugin.getInventoryManager().isPlayerNotEditing(event.getPlayer())) return;
+        if (!plugin.getInventoryManager().isPlayerEditing(event.getPlayer())) return;
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -101,7 +104,7 @@ public class PlayerEventsListener implements Listener {
             }
         }
 
-        if (plugin.getInventoryManager().isPlayerNotEditing(player)) return;
+        if (!plugin.getInventoryManager().isPlayerEditing(player)) return;
 
         // Because the event is fired twice, the current time is stored in a map along with the player that interacted with the display.
         // When the event is called again, the current time and the one stored in the map are compared. If less than or 20ms have passed, ignore this event.
@@ -122,7 +125,7 @@ public class PlayerEventsListener implements Listener {
 
     @EventHandler
     public void onItemDrop(PlayerDropItemEvent event) {
-        if (plugin.getInventoryManager().isPlayerNotEditing(event.getPlayer())) return;
+        if (!plugin.getInventoryManager().isPlayerEditing(event.getPlayer())) return;
 
         event.setCancelled(true);
     }
@@ -130,7 +133,7 @@ public class PlayerEventsListener implements Listener {
     @EventHandler
     public void onItemPickup(EntityPickupItemEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
-        if (plugin.getInventoryManager().isPlayerNotEditing(player)) return;
+        if (!plugin.getInventoryManager().isPlayerEditing(player)) return;
 
         event.setCancelled(true);
     }

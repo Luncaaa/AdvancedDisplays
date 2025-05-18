@@ -29,7 +29,7 @@ public class BlockDataGUI extends InventoryMethods {
     private final Map<Player, String> editMap = new HashMap<>();
 
     public BlockDataGUI(AdvancedDisplays plugin, EditorGUI previousInventory, BlockDisplay display, Consumer<BlockData> onDone) {
-        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText("&6Editing block data of: &e" + display.getName())), previousInventory.getDisabledSettings());
+        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText("&6Editing block data of: &e" + display.getName())));
         this.previous = previousInventory;
         this.display = display;
         this.onDone = onDone;
@@ -56,7 +56,7 @@ public class BlockDataGUI extends InventoryMethods {
     public void decorate() {
         int slot = 0;
         for (Map.Entry<String, String> entry : dataMap.entrySet()) {
-            addButton(slot, new Button.InventoryButton(create(entry.getKey(), entry.getValue())) {
+            addButton(slot, new Button.InventoryButton<>(create(entry.getKey(), entry.getValue())) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
                     editMap.put((Player) event.getWhoClicked(), entry.getKey());
@@ -68,14 +68,14 @@ public class BlockDataGUI extends InventoryMethods {
             slot++;
         }
 
-        addButton(18, new Button.InventoryButton(GlobalItems.CANCEL) {
+        addButton(18, new Button.InventoryButton<>(GlobalItems.CANCEL) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 onClose((Player) event.getWhoClicked());
             }
         });
 
-        addButton(26, new Button.InventoryButton(GlobalItems.DONE) {
+        addButton(26, new Button.InventoryButton<>(GlobalItems.DONE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 String blockData = "minecraft:" + material.name().toLowerCase() + "[";
@@ -115,7 +115,7 @@ public class BlockDataGUI extends InventoryMethods {
         }.runTask(plugin);
     }
 
-    private Item create(String title, String value) {
-        return new Item(Material.COMMAND_BLOCK, ChatColor.GOLD + title, "", value);
+    private Item.ClickableItem create(String title, String value) {
+        return new Item.ClickableItem(Material.COMMAND_BLOCK, ChatColor.GOLD + title, "", value);
     }
 }

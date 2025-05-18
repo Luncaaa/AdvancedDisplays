@@ -32,7 +32,7 @@ public class EditSubCommand extends SubCommandsFormat {
             return;
         }
 
-        plugin.getInventoryManager().addEditingPlayer((Player) sender, plugin.getInventoryManager().getDisabledItems(), display);
+        plugin.getInventoryManager().addEditingPlayer((Player) sender, display);
         sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are now editing the display &e" + display.getName() + "&a. Run &e/ad finish &ato get your old inventory back."));
     }
 }

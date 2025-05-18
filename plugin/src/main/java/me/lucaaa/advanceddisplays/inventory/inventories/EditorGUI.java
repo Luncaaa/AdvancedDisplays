@@ -20,7 +20,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.awt.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
@@ -31,8 +30,8 @@ public class EditorGUI extends InventoryMethods {
     private final EditorItems items;
     private final Map<Player, EditAction> editMap = new HashMap<>();
 
-    public EditorGUI(AdvancedDisplays plugin, List<EditorItem> disabledItems, BaseDisplay display) {
-        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))), disabledItems);
+    public EditorGUI(AdvancedDisplays plugin, BaseDisplay display) {
+        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))));
         this.display = display;
         this.items = new EditorItems(display);
     }
@@ -40,24 +39,6 @@ public class EditorGUI extends InventoryMethods {
     @Override
     public void onClick(InventoryClickEvent event) {
         event.setCancelled(true);
-        /* This would be useful if the player could use their inventory to drag items into the "current value" slot.
-        if (display.getType() == DisplayType.TEXT || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
-            event.setCancelled(true);
-
-        } else {
-            // 13 is the display value slot
-            if (event.getClickedInventory() == getInventory() && (event.getSlot() != 13 || Objects.requireNonNull(event.getCursor()).getType() == Material.AIR)) {
-                event.setCancelled(true);
-
-            } else if (display.getType() == DisplayType.BLOCK && event.getCurrentItem() != null) {
-                try {
-                    // If the material is not block, the player won't be able to pick it up.
-                    event.getCurrentItem().getType().createBlockData();
-                } catch (IllegalArgumentException | NullPointerException ignored) {
-                    event.setCancelled(true);
-                }
-            }
-        }*/
 
         if (event.getClickedInventory() == getInventory()) {
             super.onClick(event);
@@ -67,63 +48,63 @@ public class EditorGUI extends InventoryMethods {
     @Override
     public void decorate() {
         // ---[ BRIGHTNESS ]----
-        addIfAllowed(EditorItem.BLOCK_LIGHT, 0, new Button.InventoryButton(items.BLOCK_LIGHT) {
+        addIfAllowed(EditorItem.BLOCK_LIGHT, 0, new Button.InventoryButton<>(items.BLOCK_LIGHT) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 int newBrightness = getItem().setNewItemBrightness(event.isLeftClick());
-                getInventory().setItem(0, getItem().getItemStack());
+                getInventory().setItem(0, getItem().getStack());
                 display.setBrightness(new Display.Brightness(newBrightness, display.getBrightness().getSkyLight()));
             }
         });
 
-        addIfAllowed(EditorItem.SKY_LIGHT, 9, new Button.InventoryButton(items.SKY_LIGHT) {
+        addIfAllowed(EditorItem.SKY_LIGHT, 9, new Button.InventoryButton<>(items.SKY_LIGHT) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 int newBrightness = getItem().setNewItemBrightness(event.isLeftClick());
-                getInventory().setItem(9, getItem().getItemStack());
+                getInventory().setItem(9, getItem().getStack());
                 display.setBrightness(new Display.Brightness(display.getBrightness().getBlockLight(), newBrightness));
             }
         });
         // ----------
 
         // ----[ SHADOW ]-----
-        addIfAllowed(EditorItem.SHADOW_RADIUS, 1, new Button.InventoryButton(items.SHADOW_RADIUS) {
+        addIfAllowed(EditorItem.SHADOW_RADIUS, 1, new Button.InventoryButton<>(items.SHADOW_RADIUS) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                double newValue = getItem().changeDoubleValue(event.isShiftClick(), 0.0, null, event.isLeftClick(), false);
-                getInventory().setItem(1, getItem().getItemStack());
+                double newValue = getItem().changeValue(event.isLeftClick(), event.isShiftClick(), 0.0);
+                getInventory().setItem(1, getItem().getStack());
                 display.setShadow((float) newValue, display.getShadowStrength());
             }
         });
 
-        addIfAllowed(EditorItem.SHADOW_STRENGTH, 10, new Button.InventoryButton(items.SHADOW_STRENGTH) {
+        addIfAllowed(EditorItem.SHADOW_STRENGTH, 10, new Button.InventoryButton<>(items.SHADOW_STRENGTH) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                double newValue = getItem().changeDoubleValue(event.isShiftClick(), 0.0, null, event.isLeftClick(), false);
-                getInventory().setItem(10, getItem().getItemStack());
+                double newValue = getItem().changeValue(event.isLeftClick(), event.isShiftClick(), 0.0);
+                getInventory().setItem(10, getItem().getStack());
                 display.setShadow(display.getShadowRadius(), (float) newValue);
             }
         });
         // ----------
 
         // ----[ GLOW ]-----
-        addIfAllowed(EditorItem.GLOW_TOGGLE, 2, new Button.InventoryButton(items.GLOW_TOGGLE) {
+        addIfAllowed(EditorItem.GLOW_TOGGLE, 2, new Button.InventoryButton<>(items.GLOW_TOGGLE) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                boolean newValue = getItem().changeBooleanValue();
-                getInventory().setItem(2, getItem().getItemStack());
+                boolean newValue = getItem().changeValue();
+                getInventory().setItem(2, getItem().getStack());
                 display.setGlowing(newValue);
             }
         });
 
-        addIfAllowed(EditorItem.GLOW_COLOR_SELECTOR, 11, new Button.InventoryButton(items.GLOW_COLOR_SELECTOR) {
+        addIfAllowed(EditorItem.GLOW_COLOR_SELECTOR, 11, new Button.InventoryButton<>(items.GLOW_COLOR_SELECTOR) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
                 ColorGUI inventory = new ColorGUI(plugin, EditorGUI.this, display, false, display.getGlowColor(), color -> {
                     display.setGlowColor(color);
-                    getItem().changeCurrentValue(ChatColor.of(new Color(display.getGlowColor().asRGB())) + "Preview", false);
-                    getInventory().setItem(11, getItem().getItemStack());
+                    getItem().setColor(display.getGlowColor());
+                    getInventory().setItem(11, getItem().getStack());
                 });
 
                 plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory, display);
@@ -132,7 +113,7 @@ public class EditorGUI extends InventoryMethods {
         // ----------
 
         // ----[ LOCATION ]-----
-        addIfAllowed(EditorItem.TELEPORT, 18, new Button.InventoryButton(items.TELEPORT) {
+        addIfAllowed(EditorItem.TELEPORT, 18, new Button.InventoryButton<>(items.TELEPORT) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
@@ -140,51 +121,51 @@ public class EditorGUI extends InventoryMethods {
             }
         });
 
-        addIfAllowed(EditorItem.MOVE_HERE, 19, new Button.InventoryButton(items.MOVE_HERE) {
+        addIfAllowed(EditorItem.MOVE_HERE, 19, new Button.InventoryButton<>(items.MOVE_HERE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
                 display.setLocation(event.getWhoClicked().getLocation());
                 Location loc = event.getWhoClicked().getLocation();
                 String location = BigDecimal.valueOf(loc.getX()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getY()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getZ()).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                getItem().changeCurrentValue(location, false);
-                getInventory().setItem(19, getItem().getItemStack());
+                getItem().setValue(location);
+                getInventory().setItem(19, getItem().getStack());
             }
         });
 
-        addIfAllowed(EditorItem.CENTER, 20, new Button.InventoryButton(items.CENTER) {
+        addIfAllowed(EditorItem.CENTER, 20, new Button.InventoryButton<>(items.CENTER) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 Location loc = display.center();
                 String location = loc.getX() + ";" + loc.getY() + ";" + loc.getZ();
-                getItem().changeCurrentValue(location, false);
-                getInventory().setItem(20, getItem().getItemStack());
+                getItem().setValue(location);
+                getInventory().setItem(20, getItem().getStack());
             }
         });
         // ----------
 
         // ----[ OTHER ]-----
-        addIfAllowed(EditorItem.BILLBOARD, 4, new Button.InventoryButton(items.BILLBOARD) {
+        addIfAllowed(EditorItem.BILLBOARD, 4, new Button.InventoryButton<>(items.BILLBOARD) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                Display.Billboard newBillboard = getItem().changeEnumValue(false);
-                getInventory().setItem(4, getItem().getItemStack());
+                Display.Billboard newBillboard = getItem().changeValue();
+                getInventory().setItem(4, getItem().getStack());
                 display.setBillboard(newBillboard);
             }
         });
 
-        addIfAllowed(EditorItem.HITBOX_OVERRIDE, 12, new Button.InventoryButton(items.HITBOX_OVERRIDE) {
+        addIfAllowed(EditorItem.HITBOX_OVERRIDE, 12, new Button.InventoryButton<>(items.HITBOX_OVERRIDE) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                boolean newValue = getItem().changeBooleanValue();
-                getInventory().setItem(12, getItem().getItemStack());
+                boolean newValue = getItem().changeValue();
+                getInventory().setItem(12, getItem().getStack());
                 display.setHitboxSize(newValue, display.getHitboxWidth(), display.getHitboxHeight());
             }
         });
         // ----------
 
         // ----[ ACTIONS ]-----
-        addIfAllowed(EditorItem.CURRENT_VALUE, 13, new Button.InventoryButton(items.CURRENT_VALUE) {
+        addIfAllowed(EditorItem.CURRENT_VALUE, 13, new Button.InventoryButton<>(items.CURRENT_VALUE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
@@ -199,31 +180,7 @@ public class EditorGUI extends InventoryMethods {
                         event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of a valid material."));
                         event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6You can find a list of them here: &ehttps://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html"));
                     }
-                    /* This would be useful if the player could use their inventory to drag items into the "current value" slot.
-                    ItemStack cursorItem = Objects.requireNonNull(event.getCursor()).clone();
 
-                    if (cursorItem.getType() == Material.AIR) return;
-
-                    switch (display.getType()) {
-                        case BLOCK -> ((BlockDisplay) display).setBlock(cursorItem.getType().createBlockData());
-                        case ITEM -> ((ItemDisplay) display).setMaterial(cursorItem.getType());
-                    }
-
-                    getItem().setType(cursorItem.getType());
-                    getItem().setAmount(1);
-
-                    InventoryUtils.changeCurrentValue(getItem(), cursorItem.getType().name());
-
-                    // A Runnable must be used, or it won't work.
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            getInventory().setItem(13, getItem());
-                            event.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
-                        }
-                    }.runTask(plugin);
-
-                    if (display.getType() == DisplayType.BLOCK) setBlockData(items);*/
                 } else {
                     if (event.isLeftClick()) {
                         editMap.put((Player) event.getWhoClicked(), EditAction.REMOVE_TEXT);
@@ -239,7 +196,7 @@ public class EditorGUI extends InventoryMethods {
             }
         });
 
-        addIfAllowed(EditorItem.REMOVE, 22, new Button.InventoryButton(items.REMOVE) {
+        addIfAllowed(EditorItem.REMOVE, 22, new Button.InventoryButton<>(items.REMOVE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
@@ -252,100 +209,99 @@ public class EditorGUI extends InventoryMethods {
         switch (display.getType()) {
             case BLOCK -> setBlockData();
 
-            case ITEM -> addIfAllowed(EditorItem.ITEM_TRANSFORMATION, 8, new Button.InventoryButton(items.ITEM_TRANSFORMATION) {
+            case ITEM -> addIfAllowed(EditorItem.ITEM_TRANSFORMATION, 8, new Button.InventoryButton<>(items.ITEM_TRANSFORMATION) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
-                    org.bukkit.entity.ItemDisplay.ItemDisplayTransform newTransform = getItem().changeEnumValue(false);
-                    getInventory().setItem(8, getItem().getItemStack());
+                    org.bukkit.entity.ItemDisplay.ItemDisplayTransform newTransform = getItem().changeValue();
+                    getInventory().setItem(8, getItem().getStack());
                     ((ItemDisplay) display).setItemTransformation(newTransform);
                 }
             });
 
             case TEXT -> {
                 TextDisplay textDisplay = (TextDisplay) display;
-                addIfAllowed(EditorItem.TEXT_ALIGNMENT, 8, new Button.InventoryButton(items.TEXT_ALIGNMENT) {
+                addIfAllowed(EditorItem.TEXT_ALIGNMENT, 8, new Button.InventoryButton<>(items.TEXT_ALIGNMENT) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
-                        org.bukkit.entity.TextDisplay.TextAlignment newAlignment = getItem().changeEnumValue(false);
-                        getInventory().setItem(8, getItem().getItemStack());
+                        org.bukkit.entity.TextDisplay.TextAlignment newAlignment = getItem().changeValue();
+                        getInventory().setItem(8, getItem().getStack());
                         textDisplay.setAlignment(newAlignment);
                     }
                 });
 
-                addIfAllowed(EditorItem.BACKGROUND_COLOR, 7, new Button.InventoryButton(items.BACKGROUND_COLOR) {
+                addIfAllowed(EditorItem.BACKGROUND_COLOR, 7, new Button.InventoryButton<>(items.BACKGROUND_COLOR) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         event.getWhoClicked().closeInventory();
                         ColorGUI inventory = new ColorGUI(plugin, EditorGUI.this, display, true, textDisplay.getBackgroundColor(), color -> {
                             textDisplay.setBackgroundColor(color);
-                            getItem().setArmorColor(color);
-                            getItem().setPreviewLore(color, true, "Background Color");
-                            getInventory().setItem(7, getItem().getItemStack());
+                            getItem().setColor(color);
+                            getInventory().setItem(7, getItem().getStack());
                         });
 
                         plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory, display);
                     }
                 });
 
-                addIfAllowed(EditorItem.LINE_WIDTH, 6, new Button.InventoryButton(items.LINE_WIDTH) {
+                addIfAllowed(EditorItem.LINE_WIDTH, 6, new Button.InventoryButton<>(items.LINE_WIDTH) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
-                        int newValue = (int) getItem().changeDoubleValue(event.isShiftClick(), 0.0, null, event.isLeftClick(), false);
-                        getInventory().setItem(6, getItem().getItemStack());
+                        int newValue = (int) getItem().changeValue(event.isLeftClick(), event.isShiftClick(), 0.0);
+                        getInventory().setItem(6, getItem().getStack());
                         textDisplay.setLineWidth(newValue);
                     }
                 });
 
-                addIfAllowed(EditorItem.TEXT_OPACITY, 17, new Button.InventoryButton(items.TEXT_OPACITY) {
+                addIfAllowed(EditorItem.TEXT_OPACITY, 17, new Button.InventoryButton<>(items.TEXT_OPACITY) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
-                        byte newValue = (byte) getItem().changeDoubleValue(event.isShiftClick(), -1.0, 127.0, event.isLeftClick(), false);
-                        getInventory().setItem(17, getItem().getItemStack());
+                        byte newValue = (byte) getItem().changeValue(event.isLeftClick(), event.isShiftClick(), -1.0, 127.0);
+                        getInventory().setItem(17, getItem().getStack());
                         textDisplay.setTextOpacity(newValue);
                     }
                 });
 
-                addIfAllowed(EditorItem.USE_DEFAULT_BACKGROUND, 16, new Button.InventoryButton(items.USE_DEFAULT_BACKGROUND) {
+                addIfAllowed(EditorItem.USE_DEFAULT_BACKGROUND, 16, new Button.InventoryButton<>(items.USE_DEFAULT_BACKGROUND) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
-                        boolean newValue = getItem().changeBooleanValue();
-                        getInventory().setItem(16, getItem().getItemStack());
+                        boolean newValue = getItem().changeValue();
+                        getInventory().setItem(16, getItem().getStack());
                         textDisplay.setUseDefaultBackground(newValue);
                     }
                 });
 
-                addIfAllowed(EditorItem.SEE_THROUGH, 15, new Button.InventoryButton(items.SEE_THROUGH) {
+                addIfAllowed(EditorItem.SEE_THROUGH, 15, new Button.InventoryButton<>(items.SEE_THROUGH) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
-                        boolean newValue = getItem().changeBooleanValue();
-                        getInventory().setItem(15, getItem().getItemStack());
+                        boolean newValue = getItem().changeValue();
+                        getInventory().setItem(15, getItem().getStack());
                         textDisplay.setSeeThrough(newValue);
                     }
                 });
 
-                addIfAllowed(EditorItem.SHADOWED, 26, new Button.InventoryButton(items.SHADOWED) {
+                addIfAllowed(EditorItem.SHADOWED, 26, new Button.InventoryButton<>(items.SHADOWED) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
-                        boolean newValue = getItem().changeBooleanValue();
-                        getInventory().setItem(26, getItem().getItemStack());
+                        boolean newValue = getItem().changeValue();
+                        getInventory().setItem(26, getItem().getStack());
                         textDisplay.setShadowed(newValue);
                     }
                 });
 
-                addIfAllowed(EditorItem.ANIMATION_TIME, 25, new Button.InventoryButton(items.ANIMATION_TIME) {
+                addIfAllowed(EditorItem.ANIMATION_TIME, 25, new Button.InventoryButton<>(items.ANIMATION_TIME) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
-                        int newValue = (int) getItem().changeDoubleValue(event.isShiftClick(), 1.0, null, event.isLeftClick(), false);
-                        getInventory().setItem(25, getItem().getItemStack());
+                        int newValue = (int) getItem().changeValue(event.isLeftClick(), event.isShiftClick(), 1.0);
+                        getInventory().setItem(25, getItem().getStack());
                         textDisplay.setAnimationTime(newValue);
                     }
                 });
 
-                addIfAllowed(EditorItem.REFRESH_TIME, 24, new Button.InventoryButton(items.REFRESH_TIME) {
+                addIfAllowed(EditorItem.REFRESH_TIME, 24, new Button.InventoryButton<>(items.REFRESH_TIME) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
-                        int newValue = (int) getItem().changeDoubleValue(event.isShiftClick(), 0.0, null, event.isLeftClick(), false);
-                        getInventory().setItem(24, getItem().getItemStack());
+                        int newValue = (int) getItem().changeValue(event.isLeftClick(), event.isShiftClick(), 0.0);
+                        getInventory().setItem(24, getItem().getStack());
                         textDisplay.setRefreshTime(newValue);
                     }
                 });
@@ -360,35 +316,36 @@ public class EditorGUI extends InventoryMethods {
         BlockDisplay blockDisplay = (BlockDisplay) display;
         String data = blockDisplay.getBlock().getAsString();
         if (data.contains("[")) {
-            addIfAllowed(EditorItem.BLOCK_DATA, 8, new Button.InventoryButton(items.BLOCK_DATA) {
+            addIfAllowed(EditorItem.BLOCK_DATA, 8, new Button.InventoryButton<>(items.BLOCK_DATA) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
                     event.getWhoClicked().closeInventory();
                     InventoryMethods inventory = new BlockDataGUI(plugin, EditorGUI.this, blockDisplay, blockData -> {
                         blockDisplay.setBlock(blockData);
-                        getItem().changeCurrentValue(blockData.toString(), false);
-                        getInventory().setItem(8, getItem().getItemStack());
+                        getItem().setValue(blockData.toString());
+                        getInventory().setItem(8, getItem().getStack());
                     });
 
                     plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory, display);
                 }
             });
-            items.BLOCK_DATA.changeCurrentValue(blockDisplay.getBlock().getAsString(), false);
+            items.BLOCK_DATA.setValue(blockDisplay.getBlock().getAsString());
 
         } else {
-            addButton(8, new Button.InventoryButton(items.BLOCK_DATA) {
+            addButton(8, new Button.InventoryButton<>(items.BLOCK_DATA) {
                 @Override
                 public void onClick(InventoryClickEvent event) {}
             });
-            items.BLOCK_DATA.changeCurrentValue("This block has no data", false);
+            items.BLOCK_DATA.setValue("This block has no data");
         }
-        getInventory().setItem(8, items.BLOCK_DATA.getItemStack());
+        getInventory().setItem(8, items.BLOCK_DATA.getStack());
     }
 
     @Override
     public void handleChatEdit(Player player, String input) {
         if (!input.equalsIgnoreCase("cancel")) {
-            Item item = getButton(13).getItem();
+            @SuppressWarnings("unchecked")
+            Item<String> item = (Item<String>) getButton(13).getItem();
 
             switch (editMap.get(player)) {
                 case REMOVE_TEXT -> {
@@ -399,7 +356,7 @@ public class EditorGUI extends InventoryMethods {
                         return;
                     }
 
-                    item.changeCurrentValue(((TextDisplay) display).getText().size() + " text animation(s)", false);
+                    item.setValue(((TextDisplay) display).getText().size() + " text animation(s)");
                 }
 
                 case ADD_TEXT -> {
@@ -419,7 +376,7 @@ public class EditorGUI extends InventoryMethods {
                         return;
                     }
 
-                    item.changeCurrentValue(((TextDisplay) display).getText().size() + " text animation(s)", false);
+                    item.setValue(((TextDisplay) display).getText().size() + " text animation(s)");
                 }
 
                 case CHANGE_MATERIAL -> {
@@ -450,14 +407,14 @@ public class EditorGUI extends InventoryMethods {
                         }
                     }
 
-                    item.getItemStack().setType(material);
-                    item.getItemStack().setAmount(1);
-                    item.changeCurrentValue(material.name(), false);
+                    item.getStack().setType(material);
+                    item.getStack().setAmount(1);
+                    item.setValue(material.name());
                 }
             }
         }
 
-        getInventory().setItem(13, getButton(13).getItem().getItemStack());
+        getInventory().setItem(13, getButton(13).getItem().getStack());
         editMap.remove(player);
         plugin.getInventoryManager().handleOpen(player, this, display);
     }
@@ -468,13 +425,13 @@ public class EditorGUI extends InventoryMethods {
         CHANGE_MATERIAL
     }
 
-    private void addIfAllowed(EditorItem requirement, int slot, Button button) {
+    private void addIfAllowed(EditorItem requirement, int slot, Button.InventoryButton<?> button) {
         if (!disabledSettings.contains(requirement)) {
             addButton(slot, button);
             return;
         }
 
-        ItemStack itemStack = button.getItem().getItemStack();
+        ItemStack itemStack = button.getItem().getStack();
         ItemMeta meta = Objects.requireNonNull(itemStack.getItemMeta());
         List<String> lore = new ArrayList<>();
         for (String line : Objects.requireNonNull(meta.getLore())) {
@@ -483,7 +440,7 @@ public class EditorGUI extends InventoryMethods {
             lore.add(line);
         }
 
-        lore.add("");
+        lore.remove(lore.size() - 1);
         lore.add(ChatColor.RED + "" + ChatColor.BOLD + "Setting disabled!");
         lore.add(ChatColor.GRAY + "You won't be able to change it");
         lore.add("");
@@ -491,7 +448,7 @@ public class EditorGUI extends InventoryMethods {
         meta.setLore(lore);
         itemStack.setItemMeta(meta);
 
-        addButton(slot, new Button.InventoryButton(button.getItem()) {
+        addButton(slot, new Button.InventoryButton<Item<?>>(button.getItem()) {
             @Override
             public void onClick(InventoryClickEvent event) {}
         });

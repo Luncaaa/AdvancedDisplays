@@ -2,7 +2,6 @@ package me.lucaaa.advanceddisplays.data;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
-import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
 import me.lucaaa.advanceddisplays.inventory.inventories.PlayerInv;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
@@ -13,7 +12,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -27,7 +25,7 @@ public class EditingPlayer {
     private InventoryMethods editingInventory;
     private boolean isChatEditing = false;
 
-    public EditingPlayer(AdvancedDisplays plugin, ConfigManager savesConfig, Player player, List<EditorItem> disabledItems, BaseDisplay display) {
+    public EditingPlayer(AdvancedDisplays plugin, ConfigManager savesConfig, Player player, BaseDisplay display) {
         this.plugin = plugin;
         this.savesConfig = savesConfig;
         this.player = player;
@@ -47,7 +45,7 @@ public class EditingPlayer {
         saved.set(player.getName(), items);
         savesConfig.save();
 
-        this.editorInventory = new PlayerInv(plugin, player, disabledItems, display);
+        this.editorInventory = new PlayerInv(plugin, player, display);
     }
 
     public void setEditingInventory(InventoryMethods inventory) {

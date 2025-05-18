@@ -49,7 +49,7 @@ public class InventoryManager {
         if (editingData.containsKey(player)) {
             editingData.get(player).setEditingInventory(gui);
         } else {
-            addEditingPlayer(player, gui.getDisabledSettings(), display);
+            addEditingPlayer(player, display);
         }
     }
 
@@ -83,17 +83,17 @@ public class InventoryManager {
         editingData.clear();
     }
 
-    public void addEditingPlayer(Player player, List<EditorItem> disabledItems, BaseDisplay display) {
+    public void addEditingPlayer(Player player, BaseDisplay display) {
         if (editingData.containsKey(player)) editingData.get(player).finishEditing();
-        editingData.put(player, new EditingPlayer(plugin, savesConfig, player, disabledItems, display));
+        editingData.put(player, new EditingPlayer(plugin, savesConfig, player, display));
     }
 
     public void removeEditingPlayer(Player player) {
         editingData.remove(player);
     }
 
-    public boolean isPlayerNotEditing(Player player) {
-        return !editingData.containsKey(player);
+    public boolean isPlayerEditing(Player player) {
+        return editingData.containsKey(player);
     }
 
     public EditingPlayer getEditingPlayer(Player player) {

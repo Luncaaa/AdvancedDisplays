@@ -19,9 +19,7 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Display;
-import org.bukkit.entity.Interaction;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.util.Transformation;
 
@@ -74,7 +72,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
         this.config = config;
         this.type = type;
-        this.actionsHandler = new ActionsHandler(plugin, this, config.getConfig());
+        this.actionsHandler = new ActionsHandler(plugin, this, config);
         this.visibilityManager = new ADVisibilityManager(plugin, this);
 
         ConfigurationSection locationSection = config.getSection("location");
@@ -116,7 +114,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
             double z1 = transformation.getScale().z / 2;
             location1.add(x1, 0.0, z1);
         }
-        this.hitbox = packets.createInteractionEntity(location1);
+        this.hitbox = (Interaction) packets.createEntity(EntityType.INTERACTION, location1);
         ConfigurationSection hitboxSection = config.getSection("hitbox");
         this.overrideHitboxSize = hitboxSection.getBoolean("override");
         this.hitboxWidth = (float) hitboxSection.getDouble("width");
@@ -137,7 +135,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
         this.type = type;
         this.config = (saveToConfig) ? createConfig(display.getLocation()) : null;
-        this.actionsHandler = new ActionsHandler(plugin);
+        this.actionsHandler = new ActionsHandler(plugin, this, config);
         this.visibilityManager = new ADVisibilityManager(plugin, this);
 
         this.location = display.getLocation();
@@ -151,13 +149,13 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         this.isGlowing = display.isGlowing();
         this.glowColor = Color.ORANGE;
 
-        Location location1 = this.location;
+        Location location1 = location.clone();
         if (this.type == DisplayType.BLOCK) {
             double x1 = transformation.getScale().x / 2;
             double z1 = transformation.getScale().z / 2;
             location1.add(x1, 0.0, z1);
         }
-        this.hitbox = packets.createInteractionEntity(location1);
+        this.hitbox = (Interaction) packets.createEntity(EntityType.INTERACTION, location1);
         this.overrideHitboxSize = false;
         this.hitboxWidth = transformation.getScale().x;
         this.hitboxHeight = transformation.getScale().z;
@@ -313,17 +311,18 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
             plugin.getInteractionsManager().removeInteraction(getInteractionId());
 
             display = switch (type) {
-                case BLOCK -> packets.createBlockDisplay(location);
-                case TEXT -> packets.createTextDisplay(location);
-                case ITEM -> packets.createItemDisplay(location);
+                case BLOCK -> (BlockDisplay) packets.createEntity(EntityType.BLOCK_DISPLAY, location);
+                case TEXT -> (TextDisplay) packets.createEntity(EntityType.TEXT_DISPLAY, location);
+                case ITEM -> (ItemDisplay) packets.createEntity(EntityType.ITEM_DISPLAY, location);
             };
             displayId = display.getEntityId();
-            if (type == DisplayType.BLOCK) {
+            Location location1 = location.clone();
+            if (this.type == DisplayType.BLOCK) {
                 double x1 = transformation.getScale().x / 2;
                 double z1 = transformation.getScale().z / 2;
-                location.add(x1, 0.0, z1);
+                location1.add(x1, 0.0, z1);
             }
-            hitbox = packets.createInteractionEntity(location);
+            hitbox = (Interaction) packets.createEntity(EntityType.INTERACTION, location1);
 
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 if (this instanceof ADTextDisplay textDisplay) {

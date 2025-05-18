@@ -4,10 +4,12 @@ import io.netty.channel.ChannelPipeline;
 import me.lucaaa.advanceddisplays.common.utils.DisplayHeadType;
 import me.lucaaa.advanceddisplays.common.utils.HeadUtils;
 import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;
+import me.lucaaa.advanceddisplays.nms_common.PacketException;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
 import net.minecraft.advancements.*;
 import net.minecraft.advancements.critereon.ImpossibleTrigger;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -18,7 +20,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.Level;
@@ -32,6 +33,7 @@ import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.util.CraftNamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.inventory.ClickType;
@@ -63,7 +65,7 @@ public class Packets implements PacketInterface {
             return ((Connection) field.get(craftPlayer.getHandle().connection)).channel.pipeline();
 
         } catch (Exception e) {
-            logger.logError(java.util.logging.Level.SEVERE, "An error occurred while getting " + player.getName() + "'s pipeline: ", e);
+            logger.logError(java.util.logging.Level.SEVERE, "An error occurred while getting " + player.getName() + "'s pipeline.", e);
             return null;
         }
     }
@@ -75,7 +77,6 @@ public class Packets implements PacketInterface {
         if (!anyPacket.getClass().equals(ServerboundInteractPacket.class)) return null;
 
         ServerboundInteractPacket packet = (ServerboundInteractPacket) anyPacket;
-
         try {
             Field idField = packet.getClass().getDeclaredField("b");
             idField.setAccessible(true);
@@ -99,25 +100,6 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public Interaction createInteractionEntity(Location location) {
-        CraftWorld world = (CraftWorld) location.getWorld();
-        Level level = Objects.requireNonNull(world).getHandle();
-
-        net.minecraft.world.entity.Interaction interactionEntity = new net.minecraft.world.entity.Interaction(EntityType.INTERACTION, level);
-        interactionEntity.setPos(location.getX(), location.getY(), location.getZ());
-        Packet<ClientGamePacketListener> packet = interactionEntity.getAddEntityPacket(new ServerEntity(level.getMinecraftWorld(), interactionEntity, 0, false, consumer -> {}, Set.of()));
-
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            CraftPlayer cp = (CraftPlayer) onlinePlayer;
-            ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-            connection.send(packet);
-        }
-
-        return (Interaction) interactionEntity.getBukkitEntity();
-    }
-
-    @Override
     public void setInteractionSize(int interactionEntityId, float width, float height, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
@@ -130,13 +112,28 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public TextDisplay createTextDisplay(Location location) {
+    public Entity createEntity(org.bukkit.entity.EntityType type, Location location) {
+        EntityType<?> nmsType = BuiltInRegistries.ENTITY_TYPE.get(CraftNamespacedKey.toMinecraft(type.getKey()));
         CraftWorld world = (CraftWorld) location.getWorld();
         Level level = Objects.requireNonNull(world).getHandle();
 
-        Display.TextDisplay display = new Display.TextDisplay(EntityType.TEXT_DISPLAY, level);
-        display.setPos(location.getX(), location.getY(), location.getZ());
-        Packet<ClientGamePacketListener> packet = display.getAddEntityPacket(new ServerEntity(level.getMinecraftWorld(), display, 0, false, consumer -> {}, Set.of()));
+        net.minecraft.world.entity.Entity entity = nmsType.create(level);
+        if (entity == null) {
+            logger.logError(java.util.logging.Level.SEVERE, "Entity couldn't be created for entity type \"" + type.name() + "\". ", new PacketException("Entity not created"));
+            return null;
+        }
+
+        entity.setPos(location.getX(), location.getY(), location.getZ());
+        Packet<ClientGamePacketListener> packet = entity.getAddEntityPacket(
+                new ServerEntity(
+                        level.getMinecraftWorld(),
+                        entity,
+                        0,
+                        false,
+                        consumer -> {},
+                        Set.of()
+                )
+        );
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             CraftPlayer cp = (CraftPlayer) onlinePlayer;
@@ -145,45 +142,7 @@ public class Packets implements PacketInterface {
             connection.send(packet);
         }
 
-        return (TextDisplay) display.getBukkitEntity();
-    }
-
-    @Override
-    public ItemDisplay createItemDisplay(Location location) {
-        CraftWorld world = (CraftWorld) location.getWorld();
-        Level level = Objects.requireNonNull(world).getHandle();
-
-        Display.ItemDisplay display = new Display.ItemDisplay(EntityType.ITEM_DISPLAY, level);
-        display.setPos(location.getX(), location.getY(), location.getZ());
-        Packet<ClientGamePacketListener> packet = display.getAddEntityPacket(new ServerEntity(level.getMinecraftWorld(), display, 0, false, consumer -> {}, Set.of()));
-
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            CraftPlayer cp = (CraftPlayer) onlinePlayer;
-            ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-            connection.send(packet);
-        }
-
-        return (ItemDisplay) display.getBukkitEntity();
-    }
-
-    @Override
-    public BlockDisplay createBlockDisplay(Location location) {
-        CraftWorld world = (CraftWorld) location.getWorld();
-        Level level = Objects.requireNonNull(world).getHandle();
-
-        Display.BlockDisplay display = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, level);
-        display.setPos(location.getX(), location.getY(), location.getZ());
-        Packet<ClientGamePacketListener> packet = display.getAddEntityPacket(new ServerEntity(level.getMinecraftWorld(), display, 0, false, consumer -> {}, Set.of()));
-
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            CraftPlayer cp = (CraftPlayer) onlinePlayer;
-            ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-            connection.send(packet);
-        }
-
-        return (BlockDisplay) display.getBukkitEntity();
+        return entity.getBukkitEntity();
     }
 
     @Override
@@ -192,7 +151,16 @@ public class Packets implements PacketInterface {
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
         net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) entity).getHandle();
-        Packet<ClientGamePacketListener> packet = nmsEntity.getAddEntityPacket(new ServerEntity(((CraftWorld) entity.getWorld()).getHandle(), nmsEntity, 0, false, consumer -> {}, Set.of()));
+        Packet<ClientGamePacketListener> packet = nmsEntity.getAddEntityPacket(
+                new ServerEntity(
+                        ((CraftWorld) entity.getWorld()).getHandle(),
+                        nmsEntity,
+                        0,
+                        false,
+                        consumer -> {},
+                        Set.of()
+                )
+        );
         connection.send(packet);
     }
 

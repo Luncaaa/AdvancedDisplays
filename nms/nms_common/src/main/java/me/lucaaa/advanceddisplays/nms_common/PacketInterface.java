@@ -17,13 +17,10 @@ public interface PacketInterface {
     InternalEntityClickEvent getClickEvent(Player player, Object packet);
 
     // --[ Interaction entity ]--
-    Interaction createInteractionEntity(Location location);
     void setInteractionSize(int interactionEntityId, float width, float height, Player player);
 
     // --[ Create displays ]--
-    TextDisplay createTextDisplay(Location location);
-    ItemDisplay createItemDisplay(Location location);
-    BlockDisplay createBlockDisplay(Location location);
+    Entity createEntity(EntityType type, Location location);
     void spawnEntity(Entity spawnEntity, Player player);
 
     // --[ Remove displays ]--

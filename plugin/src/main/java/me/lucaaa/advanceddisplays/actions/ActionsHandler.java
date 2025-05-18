@@ -7,9 +7,9 @@ import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import me.lucaaa.advanceddisplays.conditions.ConditionsHandler;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
+import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
@@ -26,7 +26,7 @@ public class ActionsHandler {
     private final Map<ClickType, List<Action>> actionsMap = new EnumMap<>(ClickType.class);
     private DisplayActions clickActions = null;
 
-    public ActionsHandler(AdvancedDisplays plugin, BaseDisplay display, YamlConfiguration config) {
+    public ActionsHandler(AdvancedDisplays plugin, BaseDisplay display, ConfigManager config) {
         this.plugin = plugin;
 
         if (config == null) {
@@ -35,7 +35,7 @@ public class ActionsHandler {
             return;
         }
 
-        ConfigurationSection actionsSection = config.getConfigurationSection("actions");
+        ConfigurationSection actionsSection = config.getSection("actions", false);
         if (actionsSection == null) {
             this.conditionsHandler = null;
             this.conditionsNotMetMessage = null;

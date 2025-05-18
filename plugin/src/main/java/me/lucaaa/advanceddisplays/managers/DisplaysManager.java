@@ -105,7 +105,7 @@ public class DisplaysManager {
             return null;
         }
 
-        TextDisplay newDisplayPacket = packets.createTextDisplay(location);
+        TextDisplay newDisplayPacket = (TextDisplay) packets.createEntity(EntityType.TEXT_DISPLAY, location);
         ADTextDisplay display = new ADTextDisplay(plugin, this, name, newDisplayPacket, saveToConfig).create(value);
         createGeneral(name, display);
         return display;
@@ -116,7 +116,7 @@ public class DisplaysManager {
             return null;
         }
 
-        TextDisplay newDisplayPacket = packets.createTextDisplay(location);
+        TextDisplay newDisplayPacket = (TextDisplay) packets.createEntity(EntityType.TEXT_DISPLAY, location);
         ADTextDisplay display = new ADTextDisplay(plugin, this, name, newDisplayPacket, saveToConfig).create(value);
         createGeneral(name, display);
         return display;
@@ -127,7 +127,7 @@ public class DisplaysManager {
             return null;
         }
 
-        ItemDisplay newDisplayPacket = packets.createItemDisplay(location);
+        ItemDisplay newDisplayPacket = (ItemDisplay) packets.createEntity(EntityType.ITEM_DISPLAY, location);
         ADItemDisplay display = new ADItemDisplay(plugin, this, name, newDisplayPacket, saveToConfig).create(value);
         createGeneral(name, display);
         return display;
@@ -138,7 +138,7 @@ public class DisplaysManager {
             return null;
         }
 
-        BlockDisplay newDisplayPacket = packets.createBlockDisplay(location);
+        BlockDisplay newDisplayPacket = (BlockDisplay) packets.createEntity(EntityType.BLOCK_DISPLAY, location);
         ADBlockDisplay display = new ADBlockDisplay(plugin, this, name, newDisplayPacket, saveToConfig).create(value);
         createGeneral(name, display);
         return display;
@@ -209,15 +209,15 @@ public class DisplaysManager {
         ADBaseDisplay newDisplay = null;
         switch (displayType) {
             case BLOCK -> {
-                BlockDisplay newDisplayPacket = packets.createBlockDisplay(location);
+                BlockDisplay newDisplayPacket = (BlockDisplay) packets.createEntity(EntityType.BLOCK_DISPLAY, location);
                 newDisplay = new ADBlockDisplay(plugin, this, configManager, name, newDisplayPacket);
             }
             case TEXT -> {
-                TextDisplay newDisplayPacket = packets.createTextDisplay(location);
+                TextDisplay newDisplayPacket = (TextDisplay) packets.createEntity(EntityType.TEXT_DISPLAY, location);
                 newDisplay = new ADTextDisplay(plugin, this, configManager, name, newDisplayPacket);
             }
             case ITEM -> {
-                ItemDisplay newDisplayPacket = packets.createItemDisplay(location);
+                ItemDisplay newDisplayPacket = (ItemDisplay) packets.createEntity(EntityType.ITEM_DISPLAY, location);
                 newDisplay = new ADItemDisplay(plugin, this, configManager, name, newDisplayPacket);
             }
         }

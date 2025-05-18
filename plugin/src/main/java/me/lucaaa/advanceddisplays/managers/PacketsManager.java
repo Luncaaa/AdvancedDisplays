@@ -4,12 +4,14 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.common.utils.Logger;
+import me.lucaaa.advanceddisplays.nms_common.PacketException;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 public class PacketsManager {
     private final AdvancedDisplays plugin;
@@ -78,6 +80,11 @@ public class PacketsManager {
     private void playerPipelineOperation(Player player, Consumer<ChannelPipeline> operation) {
         try {
             ChannelPipeline pipeline = packets.getPlayerPipeline(player);
+
+            if (pipeline == null) {
+                plugin.logError(Level.WARNING, "Player pipeline is null for player \"" + player.getName() + "\".", new PacketException("Missing pipeline"));
+                return;
+            }
 
             EventLoop eventLoop = pipeline.channel().eventLoop();
             if (eventLoop.inEventLoop()) {

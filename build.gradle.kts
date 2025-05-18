@@ -5,7 +5,7 @@ plugins {
 allprojects {
     apply(plugin = "java")
     group = "me.lucaaa"
-    version = "1.6.1"
+    version = "1.7"
 
     java {
         toolchain {

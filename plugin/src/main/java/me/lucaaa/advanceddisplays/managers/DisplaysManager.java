@@ -146,7 +146,7 @@ public class DisplaysManager {
 
     private void createGeneral(String name, ADBaseDisplay display) {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            display.sendBaseMetadataPackets(onlinePlayer);
+            display.sendMetadataPackets(onlinePlayer);
         }
 
         plugin.getInteractionsManager().addInteraction(display.getInteractionId(), display);
@@ -225,7 +225,7 @@ public class DisplaysManager {
         displays.put(configManager.getFile().getName().replace(".yml", ""), newDisplay);
         plugin.getInteractionsManager().addInteraction(newDisplay.getInteractionId(), newDisplay);
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            ((DisplayMethods) newDisplay).sendMetadataPackets(onlinePlayer);
+            newDisplay.sendMetadataPackets(onlinePlayer);
         }
     }
 

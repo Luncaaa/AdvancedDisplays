@@ -222,7 +222,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
         return displayConfigManager;
     }
 
-    public void sendBaseMetadataPackets(Player player) {
+    public void sendMetadataPackets(Player player) {
         packets.setLocation(display, player);
         packets.setRotation(displayId, yaw, pitch, player);
         packets.setTransformation(displayId, transformation, player);
@@ -328,7 +328,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
                 if (this instanceof ADTextDisplay textDisplay) {
                     textDisplay.restartRunnable();
                 }
-                ((DisplayMethods) this).sendMetadataPackets(onlinePlayer);
+                sendMetadataPackets(onlinePlayer);
             }
 
             plugin.getInteractionsManager().addInteraction(getInteractionId(), this);
@@ -589,7 +589,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     public void spawnToPlayer(Player player) {
         packets.spawnEntity(display, player);
         packets.spawnEntity(hitbox, player);
-        ((DisplayMethods) this).sendMetadataPackets(player);
+        sendMetadataPackets(player);
     }
 
     public void removeToPlayer(Player player) {

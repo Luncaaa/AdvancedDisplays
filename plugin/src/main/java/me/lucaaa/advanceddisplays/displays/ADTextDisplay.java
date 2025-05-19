@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
-public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.TextDisplay {
+public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddisplays.api.displays.TextDisplay {
     private ConfigurationSection settings = null;
     private final AnimatedTextRunnable textRunnable;
     private int animationTime;
@@ -72,7 +72,7 @@ public class ADTextDisplay extends ADBaseDisplay implements DisplayMethods, me.l
 
     @Override
     public void sendMetadataPackets(Player player) {
-        sendBaseMetadataPackets(player);
+        super.sendMetadataPackets(player);
         textRunnable.sendToPlayer(player, packets);
         packets.setBackgroundColor(displayId, backgroundColor, player);
         packets.setLineWidth(displayId, lineWidth, player);

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.BlockDisplay {
+public class ADBlockDisplay extends ADBaseDisplay implements me.lucaaa.advanceddisplays.api.displays.BlockDisplay {
     private ConfigurationSection settings = null;
     private BlockData block;
 
@@ -57,7 +57,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements DisplayMethods, me.
 
     @Override
     public void sendMetadataPackets(Player player) {
-        sendBaseMetadataPackets(player);
+        super.sendMetadataPackets(player);
         packets.setBlock(displayId, block, player);
     }
 

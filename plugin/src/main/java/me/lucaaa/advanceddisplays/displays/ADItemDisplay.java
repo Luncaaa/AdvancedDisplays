@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 
-public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.lucaaa.advanceddisplays.api.displays.ItemDisplay {
+public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddisplays.api.displays.ItemDisplay {
     private ConfigurationSection settings = null;
     private ItemStack item;
     private DisplayHeadType displayHeadType;
@@ -74,7 +74,7 @@ public class ADItemDisplay extends ADBaseDisplay implements DisplayMethods, me.l
 
     @Override
     public void sendMetadataPackets(Player player) {
-        sendBaseMetadataPackets(player);
+        super.sendMetadataPackets(player);
         if (item.getType() == Material.PLAYER_HEAD) packets.setHead(displayId, enchanted, displayHeadType, displayHeadValue, player);
         else packets.setItem(displayId, item, enchanted, player);
         packets.setItemDisplayTransformation(displayId, itemTransformation, player);

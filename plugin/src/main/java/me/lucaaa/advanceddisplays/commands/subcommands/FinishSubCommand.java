@@ -29,7 +29,7 @@ public class FinishSubCommand extends SubCommandsFormat {
 
         if (plugin.getInventoryManager().isPlayerEditing(player)) {
             sendError = false;
-            plugin.getInventoryManager().getEditingPlayer(player).finishEditing();
+            plugin.getInventoryManager().finishEditing(player);
             player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been successfully given back to you."));
         }
 

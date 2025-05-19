@@ -259,7 +259,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
 
     @Override
     public void openEditor(Player player, List<EditorItem> disabledSettings) {
-        plugin.getInventoryManager().addEditingPlayer(player, this);
+        plugin.getInventoryManager().addEditingPlayer(player, this, disabledSettings);
         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are now editing the display &e" + display.getName() + "&a. Run &e/ad finish &ato get your old inventory back."));
     }
 
@@ -267,7 +267,7 @@ public class ADBaseDisplay extends Ticking implements BaseDisplay {
     public void closeEditor(Player player) {
         if (!plugin.getInventoryManager().isPlayerEditing(player)) return;
 
-        plugin.getInventoryManager().getEditingPlayer(player).finishEditing();
+        plugin.getInventoryManager().finishEditing(player);
         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been successfully given back to you."));
     }
 

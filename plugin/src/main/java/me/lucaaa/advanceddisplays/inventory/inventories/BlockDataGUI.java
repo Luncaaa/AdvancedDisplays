@@ -1,7 +1,6 @@
 package me.lucaaa.advanceddisplays.inventory.inventories;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
 import me.lucaaa.advanceddisplays.common.utils.Utils;
 import me.lucaaa.advanceddisplays.inventory.Button;
@@ -22,7 +21,6 @@ import java.util.function.Consumer;
 
 public class BlockDataGUI extends InventoryMethods {
     private final EditorGUI previous;
-    private final BaseDisplay display;
     private final Consumer<BlockData> onDone;
     private final Material material;
     private final Map<String, String> dataMap = new HashMap<>();
@@ -31,7 +29,6 @@ public class BlockDataGUI extends InventoryMethods {
     public BlockDataGUI(AdvancedDisplays plugin, EditorGUI previousInventory, BlockDisplay display, Consumer<BlockData> onDone) {
         super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText("&6Editing block data of: &e" + display.getName())));
         this.previous = previousInventory;
-        this.display = display;
         this.onDone = onDone;
         this.material = display.getBlock().getMaterial();
 
@@ -98,24 +95,23 @@ public class BlockDataGUI extends InventoryMethods {
             dataMap.put(editMap.remove(player), input);
             decorate();
         }
-        plugin.getInventoryManager().handleOpen(player, this, display);
+        plugin.getInventoryManager().handleOpen(player, this);
     }
 
     @Override
     public void onClose(Player player) {
         if (editMap.containsKey(player)) return;
-        player.closeInventory();
         // The task is run so that the InventoryCloseEvent is fully run before opening a new inventory.
         // Otherwise, the inventory will open but won't be registered as a plugin's GUI.
         new BukkitRunnable() {
             @Override
             public void run() {
-                plugin.getInventoryManager().handleOpen(player, previous, display);
+                plugin.getInventoryManager().handleOpen(player, previous);
             }
         }.runTask(plugin);
     }
 
     private Item.ClickableItem create(String title, String value) {
-        return new Item.ClickableItem(Material.COMMAND_BLOCK, ChatColor.GOLD + title, "", value);
+        return new Item.ClickableItem(Material.COMMAND_BLOCK, ChatColor.GOLD + title, List.of(), value);
     }
 }

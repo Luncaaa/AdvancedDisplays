@@ -42,14 +42,12 @@ public class InventoryManager {
         }
     }
 
-    public void handleOpen(Player player, InventoryMethods gui, BaseDisplay display) {
+    public void handleOpen(Player player, InventoryMethods gui) {
         gui.onOpen();
         player.openInventory(gui.getInventory());
         openGUIs.put(player, gui);
         if (editingData.containsKey(player)) {
-            editingData.get(player).setEditingInventory(gui);
-        } else {
-            addEditingPlayer(player, display);
+            editingData.get(player).setOpenInventory(gui);
         }
     }
 
@@ -83,13 +81,13 @@ public class InventoryManager {
         editingData.clear();
     }
 
-    public void addEditingPlayer(Player player, BaseDisplay display) {
+    public void addEditingPlayer(Player player, BaseDisplay display, List<EditorItem> disabledSettings) {
         if (editingData.containsKey(player)) editingData.get(player).finishEditing();
-        editingData.put(player, new EditingPlayer(plugin, savesConfig, player, display));
+        editingData.put(player, new EditingPlayer(plugin, savesConfig, player, display, disabledSettings));
     }
 
-    public void removeEditingPlayer(Player player) {
-        editingData.remove(player);
+    public void finishEditing(Player player) {
+        editingData.remove(player).finishEditing();
     }
 
     public boolean isPlayerEditing(Player player) {

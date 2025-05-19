@@ -68,7 +68,7 @@ public class PlayerEventsListener implements Listener {
 
         plugin.getPacketsManager().remove(player);
         if (plugin.getInventoryManager().isPlayerEditing(player)) {
-            plugin.getInventoryManager().getEditingPlayer(event.getPlayer()).finishEditing();
+            plugin.getInventoryManager().finishEditing(player);
         }
         plugin.getDisplaysManager().removeAttachingDisplay(player);
     }

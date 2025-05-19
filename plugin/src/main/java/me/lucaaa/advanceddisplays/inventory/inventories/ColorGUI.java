@@ -20,7 +20,6 @@ import java.util.function.Consumer;
 
 public class ColorGUI extends InventoryMethods {
     private final EditorGUI previous;
-    private final BaseDisplay display;
     private Color savedColor;
     private final boolean alphaEnabled;
     private ColorItems.ColorPreview preview;
@@ -29,7 +28,6 @@ public class ColorGUI extends InventoryMethods {
     public ColorGUI(AdvancedDisplays plugin, EditorGUI previousInventory, BaseDisplay display, boolean alphaEnabled, Color initialColor, Consumer<Color> onDone) {
         super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing glow color of: &e" + display.getName()))));
         this.previous = previousInventory;
-        this.display = display;
         this.savedColor = initialColor;
         this.alphaEnabled = alphaEnabled;
         this.onDone = onDone;
@@ -103,13 +101,12 @@ public class ColorGUI extends InventoryMethods {
 
     @Override
     public void onClose(Player player) {
-        player.closeInventory();
         // The task is run so that the InventoryCloseEvent is fully run before opening a new inventory.
         // Otherwise, the inventory will open but won't be registered as a plugin's GUI.
         new BukkitRunnable() {
             @Override
             public void run() {
-                plugin.getInventoryManager().handleOpen(player, previous, display);
+                plugin.getInventoryManager().handleOpen(player, previous);
             }
         }.runTask(plugin);
     }

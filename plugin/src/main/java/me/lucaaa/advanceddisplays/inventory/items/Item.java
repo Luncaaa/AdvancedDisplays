@@ -60,7 +60,12 @@ public class Item<T> {
         }
 
         if (value != null) {
-            lore.remove(lore.size() - 1); // Removes the previous old value.
+            // Removes the previous old value.
+            for (int i = lore.size() - 1; i >= 0; i--) {
+                if (lore.get(i).startsWith("&9Current value:")) {
+                    lore.remove(i);
+                }
+            }
 
             String parsedValue = value.toString();
             if (value instanceof NamedEnum namedEnum) {
@@ -134,9 +139,6 @@ public class Item<T> {
                 lore.add("&7Use &cSHIFT + RIGHT_CLICK &7to subtract " + smallChange);
             }
 
-            // Updated lore will be set in this function. 2 empty lines are added because one is the separator
-            // and the setValue function removes the last line and replaces it with the actual value.
-            lore.add("");
             lore.add("");
             setValue(value);
         }
@@ -189,10 +191,6 @@ public class Item<T> {
 
             lore.add("");
             lore.add("&7Click to change");
-
-            // Updated lore will be set in this function. 2 empty lines are added because one is the separator
-            // and the setValue function removes the last line and replaces it with the actual value.
-            lore.add("");
             lore.add("");
             setValue(value);
         }
@@ -213,12 +211,7 @@ public class Item<T> {
 
             lore.add("");
             lore.add("&7Click to change");
-
-            // Updated lore will be set in this function. 2 empty lines are added because one is the separator
-            // and the setValue function removes the last line and replaces it with the actual value.
             lore.add("");
-            lore.add("");
-
             setValue(initialValue);
         }
 
@@ -252,9 +245,6 @@ public class Item<T> {
 
         public ClickableItem(Material material, String title, List<String> baseLore, String value) {
             super(material, title, baseLore, false, value);
-            // Updated lore will be set in this function. 2 empty lines are added because one is the separator
-            // and the setValue function removes the last line and replaces it with the actual value.
-            lore.add("");
             lore.add("");
             setValue(value);
         }

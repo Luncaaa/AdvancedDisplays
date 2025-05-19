@@ -27,12 +27,14 @@ import java.util.List;
 
 public class EditorGUI extends InventoryMethods {
     private final BaseDisplay display;
+    private final List<EditorItem> disabledSettings;
     private final EditorItems items;
     private final Map<Player, EditAction> editMap = new HashMap<>();
 
-    public EditorGUI(AdvancedDisplays plugin, BaseDisplay display) {
+    public EditorGUI(AdvancedDisplays plugin, BaseDisplay display, List<EditorItem> disabledSettings) {
         super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))));
         this.display = display;
+        this.disabledSettings = disabledSettings;
         this.items = new EditorItems(display);
     }
 
@@ -100,14 +102,13 @@ public class EditorGUI extends InventoryMethods {
         addIfAllowed(EditorItem.GLOW_COLOR_SELECTOR, 11, new Button.InventoryButton<>(items.GLOW_COLOR_SELECTOR) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                event.getWhoClicked().closeInventory();
                 ColorGUI inventory = new ColorGUI(plugin, EditorGUI.this, display, false, display.getGlowColor(), color -> {
                     display.setGlowColor(color);
                     getItem().setColor(display.getGlowColor());
                     getInventory().setItem(11, getItem().getStack());
                 });
 
-                plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory, display);
+                plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
             }
         });
         // ----------
@@ -232,14 +233,13 @@ public class EditorGUI extends InventoryMethods {
                 addIfAllowed(EditorItem.BACKGROUND_COLOR, 7, new Button.InventoryButton<>(items.BACKGROUND_COLOR) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
-                        event.getWhoClicked().closeInventory();
                         ColorGUI inventory = new ColorGUI(plugin, EditorGUI.this, display, true, textDisplay.getBackgroundColor(), color -> {
                             textDisplay.setBackgroundColor(color);
                             getItem().setColor(color);
                             getInventory().setItem(7, getItem().getStack());
                         });
 
-                        plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory, display);
+                        plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
                     }
                 });
 
@@ -319,20 +319,19 @@ public class EditorGUI extends InventoryMethods {
             addIfAllowed(EditorItem.BLOCK_DATA, 8, new Button.InventoryButton<>(items.BLOCK_DATA) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
-                    event.getWhoClicked().closeInventory();
                     InventoryMethods inventory = new BlockDataGUI(plugin, EditorGUI.this, blockDisplay, blockData -> {
                         blockDisplay.setBlock(blockData);
                         getItem().setValue(blockData.toString());
                         getInventory().setItem(8, getItem().getStack());
                     });
 
-                    plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory, display);
+                    plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
                 }
             });
             items.BLOCK_DATA.setValue(blockDisplay.getBlock().getAsString());
 
         } else {
-            addButton(8, new Button.InventoryButton<>(items.BLOCK_DATA) {
+            addIfAllowed(EditorItem.BLOCK_DATA, 8, new Button.InventoryButton<>(items.BLOCK_DATA) {
                 @Override
                 public void onClick(InventoryClickEvent event) {}
             });
@@ -416,7 +415,7 @@ public class EditorGUI extends InventoryMethods {
 
         getInventory().setItem(13, getButton(13).getItem().getStack());
         editMap.remove(player);
-        plugin.getInventoryManager().handleOpen(player, this, display);
+        plugin.getInventoryManager().handleOpen(player, this);
     }
 
     private enum EditAction {

@@ -31,9 +31,9 @@ public class PlayerInv {
     // Buttons independent of the rows
     private final Map<Integer, Button.PlayerButton<?>> buttons = new HashMap<>();
 
-    public PlayerInv(AdvancedDisplays plugin, Player player, BaseDisplay display) {
+    public PlayerInv(AdvancedDisplays plugin, Player player, BaseDisplay display, List<EditorItem> disabledItems) {
         this.player = player;
-        this.disabledItems = plugin.getInventoryManager().getDisabledItems();
+        this.disabledItems = disabledItems;
         this.display = display;
         this.transformation = display.getTransformation();
 
@@ -64,15 +64,15 @@ public class PlayerInv {
         addGlobalButton(7, new Button.PlayerButton<>(items.OPEN_GUI) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                InventoryMethods inventory = new EditorGUI(plugin, display);
-                plugin.getInventoryManager().handleOpen(event.getPlayer(), inventory, display);
+                InventoryMethods inventory = new EditorGUI(plugin, display, disabledItems);
+                plugin.getInventoryManager().handleOpen(event.getPlayer(), inventory);
             }
         });
 
         addGlobalButton(8, new Button.PlayerButton<>(GlobalItems.DONE) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                plugin.getInventoryManager().getEditingPlayer(player).finishEditing();
+                plugin.getInventoryManager().finishEditing(player);
                 player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been successfully given back to you."));
             }
         });

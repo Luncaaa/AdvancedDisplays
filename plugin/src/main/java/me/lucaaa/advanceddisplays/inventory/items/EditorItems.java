@@ -69,7 +69,7 @@ public class EditorItems {
         switch (display.getType()) {
             case TEXT -> CURRENT_VALUE = new Item.ClickableItem(Material.OAK_SIGN, "Display text", List.of("Changes the text that is being displayed", "", "&7Use &cLEFT_CLICK &7to remove an animation", "&7Use &cRIGHT_CLICK &7to add an animation"), ((TextDisplay) display).getText().size() + " text animation(s)");
             case ITEM -> CURRENT_VALUE = new Item.ClickableItem(((ItemDisplay) display).getItem().getType(), "Display item", "The item that is being displayed", ((ItemDisplay) display).getItem().getType().name());
-            case BLOCK -> CURRENT_VALUE = new Item.ClickableItem(((BlockDisplay) display).getBlock().getMaterial(), "Display block", "The block that is being displayed", ((BlockDisplay) display).getBlock().getMaterial().name());
+            case BLOCK -> CURRENT_VALUE = new Item.ClickableItem(((BlockDisplay) display).getBlock().getMaterial(), "Display block", "The block that is being displayed"); // Block data will be set in the EditorGUI class once it's opened.
             default -> CURRENT_VALUE = new Item.ClickableItem(Material.BARRIER, "&cUnextected error", "&7Report to developer.");
         }
         REMOVE = new Item.ClickableItem(Material.BARRIER, "&cRemove", List.of("Permanently removes this display", "&cThis action cannot be undone!"), null);

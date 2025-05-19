@@ -63,7 +63,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         tickManager = new TickManager(this);
         packetsManager = new PacketsManager(this);
         interactionsManager = new InteractionsManager(savedApiDisplays);
-        displaysManager = new DisplaysManager(this, "displays", true, false);
+        displaysManager = new DisplaysManager(this, getName(), true, false);
         messagesManager = new MessagesManager(mainConfig);
         inventoryManager = new InventoryManager(this, mainConfig, savesConfig);
     }

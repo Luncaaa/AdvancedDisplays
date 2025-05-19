@@ -18,7 +18,6 @@ import java.util.List;
 */
 @SuppressWarnings("unused")
 public interface ADAPI {
-
     /**
      * Gets an instance of the AdvancedDisplays plugin API.
      *
@@ -44,7 +43,22 @@ public interface ADAPI {
      * @param value The block that will be displayed.
      * @return The created display or null if a display with that name already exists.
      */
-    BlockDisplay createBlockDisplay(String name, Location location, BlockData value);
+    default BlockDisplay createBlockDisplay(String name, Location location, BlockData value) {
+        return createBlockDisplay(name, location, value, false);
+    }
+
+    /**
+     * Creates a block display at the given location.
+     * <p>
+     * For more information on how saving to config works, check this page.
+     *
+     * @param name The name of the display.
+     * @param location The location of the display.
+     * @param value The block that will be displayed.
+     * @param saveToConfig Whether the display should be saved in a file or not.
+     * @return The created display or null if a display with that name already exists.
+     */
+    BlockDisplay createBlockDisplay(String name, Location location, BlockData value, boolean saveToConfig);
 
     /**
      * Creates an item display at the given location.
@@ -53,7 +67,22 @@ public interface ADAPI {
      * @param value The item that will be displayed.
      * @return The created display or null if a display with that name already exists.
      */
-    ItemDisplay createItemDisplay(String name, Location location, Material value);
+    default ItemDisplay createItemDisplay(String name, Location location, Material value) {
+        return createItemDisplay(name, location, value, false);
+    }
+
+    /**
+     * Creates an item display at the given location.
+     * <p>
+     * For more information on how saving to config works, check this page.
+     *
+     * @param name The name of the display.
+     * @param location The location of the display.
+     * @param value The item that will be displayed.
+     * @param saveToConfig Whether the display should be saved in a file or not.
+     * @return The created display or null if a display with that name already exists.
+     */
+    ItemDisplay createItemDisplay(String name, Location location, Material value, boolean saveToConfig);
 
     /**
      * Creates a text display at the given location.
@@ -62,7 +91,22 @@ public interface ADAPI {
      * @param value The text that will be displayed. Every element of the list will be a new line.
      * @return The created display or null if a display with that name already exists.
      */
-    TextDisplay createTextDisplay(String name, Location location, List<String> value);
+    default TextDisplay createTextDisplay(String name, Location location, List<String> value) {
+        return createTextDisplay(name, location, value, false);
+    }
+
+    /**
+     * Creates a text display at the given location.
+     * <p>
+     * For more information on how saving to config works, check this page.
+     *
+     * @param name The name of the display.
+     * @param location The location of the display.
+     * @param value The text that will be displayed. Every element of the list will be a new line.
+     * @param saveToConfig Whether the display should be saved in a file or not.
+     * @return The created display or null if a display with that name already exists.
+     */
+    TextDisplay createTextDisplay(String name, Location location, List<String> value, boolean saveToConfig);
 
     /**
      * Creates a text display at the given location.
@@ -71,7 +115,22 @@ public interface ADAPI {
      * @param value The text that will be displayed.
      * @return The created display or null if a display with that name already exists.
      */
-    TextDisplay createTextDisplay(String name, Location location, Component value);
+    default TextDisplay createTextDisplay(String name, Location location, Component value) {
+        return createTextDisplay(name, location, value, false);
+    }
+
+    /**
+     * Creates a text display at the given location.
+     * <p>
+     * For more information on how saving to config works, check this page.
+     *
+     * @param name The name of the display.
+     * @param location The location of the display.
+     * @param value The text that will be displayed.
+     * @param saveToConfig Whether the display should be saved in a file or not.
+     * @return The created display or null if a display with that name already exists.
+     */
+    TextDisplay createTextDisplay(String name, Location location, Component value, boolean saveToConfig);
 
     /**
      * Gets a previously created display.

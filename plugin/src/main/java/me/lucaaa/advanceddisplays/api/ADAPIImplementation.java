@@ -13,7 +13,6 @@ import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -25,33 +24,33 @@ public class ADAPIImplementation implements ADAPI {
     public ADAPIImplementation(AdvancedDisplays plugin, JavaPlugin apiPlugin) {
         this.plugin = plugin;
         this.apiPlugin = apiPlugin;
-        this.displaysManager = new DisplaysManager(plugin, "displays" + File.separator + apiPlugin.getName(), false, true);
+        this.displaysManager = new DisplaysManager(plugin, apiPlugin.getName(), false, true);
     }
 
     @Override
-    public BlockDisplay createBlockDisplay(String name, Location location, BlockData value) {
-        BlockDisplay display = displaysManager.createBlockDisplay(location, name, value, false);
+    public BlockDisplay createBlockDisplay(String name, Location location, BlockData value, boolean saveToConfig) {
+        BlockDisplay display = displaysManager.createBlockDisplay(location, name, value, saveToConfig);
         if (display == null) logWarning(name);
         return display;
     }
 
     @Override
-    public ItemDisplay createItemDisplay(String name, Location location, Material value) {
-        ItemDisplay display = displaysManager.createItemDisplay(location, name, value, false);
+    public ItemDisplay createItemDisplay(String name, Location location, Material value, boolean saveToConfig) {
+        ItemDisplay display = displaysManager.createItemDisplay(location, name, value, saveToConfig);
         if (display == null) logWarning(name);
         return display;
     }
 
     @Override
-    public TextDisplay createTextDisplay(String name, Location location, List<String> value) {
-        TextDisplay display = displaysManager.createTextDisplay(location, name, String.join("\n", value), false);
+    public TextDisplay createTextDisplay(String name, Location location, List<String> value, boolean saveToConfig) {
+        TextDisplay display = displaysManager.createTextDisplay(location, name, String.join("\n", value), saveToConfig);
         if (display == null) logWarning(name);
         return display;
     }
 
     @Override
-    public TextDisplay createTextDisplay(String name, Location location, Component value) {
-        TextDisplay display = displaysManager.createTextDisplay(location, name, value, false);
+    public TextDisplay createTextDisplay(String name, Location location, Component value, boolean saveToConfig) {
+        TextDisplay display = displaysManager.createTextDisplay(location, name, value, saveToConfig);
         if (display == null) logWarning(name);
         return display;
     }

@@ -19,6 +19,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.io.File;
 import java.util.*;
+import java.util.logging.Level;
 
 public class DisplaysManager {
     private final AdvancedDisplays plugin;
@@ -29,10 +30,10 @@ public class DisplaysManager {
     private final Map<Player, AttachedDisplay> attachDisplays = new HashMap<>();
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public DisplaysManager(AdvancedDisplays plugin, String configsFolder, boolean createFolders, boolean isApi) {
+    public DisplaysManager(AdvancedDisplays plugin, String pluginName, boolean createFolders, boolean isApi) {
         this.plugin = plugin;
         this.packets = plugin.getPacketsManager().getPackets();
-        this.configsFolder = configsFolder;
+        this.configsFolder = (isApi) ? "displays" + File.separator + pluginName : "displays";
         this.isApi = isApi;
 
         // Gets the displays folder and creates it if it doesn't exist.
@@ -53,6 +54,12 @@ public class DisplaysManager {
                 loadDisplay(configManager);
             }
         }
+
+        String message = "Loaded " + displays.size() + " display(s)";
+        if (isApi) {
+            message += " for plugin \"" + pluginName + "\"";
+        }
+        plugin.log(Level.INFO, message);
     }
 
     public ADTextDisplay createAttachedDisplay(PlayerInteractEvent event, AttachedDisplay display) {

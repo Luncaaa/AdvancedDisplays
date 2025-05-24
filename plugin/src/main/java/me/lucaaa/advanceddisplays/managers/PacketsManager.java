@@ -3,7 +3,7 @@ package me.lucaaa.advanceddisplays.managers;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.common.utils.Logger;
+import me.lucaaa.advanceddisplays.nms_common.Logger;
 import me.lucaaa.advanceddisplays.nms_common.PacketException;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import org.bukkit.Bukkit;
@@ -86,6 +86,7 @@ public class PacketsManager {
                 return;
             }
 
+            @SuppressWarnings("resource") // Doesn't implement AutoCloseable in Java 17 (minimum version for plugin to work)
             EventLoop eventLoop = pipeline.channel().eventLoop();
             if (eventLoop.inEventLoop()) {
                 operation.accept(pipeline);

@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
-import me.lucaaa.advanceddisplays.common.utils.Utils;
+import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

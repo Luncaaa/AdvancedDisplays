@@ -3,10 +3,10 @@ package me.lucaaa.advanceddisplays.actions;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.*;
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
-import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
-import me.lucaaa.advanceddisplays.common.utils.Utils;
+import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
+import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.conditions.ConditionsHandler;
-import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
+import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -26,7 +26,7 @@ public class ActionsHandler {
     private final Map<ClickType, List<Action>> actionsMap = new EnumMap<>(ClickType.class);
     private DisplayActions clickActions = null;
 
-    public ActionsHandler(AdvancedDisplays plugin, BaseDisplay display, ConfigManager config) {
+    public ActionsHandler(AdvancedDisplays plugin, BaseEntity display, ConfigManager config) {
         this.plugin = plugin;
 
         if (config == null) {
@@ -35,7 +35,7 @@ public class ActionsHandler {
             return;
         }
 
-        ConfigurationSection actionsSection = config.getSection("actions", false);
+        ConfigurationSection actionsSection = config.getSection("actions", false, config.getConfig());
         if (actionsSection == null) {
             this.conditionsHandler = null;
             this.conditionsNotMetMessage = null;
@@ -117,7 +117,7 @@ public class ActionsHandler {
         }
     }
 
-    public void runActions(Player player, ClickType clickType, ADBaseDisplay display) {
+    public void runActions(Player player, ClickType clickType, ADBaseEntity display) {
         if (clickActions != null) {
             clickActions.onClick(player, clickType, display);
             return;

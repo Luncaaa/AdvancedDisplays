@@ -1,5 +1,5 @@
 rootProject.name = "AdvancedDisplays"
-include("plugin", "api", "common", "nms")
+include("plugin", "api", "nms")
 file("nms").listFiles()
     ?.filter { it.isDirectory }
     ?.forEach { subDir ->

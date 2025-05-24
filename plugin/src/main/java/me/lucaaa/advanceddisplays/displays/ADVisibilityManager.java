@@ -12,14 +12,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ADVisibilityManager implements VisibilityManager {
-    private final ADBaseDisplay display;
+    private final ADBaseEntity display;
     private final ConditionsHandler conditionsHandler;
     // String, not player, because players leaving a joining again are totally different objects.
     private final Map<String, Visibility> individualVis = new HashMap<>();
     private Visibility globalVisibility = Visibility.SHOW;
     private final Map<Player, Boolean> cachedVis = new HashMap<>();
 
-    public ADVisibilityManager(AdvancedDisplays plugin, ADBaseDisplay display) {
+    public ADVisibilityManager(AdvancedDisplays plugin, ADBaseEntity display) {
         this.display = display;
         if (display.isApi()) {
             this.conditionsHandler = new ConditionsHandler(plugin, display);

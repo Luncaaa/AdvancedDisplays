@@ -1,12 +1,11 @@
 package me.lucaaa.advanceddisplays.v1_21_R2;
 
 import io.netty.channel.ChannelPipeline;
-import me.lucaaa.advanceddisplays.common.utils.DisplayHeadType;
-import me.lucaaa.advanceddisplays.common.utils.HeadUtils;
 import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;
 import me.lucaaa.advanceddisplays.nms_common.PacketException;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
-import me.lucaaa.advanceddisplays.common.utils.Logger;
+import me.lucaaa.advanceddisplays.nms_common.Logger;
+import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.*;
 import net.minecraft.advancements.critereon.ImpossibleTrigger;
 import net.minecraft.core.Holder;
@@ -20,13 +19,17 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerEntity;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Team;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.advancement.AdvancementDisplayType;
@@ -53,6 +56,7 @@ import java.util.*;
 @SuppressWarnings("unused")
 public class Packets implements PacketInterface {
     private final Logger logger;
+    private final Map<ChatColor, PlayerTeam> teams = new EnumMap<>(ChatColor.class);
 
     public Packets(Logger logger) {
         this.logger = logger;
@@ -264,7 +268,7 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void setGlowing(int displayId, boolean isGlowing, Color color, Player player) {
+    public void setGlowingDisplay(int displayId, boolean isGlowing, Color color, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
@@ -273,6 +277,30 @@ public class Packets implements PacketInterface {
         data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(22, EntityDataSerializers.INT), color.asRGB()));
 
         connection.send(new ClientboundSetEntityDataPacket(displayId, data));
+    }
+
+    @Override
+    public void setGlowing(Entity entity, boolean isGlowing, ChatColor color, Player player) {
+        CraftPlayer cp = (CraftPlayer) player;
+        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
+
+        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
+        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(0, EntityDataSerializers.BYTE), (byte) (isGlowing ? 0x40 : 0)));
+        connection.send(new ClientboundSetEntityDataPacket(entity.getEntityId(), data));
+
+        ServerLevel level = ((CraftWorld) cp.getWorld()).getHandle();
+        PlayerTeam team;
+        if (!teams.containsKey(color)) {
+            team = new PlayerTeam(level.getScoreboard(), String.valueOf(entity.getEntityId()));
+            team.setColor(ChatFormatting.valueOf(color.name()));
+            team.setCollisionRule(Team.CollisionRule.NEVER);
+            teams.put(color, team);
+        } else {
+            team = teams.get(color);
+        }
+
+        connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
+        connection.send(ClientboundSetPlayerTeamPacket.createPlayerPacket(team, String.valueOf(entity.getUniqueId()), ClientboundSetPlayerTeamPacket.Action.ADD));
     }
 
     @Override
@@ -364,12 +392,11 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void setHead(int displayId, boolean enchanted, DisplayHeadType displayHeadType, String displayHeadValue, Player player) {
+    public void setHead(int displayId, boolean enchanted, ItemStack head, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
         List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        ItemStack head = HeadUtils.getHead(displayHeadType, displayHeadValue, player, logger);
         if (enchanted) head.addUnsafeEnchantment(Enchantment.MENDING, 1);
 
         data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy(head)));

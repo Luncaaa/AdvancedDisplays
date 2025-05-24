@@ -1,8 +1,9 @@
-package me.lucaaa.advanceddisplays.common.utils;
+package me.lucaaa.advanceddisplays.data;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.apache.commons.io.IOUtils;
+import me.lucaaa.advanceddisplays.nms_common.Logger;
+import me.lucaaa.advanceddisplays.nms_common.PacketException;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -13,8 +14,13 @@ import org.bukkit.profile.PlayerTextures;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.UUID;
@@ -26,23 +32,23 @@ public class HeadUtils {
         SkullMeta skullMeta = (SkullMeta) Objects.requireNonNull(item.getItemMeta());
 
         String value = displayHeadValue;
-        if (displayHeadValue.equalsIgnoreCase("%player%")) {
+        if (displayHeadValue.equalsIgnoreCase("%player%") && player != null) {
             value = player.getName();
         }
 
         String base64;
         if (displayHeadType == DisplayHeadType.PLAYER) {
             try {
-                String UUIDJson = IOUtils.toString(new URL("https://api.mojang.com/users/profiles/minecraft/" + value), StandardCharsets.UTF_8);
+                String UUIDJson = getJSONRequest("https://api.mojang.com/users/profiles/minecraft/" + value);
                 JsonObject uuidObject = JsonParser.parseString(UUIDJson).getAsJsonObject();
                 String dashlessUuid = uuidObject.get("id").getAsString();
 
-                String profileJson = IOUtils.toString(new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + dashlessUuid), StandardCharsets.UTF_8);
+                String profileJson = getJSONRequest("https://sessionserver.mojang.com/session/minecraft/profile/" + dashlessUuid);
                 JsonObject profileObject = JsonParser.parseString(profileJson).getAsJsonObject();
                 base64 = profileObject.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
 
-            } catch (IOException e) {
-                logger.log(java.util.logging.Level.WARNING, "The player name " + value + " does not exist!");
+            } catch (Exception e) {
+                logger.logError(java.util.logging.Level.WARNING, "An error occurred while parsing a head! Head value: ", e);
                 return item;
             }
 
@@ -71,5 +77,29 @@ public class HeadUtils {
 
         item.setItemMeta(skullMeta);
         return item;
+    }
+
+    private static String getJSONRequest(String url) throws IOException, InterruptedException, URISyntaxException {
+        @SuppressWarnings("resource") // Doesn't implement AutoCloseable in Java 17 (minimum version for plugin to work)
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(url))
+                .timeout(Duration.ofSeconds(30))
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        // 200 = full success
+        if (response.statusCode() == 200) {
+            return response.body();
+
+        } else {
+            throw new PacketException("A " + response.statusCode() + " error occurred while handling an HTTP request: " + response.body());
+        }
     }
 }

@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
+import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -29,7 +29,7 @@ public class MoveHereSubCommand extends SubCommandsFormat {
 
     @Override
     public void run(CommandSender sender, String[] args) {
-        ADBaseDisplay display = plugin.getDisplaysManager().getDisplayFromMap(args[1]);
+        ADBaseEntity display = plugin.getDisplaysManager().getDisplayFromMap(args[1]);
 
         if (display == null) {
             sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!"));

@@ -45,27 +45,32 @@ public class ConfigManager {
     }
 
     public ConfigurationSection getSection(String name) {
-        return getSection(name, true);
+        return getSection(name, true, config);
     }
 
-    public ConfigurationSection getSection(String name, boolean createIfNotExists) {
-        ConfigurationSection section = config.getConfigurationSection(name);
+    public ConfigurationSection getSection(String name, ConfigurationSection parent) {
+        return getSection(name, true, parent);
+    }
+
+    public ConfigurationSection getSection(String name, boolean createIfNotExists, ConfigurationSection parent) {
+        ConfigurationSection section = parent.getConfigurationSection(name);
         if (section == null && createIfNotExists) {
-            section = config.createSection(name);
+            section = parent.createSection(name);
             plugin.log(Level.WARNING, "Missing section \"" + name + "\" in \"" + file.getName() + "\" file! Created an empty section.");
         }
 
         return section;
+
     }
 
-    public <T> T getOrDefault(String setting, T def) {
-        if (!config.contains(setting)) {
+    public <T> T getOrDefault(String setting, T def, ConfigurationSection section) {
+        if (!section.contains(setting)) {
             plugin.log(Level.WARNING, "Missing setting \"" + setting + "\" in \"" + file.getName() + "\" file! Setting to default value: " + def);
             config.set(setting, def);
             return def;
         }
 
-        Object data = config.get(setting);
+        Object data = section.get(setting);
         @SuppressWarnings("unchecked")
         Class<T> clazz = (Class<T>) def.getClass();
 

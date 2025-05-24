@@ -6,6 +6,7 @@ import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.BlockDisplay;
@@ -13,10 +14,8 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class ADBlockDisplay extends ADBaseDisplay implements me.lucaaa.advanceddisplays.api.displays.BlockDisplay {
-    private ConfigurationSection settings = null;
     private BlockData block;
 
     // Compatibility
@@ -25,7 +24,6 @@ public class ADBlockDisplay extends ADBaseDisplay implements me.lucaaa.advancedd
 
     public ADBlockDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, BlockDisplay display) {
         super(plugin, displaysManager, name, DisplayType.BLOCK, configManager, display);
-        settings = config.getSection("settings", false);
 
         if (settings != null) {
             if (settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
@@ -40,8 +38,8 @@ public class ADBlockDisplay extends ADBaseDisplay implements me.lucaaa.advancedd
                 return;
             }
 
-            String blockData = "minecraft:" + Objects.requireNonNull(settings.getString("block")).toLowerCase() + "[";
-            ConfigurationSection dataSection = Objects.requireNonNull(settings.getConfigurationSection("blockData"));
+            String blockData = "minecraft:" + config.getOrDefault("block", Material.BARRIER.name(), settings).toLowerCase() + "[";
+            ConfigurationSection dataSection = config.getSection("blockData", settings);
             ArrayList<String> dataParts = new ArrayList<>();
             for (String dataKey : dataSection.getKeys(false)) {
                 dataParts.add(dataKey + "=" + dataSection.get(dataKey));
@@ -58,11 +56,10 @@ public class ADBlockDisplay extends ADBaseDisplay implements me.lucaaa.advancedd
     @Override
     public void sendMetadataPackets(Player player) {
         super.sendMetadataPackets(player);
-        packets.setBlock(displayId, block, player);
+        packets.setBlock(entityId, block, player);
     }
 
     public ADBlockDisplay create(BlockData block) {
-        if (config != null) settings = config.getConfig().createSection("settings");
         setBlock(block);
         return this;
     }
@@ -97,6 +94,6 @@ public class ADBlockDisplay extends ADBaseDisplay implements me.lucaaa.advancedd
     }
     @Override
     public void setBlock(BlockData block, Player player) {
-        packets.setBlock(displayId, block, player);
+        packets.setBlock(entityId, block, player);
     }
 }

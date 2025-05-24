@@ -1,6 +1,6 @@
 package me.lucaaa.advanceddisplays.api.conditions;
 
-import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
+import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import org.bukkit.entity.Player;
 
 /**
@@ -13,5 +13,5 @@ public interface Condition {
      * @param player The player to check.
      * @return Whether the player meets the condition or not.
      */
-    boolean meetsCondition(BaseDisplay display, Player player);
+    boolean meetsCondition(BaseEntity display, Player player);
 }

@@ -1,7 +1,6 @@
 package me.lucaaa.advanceddisplays;
 
-import me.lucaaa.advanceddisplays.data.Compatibility;
-import me.lucaaa.advanceddisplays.data.Version;
+import me.lucaaa.advanceddisplays.data.*;
 import me.lucaaa.advanceddisplays.integrations.Integration;
 import me.lucaaa.advanceddisplays.integrations.ItemsAdderCompat;
 import me.lucaaa.advanceddisplays.integrations.OraxenCompat;
@@ -11,7 +10,7 @@ import me.lucaaa.advanceddisplays.api.*;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import me.lucaaa.advanceddisplays.commands.MainCommand;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
-import me.lucaaa.advanceddisplays.common.utils.Logger;
+import me.lucaaa.advanceddisplays.nms_common.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -30,6 +29,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
     // Other.
     private Version nmsVersion;
     private boolean isRunning = false;
+    private final CachedHeads cachedHeads = new CachedHeads(this);
 
     // Integrations.
     private final Map<Compatibility, Integration> integrations = new HashMap<>();
@@ -127,6 +127,10 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
 
     public Version getNmsVersion() {
         return nmsVersion;
+    }
+
+    public CachedHeads getCachedHeads() {
+        return cachedHeads;
     }
 
     public boolean isIntegrationLoaded(Compatibility compatibility) {

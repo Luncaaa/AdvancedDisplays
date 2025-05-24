@@ -12,7 +12,7 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
-public class EditorItems {
+public class DisplayEditorItems {
     public final Item.StepItem BLOCK_LIGHT;
     public final Item.StepItem SKY_LIGHT;
 
@@ -47,7 +47,7 @@ public class EditorItems {
     public Item.StepItem ANIMATION_TIME;
     public Item.StepItem REFRESH_TIME;
 
-    public EditorItems(BaseDisplay display) {
+    public DisplayEditorItems(BaseDisplay display) {
         BLOCK_LIGHT = createLight("Block light", "Changes the block lighting component of the display", display.getBrightness().getBlockLight());
         SKY_LIGHT = createLight("Sky light", "Changes the sky lighting component of the display", display.getBrightness().getSkyLight());
 
@@ -55,7 +55,7 @@ public class EditorItems {
         SHADOW_STRENGTH = createShadow("Shadow Strength", "Changes how dark the shadow is", display.getShadowStrength());
 
         GLOW_TOGGLE = new Item.BooleanItem(Material.GLOW_BERRIES, "Toggle glow", "Enables or disables the display's glowing status", display.isGlowing());
-        GLOW_COLOR_SELECTOR = new ColorItems.ColorPreview("Glow color", display.getGlowColor(), ColorItems.ColorComponent.ALL, false);
+        GLOW_COLOR_SELECTOR = new ColorItems.ColorPreview("Glow color", display.getGlowColorOverride(), ColorItems.ColorComponent.ALL, false);
 
         Location loc = display.getLocation();
         String location = BigDecimal.valueOf(loc.getX()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getY()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getZ()).setScale(2, RoundingMode.HALF_UP).doubleValue();
@@ -68,7 +68,7 @@ public class EditorItems {
 
         switch (display.getType()) {
             case TEXT -> CURRENT_VALUE = new Item.ClickableItem(Material.OAK_SIGN, "Display text", List.of("Changes the text that is being displayed", "", "&7Use &cLEFT_CLICK &7to remove an animation", "&7Use &cRIGHT_CLICK &7to add an animation"), ((TextDisplay) display).getText().size() + " text animation(s)");
-            case ITEM -> CURRENT_VALUE = new Item.ClickableItem(((ItemDisplay) display).getItem().getType(), "Display item", "The item that is being displayed", ((ItemDisplay) display).getItem().getType().name());
+            case ITEM -> CURRENT_VALUE = new Item.ClickableItem(((ItemDisplay) display).getItem(), "Display item", List.of("The item that is being displayed"), ((ItemDisplay) display).getItem().getType().name());
             case BLOCK -> CURRENT_VALUE = new Item.ClickableItem(((BlockDisplay) display).getBlock().getMaterial(), "Display block", "The block that is being displayed"); // Block data will be set in the EditorGUI class once it's opened.
             default -> CURRENT_VALUE = new Item.ClickableItem(Material.BARRIER, "&cUnextected error", "&7Report to developer.");
         }

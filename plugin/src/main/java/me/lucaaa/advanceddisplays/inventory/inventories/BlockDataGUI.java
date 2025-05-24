@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.inventory.inventories;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
-import me.lucaaa.advanceddisplays.common.utils.Utils;
+import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.inventory.Button;
 import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
 import me.lucaaa.advanceddisplays.inventory.items.GlobalItems;
@@ -20,13 +20,13 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class BlockDataGUI extends InventoryMethods {
-    private final EditorGUI previous;
+    private final DisplayEditorGUI previous;
     private final Consumer<BlockData> onDone;
     private final Material material;
     private final Map<String, String> dataMap = new HashMap<>();
     private final Map<Player, String> editMap = new HashMap<>();
 
-    public BlockDataGUI(AdvancedDisplays plugin, EditorGUI previousInventory, BlockDisplay display, Consumer<BlockData> onDone) {
+    public BlockDataGUI(AdvancedDisplays plugin, DisplayEditorGUI previousInventory, BlockDisplay display, Consumer<BlockData> onDone) {
         super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText("&6Editing block data of: &e" + display.getName())));
         this.previous = previousInventory;
         this.onDone = onDone;
@@ -65,14 +65,14 @@ public class BlockDataGUI extends InventoryMethods {
             slot++;
         }
 
-        addButton(18, new Button.InventoryButton<>(GlobalItems.CANCEL) {
+        addButton(18, new Button.InventoryButton<>(GlobalItems.cancel(plugin)) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 onClose((Player) event.getWhoClicked());
             }
         });
 
-        addButton(26, new Button.InventoryButton<>(GlobalItems.DONE) {
+        addButton(26, new Button.InventoryButton<>(GlobalItems.done(plugin)) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 String blockData = "minecraft:" + material.name().toLowerCase() + "[";

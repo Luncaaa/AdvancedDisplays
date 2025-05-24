@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.common.utils;
+package me.lucaaa.advanceddisplays.data;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;

@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.nms_common;
 
 import io.netty.channel.ChannelPipeline;
-import me.lucaaa.advanceddisplays.common.utils.DisplayHeadType;
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.advancement.AdvancementDisplayType;
@@ -36,7 +36,8 @@ public interface PacketInterface {
     void setBillboard(int displayId, Display.Billboard billboard, Player player);
     void setBrightness(int displayId, Display.Brightness brightness, Player player);
     void setShadow(int displayId, float radius, float strength, Player player);
-    void setGlowing(int displayId, boolean isGlowing, Color color, Player player);
+    void setGlowingDisplay(int displayId, boolean isGlowing, Color color, Player player); // For displays
+    void setGlowing(Entity entity, boolean isGlowing, ChatColor color, Player player); // For other entities
 
     // -[ Text displays ]-
     void setText(int displayId, String textJSON, Player player);
@@ -50,7 +51,7 @@ public interface PacketInterface {
 
     // -[ Item displays ]-
     void setItem(int displayId, ItemStack item, boolean enchanted, Player player);
-    void setHead(int displayId, boolean enchanted, DisplayHeadType displayHeadType, String displayHeadValue, Player player);
+    void setHead(int displayId, boolean enchanted, ItemStack head, Player player);
     void setItemDisplayTransformation(int displayId, ItemDisplay.ItemDisplayTransform transformation, Player player);
 
     // -[ Other ]-

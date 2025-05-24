@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.common.utils.Utils;
+import me.lucaaa.advanceddisplays.data.Utils;
 import org.bukkit.command.CommandSender;
 
 import java.util.Map;

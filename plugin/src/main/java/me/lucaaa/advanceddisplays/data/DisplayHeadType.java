@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.common.utils;
+package me.lucaaa.advanceddisplays.data;
 
 /**
  * If the item display is a head, if can display a player skin or a custom texture.

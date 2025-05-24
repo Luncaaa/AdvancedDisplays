@@ -1,4 +1,4 @@
-package me.lucaaa.advanceddisplays.common.utils;
+package me.lucaaa.advanceddisplays.nms_common;
 
 import java.util.logging.Level;
 

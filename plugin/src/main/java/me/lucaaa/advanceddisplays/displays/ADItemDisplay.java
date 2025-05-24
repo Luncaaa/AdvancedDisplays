@@ -2,8 +2,9 @@ package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
-import me.lucaaa.advanceddisplays.common.utils.DisplayHeadType;
+import me.lucaaa.advanceddisplays.data.DisplayHeadType;
 import me.lucaaa.advanceddisplays.data.Compatibility;
+import me.lucaaa.advanceddisplays.data.HeadUtils;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import org.bukkit.*;
@@ -17,6 +18,7 @@ import org.bukkit.inventory.meta.*;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +26,6 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddisplays.api.displays.ItemDisplay {
-    private ConfigurationSection settings = null;
     private ItemStack item;
     private DisplayHeadType displayHeadType;
     private String displayHeadValue;
@@ -37,7 +38,6 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
 
     public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, ItemDisplay display) {
         super(plugin, displaysManager, name, DisplayType.ITEM, configManager, display);
-        settings = config.getSection("settings", false);
 
         if (settings != null) {
             if (settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
@@ -47,12 +47,12 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
                 this.itemsAdderId = settings.getString("itemsAdder");
                 this.item = plugin.getIntegration(Compatibility.ITEMS_ADDER).getItemStack(itemsAdderId);
             } else {
-                this.item = new ItemStack(Material.valueOf(settings.getString("item")));
+                this.item = new ItemStack(Material.valueOf(config.getOrDefault("item", Material.BARRIER.name(), settings)));
                 loadData(item, settings);
             }
 
-            this.enchanted = settings.getBoolean("enchanted");
-            this.itemTransformation = ItemDisplay.ItemDisplayTransform.valueOf(settings.getString("itemTransformation"));
+            this.enchanted = config.getOrDefault("enchanted", false, settings);
+            this.itemTransformation = ItemDisplay.ItemDisplayTransform.valueOf(config.getOrDefault("itemTransformation", ItemDisplay.ItemDisplayTransform.FIXED.name(), settings));
 
             if (settings.contains("head")) {
                 ConfigurationSection headSection = settings.getConfigurationSection("head");
@@ -75,13 +75,12 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     @Override
     public void sendMetadataPackets(Player player) {
         super.sendMetadataPackets(player);
-        if (item.getType() == Material.PLAYER_HEAD) packets.setHead(displayId, enchanted, displayHeadType, displayHeadValue, player);
-        else packets.setItem(displayId, item, enchanted, player);
-        packets.setItemDisplayTransformation(displayId, itemTransformation, player);
+        if (item.getType() == Material.PLAYER_HEAD) setHead(displayHeadType, displayHeadValue, player);
+        else packets.setItem(entityId, item, enchanted, player);
+        packets.setItemDisplayTransformation(entityId, itemTransformation, player);
     }
 
     public ADItemDisplay create(Material item) {
-        if (config != null) settings = config.getConfig().createSection("settings");
         if (item == Material.PLAYER_HEAD) setViewerHead();
         else setItem(new ItemStack(item));
         setEnchanted(false);
@@ -110,7 +109,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setItem(ItemStack item, Player player) {
-        packets.setItem(displayId, item, enchanted, player);
+        packets.setItem(entityId, item, enchanted, player);
     }
 
     @Override
@@ -132,7 +131,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
 
     @Override
     public void setBase64Head(String base64, Player player) {
-        packets.setHead(displayId, enchanted, displayHeadType, base64, player);
+        setHead(DisplayHeadType.BASE64, base64, player);
     }
 
     @Override
@@ -154,7 +153,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
 
     @Override
     public void setPlayerHead(String playerName, Player player) {
-        packets.setHead(displayId, enchanted, displayHeadType, playerName, player);
+        setHead(DisplayHeadType.PLAYER, playerName, player);
     }
 
     @Override
@@ -180,8 +179,8 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setEnchanted(boolean enchanted, Player player) {
-        if (item.getType() == Material.PLAYER_HEAD) packets.setHead(displayId, enchanted, displayHeadType, displayHeadValue, player);
-        else packets.setItem(displayId, item, enchanted, player);
+        if (item.getType() == Material.PLAYER_HEAD) setHead(displayHeadType, displayHeadValue, player);
+        else packets.setItem(entityId, item, enchanted, player);
     }
 
     @Override
@@ -201,7 +200,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setItemTransformation(ItemDisplay.ItemDisplayTransform transformation, Player player) {
-        packets.setItemDisplayTransformation(displayId, transformation, player);
+        packets.setItemDisplayTransformation(entityId, transformation, player);
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -314,5 +313,18 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
         }
 
         item.setItemMeta(meta);
+    }
+
+    private void setHead(DisplayHeadType type, String value, Player player) {
+        packets.setHead(entityId, enchanted, plugin.getCachedHeads().LOADING, player);
+
+        // Run async because of the HTTP request to parse the head.
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                item = HeadUtils.getHead(type, value, player, plugin);
+                packets.setHead(entityId, enchanted, item, player);
+            }
+        }.runTaskAsynchronously(plugin);
     }
 }

@@ -4,10 +4,10 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
-import me.lucaaa.advanceddisplays.common.utils.Utils;
+import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.inventory.*;
 import me.lucaaa.advanceddisplays.inventory.Button;
-import me.lucaaa.advanceddisplays.inventory.items.EditorItems;
+import me.lucaaa.advanceddisplays.inventory.items.DisplayEditorItems;
 import me.lucaaa.advanceddisplays.inventory.items.Item;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -25,17 +25,17 @@ import java.math.RoundingMode;
 import java.util.*;
 import java.util.List;
 
-public class EditorGUI extends InventoryMethods {
+public class DisplayEditorGUI extends InventoryMethods {
     private final BaseDisplay display;
     private final List<EditorItem> disabledSettings;
-    private final EditorItems items;
+    private final DisplayEditorItems items;
     private final Map<Player, EditAction> editMap = new HashMap<>();
 
-    public EditorGUI(AdvancedDisplays plugin, BaseDisplay display, List<EditorItem> disabledSettings) {
+    public DisplayEditorGUI(AdvancedDisplays plugin, BaseDisplay display, List<EditorItem> disabledSettings) {
         super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))));
         this.display = display;
         this.disabledSettings = disabledSettings;
-        this.items = new EditorItems(display);
+        this.items = new DisplayEditorItems(display);
     }
 
     @Override
@@ -102,9 +102,9 @@ public class EditorGUI extends InventoryMethods {
         addIfAllowed(EditorItem.GLOW_COLOR_SELECTOR, 11, new Button.InventoryButton<>(items.GLOW_COLOR_SELECTOR) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                ColorGUI inventory = new ColorGUI(plugin, EditorGUI.this, display, false, display.getGlowColor(), color -> {
-                    display.setGlowColor(color);
-                    getItem().setColor(display.getGlowColor());
+                ColorGUI inventory = new ColorGUI(plugin, DisplayEditorGUI.this, display, false, display.getGlowColorOverride(), color -> {
+                    display.setGlowColorOverride(color);
+                    getItem().setColor(display.getGlowColorOverride());
                     getInventory().setItem(11, getItem().getStack());
                 });
 
@@ -233,7 +233,7 @@ public class EditorGUI extends InventoryMethods {
                 addIfAllowed(EditorItem.BACKGROUND_COLOR, 7, new Button.InventoryButton<>(items.BACKGROUND_COLOR) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
-                        ColorGUI inventory = new ColorGUI(plugin, EditorGUI.this, display, true, textDisplay.getBackgroundColor(), color -> {
+                        ColorGUI inventory = new ColorGUI(plugin, DisplayEditorGUI.this, display, true, textDisplay.getBackgroundColor(), color -> {
                             textDisplay.setBackgroundColor(color);
                             getItem().setColor(color);
                             getInventory().setItem(7, getItem().getStack());
@@ -319,7 +319,7 @@ public class EditorGUI extends InventoryMethods {
             addIfAllowed(EditorItem.BLOCK_DATA, 8, new Button.InventoryButton<>(items.BLOCK_DATA) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
-                    InventoryMethods inventory = new BlockDataGUI(plugin, EditorGUI.this, blockDisplay, blockData -> {
+                    InventoryMethods inventory = new BlockDataGUI(plugin, DisplayEditorGUI.this, blockDisplay, blockData -> {
                         blockDisplay.setBlock(blockData);
                         getItem().setValue(blockData.toString());
                         getInventory().setItem(8, getItem().getStack());

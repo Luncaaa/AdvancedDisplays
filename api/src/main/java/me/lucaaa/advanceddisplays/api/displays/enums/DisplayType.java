@@ -15,5 +15,9 @@ public enum DisplayType {
     /**
      * The entity will be an Item Display.
      */
-    ITEM
+    ITEM,
+    /**
+     * A non-display entity will be displayed.
+     */
+    ENTITY
 }

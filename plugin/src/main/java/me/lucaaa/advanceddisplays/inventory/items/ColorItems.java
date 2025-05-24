@@ -1,6 +1,6 @@
 package me.lucaaa.advanceddisplays.inventory.items;
 
-import me.lucaaa.advanceddisplays.common.utils.Utils;
+import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.data.ADChatColor;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Color;

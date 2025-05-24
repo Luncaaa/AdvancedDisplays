@@ -17,7 +17,6 @@ import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddisplays.api.displays.TextDisplay {
-    private ConfigurationSection settings = null;
     private final AnimatedTextRunnable textRunnable;
     private int animationTime;
     private int refreshTime;
@@ -32,14 +31,13 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
 
     public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, TextDisplay display) {
         super(plugin, displaysManager, name, DisplayType.TEXT, configManager, display);
-        this.settings = config.getSection("settings", false);
-        this.textRunnable = new AnimatedTextRunnable(plugin, displayId);
+        this.textRunnable = new AnimatedTextRunnable(plugin, entityId);
 
         if (settings != null) {
-            this.animationTime = settings.getInt("animationTime");
-            this.refreshTime = settings.getInt("refreshTime");
+            this.animationTime = config.getOrDefault("animationTime", 20, settings);
+            this.refreshTime = config.getOrDefault("refreshTime", 10, settings);
 
-            ConfigurationSection textSection = settings.getConfigurationSection("texts");
+            ConfigurationSection textSection = config.getSection("texts", settings);
             if (textSection == null || textSection.getKeys(false).isEmpty()) {
                 plugin.log(Level.SEVERE, "The text display \"" + configManager.getFile().getName() + "\" does not have a valid \"text\" section! Check the wiki for more information.");
                 texts.put("error", "&cError! No valid \"texts\" section found. Check the wiki for more information.");
@@ -52,43 +50,41 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             }
             textRunnable.start(texts, animationTime, refreshTime);
 
-            this.alignment = TextDisplay.TextAlignment.valueOf(settings.getString("alignment"));
+            this.alignment = TextDisplay.TextAlignment.valueOf(config.getOrDefault("alignment", TextDisplay.TextAlignment.CENTER.name(), settings));
 
-            String[] colorParts = Objects.requireNonNull(settings.getString("backgroundColor")).split(";");
+            String[] colorParts = config.getOrDefault("backgroundColor", "255;170;0;255", settings).split(";");
             this.backgroundColor = Color.fromARGB(Integer.parseInt(colorParts[3]), Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]));
 
-            this.lineWidth = settings.getInt("lineWidth");
-            this.textOpacity = (byte) settings.getInt("textOpacity");
-            this.defaultBackground = settings.getBoolean("defaultBackground");
-            this.seeThrough = settings.getBoolean("seeThrough");
-            this.shadowed = settings.getBoolean("shadowed");
+            this.lineWidth = config.getOrDefault("lineWidth", 250, settings);
+            this.textOpacity = (byte) config.getOrDefault("textOpacity", -1, settings).intValue();
+            this.defaultBackground = config.getOrDefault("defaultBackground", true, settings);
+            this.seeThrough = config.getOrDefault("seeThrough", true, settings);
+            this.shadowed = config.getOrDefault("shadowed", true, settings);
         }
     }
 
     public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, TextDisplay display, boolean saveToConfig) {
         super(plugin, displaysManager, name, DisplayType.TEXT, display, saveToConfig);
-        this.textRunnable = new AnimatedTextRunnable(plugin, displayId);
+        this.textRunnable = new AnimatedTextRunnable(plugin, entityId);
     }
 
     @Override
     public void sendMetadataPackets(Player player) {
         super.sendMetadataPackets(player);
         textRunnable.sendToPlayer(player, packets);
-        packets.setBackgroundColor(displayId, backgroundColor, player);
-        packets.setLineWidth(displayId, lineWidth, player);
-        packets.setTextOpacity(displayId, textOpacity, player);
-        packets.setProperties(displayId, shadowed, seeThrough, defaultBackground, alignment, player);
+        packets.setBackgroundColor(entityId, backgroundColor, player);
+        packets.setLineWidth(entityId, lineWidth, player);
+        packets.setTextOpacity(entityId, textOpacity, player);
+        packets.setProperties(entityId, shadowed, seeThrough, defaultBackground, alignment, player);
     }
 
     public ADTextDisplay create(String text) {
-        if (config != null) settings = config.getConfig().createSection("settings");
         setSingleText("animation1", text);
         setInitialValues();
         return this;
     }
 
     public ADTextDisplay create(Component text) {
-        if (config != null) settings = config.getConfig().createSection("settings");
         setSingleText("animation1", text);
         setInitialValues();
         return this;
@@ -123,7 +119,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setAlignment(TextDisplay.TextAlignment alignment, Player player) {
-        packets.setProperties(displayId, shadowed, seeThrough, defaultBackground, alignment, player);
+        packets.setProperties(entityId, shadowed, seeThrough, defaultBackground, alignment, player);
     }
 
     @Override
@@ -143,7 +139,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setBackgroundColor(Color color, Player player) {
-        packets.setBackgroundColor(displayId, color, player);
+        packets.setBackgroundColor(entityId, color, player);
     }
 
     @Override
@@ -163,7 +159,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setLineWidth(int width, Player player) {
-        packets.setLineWidth(displayId, width, player);
+        packets.setLineWidth(entityId, width, player);
     }
 
     @Override
@@ -288,7 +284,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setTextOpacity(byte opacity, Player player) {
-        packets.setTextOpacity(displayId, opacity, player);
+        packets.setTextOpacity(entityId, opacity, player);
     }
 
     @Override
@@ -308,7 +304,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setUseDefaultBackground(boolean defaultBackground, Player player) {
-        packets.setProperties(displayId, shadowed, seeThrough, defaultBackground, alignment, player);
+        packets.setProperties(entityId, shadowed, seeThrough, defaultBackground, alignment, player);
     }
 
     @Override
@@ -328,7 +324,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setSeeThrough(boolean seeThrough, Player player) {
-        packets.setProperties(displayId, shadowed, seeThrough, defaultBackground, alignment, player);
+        packets.setProperties(entityId, shadowed, seeThrough, defaultBackground, alignment, player);
     }
 
     @Override
@@ -348,7 +344,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setShadowed(boolean shadowed, Player player) {
-        packets.setProperties(displayId, shadowed, seeThrough, defaultBackground, alignment, player);
+        packets.setProperties(entityId, shadowed, seeThrough, defaultBackground, alignment, player);
     }
 
     @Override
@@ -384,7 +380,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     public void restartRunnable() {
         textRunnable.stop();
-        textRunnable.updateDisplayId(displayId);
+        textRunnable.updateDisplayId(entityId);
         textRunnable.start(texts, animationTime, refreshTime);
     }
 }

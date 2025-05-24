@@ -1,6 +1,6 @@
 package me.lucaaa.advanceddisplays.api.actions;
 
-import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
+import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
@@ -14,5 +14,5 @@ public interface DisplayActions {
      * @param clickType Button used to click the display and whether the player is crouching.
      * @param display The display that was clicked.
      */
-    void onClick(Player player, ClickType clickType, BaseDisplay display);
+    void onClick(Player player, ClickType clickType, BaseEntity display);
 }

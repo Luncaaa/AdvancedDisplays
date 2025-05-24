@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
-import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
+import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
 import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
 import org.bukkit.command.CommandSender;
 
@@ -22,10 +22,10 @@ public class SetPageSubCommand extends SubCommandsFormat {
     @Override
     public List<String> getTabCompletions(CommandSender sender, String[] args) {
         if (args.length <= 2) {
-            return plugin.getDisplaysManager().getDisplays().values().stream().filter(display -> display.getType() == DisplayType.TEXT).map(ADBaseDisplay::getName).toList();
+            return plugin.getDisplaysManager().getDisplays().values().stream().filter(display -> display.getType() == DisplayType.TEXT).map(ADBaseEntity::getName).toList();
         }
 
-        ADBaseDisplay display = plugin.getDisplaysManager().getDisplayFromMap(args[1]);
+        ADBaseEntity display = plugin.getDisplaysManager().getDisplayFromMap(args[1]);
         if (!(display instanceof ADTextDisplay textDisplay)) return List.of();
 
         return textDisplay.getText().keySet().stream().toList();
@@ -33,7 +33,7 @@ public class SetPageSubCommand extends SubCommandsFormat {
 
     @Override
     public void run(CommandSender sender, String[] args) {
-        ADBaseDisplay display = plugin.getDisplaysManager().getDisplayFromMap(args[1]);
+        ADBaseEntity display = plugin.getDisplaysManager().getDisplayFromMap(args[1]);
 
         if (display == null) {
             sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!"));

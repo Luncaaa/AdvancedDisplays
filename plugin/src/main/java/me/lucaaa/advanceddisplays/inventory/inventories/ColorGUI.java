@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.inventory.inventories;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
-import me.lucaaa.advanceddisplays.common.utils.Utils;
+import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.inventory.Button;
 import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
 import me.lucaaa.advanceddisplays.inventory.items.ColorItems;
@@ -19,13 +19,13 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class ColorGUI extends InventoryMethods {
-    private final EditorGUI previous;
+    private final DisplayEditorGUI previous;
     private Color savedColor;
     private final boolean alphaEnabled;
     private ColorItems.ColorPreview preview;
     private final Consumer<Color> onDone;
 
-    public ColorGUI(AdvancedDisplays plugin, EditorGUI previousInventory, BaseDisplay display, boolean alphaEnabled, Color initialColor, Consumer<Color> onDone) {
+    public ColorGUI(AdvancedDisplays plugin, DisplayEditorGUI previousInventory, BaseDisplay display, boolean alphaEnabled, Color initialColor, Consumer<Color> onDone) {
         super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing glow color of: &e" + display.getName()))));
         this.previous = previousInventory;
         this.savedColor = initialColor;
@@ -78,7 +78,7 @@ public class ColorGUI extends InventoryMethods {
         // ----------
 
         // ---[ BUTTONS & PREVIEW ]----
-        addButton(8, new Button.InventoryButton<>(GlobalItems.CANCEL) {
+        addButton(8, new Button.InventoryButton<>(GlobalItems.cancel(plugin)) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 onClose((Player) event.getWhoClicked());
@@ -87,7 +87,7 @@ public class ColorGUI extends InventoryMethods {
 
         addButton(17, new Button.Unclickable<>(preview));
 
-        addButton(26, new Button.InventoryButton<>(GlobalItems.DONE) {
+        addButton(26, new Button.InventoryButton<>(GlobalItems.done(plugin)) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 onDone.accept(savedColor);

@@ -1,11 +1,8 @@
 package me.lucaaa.advanceddisplays.api;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
-import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
-import me.lucaaa.advanceddisplays.api.displays.ItemDisplay;
-import me.lucaaa.advanceddisplays.api.displays.TextDisplay;
-import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
+import me.lucaaa.advanceddisplays.api.displays.*;
+import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
@@ -56,18 +53,18 @@ public class ADAPIImplementation implements ADAPI {
     }
 
     @Override
-    public BaseDisplay getDisplay(String name) {
+    public BaseEntity getDisplay(String name) {
         return displaysManager.getDisplayFromMap(name);
     }
 
     @Override
-    public BaseDisplay getDisplayFromLoc(Location location, double radius, boolean closest) {
+    public BaseEntity getDisplayFromLoc(Location location, double radius, boolean closest) {
         return displaysManager.getDisplayFromLoc(location, radius, closest);
     }
 
     @Override
     public void removeDisplay(String name) {
-        ADBaseDisplay display = displaysManager.getDisplayFromMap(name);
+        ADBaseEntity display = displaysManager.getDisplayFromMap(name);
 
         if (display != null) {
             displaysManager.removeDisplay(display, true, true);

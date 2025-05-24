@@ -1,10 +1,7 @@
 package me.lucaaa.advanceddisplays.api;
 
 import me.lucaaa.advanceddisplays.api.conditions.ConditionsFactory;
-import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
-import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
-import me.lucaaa.advanceddisplays.api.displays.ItemDisplay;
-import me.lucaaa.advanceddisplays.api.displays.TextDisplay;
+import me.lucaaa.advanceddisplays.api.displays.*;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -137,7 +134,7 @@ public interface ADAPI {
      * @param name The name of the display.
      * @return The display if it exists, null if it doesn't.
      */
-    BaseDisplay getDisplay(String name);
+    BaseEntity getDisplay(String name);
 
     /**
      * Gets a display within a specific distance from the given location.
@@ -145,7 +142,7 @@ public interface ADAPI {
      * @param radius The maximum distance.
      * @return A display within a specific distance from the given location or null if none found.
      */
-    default BaseDisplay getDisplayFromLoc(Location location, double radius) {
+    default BaseEntity getDisplayFromLoc(Location location, double radius) {
         return getDisplayFromLoc(location, radius, true);
     }
 
@@ -156,7 +153,7 @@ public interface ADAPI {
      * @param closest Whether the display should be the closest one to the given location or the first one found.
      * @return A display within a specific distance from the given location or null if none found.
      */
-    BaseDisplay getDisplayFromLoc(Location location, double radius, boolean closest);
+    BaseEntity getDisplayFromLoc(Location location, double radius, boolean closest);
 
     /**
      * Removes a previously created display. Deletes the entity from the world and removes the display from the list.

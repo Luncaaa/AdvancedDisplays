@@ -1,6 +1,6 @@
 package me.lucaaa.advanceddisplays.inventory.items;
 
-import me.lucaaa.advanceddisplays.common.utils.Utils;
+import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.data.NamedEnum;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
@@ -33,12 +33,12 @@ public class Item<T> {
         item.setItemMeta(meta);
     }
 
-    protected Item(ItemStack item, String title, List<String> lore) {
+    protected Item(ItemStack item, String title, List<String> lore, T value) {
         this.item = item;
         this.title = title;
         this.lore = new ArrayList<>(lore);
         this.changeTitle = false;
-        this.value = null;
+        this.value = value;
         setMeta(title, lore);
     }
 
@@ -55,9 +55,6 @@ public class Item<T> {
     public void setValue(T value) {
         this.value = value;
         String title = this.title;
-        if (changeTitle) {
-            title = title + ": &e" + value;
-        }
 
         if (value != null) {
             // Removes the previous old value.
@@ -90,6 +87,10 @@ public class Item<T> {
                 }
             }
             lore.add("&9Current value: &7" + parsedValue);
+
+            if (changeTitle) {
+                title = title + ": &e" + parsedValue;
+            }
         }
 
         setMeta(title, lore);
@@ -171,7 +172,7 @@ public class Item<T> {
             } else {
                 newBrightness = (int) (value + change);
             }
-            EditorItems.setBrightness(item, newBrightness);
+            DisplayEditorItems.setBrightness(item, newBrightness);
             setValue((double) newBrightness);
             return newBrightness;
         }
@@ -249,8 +250,8 @@ public class Item<T> {
             setValue(value);
         }
 
-        public ClickableItem(ItemStack item, String title, List<String> lore) {
-            super(item, title, lore);
+        public ClickableItem(ItemStack item, String title, List<String> lore, String value) {
+            super(item, title, lore, value);
         }
     }
 }

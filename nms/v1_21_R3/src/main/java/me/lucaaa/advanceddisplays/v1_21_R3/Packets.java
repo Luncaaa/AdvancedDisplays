@@ -1,10 +1,8 @@
 package me.lucaaa.advanceddisplays.v1_21_R3;
 
 import io.netty.channel.ChannelPipeline;
-import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;
-import me.lucaaa.advanceddisplays.nms_common.PacketException;
-import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
-import me.lucaaa.advanceddisplays.nms_common.Logger;
+import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
+import me.lucaaa.advanceddisplays.nms_common.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.*;
 import net.minecraft.advancements.critereon.ImpossibleTrigger;
@@ -30,7 +28,6 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.advancement.AdvancementDisplayType;
 import org.bukkit.block.data.BlockData;
@@ -40,13 +37,13 @@ import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.util.CraftNamespacedKey;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Transformation;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -104,18 +101,6 @@ public class Packets implements PacketInterface {
             logger.logError(java.util.logging.Level.SEVERE, "An error occurred while handling a click on a display: ", e);
             return null;
         }
-    }
-
-    @Override
-    public void setInteractionSize(int interactionEntityId, float width, float height, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(8, EntityDataSerializers.FLOAT), width));
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(9, EntityDataSerializers.FLOAT), height));
-
-        connection.send(new ClientboundSetEntityDataPacket(interactionEntityId, data));
     }
 
     @Override
@@ -213,73 +198,6 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void setTransformation(int displayId, Transformation transformation, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(11, EntityDataSerializers.VECTOR3), transformation.getTranslation()));
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(12, EntityDataSerializers.VECTOR3), transformation.getScale()));
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(13, EntityDataSerializers.QUATERNION), transformation.getLeftRotation()));
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(14, EntityDataSerializers.QUATERNION), transformation.getRightRotation()));
-
-        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
-    }
-
-    @Override
-    public void setBillboard(int displayId, org.bukkit.entity.Display.Billboard billboard, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-        byte billboardByte = switch (billboard) {
-            case FIXED -> 0;
-            case VERTICAL -> 1;
-            case HORIZONTAL -> 2;
-            case CENTER -> 3;
-        };
-
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(15, EntityDataSerializers.BYTE), billboardByte));
-
-        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
-    }
-
-    @Override
-    public void setBrightness(int displayId, org.bukkit.entity.Display.Brightness brightness, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(16, EntityDataSerializers.INT), brightness.getBlockLight() << 4 | brightness.getSkyLight() << 20));
-
-        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
-    }
-
-    @Override
-    public void setShadow(int displayId, float radius, float strength, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(18, EntityDataSerializers.FLOAT), radius));
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(19, EntityDataSerializers.FLOAT), strength));
-
-        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
-    }
-
-    @Override
-    public void setGlowingDisplay(int displayId, boolean isGlowing, Color color, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(0, EntityDataSerializers.BYTE), (byte) (isGlowing ? 0x40 : 0)));
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(22, EntityDataSerializers.INT), color.asRGB()));
-
-        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
-    }
-
-    @Override
     public void setGlowing(Entity entity, boolean isGlowing, ChatColor color, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
@@ -304,121 +222,67 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void setText(int displayId, String textJSON, Player player) {
+    public void setMetadata(int displayId, Player player, Metadata.DataInfo<?>... data) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.COMPONENT), Objects.requireNonNull(Component.Serializer.fromJson(textJSON, cp.getHandle().registryAccess()))));
+        List<SynchedEntityData.DataValue<?>> allMetadata = new ArrayList<>();
 
-        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
-    }
+        for (Metadata.DataInfo<?> metadata : data) {
+            SynchedEntityData.DataValue<?> value = createDataValue(cp, metadata);
 
-    @Override
-    public void setBackgroundColor(int displayId, Color color, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
+            if (value == null) {
+                logger.logError(
+                        java.util.logging.Level.WARNING,
+                        "An error occurred while setting metadata for display with ID " + displayId + "! Metadata: " + metadata,
+                        new PacketException("Unexpected metadata type!")
+                );
+                return;
+            }
 
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(25, EntityDataSerializers.INT), color.asARGB()));
-
-        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
-    }
-
-    @Override
-    public void setLineWidth(int displayId, int lineWidth, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(24, EntityDataSerializers.INT), lineWidth));
-
-        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
-    }
-
-    @Override
-    public void setTextOpacity(int displayId, byte textOpacity, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(26, EntityDataSerializers.BYTE), textOpacity));
-
-        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
-    }
-
-    @Override
-    public void setProperties(int displayId, boolean isShadowed, boolean isSeeThrough, boolean defaultBackground, TextDisplay.TextAlignment alignment, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-        byte options = 0;
-
-        if (isShadowed) options = (byte) (options | 0x01);
-        if (isSeeThrough) options = (byte) (options | 0x02);
-        if (defaultBackground) options = (byte) (options | 0x04);
-        switch (alignment) {
-            case CENTER -> {}
-            case LEFT -> options = (byte) (options | 0x08);
-            case RIGHT -> options = (byte) (options | 0x10);
+            allMetadata.add(value);
         }
 
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(27, EntityDataSerializers.BYTE), options));
-
-        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
+        connection.send(new ClientboundSetEntityDataPacket(displayId, allMetadata));
     }
 
-    @Override
-    public void setBlock(int displayId, BlockData block, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
+    private SynchedEntityData.DataValue<?> createDataValue(CraftPlayer cp, Metadata.DataInfo<?> metadata) {
+        Object value = metadata.value();
 
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.BLOCK_STATE), ((CraftBlockData) block).getState()));
+        return switch (value) {
+            case String s -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.STRING), s);
+            case Float f -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.FLOAT), f);
+            case Byte b -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.BYTE), b);
+            case Integer i -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.INT), i);
+            case Vector3f v -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.VECTOR3), v);
+            case Quaternionf q -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.QUATERNION), q);
+            case ItemStack item -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy(item));
+            case BlockData block -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.BLOCK_STATE), ((CraftBlockData) block).getState());
+            case net.kyori.adventure.text.Component c ->
+                    SynchedEntityData.DataValue.create(
+                            new EntityDataAccessor<>(
+                                    metadata.id(),
+                                    EntityDataSerializers.COMPONENT
+                            ),
+                            Objects.requireNonNull(
+                                    Component.Serializer.fromJson(
+                                            ComponentSerializer.toJSON(c),
+                                            cp.getHandle().registryAccess())
+                            )
+                    );
+            case ItemDisplay.ItemDisplayTransform t -> {
+                ItemDisplayContext transform = switch (t) {
+                    case FIRSTPERSON_LEFTHAND -> ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
+                    case FIRSTPERSON_RIGHTHAND -> ItemDisplayContext.FIRST_PERSON_RIGHT_HAND;
+                    case THIRDPERSON_LEFTHAND -> ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
+                    case THIRDPERSON_RIGHTHAND -> ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
+                    default -> ItemDisplayContext.valueOf(t.name());
+                };
 
-        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
-    }
-
-    @Override
-    public void setItem(int displayId, ItemStack item, boolean enchanted, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        if (enchanted) item.addUnsafeEnchantment(Enchantment.MENDING, 1);
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy(item)));
-
-        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
-    }
-
-    @Override
-    public void setHead(int displayId, boolean enchanted, ItemStack head, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        if (enchanted) head.addUnsafeEnchantment(Enchantment.MENDING, 1);
-
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(23, EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy(head)));
-        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
-    }
-
-    @Override
-    public void setItemDisplayTransformation(int displayId, ItemDisplay.ItemDisplayTransform transformation, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-        ItemDisplayContext transform = switch (transformation) {
-            case FIRSTPERSON_LEFTHAND -> ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
-            case FIRSTPERSON_RIGHTHAND -> ItemDisplayContext.FIRST_PERSON_RIGHT_HAND;
-            case THIRDPERSON_LEFTHAND -> ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
-            case THIRDPERSON_RIGHTHAND -> ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
-            default -> ItemDisplayContext.valueOf(transformation.name());
+                yield SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.BYTE), transform.getId());
+            }
+            default -> null;
         };
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(24, EntityDataSerializers.BYTE), transform.getId()));
-
-        connection.send(new ClientboundSetEntityDataPacket(displayId, data));
     }
 
     @Override

@@ -56,7 +56,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements me.lucaaa.advancedd
     @Override
     public void sendMetadataPackets(Player player) {
         super.sendMetadataPackets(player);
-        packets.setBlock(entityId, block, player);
+        packets.setMetadata(entityId, player, metadata.VALUE, block);
     }
 
     public ADBlockDisplay create(BlockData block) {
@@ -94,6 +94,6 @@ public class ADBlockDisplay extends ADBaseDisplay implements me.lucaaa.advancedd
     }
     @Override
     public void setBlock(BlockData block, Player player) {
-        packets.setBlock(entityId, block, player);
+        packets.setMetadata(entityId, player, metadata.VALUE, block);
     }
 }

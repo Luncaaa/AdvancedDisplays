@@ -4,6 +4,7 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
+import me.lucaaa.advanceddisplays.nms_common.Metadata;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -21,6 +22,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     private int animationTime;
     private int refreshTime;
     private Map<String, String> texts = new LinkedHashMap<>();
+    private boolean isEmpty = false;
     private TextDisplay.TextAlignment alignment;
     private Color backgroundColor;
     private int lineWidth;
@@ -38,9 +40,14 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             this.refreshTime = config.getOrDefault("refreshTime", 10, settings);
 
             ConfigurationSection textSection = config.getSection("texts", settings);
-            if (textSection == null || textSection.getKeys(false).isEmpty()) {
-                plugin.log(Level.SEVERE, "The text display \"" + configManager.getFile().getName() + "\" does not have a valid \"text\" section! Check the wiki for more information.");
+            if (textSection == null) {
+                plugin.log(Level.WARNING, "The text display \"" + configManager.getFile().getName() + "\" does not have a valid \"texts\" section! Check the wiki for more information.");
                 texts.put("error", "&cError! No valid \"texts\" section found. Check the wiki for more information.");
+                isEmpty = true;
+            } else if (textSection.getKeys(false).isEmpty()) {
+                plugin.log(Level.WARNING, "The text display \"" + configManager.getFile().getName() + "\" has an empty \"texts\" section!");
+                texts.put("empty", "&cThere are no texts to display");
+                isEmpty = true;
             } else {
                 for (String sectionName : textSection.getKeys(false)) {
                     if (!textSection.isList(sectionName)) continue;
@@ -72,10 +79,12 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     public void sendMetadataPackets(Player player) {
         super.sendMetadataPackets(player);
         textRunnable.sendToPlayer(player, packets);
-        packets.setBackgroundColor(entityId, backgroundColor, player);
-        packets.setLineWidth(entityId, lineWidth, player);
-        packets.setTextOpacity(entityId, textOpacity, player);
-        packets.setProperties(entityId, shadowed, seeThrough, defaultBackground, alignment, player);
+        packets.setMetadata(entityId, player,
+                new Metadata.DataInfo<>(metadata.BG_COLOR, backgroundColor.asARGB()),
+                new Metadata.DataInfo<>(metadata.LINE_WIDTH, lineWidth),
+                new Metadata.DataInfo<>(metadata.TEXT_OPACITY, textOpacity),
+                new Metadata.DataInfo<>(metadata.TEXT_PROPERTIES, Metadata.getProperties(shadowed, seeThrough, defaultBackground, alignment))
+        );
     }
 
     public ADTextDisplay create(String text) {
@@ -119,7 +128,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setAlignment(TextDisplay.TextAlignment alignment, Player player) {
-        packets.setProperties(entityId, shadowed, seeThrough, defaultBackground, alignment, player);
+        packets.setMetadata(entityId, player, metadata.TEXT_PROPERTIES, Metadata.getProperties(shadowed, seeThrough, defaultBackground, alignment));
     }
 
     @Override
@@ -139,7 +148,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setBackgroundColor(Color color, Player player) {
-        packets.setBackgroundColor(entityId, color, player);
+        packets.setMetadata(entityId, player, metadata.BG_COLOR, color.asARGB());
     }
 
     @Override
@@ -159,7 +168,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setLineWidth(int width, Player player) {
-        packets.setLineWidth(entityId, width, player);
+        packets.setMetadata(entityId, player, metadata.LINE_WIDTH, width);
     }
 
     @Override
@@ -212,6 +221,12 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     public boolean addText(String identifier, String text) {
         if (texts.containsKey(identifier)) return false;
         texts.put(identifier, text);
+
+        if (isEmpty) {
+            texts.remove("empty");
+            isEmpty = false;
+        }
+
         if (config != null) {
             ConfigurationSection textSection = settings.createSection("texts");
             for (Map.Entry<String, String> entry : texts.entrySet()) {
@@ -233,9 +248,6 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     public boolean removeText(String identifier) {
         if (!texts.containsKey(identifier)) return false;
         texts.remove(identifier);
-        if (texts.isEmpty()) {
-            addText("empty", "&cThere are no texts to display");
-        }
         if (config != null) {
             ConfigurationSection textSection = settings.createSection("texts");
             for (Map.Entry<String, String> entry : texts.entrySet()) {
@@ -243,6 +255,11 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             }
             settings.set("texts", textSection);
             save();
+        }
+        // Do not save this to the config
+        if (texts.isEmpty()) {
+            texts.put("empty", "&cThere are no texts to display");
+            isEmpty = true;
         }
         textRunnable.start(texts, animationTime, refreshTime);
         return true;
@@ -264,7 +281,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             throw new IllegalArgumentException("The display " + getName() + " does not have a page called " + page);
         }
 
-        textRunnable.setPage(page);
+        textRunnable.setPage(texts.keySet().stream().toList().indexOf(page));
     }
 
     @Override
@@ -284,7 +301,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setTextOpacity(byte opacity, Player player) {
-        packets.setTextOpacity(entityId, opacity, player);
+        packets.setMetadata(entityId, player, metadata.TEXT_OPACITY, opacity);
     }
 
     @Override
@@ -304,7 +321,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setUseDefaultBackground(boolean defaultBackground, Player player) {
-        packets.setProperties(entityId, shadowed, seeThrough, defaultBackground, alignment, player);
+        packets.setMetadata(entityId, player, metadata.TEXT_PROPERTIES, Metadata.getProperties(shadowed, seeThrough, defaultBackground, alignment));
     }
 
     @Override
@@ -324,7 +341,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setSeeThrough(boolean seeThrough, Player player) {
-        packets.setProperties(entityId, shadowed, seeThrough, defaultBackground, alignment, player);
+        packets.setMetadata(entityId, player, metadata.TEXT_PROPERTIES, Metadata.getProperties(shadowed, seeThrough, defaultBackground, alignment));
     }
 
     @Override
@@ -344,7 +361,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setShadowed(boolean shadowed, Player player) {
-        packets.setProperties(entityId, shadowed, seeThrough, defaultBackground, alignment, player);
+        packets.setMetadata(entityId, player, metadata.TEXT_PROPERTIES, Metadata.getProperties(shadowed, seeThrough, defaultBackground, alignment));
     }
 
     @Override
@@ -382,5 +399,13 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
         textRunnable.stop();
         textRunnable.updateDisplayId(entityId);
         textRunnable.start(texts, animationTime, refreshTime);
+    }
+
+    public boolean isNotEmpty() {
+        return !isEmpty;
+    }
+
+    public int getTextsNumber() {
+        return (isEmpty) ? 0 : texts.size();
     }
 }

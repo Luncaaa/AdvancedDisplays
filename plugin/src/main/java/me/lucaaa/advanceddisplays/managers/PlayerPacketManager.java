@@ -3,7 +3,7 @@ package me.lucaaa.advanceddisplays.managers;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
+import me.lucaaa.advanceddisplays.displays.ADEntityDisplay;
 import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -29,6 +29,7 @@ public class PlayerPacketManager extends ChannelDuplexHandler {
 
         ClickType clickType = clickEvent.clickType();
 
+        // TODO: Fix firing twice for entities even after filtering
         // Because the event is fired twice, the first time the event is run and the variable is set to "true".
         // The second time, when the variable is true, the event will be ignored.
         if (clickType == ClickType.RIGHT || clickType == ClickType.SHIFT_RIGHT) {
@@ -51,7 +52,7 @@ public class PlayerPacketManager extends ChannelDuplexHandler {
             } */
         }
 
-        ADBaseDisplay display = plugin.getInteractionsManager().getDisplay(clickEvent.interactionId());
+        ADEntityDisplay display = plugin.getInteractionsManager().getDisplay(clickEvent.interactionId());
         if (display == null) return;
 
         // Run sync to prevent errors

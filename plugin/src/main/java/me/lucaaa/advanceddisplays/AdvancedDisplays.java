@@ -1,16 +1,18 @@
 package me.lucaaa.advanceddisplays;
 
 import me.lucaaa.advanceddisplays.data.*;
+import me.lucaaa.advanceddisplays.displays.ADEntityDisplay;
 import me.lucaaa.advanceddisplays.integrations.Integration;
 import me.lucaaa.advanceddisplays.integrations.ItemsAdderCompat;
 import me.lucaaa.advanceddisplays.integrations.OraxenCompat;
 import me.lucaaa.advanceddisplays.managers.*;
 import me.lucaaa.advanceddisplays.events.*;
 import me.lucaaa.advanceddisplays.api.*;
-import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import me.lucaaa.advanceddisplays.commands.MainCommand;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.nms_common.Logger;
+import me.lucaaa.advanceddisplays.nms_common.Metadata;
+import me.lucaaa.advanceddisplays.nms_common.Version;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -29,7 +31,8 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
     // Other.
     private Version nmsVersion;
     private boolean isRunning = false;
-    private final CachedHeads cachedHeads = new CachedHeads(this);
+    public final CachedHeads cachedHeads = new CachedHeads(this);
+    public Metadata metadata;
 
     // Integrations.
     private final Map<Compatibility, Integration> integrations = new HashMap<>();
@@ -52,7 +55,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         savesConfig = new ConfigManager(this, "saved-inventories.yml", true);
 
         // Managers
-        HashMap<Integer, ADBaseDisplay> savedApiDisplays = new HashMap<>(); // If the plugin is reloaded, this will save the click actions for API displays.
+        HashMap<Integer, ADEntityDisplay> savedApiDisplays = new HashMap<>(); // If the plugin is reloaded, this will save the click actions for API displays.
         if (isRunning) {
             displaysManager.removeAll(true); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
             savedApiDisplays = interactionsManager.getApiDisplays();
@@ -80,6 +83,8 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
+
+        metadata = new Metadata(nmsVersion);
 
         ADAPIProvider.setImplementation(apiDisplays);
 
@@ -127,10 +132,6 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
 
     public Version getNmsVersion() {
         return nmsVersion;
-    }
-
-    public CachedHeads getCachedHeads() {
-        return cachedHeads;
     }
 
     public boolean isIntegrationLoaded(Compatibility compatibility) {

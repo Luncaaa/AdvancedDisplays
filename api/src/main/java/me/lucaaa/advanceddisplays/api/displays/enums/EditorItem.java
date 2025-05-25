@@ -117,6 +117,12 @@ public enum EditorItem {
     ITEM_TRANSFORMATION,
 
     /**
+     * Item displays only.
+     * Changes whether the enchanted effect is visible or not.
+     */
+    ENCHANTED,
+
+    /**
      * Text display only.
      * Changes the text's alignment.
      */

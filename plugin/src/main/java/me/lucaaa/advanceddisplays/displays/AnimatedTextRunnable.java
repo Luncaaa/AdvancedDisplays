@@ -9,6 +9,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class AnimatedTextRunnable {
@@ -16,15 +18,13 @@ public class AnimatedTextRunnable {
     private final PacketInterface packets;
     private int displayId;
 
-    // Minimessage String rather than component for placeholder parsing (so that %prefix% which is <red>Owner is parsed correctly)
-    private Map<String, String> textsList;
+    // Minimessage String rather than component for placeholder parsing (so that, for example, %prefix% which is <red>Owner is parsed correctly)
+    private List<String> textsList;
     private int animationTime = 0;
     private int refreshTime = 0;
 
-    private String displayedText;
-    private BukkitTask animateTask;
-    private BukkitTask refreshTask;
-    private int nextIndex = 0;
+    private BukkitTask displayTask;
+    private int index = 0;
 
     public AnimatedTextRunnable(AdvancedDisplays plugin, int displayId) {
         this.plugin = plugin;
@@ -33,76 +33,78 @@ public class AnimatedTextRunnable {
     }
 
     public void start(Map<String, String> texts, int animationTime, int refreshTime) {
-        start(texts, animationTime, refreshTime, 0);
+        start(new ArrayList<>(texts.values()), animationTime, refreshTime, 0);
     }
 
-    private void start(Map<String, String> texts, int animationTime, int refreshTime, int index) {
+    private void start(List<String> texts, int animationTime, int refreshTime, int startIndex) {
         stop();
-        nextIndex = index;
 
-        textsList = texts;
-        displayedText = textsList.values().stream().toList().get(index);
+        this.textsList = texts;
         this.animationTime = animationTime;
         this.refreshTime = refreshTime;
+        this.index = startIndex;
 
-        // Animated text runnable - displays new text from the list every x seconds.
-        if (texts.size() > 1 && animationTime > 0) {
-            animateTask = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    displayedText = textsList.values().stream().toList().get(nextIndex);
-
-                    // If higher than 0, the refresh task will handle this
-                    if (refreshTime <= 0) {
-                        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                            packets.setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
-                        }
-                    }
-
-                    nextIndex = (nextIndex + 1 == texts.size()) ? 0 : nextIndex + 1;
-                }
-            }.runTaskTimerAsynchronously(plugin, 0L, animationTime);
-
-        } else {
-            displayedText = textsList.values().stream().toList().get(nextIndex);
-
-            // If higher than 0, the refresh task will handle this
-            if (refreshTime <= 0) {
-                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    packets.setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
-                }
-            }
-
-            nextIndex = (nextIndex + 1 == texts.size()) ? 0 : nextIndex + 1;
+        if (textsList.isEmpty()) {
+            return;
         }
 
-        // Refresh text runnable - displays the current text again (to update placeholders) every x seconds.
-        if (refreshTime > 0) {
-            refreshTask = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        packets.setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
+        updateDisplay(textsList.get(index));
+
+        if (animationTime <= 0 && refreshTime <= 0) {
+            return;
+        }
+
+        displayTask = new BukkitRunnable() {
+            private int animationTicks = 0;
+            private int refreshTicks = 0;
+
+            @Override
+            public void run() {
+                boolean shouldUpdate = false;
+                boolean nextPage = false;
+
+                // Handle animation (page switching)
+                if (animationTime > 0 && textsList.size() > 1) {
+                    animationTicks++;
+                    if (animationTicks >= animationTime) {
+                        animationTicks = 0;
+                        shouldUpdate = true;
+                        nextPage = true;
                     }
                 }
-            }.runTaskTimerAsynchronously(plugin, 0L, refreshTime);
 
-        } else {
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                packets.setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, displayedText))), onlinePlayer);
+                // Handle refresh (placeholder updates)
+                if (refreshTime > 0) {
+                    refreshTicks++;
+                    if (refreshTicks >= refreshTime) {
+                        refreshTicks = 0;
+                        shouldUpdate = true;
+                    }
+                }
+
+                // Update if needed
+                if (shouldUpdate) {
+                    if (nextPage) {
+                        AnimatedTextRunnable.this.index = (index + 1) % textsList.size();
+                    }
+                    updateDisplay(textsList.get(index));
+                }
             }
+        }.runTaskTimerAsynchronously(plugin, 0L, 1L);
+    }
+
+    private void updateDisplay(String text) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            packets.setMetadata(displayId, player, plugin.metadata.VALUE,
+                    ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, text)));
         }
     }
 
+    // Method to stop the task
     public void stop() {
-        if (animateTask != null) {
-            animateTask.cancel();
-            animateTask = null;
-        }
-
-        if (refreshTask != null) {
-            refreshTask.cancel();
-            refreshTask = null;
+        if (displayTask != null && !displayTask.isCancelled()) {
+            displayTask.cancel();
+            displayTask = null;
         }
 
         textsList = null;
@@ -113,34 +115,30 @@ public class AnimatedTextRunnable {
     }
 
     public void nextPage() {
-        start(textsList, animationTime, refreshTime, nextIndex);
+        start(textsList, animationTime, refreshTime, (index + 1) % textsList.size());
     }
 
     public void previousPage() {
-        // nextIndex -> Next from currently displayed text
-        // nextIndex - 1 -> Currently displayed text
-        // nextIndex - 2 -> Previously displayed text
+        // index - 1 -> Previously displayed text
         int previousIndex;
-        if (nextIndex == 0 && textsList.size() > 1) {
-            previousIndex = textsList.size() - 2;
-        } else if (nextIndex - 2 < 0) {
+        if (textsList.size() <= 1) {
+            previousIndex = 0;
+        } else if (index == 0) {
             previousIndex = textsList.size() - 1;
         } else {
-            previousIndex = nextIndex - 2;
+            previousIndex = index - 1;
         }
 
         start(textsList, animationTime, refreshTime, previousIndex);
     }
 
-    public void setPage(String page) {
-        start(textsList, animationTime, refreshTime, textsList.keySet().stream().toList().indexOf(page));
+    public void setPage(int index) {
+        start(textsList, animationTime, refreshTime, index);
     }
 
+    // Send the currently displayed text to players who just joined until the task refreshes/animates it.
+    // If this wasn't run, the player wouldn't see any text until the task refreshed/animated it.
     public void sendToPlayer(Player player, PacketInterface packets) {
-        // Will happen when plugin is reloaded. In that case, when the runnable is started, it will update the text
-        // for every online player.
-        if (displayedText == null) return;
-
-        packets.setText(displayId, ComponentSerializer.toJSON(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, displayedText))), player);
+        packets.setMetadata(displayId, player, plugin.metadata.VALUE, ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, textsList.get(index))));
     }
 }

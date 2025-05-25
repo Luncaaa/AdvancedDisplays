@@ -1,6 +1,7 @@
 package me.lucaaa.advanceddisplays.inventory.items;
 
 import me.lucaaa.advanceddisplays.api.displays.*;
+import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.Levelled;
@@ -9,6 +10,7 @@ import org.bukkit.inventory.meta.BlockDataMeta;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,6 +38,7 @@ public class DisplayEditorItems {
     public Item.ClickableItem BLOCK_DATA;
 
     public Item.EnumItem ITEM_TRANSFORMATION;
+    public Item.BooleanItem ENCHANTED;
 
     public Item.EnumItem TEXT_ALIGNMENT;
     public ColorItems.ColorPreview BACKGROUND_COLOR;
@@ -67,19 +70,16 @@ public class DisplayEditorItems {
         HITBOX_OVERRIDE = new Item.BooleanItem(Material.END_CRYSTAL, "Override hitbox size", List.of("Whether the hitbox size is set", "automatically or manually"), display.isHitboxSizeOverriden());
 
         switch (display.getType()) {
-            case TEXT -> CURRENT_VALUE = new Item.ClickableItem(Material.OAK_SIGN, "Display text", List.of("Changes the text that is being displayed", "", "&7Use &cLEFT_CLICK &7to remove an animation", "&7Use &cRIGHT_CLICK &7to add an animation"), ((TextDisplay) display).getText().size() + " text animation(s)");
-            case ITEM -> CURRENT_VALUE = new Item.ClickableItem(((ItemDisplay) display).getItem(), "Display item", List.of("The item that is being displayed"), ((ItemDisplay) display).getItem().getType().name());
-            case BLOCK -> CURRENT_VALUE = new Item.ClickableItem(((BlockDisplay) display).getBlock().getMaterial(), "Display block", "The block that is being displayed"); // Block data will be set in the EditorGUI class once it's opened.
-            default -> CURRENT_VALUE = new Item.ClickableItem(Material.BARRIER, "&cUnextected error", "&7Report to developer.");
-        }
-        REMOVE = new Item.ClickableItem(Material.BARRIER, "&cRemove", List.of("Permanently removes this display", "&cThis action cannot be undone!"), null);
-
-        switch (display.getType()) {
-            case BLOCK -> BLOCK_DATA = new Item.ClickableItem(Material.COMMAND_BLOCK, "Block data", "Changes values that makes the block look different", ((BlockDisplay) display).getBlock().toString());
-            case ITEM -> ITEM_TRANSFORMATION = new Item.EnumItem(Material.ARMOR_STAND, "Item model transform", "Changes how the displayed item is shown", ((ItemDisplay) display).getItemTransformation());
             case TEXT -> {
-                TextDisplay textDisplay = (TextDisplay) display;
-
+                ADTextDisplay textDisplay = (ADTextDisplay) display;
+                List<String> lore = new ArrayList<>();
+                lore.add("Changes the text that is being displayed");
+                lore.add("");
+                lore.add("&7Use &cLEFT_CLICK &7to add an animation");
+                if (textDisplay.isNotEmpty()) {
+                    lore.add("&7Use &cRIGHT_CLICK &7to remove an animation");
+                }
+                CURRENT_VALUE = new Item.ClickableItem(Material.OAK_SIGN, "Display text", lore, textDisplay.getTextsNumber() + " text animation(s)");
                 TEXT_ALIGNMENT = new Item.EnumItem(Material.FILLED_MAP, "Text alignment", "Changes the text's alignment", textDisplay.getAlignment());
                 BACKGROUND_COLOR = new ColorItems.ColorPreview("Background color", textDisplay.getBackgroundColor(), ColorItems.ColorComponent.ALL, true);
                 LINE_WIDTH = new Item.StepItem(Material.BLACK_DYE, "Line width", List.of("Changes the display's line width"), textDisplay.getLineWidth(), 10.0, 1.0);
@@ -90,7 +90,18 @@ public class DisplayEditorItems {
                 ANIMATION_TIME = new Item.StepItem(Material.NAME_TAG, "Animation time", List.of("Changes how often the text changes", "Value must be in ticks"), textDisplay.getAnimationTime(), 10.0, 1.0);
                 REFRESH_TIME = new Item.StepItem(Material.NAME_TAG, "Refresh time", List.of("Changes how often placeholders update", "Value must be in ticks"), textDisplay.getRefreshTime(), 10.0, 1.0);
             }
+            case ITEM -> {
+                CURRENT_VALUE = new Item.ClickableItem(((ItemDisplay) display).getItem(), "Display item", List.of("The item that is being displayed"), ((ItemDisplay) display).getItem().getType().name());
+                ITEM_TRANSFORMATION = new Item.EnumItem(Material.ARMOR_STAND, "Item model transform", "Changes how the displayed item is shown", ((ItemDisplay) display).getItemTransformation());
+                ENCHANTED = new Item.BooleanItem(Material.ENCHANTED_BOOK, "Enchanted", "Changes whether the enchanted effect is visible or not", ((ItemDisplay) display).isEnchanted());
+            }
+            case BLOCK -> {
+                CURRENT_VALUE = new Item.ClickableItem(((BlockDisplay) display).getBlock().getMaterial(), "Display block", "The block that is being displayed");
+                BLOCK_DATA = new Item.ClickableItem(Material.COMMAND_BLOCK, "Block data", "Changes values that makes the block look different", ((BlockDisplay) display).getBlock().toString());
+            } // Block data will be set in the EditorGUI class once it's opened.
+            default -> CURRENT_VALUE = new Item.ClickableItem(Material.BARRIER, "&cUnextected error", "&7Report to developer.");
         }
+        REMOVE = new Item.ClickableItem(Material.BARRIER, "&cRemove", List.of("Permanently removes this display", "&cThis action cannot be undone!"), null);
     }
 
     private Item.StepItem createLight(String title, String lore, int value) {

@@ -167,9 +167,8 @@ public class DisplaysManager {
             entity.sendMetadataPackets(onlinePlayer);
         }
 
-        if (entity instanceof ADBaseDisplay display) {
-            plugin.getInteractionsManager().addInteraction(display.getInteractionId(), display);
-        }
+        plugin.getInteractionsManager().addInteraction(entity.getInteractionId(), entity);
+
         displays.put(name, entity);
     }
 
@@ -251,6 +250,7 @@ public class DisplaysManager {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             newDisplay.sendMetadataPackets(onlinePlayer);
         }
+        plugin.getInteractionsManager().addInteraction(newDisplay.getInteractionId(), newDisplay);
     }
 
     public EntityDisplay getDisplayFromLoc(Location location, double radius, boolean closest) {

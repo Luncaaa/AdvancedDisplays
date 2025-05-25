@@ -5,6 +5,7 @@ import me.lucaaa.advanceddisplays.api.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.data.Utils;
+import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
 import me.lucaaa.advanceddisplays.inventory.*;
 import me.lucaaa.advanceddisplays.inventory.Button;
 import me.lucaaa.advanceddisplays.inventory.items.DisplayEditorItems;
@@ -183,7 +184,7 @@ public class DisplayEditorGUI extends InventoryMethods {
                     }
 
                 } else {
-                    if (event.isLeftClick()) {
+                    if (event.isRightClick()) {
                         editMap.put((Player) event.getWhoClicked(), EditAction.REMOVE_TEXT);
                         event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of the animation to remove. Valid animations: &e" + String.join("&6, &e", ((TextDisplay) display).getText().keySet())));
                         event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Type \"&ecancel&6\" to cancel the operation."));
@@ -210,14 +211,25 @@ public class DisplayEditorGUI extends InventoryMethods {
         switch (display.getType()) {
             case BLOCK -> setBlockData();
 
-            case ITEM -> addIfAllowed(EditorItem.ITEM_TRANSFORMATION, 8, new Button.InventoryButton<>(items.ITEM_TRANSFORMATION) {
-                @Override
-                public void onClick(InventoryClickEvent event) {
-                    org.bukkit.entity.ItemDisplay.ItemDisplayTransform newTransform = getItem().changeValue();
-                    getInventory().setItem(8, getItem().getStack());
-                    ((ItemDisplay) display).setItemTransformation(newTransform);
-                }
-            });
+            case ITEM -> {
+                addIfAllowed(EditorItem.ITEM_TRANSFORMATION, 8, new Button.InventoryButton<>(items.ITEM_TRANSFORMATION) {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        org.bukkit.entity.ItemDisplay.ItemDisplayTransform newTransform = getItem().changeValue();
+                        getInventory().setItem(8, getItem().getStack());
+                        ((ItemDisplay) display).setItemTransformation(newTransform);
+                    }
+                });
+
+                addIfAllowed(EditorItem.ENCHANTED, 7, new Button.InventoryButton<>(items.ENCHANTED) {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        boolean isEnchanted = getItem().changeValue();
+                        getInventory().setItem(7, getItem().getStack());
+                        ((ItemDisplay) display).setEnchanted(isEnchanted);
+                    }
+                });
+            }
 
             case TEXT -> {
                 TextDisplay textDisplay = (TextDisplay) display;
@@ -348,17 +360,29 @@ public class DisplayEditorGUI extends InventoryMethods {
 
             switch (editMap.get(player)) {
                 case REMOVE_TEXT -> {
-                    if (((TextDisplay) display).removeText(input)) {
+                    ADTextDisplay textDisplay = (ADTextDisplay) display;
+                    if (textDisplay.removeText(input)) {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + input + " &a has been removed. If it didn't exist, nothing will be changed."));
                     } else {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe animation &b" + input + " &cdoes not exist!"));
                         return;
                     }
 
-                    item.setValue(((TextDisplay) display).getText().size() + " text animation(s)");
+                    List<String> lore = new ArrayList<>();
+                    lore.add("Changes the text that is being displayed");
+                    lore.add("");
+                    lore.add("&7Use &cLEFT_CLICK &7to add an animation");
+                    if (textDisplay.isNotEmpty()) {
+                        lore.add("&7Use &cRIGHT_CLICK &7to remove an animation");
+                    }
+                    lore.add("");
+                    item.setLore(lore);
+
+                    item.setValue(textDisplay.getTextsNumber() + " text animation(s)");
                 }
 
                 case ADD_TEXT -> {
+                    ADTextDisplay textDisplay = (ADTextDisplay) display;
                     int firstSpace = input.indexOf(" ");
 
                     if (firstSpace == -1){
@@ -368,14 +392,24 @@ public class DisplayEditorGUI extends InventoryMethods {
 
                     String identifier = input.substring(0, firstSpace);
                     String joined = input.substring(firstSpace + 1).replace("\\n", "\n");
-                    if (((TextDisplay) display).addText(identifier, joined)) {
+                    if (textDisplay.addText(identifier, joined)) {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + identifier + " &a has been created and added after the last animation."));
                     } else {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cAn animation with the name &b" + identifier + " &calready exists!"));
                         return;
                     }
 
-                    item.setValue(((TextDisplay) display).getText().size() + " text animation(s)");
+                    List<String> lore = new ArrayList<>();
+                    lore.add("Changes the text that is being displayed");
+                    lore.add("");
+                    lore.add("&7Use &cLEFT_CLICK &7to add an animation");
+                    if (textDisplay.isNotEmpty()) {
+                        lore.add("&7Use &cRIGHT_CLICK &7to remove an animation");
+                    }
+                    lore.add("");
+                    item.setLore(lore);
+
+                    item.setValue(textDisplay.getText().size() + " text animation(s)");
                 }
 
                 case CHANGE_MATERIAL -> {

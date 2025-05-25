@@ -52,6 +52,12 @@ public class Item<T> {
         item.setItemMeta(meta);
     }
 
+    public void setLore(List<String> lore) {
+        this.lore.clear();
+        this.lore.addAll(lore);
+        setMeta(title, lore);
+    }
+
     public void setValue(T value) {
         this.value = value;
         String title = this.title;

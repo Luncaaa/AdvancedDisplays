@@ -7,10 +7,10 @@ import java.util.List;
 
 public class GlobalItems {
     public static Item.ClickableItem cancel(AdvancedDisplays plugin) {
-        return getHead(plugin.getCachedHeads().CANCEL, "&cCancel", List.of("&eGo back without saving"));
+        return getHead(plugin.cachedHeads.CANCEL, "&cCancel", List.of("&eGo back without saving"));
     }
     public static Item.ClickableItem done(AdvancedDisplays plugin) {
-        return getHead(plugin.getCachedHeads().DONE, "&aDone", List.of("&eGo back and save your changes"));
+        return getHead(plugin.cachedHeads.DONE, "&aDone", List.of("&eGo back and save your changes"));
     }
 
     private static Item.ClickableItem getHead(ItemStack head, String title, List<String> lore) {

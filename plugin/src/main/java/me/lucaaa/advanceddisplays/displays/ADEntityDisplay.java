@@ -12,6 +12,7 @@ import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
 import me.lucaaa.advanceddisplays.data.Ticking;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
+import me.lucaaa.advanceddisplays.nms_common.Metadata;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -27,6 +28,7 @@ import java.util.Objects;
 
 public class ADEntityDisplay extends Ticking implements EntityDisplay {
     protected final AdvancedDisplays plugin;
+    protected final Metadata metadata;
     private final DisplaysManager displaysManager;
     protected final PacketInterface packets;
     protected final ConfigManager config;
@@ -54,6 +56,7 @@ public class ADEntityDisplay extends Ticking implements EntityDisplay {
         startTicking();
 
         this.plugin = plugin;
+        this.metadata = plugin.metadata;
         this.displaysManager = displaysManager;
         this.packets = plugin.getPacketsManager().getPackets();
         this.name = name;
@@ -90,6 +93,7 @@ public class ADEntityDisplay extends Ticking implements EntityDisplay {
         startTicking();
 
         this.plugin = plugin;
+        this.metadata = plugin.metadata;
         this.displaysManager = displaysManager;
         this.packets = plugin.getPacketsManager().getPackets();
         this.name = name;
@@ -174,6 +178,10 @@ public class ADEntityDisplay extends Ticking implements EntityDisplay {
         return this;
     }
 
+    public int getInteractionId() {
+        return entityId;
+    }
+
     @Override
     public String getName() {
         return name;
@@ -215,7 +223,7 @@ public class ADEntityDisplay extends Ticking implements EntityDisplay {
     @Override
     public void setLocation(Location location) {
         if (config != null) {
-            ConfigurationSection locationSection = config.getSection("location");
+            ConfigurationSection locationSection = config.getSection("location", config.getConfig());
             locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());
             locationSection.set("x", location.getX());
             locationSection.set("y", location.getY());
@@ -235,6 +243,9 @@ public class ADEntityDisplay extends Ticking implements EntityDisplay {
             // Because entities cannot be teleported across worlds, the old one is removed and a new one is created
             // in the new location (another world)
             packets.removeEntity(entityId);
+
+            plugin.getInteractionsManager().removeInteraction(getInteractionId());
+
             entity = packets.createEntity(entityType, location);
             entityId = entity.getEntityId();
 
@@ -244,6 +255,8 @@ public class ADEntityDisplay extends Ticking implements EntityDisplay {
                 }
                 sendMetadataPackets(onlinePlayer);
             }
+
+            plugin.getInteractionsManager().addInteraction(getInteractionId(), this);
         }
         this.location = location;
     }
@@ -256,7 +269,7 @@ public class ADEntityDisplay extends Ticking implements EntityDisplay {
         centered.setY(location.getBlockY());
         centered.setZ(location.getBlockZ());
 
-        if (this instanceof BlockDisplay) {
+        if (!(this instanceof BlockDisplay)) {
             centered.add(0.5, 0.0, 0.5);
         }
 

@@ -11,6 +11,7 @@ import org.bukkit.*;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -76,8 +77,12 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     public void sendMetadataPackets(Player player) {
         super.sendMetadataPackets(player);
         if (item.getType() == Material.PLAYER_HEAD) setHead(displayHeadType, displayHeadValue, player);
-        else packets.setItem(entityId, item, enchanted, player);
-        packets.setItemDisplayTransformation(entityId, itemTransformation, player);
+        else {
+            ItemStack clone = item.clone();
+            if (enchanted) clone.addUnsafeEnchantment(Enchantment.MENDING, 1);
+            packets.setMetadata(entityId, player, metadata.VALUE, clone);
+        }
+        packets.setMetadata(entityId, player, metadata.ITEM_TRANSFORM, itemTransformation);
     }
 
     public ADItemDisplay create(Material item) {
@@ -109,7 +114,9 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setItem(ItemStack item, Player player) {
-        packets.setItem(entityId, item, enchanted, player);
+        ItemStack clone = item.clone();
+        if (enchanted) clone.addUnsafeEnchantment(Enchantment.MENDING, 1);
+        packets.setMetadata(entityId, player, metadata.VALUE, clone);
     }
 
     @Override
@@ -180,7 +187,11 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     @Override
     public void setEnchanted(boolean enchanted, Player player) {
         if (item.getType() == Material.PLAYER_HEAD) setHead(displayHeadType, displayHeadValue, player);
-        else packets.setItem(entityId, item, enchanted, player);
+        else {
+            ItemStack clone = item.clone();
+            if (enchanted) clone.addUnsafeEnchantment(Enchantment.MENDING, 1);
+            packets.setMetadata(entityId, player, metadata.VALUE, clone);
+        }
     }
 
     @Override
@@ -200,7 +211,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setItemTransformation(ItemDisplay.ItemDisplayTransform transformation, Player player) {
-        packets.setItemDisplayTransformation(entityId, transformation, player);
+        packets.setMetadata(entityId, player, metadata.ITEM_TRANSFORM, transformation);
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -316,14 +327,15 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
 
     private void setHead(DisplayHeadType type, String value, Player player) {
-        packets.setHead(entityId, enchanted, plugin.getCachedHeads().LOADING, player);
+        packets.setMetadata(entityId, player, metadata.VALUE, plugin.cachedHeads.LOADING);
 
         // Run async because of the HTTP request to parse the head.
         new BukkitRunnable() {
             @Override
             public void run() {
-                item = HeadUtils.getHead(type, value, player, plugin);
-                packets.setHead(entityId, enchanted, item, player);
+                ItemStack head = HeadUtils.getHead(type, value, player, plugin);
+                if (enchanted) head.addUnsafeEnchantment(Enchantment.MENDING, 1);
+                packets.setMetadata(entityId, player, metadata.VALUE, head);
             }
         }.runTaskAsynchronously(plugin);
     }

@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.conditions;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.conditions.Condition;
-import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
+import me.lucaaa.advanceddisplays.api.displays.EntityDisplay;
 import me.lucaaa.advanceddisplays.conditions.conditionTypes.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -13,10 +13,10 @@ import java.util.logging.Level;
 
 public class ConditionsHandler {
     private final AdvancedDisplays plugin;
-    private final BaseEntity display;
+    private final EntityDisplay display;
     private final List<Condition> conditionsList = new ArrayList<>();
 
-    public ConditionsHandler(AdvancedDisplays plugin, BaseEntity display, ConfigurationSection conditionsSection) {
+    public ConditionsHandler(AdvancedDisplays plugin, EntityDisplay display, ConfigurationSection conditionsSection) {
         this.plugin = plugin;
         this.display = display;
 
@@ -27,7 +27,7 @@ public class ConditionsHandler {
         }
     }
 
-    public ConditionsHandler(AdvancedDisplays plugin, BaseEntity display) {
+    public ConditionsHandler(AdvancedDisplays plugin, EntityDisplay display) {
         this.plugin = plugin;
         this.display = display;
     }

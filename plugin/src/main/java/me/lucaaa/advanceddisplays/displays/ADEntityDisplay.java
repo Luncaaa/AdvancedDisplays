@@ -4,7 +4,7 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.ActionsHandler;
 import me.lucaaa.advanceddisplays.actions.actionTypes.ActionType;
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
-import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
+import me.lucaaa.advanceddisplays.api.displays.EntityDisplay;
 import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
@@ -25,13 +25,15 @@ import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
-public class ADBaseEntity extends Ticking implements BaseEntity {
+public class ADEntityDisplay extends Ticking implements EntityDisplay {
     protected final AdvancedDisplays plugin;
     private final DisplaysManager displaysManager;
     protected final PacketInterface packets;
     protected final ConfigManager config;
     private final ActionsHandler actionsHandler;
     private final ADVisibilityManager visibilityManager;
+
+    protected ConfigurationSection entitySection = null;
 
     private final String name;
     protected final DisplayType type;
@@ -47,7 +49,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
     protected boolean isGlowing;
     protected ChatColor glowColor;
 
-    public ADBaseEntity(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, ConfigManager config, Entity entity) {
+    public ADEntityDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager config, String name, DisplayType type, Entity entity) {
         super(plugin);
         startTicking();
 
@@ -65,6 +67,8 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         this.actionsHandler = new ActionsHandler(plugin, this, config);
         this.visibilityManager = new ADVisibilityManager(plugin, this);
 
+        this.entitySection = config.getSection("entity", false, config.getConfig());
+
         ConfigurationSection locationSection = config.getSection("location");
         String world = locationSection.getString("world", Bukkit.getWorlds().get(0).getName());
         double x = locationSection.getDouble("x");
@@ -76,12 +80,12 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         this.yaw = (float) config.getOrDefault("yaw", 0.0, rotationSection).doubleValue();
         this.pitch = (float) config.getOrDefault("pitch", 0.0, rotationSection).doubleValue();
 
-        ConfigurationSection glowSection = config.getSection("glow");
+        ConfigurationSection glowSection = config.getSection("glow", entitySection);
         this.isGlowing = config.getOrDefault("glowing", false, glowSection);
         this.glowColor = ChatColor.valueOf(config.getOrDefault("color", ChatColor.GOLD.name(), glowSection));
     }
 
-    public ADBaseEntity(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, Entity entity, boolean saveToConfig) {
+    public ADEntityDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, Entity entity, boolean saveToConfig) {
         super(plugin);
         startTicking();
 
@@ -98,6 +102,12 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         this.config = (saveToConfig) ? createConfig(entity.getLocation()) : null;
         this.actionsHandler = new ActionsHandler(plugin, this, config);
         this.visibilityManager = new ADVisibilityManager(plugin, this);
+
+        // Even though it may have been set by the createConfig() method, they are set back to "null"
+        // Again when the body of this constructor starts running.
+        if (config != null) {
+            entitySection = config.getSection("entity", false, config.getConfig());
+        }
 
         this.location = entity.getLocation();
         this.yaw = entity.getLocation().getYaw();
@@ -128,7 +138,10 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         rotationSection.set("yaw", 0.0);
         rotationSection.set("pitch", 0.0);
 
-        ConfigurationSection glowSection = displayConfig.createSection("glow");
+        ConfigurationSection entitySection = displayConfig.createSection("entity");
+        entitySection.set("type", entityType.name());
+
+        ConfigurationSection glowSection = entitySection.createSection("glow");
         glowSection.set("glowing", false);
         glowSection.set("color", ChatColor.GOLD.name());
 
@@ -150,6 +163,15 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         packets.setLocation(entity, player);
         packets.setRotation(entityId, yaw, pitch, player);
         packets.setGlowing(entity, isGlowing, glowColor, player);
+    }
+
+    public ADEntityDisplay create(EntityType type) {
+        if (config != null) {
+            entitySection.set("type", type.name());
+            save();
+        }
+
+        return this;
     }
 
     @Override

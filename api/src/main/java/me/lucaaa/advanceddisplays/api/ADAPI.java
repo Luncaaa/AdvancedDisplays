@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
@@ -130,11 +131,35 @@ public interface ADAPI {
     TextDisplay createTextDisplay(String name, Location location, Component value, boolean saveToConfig);
 
     /**
+     * Creates an entity display at the given location.
+     * @param name The name of the display.
+     * @param location The location of the display.
+     * @param value The entity that will be displayed.
+     * @return The created display or null if a display with that name already exists.
+     */
+    default EntityDisplay createEntityDisplay(String name, Location location, EntityType value) {
+        return createEntityDisplay(name, location, value, false);
+    }
+
+    /**
+     * Creates an entity display at the given location.
+     * <p>
+     * For more information on how saving to config works, check this page.
+     *
+     * @param name The name of the display.
+     * @param location The location of the display.
+     * @param value The entity that will be displayed.
+     * @param saveToConfig Whether the display should be saved in a file or not.
+     * @return The created display or null if a display with that name already exists.
+     */
+    EntityDisplay createEntityDisplay(String name, Location location, EntityType value, boolean saveToConfig);
+
+    /**
      * Gets a previously created display.
      * @param name The name of the display.
      * @return The display if it exists, null if it doesn't.
      */
-    BaseEntity getDisplay(String name);
+    EntityDisplay getDisplay(String name);
 
     /**
      * Gets a display within a specific distance from the given location.
@@ -142,7 +167,7 @@ public interface ADAPI {
      * @param radius The maximum distance.
      * @return A display within a specific distance from the given location or null if none found.
      */
-    default BaseEntity getDisplayFromLoc(Location location, double radius) {
+    default EntityDisplay getDisplayFromLoc(Location location, double radius) {
         return getDisplayFromLoc(location, radius, true);
     }
 
@@ -153,7 +178,7 @@ public interface ADAPI {
      * @param closest Whether the display should be the closest one to the given location or the first one found.
      * @return A display within a specific distance from the given location or null if none found.
      */
-    BaseEntity getDisplayFromLoc(Location location, double radius, boolean closest);
+    EntityDisplay getDisplayFromLoc(Location location, double radius, boolean closest);
 
     /**
      * Removes a previously created display. Deletes the entity from the world and removes the display from the list.

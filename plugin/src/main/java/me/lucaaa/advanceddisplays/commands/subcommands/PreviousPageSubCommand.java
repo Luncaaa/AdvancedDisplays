@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
-import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
+import me.lucaaa.advanceddisplays.displays.ADEntityDisplay;
 import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
 import org.bukkit.command.CommandSender;
 
@@ -21,12 +21,12 @@ public class PreviousPageSubCommand extends SubCommandsFormat {
 
     @Override
     public List<String> getTabCompletions(CommandSender sender, String[] args) {
-        return plugin.getDisplaysManager().getDisplays().values().stream().filter(display -> display.getType() == DisplayType.TEXT).map(ADBaseEntity::getName).toList();
+        return plugin.getDisplaysManager().getDisplays().values().stream().filter(display -> display.getType() == DisplayType.TEXT).map(ADEntityDisplay::getName).toList();
     }
 
     @Override
     public void run(CommandSender sender, String[] args) {
-        ADBaseEntity display = plugin.getDisplaysManager().getDisplayFromMap(args[1]);
+        ADEntityDisplay display = plugin.getDisplaysManager().getDisplayFromMap(args[1]);
 
         if (display == null) {
             sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!"));

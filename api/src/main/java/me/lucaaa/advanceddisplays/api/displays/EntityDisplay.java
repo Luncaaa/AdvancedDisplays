@@ -15,7 +15,7 @@ import java.util.List;
  * The settings that Entity and Text, Item and Block displays have in common.
  */
 @SuppressWarnings("unused")
-public interface BaseEntity {
+public interface EntityDisplay {
     /**
      * Gets the name of the display.
      * @return The name of the display.

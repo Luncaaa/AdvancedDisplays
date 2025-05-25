@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.managers;
 
 import com.google.common.io.Files;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
+import me.lucaaa.advanceddisplays.api.displays.EntityDisplay;
 import me.lucaaa.advanceddisplays.data.AttachedDisplay;
 import me.lucaaa.advanceddisplays.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
@@ -26,7 +26,7 @@ public class DisplaysManager {
     private final PacketInterface packets;
     private final String configsFolder;
     private final boolean isApi;
-    private final Map<String, ADBaseEntity> displays = new HashMap<>();
+    private final Map<String, ADEntityDisplay> displays = new HashMap<>();
     private final Map<Player, AttachedDisplay> attachDisplays = new HashMap<>();
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -151,13 +151,26 @@ public class DisplaysManager {
         return display;
     }
 
-    private void createGeneral(String name, ADBaseDisplay display) {
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            display.sendMetadataPackets(onlinePlayer);
+    public ADEntityDisplay createEntityDisplay(Location location, String name, EntityType value, boolean saveToConfig) {
+        if (displays.containsKey(name)) {
+            return null;
         }
 
-        plugin.getInteractionsManager().addInteraction(display.getInteractionId(), display);
-        displays.put(name, display);
+        Entity newDisplayPacket = packets.createEntity(value, location);
+        ADEntityDisplay display = new ADEntityDisplay(plugin, this, name, DisplayType.ENTITY, newDisplayPacket, saveToConfig).create(value);
+        createGeneral(name, display);
+        return display;
+    }
+
+    private void createGeneral(String name, ADEntityDisplay entity) {
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            entity.sendMetadataPackets(onlinePlayer);
+        }
+
+        if (entity instanceof ADBaseDisplay display) {
+            plugin.getInteractionsManager().addInteraction(display.getInteractionId(), display);
+        }
+        displays.put(name, entity);
     }
 
     public boolean removeDisplay(String name) {
@@ -170,7 +183,7 @@ public class DisplaysManager {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public void removeDisplay(ADBaseEntity display, boolean deleteFile, boolean removeFromList) {
+    public void removeDisplay(ADEntityDisplay display, boolean deleteFile, boolean removeFromList) {
         if (display.getConfigManager() != null && deleteFile) {
             display.getConfigManager().getFile().delete();
         }
@@ -184,24 +197,25 @@ public class DisplaysManager {
     }
 
     public void removeAll(boolean onReload) {
-        for (ADBaseEntity display : displays.values()) {
+        for (ADEntityDisplay display : displays.values()) {
             removeDisplay(display, !onReload, false); // false to prevent ConcurrentModificationException
         }
 
         attachDisplays.clear();
     }
 
-    public ADBaseEntity getDisplayFromMap(String name) {
+    public ADEntityDisplay getDisplayFromMap(String name) {
         return displays.get(name);
     }
 
     public void spawnDisplays(Player player) {
-        for (ADBaseEntity display : displays.values()) {
+        for (ADEntityDisplay display : displays.values()) {
             if (display.getLocation().getWorld() != player.getLocation().getWorld()) continue;
             if (display.getVisibilityManager().isVisibleByPlayer(player)) display.spawnToPlayer(player);
         }
     }
 
+    // TODO: Make sure the config has all needed values.
     public void loadDisplay(ConfigManager configManager) {
         DisplayType displayType = DisplayType.valueOf(configManager.getConfig().getString("type"));
         ConfigurationSection locationSection = Objects.requireNonNull(configManager.getConfig().getConfigurationSection("location"));
@@ -212,7 +226,7 @@ public class DisplaysManager {
         Location location = new Location(Bukkit.getWorld(world), x, y, z);
         String name = Files.getNameWithoutExtension(configManager.getFile().getName());
 
-        ADBaseEntity newDisplay = null;
+        ADEntityDisplay newDisplay = null;
         switch (displayType) {
             case BLOCK -> {
                 BlockDisplay newDisplayPacket = (BlockDisplay) packets.createEntity(EntityType.BLOCK_DISPLAY, location);
@@ -227,7 +241,9 @@ public class DisplaysManager {
                 newDisplay = new ADItemDisplay(plugin, this, configManager, name, newDisplayPacket);
             }
             case ENTITY -> {
-                // TODO
+                String entityType = configManager.getConfig().getConfigurationSection("entity").getString("type");
+                Entity newDisplayPacket = packets.createEntity(EntityType.valueOf(entityType), location);
+                newDisplay = new ADEntityDisplay(plugin, this, configManager, name, DisplayType.ENTITY, newDisplayPacket);
             }
         }
 
@@ -237,11 +253,11 @@ public class DisplaysManager {
         }
     }
 
-    public BaseEntity getDisplayFromLoc(Location location, double radius, boolean closest) {
+    public EntityDisplay getDisplayFromLoc(Location location, double radius, boolean closest) {
         double closestDistance = Math.pow(radius, 2);
-        BaseEntity closestDisplay = null;
+        EntityDisplay closestDisplay = null;
 
-        for (BaseEntity display : displays.values()) {
+        for (EntityDisplay display : displays.values()) {
             double distanceSquared = display.getLocation().distanceSquared(location);
             boolean isInRadius = distanceSquared <= Math.pow(radius, 2);
 
@@ -275,7 +291,7 @@ public class DisplaysManager {
         attachDisplays.remove(player);
     }
 
-    public Map<String, ADBaseEntity> getDisplays() {
+    public Map<String, ADEntityDisplay> getDisplays() {
         return displays;
     }
 

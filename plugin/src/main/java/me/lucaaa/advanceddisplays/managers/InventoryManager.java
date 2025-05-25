@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.managers;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
+import me.lucaaa.advanceddisplays.api.displays.EntityDisplay;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.data.EditingPlayer;
 import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
@@ -81,7 +81,7 @@ public class InventoryManager {
         editingData.clear();
     }
 
-    public void addEditingPlayer(Player player, BaseEntity display, List<EditorItem> disabledSettings) {
+    public void addEditingPlayer(Player player, EntityDisplay display, List<EditorItem> disabledSettings) {
         if (editingData.containsKey(player)) editingData.get(player).finishEditing();
         editingData.put(player, new EditingPlayer(plugin, savesConfig, player, display, disabledSettings));
     }
@@ -98,7 +98,7 @@ public class InventoryManager {
         return editingData.get(player);
     }
 
-    public void handleRemoval(BaseEntity display) {
+    public void handleRemoval(EntityDisplay display) {
         for (EditingPlayer player : editingData.values()) {
             if (player.getEditingDisplay() != display) continue;
 

@@ -23,7 +23,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements me.lucaaa.advancedd
     private String itemsAdderId;
 
     public ADBlockDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, BlockDisplay display) {
-        super(plugin, displaysManager, name, DisplayType.BLOCK, configManager, display);
+        super(plugin, displaysManager, configManager, name, DisplayType.BLOCK, display);
 
         if (settings != null) {
             if (settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {

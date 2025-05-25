@@ -30,7 +30,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     private boolean shadowed;
 
     public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, TextDisplay display) {
-        super(plugin, displaysManager, name, DisplayType.TEXT, configManager, display);
+        super(plugin, displaysManager, configManager, name, DisplayType.TEXT, display);
         this.textRunnable = new AnimatedTextRunnable(plugin, entityId);
 
         if (settings != null) {

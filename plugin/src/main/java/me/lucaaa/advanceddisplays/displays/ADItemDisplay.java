@@ -37,7 +37,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     private String itemsAdderId;
 
     public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, ItemDisplay display) {
-        super(plugin, displaysManager, name, DisplayType.ITEM, configManager, display);
+        super(plugin, displaysManager, configManager, name, DisplayType.ITEM, display);
 
         if (settings != null) {
             if (settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {

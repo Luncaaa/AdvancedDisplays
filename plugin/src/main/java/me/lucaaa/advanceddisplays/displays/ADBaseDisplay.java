@@ -18,7 +18,7 @@ import org.bukkit.util.Transformation;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
+public class ADBaseDisplay extends ADEntityDisplay implements BaseDisplay {
     protected ConfigurationSection displaySection = null;
     protected ConfigurationSection settings = null;
 
@@ -33,8 +33,8 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
     private float hitboxHeight;
     private Color glowColorOverride;
 
-    public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, ConfigManager config, Display display) {
-        super(plugin, displaysManager, name, type, config, display);
+    public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager config, String name, DisplayType type, Display display) {
+        super(plugin, displaysManager, config, name, type, display);
 
         displaySection = config.getSection("display", false, config.getConfig());
         settings = config.getSection("settings", false, displaySection);

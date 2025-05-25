@@ -5,6 +5,7 @@ import me.lucaaa.advanceddisplays.data.AttachedDisplay;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -49,6 +50,9 @@ public class CreateSubCommand extends SubCommandsFormat {
 
             } else if (args[1].equalsIgnoreCase("ATTACHED")) {
                 return Arrays.stream(AttachedDisplay.Side.values()).map(Enum::name).toList();
+
+            } else if (args[1].equalsIgnoreCase("ENTITY")) {
+                return Arrays.stream(EntityType.values()).map(Enum::name).toList();
             }
         }
 
@@ -96,6 +100,16 @@ public class CreateSubCommand extends SubCommandsFormat {
             }
         }
 
+        if (type == DisplayType.ENTITY) {
+            try {
+                // Check if the entity type exists.
+                EntityType.valueOf(value);
+            } catch (IllegalArgumentException e) {
+                sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + value + " &cis not a valid material!"));
+                return;
+            }
+        }
+
         if (type == DisplayType.BLOCK) {
             try {
                 Objects.requireNonNull(Material.getMaterial(value)).createBlockData();
@@ -109,6 +123,7 @@ public class CreateSubCommand extends SubCommandsFormat {
             case TEXT -> plugin.getDisplaysManager().createTextDisplay(player.getEyeLocation(), args[2], value.replace("\\n", "\n"), true);
             case ITEM -> plugin.getDisplaysManager().createItemDisplay(player.getEyeLocation(), args[2], Material.getMaterial(value), true);
             case BLOCK -> plugin.getDisplaysManager().createBlockDisplay(player.getEyeLocation(), args[2], Objects.requireNonNull(Material.getMaterial(value)).createBlockData(), true);
+            case ENTITY -> plugin.getDisplaysManager().createEntityDisplay(player.getEyeLocation(), args[2], EntityType.valueOf(value), true);
         }
 
         sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[2] + " &ahas been successfully created."));

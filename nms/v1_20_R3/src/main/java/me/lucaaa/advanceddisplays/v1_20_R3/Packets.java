@@ -133,16 +133,6 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void removeEntity(int entityId) {
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            CraftPlayer cp = (CraftPlayer) onlinePlayer;
-            ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-            connection.send(new ClientboundRemoveEntitiesPacket(entityId));
-        }
-    }
-
-    @Override
     public void removeEntity(int entityId, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;

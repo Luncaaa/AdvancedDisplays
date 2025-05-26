@@ -29,7 +29,6 @@ public class PlayerPacketManager extends ChannelDuplexHandler {
 
         ClickType clickType = clickEvent.clickType();
 
-        // TODO: Fix firing twice for entities even after filtering
         // Because the event is fired twice, the first time the event is run and the variable is set to "true".
         // The second time, when the variable is true, the event will be ignored.
         if (clickType == ClickType.RIGHT || clickType == ClickType.SHIFT_RIGHT) {

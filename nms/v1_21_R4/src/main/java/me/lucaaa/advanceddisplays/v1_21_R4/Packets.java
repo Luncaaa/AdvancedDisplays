@@ -19,6 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PositionMoveRotation;
@@ -89,6 +90,13 @@ public class Packets implements PacketInterface {
             Field actionField = packet.getClass().getDeclaredField("c");
             actionField.setAccessible(true);
             Object action = actionField.get(packet);
+
+            Field handField = action.getClass().getDeclaredField("a");
+            handField.setAccessible(true);
+            Enum<?> hand = (Enum<?>) handField.get(action);
+            // Prevents interaction event from being fired twice (once for main and once for off hand).
+            if (hand == InteractionHand.OFF_HAND) return null;
+
             Method getActionTypeMethod = action.getClass().getDeclaredMethod("a");
             getActionTypeMethod.setAccessible(true);
             int clickTypeNumber = ((Enum<?>) getActionTypeMethod.invoke(action)).ordinal();

@@ -58,14 +58,17 @@ public class PlayerInv {
         }
 
         // ---[ GLOBAL BUTTONS ]----
-        buttons.put(6, new Button.PlayerButton<>(items.CHANGE_ROW) {
-            @Override
-            public void onClick(PlayerInteractEvent event) {
-                currentRow = getItem().changeValue();
-                player.getInventory().setItem(8, getItem().getStack());
-                setContents(currentRow);
-            }
-        });
+        // Entity displays don't have more rows.
+        if (isDisplay) {
+            buttons.put(6, new Button.PlayerButton<>(items.CHANGE_ROW) {
+                @Override
+                public void onClick(PlayerInteractEvent event) {
+                    currentRow = getItem().changeValue();
+                    player.getInventory().setItem(8, getItem().getStack());
+                    setContents(currentRow);
+                }
+            });
+        }
 
         buttons.put(7, new Button.PlayerButton<>(items.OPEN_GUI) {
             @Override
@@ -98,7 +101,8 @@ public class PlayerInv {
         if (buttons.containsKey(slot)) {
             buttons.get(slot).onClick(event);
         } else {
-            rows.get(currentRow).get(slot).onClick(event);
+            Button.PlayerButton<?> button = rows.get(currentRow).get(slot);
+            if (button != null) button.onClick(event);
         }
     }
 
@@ -135,10 +139,10 @@ public class PlayerInv {
 
     private void addLeftRotButtons() {
         Map<Integer, Button.PlayerButton<?>> leftRotationMap = new HashMap<>();
-        BaseDisplay display = (BaseDisplay) entity;
 
         if (isDisplay) {
             InventoryItems.DisplayItems items = (InventoryItems.DisplayItems) this.items;
+            BaseDisplay display = (BaseDisplay) entity;
 
             leftRotationMap.put(0, getCheckedAllowed(EditorItem.LEFT_ROTATION, new Button.PlayerButton<>(items.LEFT_ROTATION_X) {
                 @Override

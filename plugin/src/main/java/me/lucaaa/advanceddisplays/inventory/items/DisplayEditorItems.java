@@ -91,12 +91,12 @@ public class DisplayEditorItems {
                 REFRESH_TIME = new Item.StepItem(Material.NAME_TAG, "Refresh time", List.of("Changes how often placeholders update", "Value must be in ticks"), textDisplay.getRefreshTime(), 10.0, 1.0);
             }
             case ITEM -> {
-                CURRENT_VALUE = new Item.ClickableItem(((ItemDisplay) display).getItem(), "Display item", List.of("The item that is being displayed"), ((ItemDisplay) display).getItem().getType().name());
+                CURRENT_VALUE = new Item.ClickableItem(((ItemDisplay) display).getItem(), "Display item", List.of("The item that is being displayed", "", "&7Click to edit"), ((ItemDisplay) display).getItem().getType().name());
                 ITEM_TRANSFORMATION = new Item.EnumItem(Material.ARMOR_STAND, "Item model transform", "Changes how the displayed item is shown", ((ItemDisplay) display).getItemTransformation());
                 ENCHANTED = new Item.BooleanItem(Material.ENCHANTED_BOOK, "Enchanted", "Changes whether the enchanted effect is visible or not", ((ItemDisplay) display).isEnchanted());
             }
             case BLOCK -> {
-                CURRENT_VALUE = new Item.ClickableItem(((BlockDisplay) display).getBlock().getMaterial(), "Display block", "The block that is being displayed");
+                CURRENT_VALUE = new Item.ClickableItem(((BlockDisplay) display).getBlock().getMaterial(), "Display block", List.of("The block that is being displayed", "", "&7Click to edit"), ((BlockDisplay) display).getBlock().getMaterial().name());
                 BLOCK_DATA = new Item.ClickableItem(Material.COMMAND_BLOCK, "Block data", "Changes values that makes the block look different", ((BlockDisplay) display).getBlock().toString());
             } // Block data will be set in the EditorGUI class once it's opened.
             default -> CURRENT_VALUE = new Item.ClickableItem(Material.BARRIER, "&cUnextected error", "&7Report to developer.");

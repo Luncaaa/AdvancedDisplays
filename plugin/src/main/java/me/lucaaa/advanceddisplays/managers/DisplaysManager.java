@@ -6,7 +6,6 @@ import me.lucaaa.advanceddisplays.api.displays.EntityDisplay;
 import me.lucaaa.advanceddisplays.data.AttachedDisplay;
 import me.lucaaa.advanceddisplays.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
-import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -14,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -23,16 +23,18 @@ import java.util.logging.Level;
 
 public class DisplaysManager {
     private final AdvancedDisplays plugin;
-    private final PacketInterface packets;
+    private final String pluginName;
     private final String configsFolder;
     private final boolean isApi;
     private final Map<String, ADEntityDisplay> displays = new HashMap<>();
     private final Map<Player, AttachedDisplay> attachDisplays = new HashMap<>();
 
+    private int failedLoads = 0;
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public DisplaysManager(AdvancedDisplays plugin, String pluginName, boolean createFolders, boolean isApi) {
         this.plugin = plugin;
-        this.packets = plugin.getPacketsManager().getPackets();
+        this.pluginName = pluginName;
         this.configsFolder = (isApi) ? "displays" + File.separator + pluginName : "displays";
         this.isApi = isApi;
 
@@ -96,7 +98,7 @@ public class DisplaysManager {
             location = AttachedDisplay.addSides(clickedFace, event.getClickedBlock().getLocation(), pos, false);
         }
 
-        ADTextDisplay newDisplay = createTextDisplay(location, display.name(), display.content(), display.saveToConfig());
+        ADTextDisplay newDisplay = (ADTextDisplay) createDisplay(DisplayType.TEXT, location, display.name(), display.content(), display.saveToConfig());
 
         if (newDisplay != null) {
             newDisplay.setBillboard(Display.Billboard.FIXED);
@@ -107,69 +109,32 @@ public class DisplaysManager {
         return newDisplay;
     }
 
-    public ADTextDisplay createTextDisplay(Location location, String name, String value, boolean saveToConfig) {
+    public ADEntityDisplay createDisplay(DisplayType type, Location location, String name, Object value, boolean saveToConfig) {
         if (displays.containsKey(name)) {
             return null;
         }
 
-        TextDisplay newDisplayPacket = (TextDisplay) packets.createEntity(EntityType.TEXT_DISPLAY, location);
-        ADTextDisplay display = new ADTextDisplay(plugin, this, name, newDisplayPacket, saveToConfig).create(value);
-        createGeneral(name, display);
-        return display;
-    }
+        ADEntityDisplay display = switch (type) {
+            case BLOCK -> new ADBlockDisplay(plugin, this, name, location, saveToConfig).create((BlockData) value);
+            case ENTITY -> new ADEntityDisplay(plugin, this, name, DisplayType.ENTITY, (EntityType) value, location, saveToConfig).create();
+            case ITEM -> new ADItemDisplay(plugin, this, name, location, saveToConfig).create((Material) value);
+            case TEXT -> {
+                ADTextDisplay textDisplay = new ADTextDisplay(plugin, this, name, location, saveToConfig);
+                if (value instanceof Component) {
+                    yield textDisplay.create((Component) value);
+                } else {
+                    yield textDisplay.create((String) value);
+                }
+            }
+        };
 
-    public ADTextDisplay createTextDisplay(Location location, String name, Component value, boolean saveToConfig) {
-        if (displays.containsKey(name)) {
-            return null;
-        }
-
-        TextDisplay newDisplayPacket = (TextDisplay) packets.createEntity(EntityType.TEXT_DISPLAY, location);
-        ADTextDisplay display = new ADTextDisplay(plugin, this, name, newDisplayPacket, saveToConfig).create(value);
-        createGeneral(name, display);
-        return display;
-    }
-
-    public ADItemDisplay createItemDisplay(Location location, String name, Material value, boolean saveToConfig) {
-        if (displays.containsKey(name)) {
-            return null;
-        }
-
-        ItemDisplay newDisplayPacket = (ItemDisplay) packets.createEntity(EntityType.ITEM_DISPLAY, location);
-        ADItemDisplay display = new ADItemDisplay(plugin, this, name, newDisplayPacket, saveToConfig).create(value);
-        createGeneral(name, display);
-        return display;
-    }
-
-    public ADBlockDisplay createBlockDisplay(Location location, String name, BlockData value, boolean saveToConfig) {
-        if (displays.containsKey(name)) {
-            return null;
-        }
-
-        BlockDisplay newDisplayPacket = (BlockDisplay) packets.createEntity(EntityType.BLOCK_DISPLAY, location);
-        ADBlockDisplay display = new ADBlockDisplay(plugin, this, name, newDisplayPacket, saveToConfig).create(value);
-        createGeneral(name, display);
-        return display;
-    }
-
-    public ADEntityDisplay createEntityDisplay(Location location, String name, EntityType value, boolean saveToConfig) {
-        if (displays.containsKey(name)) {
-            return null;
-        }
-
-        Entity newDisplayPacket = packets.createEntity(value, location);
-        ADEntityDisplay display = new ADEntityDisplay(plugin, this, name, DisplayType.ENTITY, newDisplayPacket, saveToConfig).create(value);
-        createGeneral(name, display);
-        return display;
-    }
-
-    private void createGeneral(String name, ADEntityDisplay entity) {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            entity.sendMetadataPackets(onlinePlayer);
+            display.sendMetadataPackets(onlinePlayer);
         }
 
-        plugin.getInteractionsManager().addInteraction(entity.getInteractionId(), entity);
-
-        displays.put(name, entity);
+        plugin.getInteractionsManager().addInteraction(display.getInteractionId(), display);
+        displays.put(name, display);
+        return display;
     }
 
     public boolean removeDisplay(String name) {
@@ -214,36 +179,53 @@ public class DisplaysManager {
         }
     }
 
-    // TODO: Make sure the config has all needed values.
     public void loadDisplay(ConfigManager configManager) {
-        DisplayType displayType = DisplayType.valueOf(configManager.getConfig().getString("type"));
-        ConfigurationSection locationSection = Objects.requireNonNull(configManager.getConfig().getConfigurationSection("location"));
-        String world = locationSection.getString("world", "world");
-        double x = locationSection.getDouble("x");
-        double y = locationSection.getDouble("y");
-        double z = locationSection.getDouble("z");
-        Location location = new Location(Bukkit.getWorld(world), x, y, z);
         String name = Files.getNameWithoutExtension(configManager.getFile().getName());
+        if (!hasValidLocation(name, configManager)) {
+            failedLoads++;
+            return;
+        }
 
-        ADEntityDisplay newDisplay = null;
-        switch (displayType) {
-            case BLOCK -> {
-                BlockDisplay newDisplayPacket = (BlockDisplay) packets.createEntity(EntityType.BLOCK_DISPLAY, location);
-                newDisplay = new ADBlockDisplay(plugin, this, configManager, name, newDisplayPacket);
-            }
-            case TEXT -> {
-                TextDisplay newDisplayPacket = (TextDisplay) packets.createEntity(EntityType.TEXT_DISPLAY, location);
-                newDisplay = new ADTextDisplay(plugin, this, configManager, name, newDisplayPacket);
-            }
-            case ITEM -> {
-                ItemDisplay newDisplayPacket = (ItemDisplay) packets.createEntity(EntityType.ITEM_DISPLAY, location);
-                newDisplay = new ADItemDisplay(plugin, this, configManager, name, newDisplayPacket);
-            }
+        String configDisplayType = configManager.getConfig().getString("type");
+        DisplayType displayType;
+        if (configDisplayType == null) {
+            plugin.log(Level.WARNING, getMessage(name, "does not have a display type set!"));
+            failedLoads++;
+            return;
+        }
+
+        try {
+            displayType = DisplayType.valueOf(configDisplayType);
+        } catch (IllegalArgumentException e) {
+            plugin.log(Level.WARNING, getMessage(name, "has an invalid display type set: " + configDisplayType));
+            failedLoads++;
+            return;
+        }
+
+        ADEntityDisplay newDisplay = switch (displayType) {
+            case BLOCK -> new ADBlockDisplay(plugin, this, configManager, name);
+            case TEXT -> new ADTextDisplay(plugin, this, configManager, name);
+            case ITEM -> new ADItemDisplay(plugin, this, configManager, name);
             case ENTITY -> {
-                String entityType = configManager.getConfig().getConfigurationSection("entity").getString("type");
-                Entity newDisplayPacket = packets.createEntity(EntityType.valueOf(entityType), location);
-                newDisplay = new ADEntityDisplay(plugin, this, configManager, name, DisplayType.ENTITY, newDisplayPacket);
+                String configType = configManager.getSection("entity").getString("type");
+                if (configType == null) {
+                    plugin.log(Level.WARNING, getMessage(name, "does not have an entity type set!"));
+                    yield null;
+                }
+
+                try {
+                    yield new ADEntityDisplay(plugin, this, configManager, name, DisplayType.ENTITY, EntityType.valueOf(configType));
+                } catch (IllegalArgumentException e) {
+                    plugin.log(Level.WARNING, getMessage(name, "has an invalid entity type set: " + configType));
+                    yield null;
+                }
+
             }
+        };
+
+        if (newDisplay == null) {
+            failedLoads++;
+            return;
         }
 
         displays.put(configManager.getFile().getName().replace(".yml", ""), newDisplay);
@@ -305,5 +287,47 @@ public class DisplaysManager {
 
     public boolean isApi() {
         return isApi;
+    }
+
+    private boolean hasValidLocation(String name, ConfigManager configManager) {
+        List<String> errors = new ArrayList<>();
+
+        YamlConfiguration config = configManager.getConfig();
+        ConfigurationSection locationSection = config.getConfigurationSection("location");
+        if (locationSection == null) {
+            errors.add("Missing \"location\" section. An empty one has been created for you.");
+            locationSection = config.createSection("location");
+            configManager.save();
+        }
+
+        String world = locationSection.getString("world");
+        if (world == null) {
+            errors.add("Missing \"world\" field.");
+        } else if (plugin.getServer().getWorld(world) == null) {
+            errors.add("Invalid \"world\" field - World not found: " + world);
+        }
+
+        for (String field : List.of("x", "y", "z")) {
+            if (!locationSection.isDouble(field)) {
+                errors.add("Missing \"" + field + "\" field or invalid type - must be a double.");
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            plugin.log(Level.WARNING, "=".repeat(25));
+            plugin.log(Level.SEVERE, getMessage(name, "has an invalid location:"));
+            errors.forEach(error -> plugin.log(Level.WARNING, error));
+            plugin.log(Level.WARNING, "=".repeat(25));
+        }
+
+        return errors.isEmpty();
+    }
+
+    private String getMessage(String name, String message) {
+        return "The display \"" + name + "\" for plugin \"" + pluginName + "\" " + message;
+    }
+
+    public int getFailedLoads() {
+        return failedLoads;
     }
 }

@@ -51,7 +51,7 @@ public class ADEntityDisplay extends Ticking implements EntityDisplay {
     protected boolean isGlowing;
     protected ChatColor glowColor;
 
-    public ADEntityDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager config, String name, DisplayType type, Entity entity) {
+    public ADEntityDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager config, String name, DisplayType type, EntityType entityType) {
         super(plugin);
         startTicking();
 
@@ -61,9 +61,7 @@ public class ADEntityDisplay extends Ticking implements EntityDisplay {
         this.packets = plugin.getPacketsManager().getPackets();
         this.name = name;
         this.type = type;
-        this.entity = entity;
-        this.entityType = entity.getType();
-        this.entityId = entity.getEntityId();
+        this.entityType = entityType;
         this.isApi = displaysManager.isApi();
 
         this.config = config;
@@ -72,23 +70,27 @@ public class ADEntityDisplay extends Ticking implements EntityDisplay {
 
         this.entitySection = config.getSection("entity", false, config.getConfig());
 
+        ConfigurationSection rotationSection = config.getSection("rotation");
+        this.yaw = (float) config.getOrDefault("yaw", 0.0, rotationSection).doubleValue();
+        this.pitch = (float) config.getOrDefault("pitch", 0.0, rotationSection).doubleValue();
+
+        // Location is already validated.
         ConfigurationSection locationSection = config.getSection("location");
         String world = locationSection.getString("world", Bukkit.getWorlds().get(0).getName());
         double x = locationSection.getDouble("x");
         double y = locationSection.getDouble("y");
         double z = locationSection.getDouble("z");
-        this.location = new Location(Bukkit.getWorld(world), x, y, z);
-
-        ConfigurationSection rotationSection = config.getSection("rotation");
-        this.yaw = (float) config.getOrDefault("yaw", 0.0, rotationSection).doubleValue();
-        this.pitch = (float) config.getOrDefault("pitch", 0.0, rotationSection).doubleValue();
+        this.location = new Location(Bukkit.getWorld(world), x, y, z, yaw, pitch);
 
         ConfigurationSection glowSection = config.getSection("glow", entitySection);
         this.isGlowing = config.getOrDefault("glowing", false, glowSection);
         this.glowColor = ChatColor.valueOf(config.getOrDefault("color", ChatColor.GOLD.name(), glowSection));
+
+        this.entity = packets.createEntity(entityType, location);
+        this.entityId = entity.getEntityId();
     }
 
-    public ADEntityDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, Entity entity, boolean saveToConfig) {
+    public ADEntityDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, EntityType entityType, Location location, boolean saveToConfig) {
         super(plugin);
         startTicking();
 
@@ -98,26 +100,26 @@ public class ADEntityDisplay extends Ticking implements EntityDisplay {
         this.packets = plugin.getPacketsManager().getPackets();
         this.name = name;
         this.type = type;
-        this.entity = entity;
-        this.entityType = entity.getType();
+        this.entity = packets.createEntity(entityType, location);
+        this.entityType = entityType;
         this.entityId = entity.getEntityId();
         this.isApi = displaysManager.isApi();
 
-        this.config = (saveToConfig) ? createConfig(entity.getLocation()) : null;
+        this.config = (saveToConfig) ? createConfig(location) : null;
         this.actionsHandler = new ActionsHandler(plugin, this, config);
         this.visibilityManager = new ADVisibilityManager(plugin, this);
+
+        this.location = location;
+        this.yaw = location.getYaw();
+        this.pitch = location.getPitch();
+        this.isGlowing = entity.isGlowing();
+        this.glowColor = ChatColor.GOLD;
 
         // Even though it may have been set by the createConfig() method, they are set back to "null"
         // Again when the body of this constructor starts running.
         if (config != null) {
             entitySection = config.getSection("entity", false, config.getConfig());
         }
-
-        this.location = entity.getLocation();
-        this.yaw = entity.getLocation().getYaw();
-        this.pitch = entity.getLocation().getPitch();
-        this.isGlowing = entity.isGlowing();
-        this.glowColor = ChatColor.GOLD;
     }
 
     protected ConfigManager createConfig(Location location) {
@@ -164,14 +166,13 @@ public class ADEntityDisplay extends Ticking implements EntityDisplay {
     }
 
     public void sendMetadataPackets(Player player) {
-        packets.setLocation(entity, player);
-        packets.setRotation(entityId, yaw, pitch, player);
+        packets.setLocation(entity, location, player);
         packets.setGlowing(entity, isGlowing, glowColor, player);
     }
 
-    public ADEntityDisplay create(EntityType type) {
+    public ADEntityDisplay create() {
         if (config != null) {
-            entitySection.set("type", type.name());
+            entitySection.set("type", entityType.name());
             save();
         }
 
@@ -235,9 +236,8 @@ public class ADEntityDisplay extends Ticking implements EntityDisplay {
         location.setPitch(pitch);
 
         if (this.location.getWorld() == location.getWorld()) {
-            entity.teleport(location);
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                packets.setLocation(entity, onlinePlayer);
+                packets.setLocation(entity, location, onlinePlayer);
             }
         } else {
             // Because entities cannot be teleported across worlds, the old one is removed and a new one is created
@@ -304,7 +304,10 @@ public class ADEntityDisplay extends Ticking implements EntityDisplay {
     }
     @Override
     public void setRotation(float yaw, float pitch, Player player) {
-        packets.setRotation(entityId, yaw, pitch, player);
+        Location loc = location.clone();
+        loc.setYaw(yaw);
+        loc.setPitch(pitch);
+        packets.setLocation(entity, loc, player);
     }
 
     @Override

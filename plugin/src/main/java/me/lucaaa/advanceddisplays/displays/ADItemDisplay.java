@@ -12,6 +12,7 @@ import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -37,8 +38,8 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     private String oraxenId;
     private String itemsAdderId;
 
-    public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, ItemDisplay display) {
-        super(plugin, displaysManager, configManager, name, DisplayType.ITEM, display);
+    public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name) {
+        super(plugin, displaysManager, configManager, name, DisplayType.ITEM, EntityType.ITEM_DISPLAY);
 
         if (settings != null) {
             if (settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
@@ -69,8 +70,8 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
         }
     }
 
-    public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, ItemDisplay display, boolean saveToConfig) {
-        super(plugin, displaysManager, name, DisplayType.ITEM, display, saveToConfig);
+    public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, Location location, boolean saveToConfig) {
+        super(plugin, displaysManager, name, DisplayType.ITEM, EntityType.ITEM_DISPLAY, location, saveToConfig);
     }
 
     @Override

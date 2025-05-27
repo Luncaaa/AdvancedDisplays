@@ -6,10 +6,11 @@ import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -22,8 +23,8 @@ public class ADBlockDisplay extends ADBaseDisplay implements me.lucaaa.advancedd
     private String oraxenId;
     private String itemsAdderId;
 
-    public ADBlockDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, BlockDisplay display) {
-        super(plugin, displaysManager, configManager, name, DisplayType.BLOCK, display);
+    public ADBlockDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name) {
+        super(plugin, displaysManager, configManager, name, DisplayType.BLOCK, EntityType.BLOCK_DISPLAY);
 
         if (settings != null) {
             if (settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
@@ -49,8 +50,8 @@ public class ADBlockDisplay extends ADBaseDisplay implements me.lucaaa.advancedd
         }
     }
 
-    public ADBlockDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, BlockDisplay display, boolean saveToConfig) {
-        super(plugin, displaysManager, name, DisplayType.BLOCK, display, saveToConfig);
+    public ADBlockDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, Location location, boolean saveToConfig) {
+        super(plugin, displaysManager, name, DisplayType.BLOCK, EntityType.BLOCK_DISPLAY, location, saveToConfig);
     }
 
     @Override

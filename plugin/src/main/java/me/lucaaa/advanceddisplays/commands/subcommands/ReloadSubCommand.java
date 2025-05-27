@@ -17,6 +17,15 @@ public class ReloadSubCommand extends SubCommandsFormat {
     @Override
     public void run(CommandSender sender, String[] args) {
         plugin.reloadConfigs();
-        sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe configuration file has been reloaded successfully."));
+
+        int failedLoads = plugin.getDisplaysManager().getFailedLoads();
+
+        String message;
+        if (failedLoads > 0) {
+            message =  "&eThe configuration files have been reloaded, but &6" + failedLoads + " &edisplay(s) have failed to load! Check console for more information.";
+        } else {
+            message = "&aThe configuration files have been reloaded successfully.";
+        }
+        sender.sendMessage(plugin.getMessagesManager().getColoredMessage(message));
     }
 }

@@ -170,19 +170,15 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void setLocation(Entity entity, Player player) {
+    public void setLocation(Entity entity, Location location, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
+        net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) entity).getHandle();
 
+        nmsEntity.setPos(location.getX(), location.getY(), location.getZ());
+        nmsEntity.setRot(location.getYaw(), location.getPitch());
+        nmsEntity.setYHeadRot(location.getYaw());
         connection.send(new ClientboundTeleportEntityPacket(((CraftEntity) entity).getHandle()));
-    }
-
-    @Override
-    public void setRotation(int displayId, float yaw, float pitch, Player player) {
-        CraftPlayer cp = (CraftPlayer) player;
-        ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-        connection.send(new ClientboundMoveEntityPacket.Rot(displayId, (byte) ((yaw / 360.0) * 256), (byte) ((pitch / 360.0) * 256), false));
     }
 
     @Override

@@ -9,7 +9,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 
@@ -31,8 +33,8 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     private boolean seeThrough;
     private boolean shadowed;
 
-    public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name, TextDisplay display) {
-        super(plugin, displaysManager, configManager, name, DisplayType.TEXT, display);
+    public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name) {
+        super(plugin, displaysManager, configManager, name, DisplayType.TEXT, EntityType.TEXT_DISPLAY);
         this.textRunnable = new AnimatedTextRunnable(plugin, entityId);
 
         if (settings != null) {
@@ -70,8 +72,8 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
         }
     }
 
-    public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, TextDisplay display, boolean saveToConfig) {
-        super(plugin, displaysManager, name, DisplayType.TEXT, display, saveToConfig);
+    public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, Location location, boolean saveToConfig) {
+        super(plugin, displaysManager, name, DisplayType.TEXT, EntityType.TEXT_DISPLAY, location, saveToConfig);
         this.textRunnable = new AnimatedTextRunnable(plugin, entityId);
     }
 

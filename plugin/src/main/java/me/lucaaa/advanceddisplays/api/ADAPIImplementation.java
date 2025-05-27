@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.api;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.*;
+import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.displays.ADEntityDisplay;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import net.kyori.adventure.text.Component;
@@ -27,35 +28,35 @@ public class ADAPIImplementation implements ADAPI {
 
     @Override
     public BlockDisplay createBlockDisplay(String name, Location location, BlockData value, boolean saveToConfig) {
-        BlockDisplay display = displaysManager.createBlockDisplay(location, name, value, saveToConfig);
+        BlockDisplay display = (BlockDisplay) displaysManager.createDisplay(DisplayType.BLOCK, location, name, value, saveToConfig);
         if (display == null) logWarning(name);
         return display;
     }
 
     @Override
     public ItemDisplay createItemDisplay(String name, Location location, Material value, boolean saveToConfig) {
-        ItemDisplay display = displaysManager.createItemDisplay(location, name, value, saveToConfig);
+        ItemDisplay display = (ItemDisplay) displaysManager.createDisplay(DisplayType.ITEM, location, name, value, saveToConfig);
         if (display == null) logWarning(name);
         return display;
     }
 
     @Override
     public TextDisplay createTextDisplay(String name, Location location, List<String> value, boolean saveToConfig) {
-        TextDisplay display = displaysManager.createTextDisplay(location, name, String.join("\n", value), saveToConfig);
+        TextDisplay display = (TextDisplay) displaysManager.createDisplay(DisplayType.TEXT, location, name, String.join("\n", value), saveToConfig);
         if (display == null) logWarning(name);
         return display;
     }
 
     @Override
     public TextDisplay createTextDisplay(String name, Location location, Component value, boolean saveToConfig) {
-        TextDisplay display = displaysManager.createTextDisplay(location, name, value, saveToConfig);
+        TextDisplay display = (TextDisplay) displaysManager.createDisplay(DisplayType.TEXT, location, name, value, saveToConfig);
         if (display == null) logWarning(name);
         return display;
     }
 
     @Override
     public EntityDisplay createEntityDisplay(String name, Location location, EntityType value, boolean saveToConfig) {
-        EntityDisplay display = displaysManager.createEntityDisplay(location, name, value, saveToConfig);
+        EntityDisplay display = displaysManager.createDisplay(DisplayType.ENTITY, location, name, value, saveToConfig);
         if (display == null) logWarning(name);
         return display;
     }

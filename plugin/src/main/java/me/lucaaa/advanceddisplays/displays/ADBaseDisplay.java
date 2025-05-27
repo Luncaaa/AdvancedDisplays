@@ -34,8 +34,8 @@ public class ADBaseDisplay extends ADEntityDisplay implements BaseDisplay {
     private float hitboxHeight;
     private Color glowColorOverride;
 
-    public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager config, String name, DisplayType type, Display display) {
-        super(plugin, displaysManager, config, name, type, display);
+    public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager config, String name, DisplayType type, EntityType entityType) {
+        super(plugin, displaysManager, config, name, type, entityType);
 
         displaySection = config.getSection("display", false, config.getConfig());
         settings = config.getSection("settings", false, displaySection);
@@ -43,18 +43,18 @@ public class ADBaseDisplay extends ADEntityDisplay implements BaseDisplay {
         this.billboard = Display.Billboard.valueOf(config.getOrDefault("billboard", "FIXED", displaySection));
 
         ConfigurationSection brightnessSection = config.getSection("brightness", displaySection);
-        this.brightness = new Display.Brightness(brightnessSection.getInt("block"), brightnessSection.getInt("sky"));
+        this.brightness = new Display.Brightness(config.getOrDefault("block", 15, brightnessSection), config.getOrDefault("sky", 15, brightnessSection));
 
         ConfigurationSection shadowSection = config.getSection("shadow", displaySection);
-        this.shadowRadius = (float) shadowSection.getDouble("radius");
-        this.shadowStrength = (float) shadowSection.getDouble("strength");
+        this.shadowRadius = (float) config.getOrDefault("radius", 1.0, shadowSection).doubleValue();
+        this.shadowStrength = (float) config.getOrDefault("strength", 1.0, shadowSection).doubleValue();
 
         ConfigurationSection transformationSection = config.getSection("transformation", displaySection);
         this.transformation = new Transformation(
-                new ConfigVector3f(Objects.requireNonNull(transformationSection.getConfigurationSection("translation")).getValues(false)).toVector3f(),
-                new ConfigAxisAngle4f(Objects.requireNonNull(transformationSection.getConfigurationSection("leftRotation")).getValues(false)).toAxisAngle4f(),
-                new ConfigVector3f(Objects.requireNonNull(transformationSection.getConfigurationSection("scale")).getValues(false)).toVector3f(),
-                new ConfigAxisAngle4f(Objects.requireNonNull(transformationSection.getConfigurationSection("rightRotation")).getValues(false)).toAxisAngle4f()
+                new ConfigVector3f(config.getSection("translation", transformationSection).getValues(false)).toVector3f(),
+                new ConfigAxisAngle4f(config.getSection("leftRotation", transformationSection).getValues(false)).toAxisAngle4f(),
+                new ConfigVector3f(config.getSection("scale", transformationSection).getValues(false)).toVector3f(),
+                new ConfigAxisAngle4f(config.getSection("rightRotation", transformationSection).getValues(false)).toAxisAngle4f()
         );
 
         Location location1 = location.clone();
@@ -64,17 +64,19 @@ public class ADBaseDisplay extends ADEntityDisplay implements BaseDisplay {
             location1.add(x1, 0.0, z1);
         }
         this.hitbox = (Interaction) packets.createEntity(EntityType.INTERACTION, location1);
+
         ConfigurationSection hitboxSection = config.getSection("hitbox", displaySection);
-        this.overrideHitboxSize = hitboxSection.getBoolean("override");
-        this.hitboxWidth = (float) hitboxSection.getDouble("width");
-        this.hitboxHeight = (float) hitboxSection.getDouble("height");
+        this.overrideHitboxSize = config.getOrDefault("override", false, hitboxSection);
+        this.hitboxWidth = (float) config.getOrDefault("width", 1.0, hitboxSection).doubleValue();
+        this.hitboxHeight = (float) config.getOrDefault("height", 1.0, hitboxSection).doubleValue();
 
         String[] colorParts = config.getOrDefault("glowColorOverride", "255;170;0", displaySection).split(";");
         this.glowColorOverride = Color.fromRGB(Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]));
     }
 
-    public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, Display display, boolean saveToConfig) {
-        super(plugin, displaysManager, name, type, display, saveToConfig);
+    public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, EntityType entityType, Location location, boolean saveToConfig) {
+        super(plugin, displaysManager, name, type, entityType, location, saveToConfig);
+        Display display = (Display) entity;
 
         this.billboard = Display.Billboard.CENTER; // Text displays will be easier to spot.
         this.brightness = new Display.Brightness(15, 15);
@@ -197,8 +199,8 @@ public class ADBaseDisplay extends ADEntityDisplay implements BaseDisplay {
             }
             hitbox.teleport(location1);
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                packets.setLocation(entity, onlinePlayer);
-                packets.setLocation(hitbox, onlinePlayer);
+                packets.setLocation(entity, location, onlinePlayer);
+                packets.setLocation(hitbox, location1, onlinePlayer);
             }
         } else {
             // Because entities cannot be teleported across worlds, the old one is removed and a new one is created
@@ -334,7 +336,7 @@ public class ADBaseDisplay extends ADEntityDisplay implements BaseDisplay {
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             setTransformation(transformation, onlinePlayer);
-            packets.setLocation(hitbox, onlinePlayer);
+            packets.setLocation(hitbox, location, onlinePlayer);
         }
 
     }

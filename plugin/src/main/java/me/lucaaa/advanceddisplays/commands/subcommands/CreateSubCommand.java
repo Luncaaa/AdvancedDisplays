@@ -119,12 +119,14 @@ public class CreateSubCommand extends SubCommandsFormat {
             }
         }
 
-        switch (type) {
-            case TEXT -> plugin.getDisplaysManager().createTextDisplay(player.getEyeLocation(), args[2], value.replace("\\n", "\n"), true);
-            case ITEM -> plugin.getDisplaysManager().createItemDisplay(player.getEyeLocation(), args[2], Material.getMaterial(value), true);
-            case BLOCK -> plugin.getDisplaysManager().createBlockDisplay(player.getEyeLocation(), args[2], Objects.requireNonNull(Material.getMaterial(value)).createBlockData(), true);
-            case ENTITY -> plugin.getDisplaysManager().createEntityDisplay(player.getLocation(), args[2], EntityType.valueOf(value), true);
-        }
+        Object parsedValue = switch (type) {
+            case BLOCK -> Objects.requireNonNull(Material.getMaterial(value)).createBlockData();
+            case ENTITY -> EntityType.valueOf(value);
+            case ITEM -> Material.getMaterial(value);
+            case TEXT -> value.replace("\\n", "\n");
+        };
+
+        plugin.getDisplaysManager().createDisplay(type, player.getEyeLocation(), args[2], parsedValue, true);
 
         sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[2] + " &ahas been successfully created."));
     }

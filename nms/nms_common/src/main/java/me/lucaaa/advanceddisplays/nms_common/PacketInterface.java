@@ -28,8 +28,7 @@ public interface PacketInterface {
 
     // --[ Modify displays ]--
     // -[ General ]-
-    void setLocation(Entity entity, Player player);
-    void setRotation(int displayId, float yaw, float pitch, Player player);
+    void setLocation(Entity entity, Location location, Player player);
     void setGlowing(Entity entity, boolean isGlowing, ChatColor color, Player player);
 
     // - [ Metadata ]-

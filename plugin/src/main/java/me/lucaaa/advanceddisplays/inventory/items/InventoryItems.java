@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.inventory.items;
 
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
-import me.lucaaa.advanceddisplays.api.displays.EntityDisplay;
+import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import me.lucaaa.advanceddisplays.inventory.inventories.PlayerInv;
 import org.bukkit.Material;
 import org.bukkit.util.Transformation;
@@ -21,7 +21,7 @@ public class InventoryItems {
     public final Item.EnumItem CHANGE_ROW;
     // ---
 
-    public InventoryItems(EntityDisplay entity) {
+    public InventoryItems(BaseEntity entity) {
         YAW = new Item.StepItem(Material.SLIME_BALL, "Yaw", "Changes the display's yaw", entity.getYaw(), 10.0, 1.0, true);
         PITCH = new Item.StepItem(Material.FIRE_CHARGE, "Pitch", "Changes the display's pitch", entity.getPitch(), 10.0, 1.0, true);
 

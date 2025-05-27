@@ -137,7 +137,7 @@ public interface ADAPI {
      * @param value The entity that will be displayed.
      * @return The created display or null if a display with that name already exists.
      */
-    default EntityDisplay createEntityDisplay(String name, Location location, EntityType value) {
+    default BaseEntity createEntityDisplay(String name, Location location, EntityType value) {
         return createEntityDisplay(name, location, value, false);
     }
 
@@ -152,14 +152,14 @@ public interface ADAPI {
      * @param saveToConfig Whether the display should be saved in a file or not.
      * @return The created display or null if a display with that name already exists.
      */
-    EntityDisplay createEntityDisplay(String name, Location location, EntityType value, boolean saveToConfig);
+    BaseEntity createEntityDisplay(String name, Location location, EntityType value, boolean saveToConfig);
 
     /**
      * Gets a previously created display.
      * @param name The name of the display.
      * @return The display if it exists, null if it doesn't.
      */
-    EntityDisplay getDisplay(String name);
+    BaseEntity getDisplay(String name);
 
     /**
      * Gets a display within a specific distance from the given location.
@@ -167,7 +167,7 @@ public interface ADAPI {
      * @param radius The maximum distance.
      * @return A display within a specific distance from the given location or null if none found.
      */
-    default EntityDisplay getDisplayFromLoc(Location location, double radius) {
+    default BaseEntity getDisplayFromLoc(Location location, double radius) {
         return getDisplayFromLoc(location, radius, true);
     }
 
@@ -178,7 +178,7 @@ public interface ADAPI {
      * @param closest Whether the display should be the closest one to the given location or the first one found.
      * @return A display within a specific distance from the given location or null if none found.
      */
-    EntityDisplay getDisplayFromLoc(Location location, double radius, boolean closest);
+    BaseEntity getDisplayFromLoc(Location location, double radius, boolean closest);
 
     /**
      * Removes a previously created display. Deletes the entity from the world and removes the display from the list.

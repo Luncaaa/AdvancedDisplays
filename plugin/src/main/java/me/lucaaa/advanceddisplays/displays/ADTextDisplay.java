@@ -73,7 +73,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
 
     public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, Location location, boolean saveToConfig) {
-        super(plugin, displaysManager, name, DisplayType.TEXT, EntityType.TEXT_DISPLAY, location, saveToConfig);
+        super(plugin, displaysManager, name, location, DisplayType.TEXT, EntityType.TEXT_DISPLAY, saveToConfig);
         this.textRunnable = new AnimatedTextRunnable(plugin, entityId);
     }
 
@@ -90,12 +90,14 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
 
     public ADTextDisplay create(String text) {
+        create();
         setSingleText("animation1", text);
         setInitialValues();
         return this;
     }
 
     public ADTextDisplay create(Component text) {
+        create();
         setSingleText("animation1", text);
         setInitialValues();
         return this;

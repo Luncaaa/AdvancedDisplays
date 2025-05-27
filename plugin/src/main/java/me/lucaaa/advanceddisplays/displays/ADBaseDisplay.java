@@ -19,7 +19,7 @@ import org.bukkit.util.Transformation;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class ADBaseDisplay extends ADEntityDisplay implements BaseDisplay {
+public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
     protected ConfigurationSection displaySection = null;
     protected ConfigurationSection settings = null;
 
@@ -34,7 +34,7 @@ public class ADBaseDisplay extends ADEntityDisplay implements BaseDisplay {
     private float hitboxHeight;
     private Color glowColorOverride;
 
-    public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager config, String name, DisplayType type, EntityType entityType) {
+    protected ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager config, String name, DisplayType type, EntityType entityType) {
         super(plugin, displaysManager, config, name, type, entityType);
 
         displaySection = config.getSection("display", false, config.getConfig());
@@ -74,7 +74,7 @@ public class ADBaseDisplay extends ADEntityDisplay implements BaseDisplay {
         this.glowColorOverride = Color.fromRGB(Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]));
     }
 
-    public ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, DisplayType type, EntityType entityType, Location location, boolean saveToConfig) {
+    protected ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, Location location, DisplayType type, EntityType entityType, boolean saveToConfig) {
         super(plugin, displaysManager, name, type, entityType, location, saveToConfig);
         Display display = (Display) entity;
 
@@ -190,14 +190,13 @@ public class ADBaseDisplay extends ADEntityDisplay implements BaseDisplay {
         location.setPitch(pitch);
 
         if (this.location.getWorld() == location.getWorld()) {
-            entity.teleport(location);
             Location location1 = location.clone();
             if (type == DisplayType.BLOCK) {
                 double x1 = transformation.getScale().x / 2;
                 double z1 = transformation.getScale().z / 2;
                 location1.add(x1, 0.0, z1);
             }
-            hitbox.teleport(location1);
+
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 packets.setLocation(entity, location, onlinePlayer);
                 packets.setLocation(hitbox, location1, onlinePlayer);
@@ -207,7 +206,6 @@ public class ADBaseDisplay extends ADEntityDisplay implements BaseDisplay {
             // in the new location (another world)
             packets.removeEntity(entityId);
             packets.removeEntity(hitbox.getEntityId());
-
             plugin.getInteractionsManager().removeInteraction(getInteractionId());
 
             entity = packets.createEntity(entityType, location);

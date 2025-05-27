@@ -1,18 +1,18 @@
 package me.lucaaa.advanceddisplays.managers;
 
-import me.lucaaa.advanceddisplays.displays.ADEntityDisplay;
+import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
 
 import java.util.HashMap;
 
 public class InteractionsManager {
-    private final HashMap<Integer, ADEntityDisplay> displaysMap = new HashMap<>();
-    private final HashMap<Integer, ADEntityDisplay> apiDisplaysMap;
+    private final HashMap<Integer, ADBaseEntity> displaysMap = new HashMap<>();
+    private final HashMap<Integer, ADBaseEntity> apiDisplaysMap;
 
-    public InteractionsManager(HashMap<Integer, ADEntityDisplay> apiDisplaysMap) {
+    public InteractionsManager(HashMap<Integer, ADBaseEntity> apiDisplaysMap) {
         this.apiDisplaysMap = apiDisplaysMap;
     }
 
-    public void addInteraction(int interactionId, ADEntityDisplay display) {
+    public void addInteraction(int interactionId, ADBaseEntity display) {
         if (display.isApi()) {
             apiDisplaysMap.put(interactionId, display);
         } else {
@@ -25,7 +25,7 @@ public class InteractionsManager {
         apiDisplaysMap.remove(interactionId);
     }
 
-    public ADEntityDisplay getDisplay(int interactionId) {
+    public ADBaseEntity getDisplay(int interactionId) {
         if (displaysMap.get(interactionId) != null) {
             return displaysMap.get(interactionId);
         } else {
@@ -33,7 +33,7 @@ public class InteractionsManager {
         }
     }
 
-    public HashMap<Integer, ADEntityDisplay> getApiDisplays() {
+    public HashMap<Integer, ADBaseEntity> getApiDisplays() {
         return apiDisplaysMap;
     }
 }

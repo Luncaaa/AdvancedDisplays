@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.displays.ADEntityDisplay;
+import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -25,7 +25,7 @@ public class EditSubCommand extends SubCommandsFormat {
 
     @Override
     public void run(CommandSender sender, String[] args) {
-        ADEntityDisplay display = plugin.getDisplaysManager().getDisplays().get(args[1]);
+        ADBaseEntity display = plugin.getDisplaysManager().getDisplays().get(args[1]);
 
         if (display == null) {
             sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe display &b" + args[1] + " &cdoes not exist!"));

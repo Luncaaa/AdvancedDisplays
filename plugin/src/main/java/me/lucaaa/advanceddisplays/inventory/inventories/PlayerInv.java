@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.inventory.inventories;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
-import me.lucaaa.advanceddisplays.api.displays.EntityDisplay;
+import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.data.NamedEnum;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
@@ -25,7 +25,7 @@ public class PlayerInv {
     private final Player player;
     private final List<EditorItem> disabledItems;
     private InventoryRows currentRow = InventoryRows.LEFT_ROTATION_YAW_PITCH;
-    private final EntityDisplay entity;
+    private final BaseEntity entity;
     private final boolean isDisplay;
     private final Transformation transformation;
     private final InventoryItems items;
@@ -35,7 +35,7 @@ public class PlayerInv {
     // Buttons independent of the rows
     private final Map<Integer, Button.PlayerButton<?>> buttons = new HashMap<>();
 
-    public PlayerInv(AdvancedDisplays plugin, Player player, EntityDisplay entity, List<EditorItem> disabledItems) {
+    public PlayerInv(AdvancedDisplays plugin, Player player, BaseEntity entity, List<EditorItem> disabledItems) {
         this.player = player;
         this.disabledItems = disabledItems;
         this.entity = entity;

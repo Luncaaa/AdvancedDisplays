@@ -3,7 +3,7 @@ package me.lucaaa.advanceddisplays.api;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
-import me.lucaaa.advanceddisplays.displays.ADEntityDisplay;
+import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
@@ -55,25 +55,25 @@ public class ADAPIImplementation implements ADAPI {
     }
 
     @Override
-    public EntityDisplay createEntityDisplay(String name, Location location, EntityType value, boolean saveToConfig) {
-        EntityDisplay display = displaysManager.createDisplay(DisplayType.ENTITY, location, name, value, saveToConfig);
+    public BaseEntity createEntityDisplay(String name, Location location, EntityType value, boolean saveToConfig) {
+        BaseEntity display = displaysManager.createDisplay(DisplayType.ENTITY, location, name, value, saveToConfig);
         if (display == null) logWarning(name);
         return display;
     }
 
     @Override
-    public EntityDisplay getDisplay(String name) {
+    public BaseEntity getDisplay(String name) {
         return displaysManager.getDisplayFromMap(name);
     }
 
     @Override
-    public EntityDisplay getDisplayFromLoc(Location location, double radius, boolean closest) {
+    public BaseEntity getDisplayFromLoc(Location location, double radius, boolean closest) {
         return displaysManager.getDisplayFromLoc(location, radius, closest);
     }
 
     @Override
     public void removeDisplay(String name) {
-        ADEntityDisplay display = displaysManager.getDisplayFromMap(name);
+        ADBaseEntity display = displaysManager.getDisplayFromMap(name);
 
         if (display != null) {
             displaysManager.removeDisplay(display, true, true);

@@ -1,6 +1,7 @@
 package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
@@ -16,7 +17,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ADBlockDisplay extends ADBaseDisplay implements me.lucaaa.advanceddisplays.api.displays.BlockDisplay {
+public class ADBlockDisplay extends ADBaseDisplay implements BlockDisplay {
     private BlockData block;
 
     // Compatibility
@@ -51,7 +52,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements me.lucaaa.advancedd
     }
 
     public ADBlockDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, Location location, boolean saveToConfig) {
-        super(plugin, displaysManager, name, DisplayType.BLOCK, EntityType.BLOCK_DISPLAY, location, saveToConfig);
+        super(plugin, displaysManager, name, location, DisplayType.BLOCK, EntityType.BLOCK_DISPLAY, saveToConfig);
     }
 
     @Override
@@ -61,6 +62,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements me.lucaaa.advancedd
     }
 
     public ADBlockDisplay create(BlockData block) {
+        create();
         setBlock(block);
         return this;
     }

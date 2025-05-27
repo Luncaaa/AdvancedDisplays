@@ -3,7 +3,7 @@ package me.lucaaa.advanceddisplays.managers;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.displays.ADEntityDisplay;
+import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
 import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -51,7 +51,7 @@ public class PlayerPacketManager extends ChannelDuplexHandler {
             } */
         }
 
-        ADEntityDisplay display = plugin.getInteractionsManager().getDisplay(clickEvent.interactionId());
+        ADBaseEntity display = plugin.getInteractionsManager().getDisplay(clickEvent.interactionId());
         if (display == null) return;
 
         // Run sync to prevent errors

@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays;
 
 import me.lucaaa.advanceddisplays.data.*;
-import me.lucaaa.advanceddisplays.displays.ADEntityDisplay;
+import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
 import me.lucaaa.advanceddisplays.integrations.Integration;
 import me.lucaaa.advanceddisplays.integrations.ItemsAdderCompat;
 import me.lucaaa.advanceddisplays.integrations.OraxenCompat;
@@ -55,7 +55,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         savesConfig = new ConfigManager(this, "saved-inventories.yml", true);
 
         // Managers
-        HashMap<Integer, ADEntityDisplay> savedApiDisplays = new HashMap<>(); // If the plugin is reloaded, this will save the click actions for API displays.
+        HashMap<Integer, ADBaseEntity> savedApiDisplays = new HashMap<>(); // If the plugin is reloaded, this will save the click actions for API displays.
         if (isRunning) {
             displaysManager.removeAll(true); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
             savedApiDisplays = interactionsManager.getApiDisplays();

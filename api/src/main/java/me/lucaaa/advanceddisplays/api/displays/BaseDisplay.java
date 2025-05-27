@@ -9,7 +9,7 @@ import org.bukkit.util.Transformation;
  * The settings that Text, Item and Block displays have in common.
  */
 @SuppressWarnings("unused")
-public interface BaseDisplay extends EntityDisplay {
+public interface BaseDisplay extends BaseEntity {
     /**
      * Gets the display's billboard.
      * @return The display's billboard.

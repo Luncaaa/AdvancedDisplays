@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.managers;
 
 import com.google.common.io.Files;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.api.displays.EntityDisplay;
+import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import me.lucaaa.advanceddisplays.data.AttachedDisplay;
 import me.lucaaa.advanceddisplays.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
@@ -26,7 +26,7 @@ public class DisplaysManager {
     private final String pluginName;
     private final String configsFolder;
     private final boolean isApi;
-    private final Map<String, ADEntityDisplay> displays = new HashMap<>();
+    private final Map<String, ADBaseEntity> displays = new HashMap<>();
     private final Map<Player, AttachedDisplay> attachDisplays = new HashMap<>();
 
     private int failedLoads = 0;
@@ -109,14 +109,14 @@ public class DisplaysManager {
         return newDisplay;
     }
 
-    public ADEntityDisplay createDisplay(DisplayType type, Location location, String name, Object value, boolean saveToConfig) {
+    public ADBaseEntity createDisplay(DisplayType type, Location location, String name, Object value, boolean saveToConfig) {
         if (displays.containsKey(name)) {
             return null;
         }
 
-        ADEntityDisplay display = switch (type) {
+        ADBaseEntity display = switch (type) {
             case BLOCK -> new ADBlockDisplay(plugin, this, name, location, saveToConfig).create((BlockData) value);
-            case ENTITY -> new ADEntityDisplay(plugin, this, name, DisplayType.ENTITY, (EntityType) value, location, saveToConfig).create();
+            case ENTITY -> new ADEntityDisplay(plugin, this, name, location, (EntityType) value, saveToConfig).create();
             case ITEM -> new ADItemDisplay(plugin, this, name, location, saveToConfig).create((Material) value);
             case TEXT -> {
                 ADTextDisplay textDisplay = new ADTextDisplay(plugin, this, name, location, saveToConfig);
@@ -147,7 +147,7 @@ public class DisplaysManager {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public void removeDisplay(ADEntityDisplay display, boolean deleteFile, boolean removeFromList) {
+    public void removeDisplay(ADBaseEntity display, boolean deleteFile, boolean removeFromList) {
         if (display.getConfigManager() != null && deleteFile) {
             display.getConfigManager().getFile().delete();
         }
@@ -161,19 +161,19 @@ public class DisplaysManager {
     }
 
     public void removeAll(boolean onReload) {
-        for (ADEntityDisplay display : displays.values()) {
+        for (ADBaseEntity display : displays.values()) {
             removeDisplay(display, !onReload, false); // false to prevent ConcurrentModificationException
         }
 
         attachDisplays.clear();
     }
 
-    public ADEntityDisplay getDisplayFromMap(String name) {
+    public ADBaseEntity getDisplayFromMap(String name) {
         return displays.get(name);
     }
 
     public void spawnDisplays(Player player) {
-        for (ADEntityDisplay display : displays.values()) {
+        for (ADBaseEntity display : displays.values()) {
             if (display.getLocation().getWorld() != player.getLocation().getWorld()) continue;
             if (display.getVisibilityManager().isVisibleByPlayer(player)) display.spawnToPlayer(player);
         }
@@ -202,7 +202,7 @@ public class DisplaysManager {
             return;
         }
 
-        ADEntityDisplay newDisplay = switch (displayType) {
+        ADBaseEntity newDisplay = switch (displayType) {
             case BLOCK -> new ADBlockDisplay(plugin, this, configManager, name);
             case TEXT -> new ADTextDisplay(plugin, this, configManager, name);
             case ITEM -> new ADItemDisplay(plugin, this, configManager, name);
@@ -214,12 +214,11 @@ public class DisplaysManager {
                 }
 
                 try {
-                    yield new ADEntityDisplay(plugin, this, configManager, name, DisplayType.ENTITY, EntityType.valueOf(configType));
+                    yield new ADEntityDisplay(plugin, this, configManager, name, EntityType.valueOf(configType));
                 } catch (IllegalArgumentException e) {
                     plugin.log(Level.WARNING, getMessage(name, "has an invalid entity type set: " + configType));
                     yield null;
                 }
-
             }
         };
 
@@ -235,11 +234,11 @@ public class DisplaysManager {
         plugin.getInteractionsManager().addInteraction(newDisplay.getInteractionId(), newDisplay);
     }
 
-    public EntityDisplay getDisplayFromLoc(Location location, double radius, boolean closest) {
+    public BaseEntity getDisplayFromLoc(Location location, double radius, boolean closest) {
         double closestDistance = Math.pow(radius, 2);
-        EntityDisplay closestDisplay = null;
+        BaseEntity closestDisplay = null;
 
-        for (EntityDisplay display : displays.values()) {
+        for (BaseEntity display : displays.values()) {
             double distanceSquared = display.getLocation().distanceSquared(location);
             boolean isInRadius = distanceSquared <= Math.pow(radius, 2);
 
@@ -273,7 +272,7 @@ public class DisplaysManager {
         attachDisplays.remove(player);
     }
 
-    public Map<String, ADEntityDisplay> getDisplays() {
+    public Map<String, ADBaseEntity> getDisplays() {
         return displays;
     }
 

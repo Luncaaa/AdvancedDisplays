@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.data;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.api.displays.EntityDisplay;
+import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
 import me.lucaaa.advanceddisplays.inventory.inventories.PlayerInv;
@@ -20,13 +20,13 @@ import java.util.Objects;
 public class EditingPlayer {
     private final ConfigManager savesConfig;
     private final Player player;
-    private final EntityDisplay editingDisplay;
+    private final BaseEntity editingDisplay;
     private final ItemStack[] savedInventory;
     private final PlayerInv playerInventory;
     private InventoryMethods openInventory;
     private boolean isChatEditing = false;
 
-    public EditingPlayer(AdvancedDisplays plugin, ConfigManager savesConfig, Player player, EntityDisplay display, List<EditorItem> disabledSettings) {
+    public EditingPlayer(AdvancedDisplays plugin, ConfigManager savesConfig, Player player, BaseEntity display, List<EditorItem> disabledSettings) {
         this.savesConfig = savesConfig;
         this.player = player;
         this.editingDisplay = display;
@@ -77,7 +77,7 @@ public class EditingPlayer {
         savesConfig.save();
     }
 
-    public EntityDisplay getEditingDisplay() {
+    public BaseEntity getEditingDisplay() {
         return editingDisplay;
     }
 }

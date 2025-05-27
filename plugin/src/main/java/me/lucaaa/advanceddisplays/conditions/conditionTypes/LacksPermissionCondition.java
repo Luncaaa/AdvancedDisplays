@@ -1,6 +1,6 @@
 package me.lucaaa.advanceddisplays.conditions.conditionTypes;
 
-import me.lucaaa.advanceddisplays.api.displays.EntityDisplay;
+import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import me.lucaaa.advanceddisplays.conditions.ADCondition;
 import org.bukkit.entity.Player;
 
@@ -16,7 +16,7 @@ public class LacksPermissionCondition extends ADCondition {
     }
 
     @Override
-    public boolean meetsCondition(EntityDisplay display, Player player) {
+    public boolean meetsCondition(BaseEntity display, Player player) {
         if (permission.equalsIgnoreCase("none")) return true;
         return !player.hasPermission(permission);
     }

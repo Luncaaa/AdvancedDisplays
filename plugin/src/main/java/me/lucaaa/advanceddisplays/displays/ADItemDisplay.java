@@ -71,7 +71,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
 
     public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, Location location, boolean saveToConfig) {
-        super(plugin, displaysManager, name, DisplayType.ITEM, EntityType.ITEM_DISPLAY, location, saveToConfig);
+        super(plugin, displaysManager, name, location, DisplayType.ITEM, EntityType.ITEM_DISPLAY, saveToConfig);
     }
 
     @Override
@@ -87,6 +87,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
 
     public ADItemDisplay create(Material item) {
+        create();
         if (item == Material.PLAYER_HEAD) setViewerHead();
         else setItem(new ItemStack(item));
         setEnchanted(false);

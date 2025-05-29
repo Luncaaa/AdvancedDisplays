@@ -23,7 +23,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PositionMoveRotation;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
@@ -31,7 +30,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.advancement.AdvancementDisplayType;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.entity.CraftEntity;
@@ -91,11 +89,15 @@ public class Packets implements PacketInterface {
             actionField.setAccessible(true);
             Object action = actionField.get(packet);
 
-            Field handField = action.getClass().getDeclaredField("a");
-            handField.setAccessible(true);
-            Enum<?> hand = (Enum<?>) handField.get(action);
-            // Prevents interaction event from being fired twice (once for main and once for off hand).
-            if (hand == InteractionHand.OFF_HAND) return null;
+            try  {
+                Field handField = action.getClass().getDeclaredField("a");
+                handField.setAccessible(true);
+                Enum<?> hand = (Enum<?>) handField.get(action);
+                // Prevents interaction event from being fired twice (once for main and once for offhand).
+                if (hand == InteractionHand.OFF_HAND) return null;
+
+            // Left-clicking doesn't have this field, so the error should be ignored.
+            } catch (NoSuchFieldException ignored) {}
 
             Method getActionTypeMethod = action.getClass().getDeclaredMethod("a");
             getActionTypeMethod.setAccessible(true);
@@ -193,13 +195,9 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void setGlowing(Entity entity, boolean isGlowing, ChatColor color, Player player) {
+    public void setGlowingColor(Entity entity, ChatColor color, Player player) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
-
-        List<SynchedEntityData.DataValue<?>> data = new ArrayList<>();
-        data.add(SynchedEntityData.DataValue.create(new EntityDataAccessor<>(0, EntityDataSerializers.BYTE), (byte) (isGlowing ? 0x40 : 0)));
-        connection.send(new ClientboundSetEntityDataPacket(entity.getEntityId(), data));
 
         ServerLevel level = ((CraftWorld) cp.getWorld()).getHandle();
         PlayerTeam team;
@@ -217,66 +215,52 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void setMetadata(int displayId, Player player, Metadata.DataInfo<?>... data) {
+    public void setMetadata(int displayId, Player player, Metadata.DataPair<?>... data) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
         List<SynchedEntityData.DataValue<?>> allMetadata = new ArrayList<>();
 
-        for (Metadata.DataInfo<?> metadata : data) {
-            SynchedEntityData.DataValue<?> value = createDataValue(cp, metadata);
-
-            if (value == null) {
-                logger.logError(
-                        java.util.logging.Level.WARNING,
-                        "An error occurred while setting metadata for display with ID " + displayId + "! Metadata: " + metadata,
-                        new PacketException("Unexpected metadata type!")
-                );
-                return;
-            }
-
-            allMetadata.add(value);
+        for (Metadata.DataPair<?> metadata : data) {
+            allMetadata.add(createDataValue(cp, metadata));
         }
 
         connection.send(new ClientboundSetEntityDataPacket(displayId, allMetadata));
     }
 
-    private SynchedEntityData.DataValue<?> createDataValue(CraftPlayer cp, Metadata.DataInfo<?> metadata) {
+    private SynchedEntityData.DataValue<?> createDataValue(CraftPlayer cp, Metadata.DataPair<?> metadata) {
         Object value = metadata.value();
+        int id = metadata.data().id();
 
-        return switch (value) {
-            case String s -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.STRING), s);
-            case Float f -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.FLOAT), f);
-            case Byte b -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.BYTE), b);
-            case Integer i -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.INT), i);
-            case Vector3f v -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.VECTOR3), v);
-            case Quaternionf q -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.QUATERNION), q);
-            case ItemStack item -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy(item));
-            case BlockData block -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.BLOCK_STATE), ((CraftBlockData) block).getState());
-            case net.kyori.adventure.text.Component c ->
+        return switch (metadata.data().type()) {
+            case BOOLEAN -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.BOOLEAN), (Boolean) value);
+            case INT -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.INT), (int) value);
+            case FLOAT -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.FLOAT), (float) value);
+            case BYTE -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.BYTE), (byte) value);
+            case COMPONENT ->
                     SynchedEntityData.DataValue.create(
-                            new EntityDataAccessor<>(
-                                    metadata.id(),
-                                    EntityDataSerializers.COMPONENT
-                            ),
+                            new EntityDataAccessor<>(id, EntityDataSerializers.COMPONENT),
                             Objects.requireNonNull(
                                     Component.Serializer.fromJson(
-                                            ComponentSerializer.toJSON(c),
-                                            cp.getHandle().registryAccess())
+                                            ComponentSerializer.toJSON((net.kyori.adventure.text.Component) value),
+                                            cp.getHandle().registryAccess()
+                                    )
                             )
                     );
-            case ItemDisplay.ItemDisplayTransform t -> {
-                ItemDisplayContext transform = switch (t) {
-                    case FIRSTPERSON_LEFTHAND -> ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
-                    case FIRSTPERSON_RIGHTHAND -> ItemDisplayContext.FIRST_PERSON_RIGHT_HAND;
-                    case THIRDPERSON_LEFTHAND -> ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
-                    case THIRDPERSON_RIGHTHAND -> ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
-                    default -> ItemDisplayContext.valueOf(t.name());
-                };
-
-                yield SynchedEntityData.DataValue.create(new EntityDataAccessor<>(metadata.id(), EntityDataSerializers.BYTE), transform.getId());
-            }
-            default -> null;
+            case OPTIONAL_COMPONENT ->
+                    SynchedEntityData.DataValue.create(
+                            new EntityDataAccessor<>(id, EntityDataSerializers.OPTIONAL_COMPONENT),
+                            Optional.ofNullable(
+                                    Component.Serializer.fromJson(
+                                            ComponentSerializer.toJSON((net.kyori.adventure.text.Component) value),
+                                            cp.getHandle().registryAccess()
+                                    )
+                            )
+                    );
+            case ITEM_STACK -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy((ItemStack) value));
+            case BLOCK_STATE -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.BLOCK_STATE), ((CraftBlockData) value).getState());
+            case VECTOR3 -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.VECTOR3), (Vector3f) value);
+            case QUATERNION -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.QUATERNION), (Quaternionf) value);
         };
     }
 

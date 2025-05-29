@@ -146,27 +146,27 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
         super.sendMetadataPackets(player);
         if (!overrideHitboxSize) {
             packets.setMetadata(hitbox.getEntityId(), player,
-                    new Metadata.DataInfo<>(metadata.HITBOX_WIDTH, transformation.getScale().x),
-                    new Metadata.DataInfo<>(metadata.HITBOX_HEIGHT, transformation.getScale().y)
+                    new Metadata.DataPair<>(metadata.HITBOX_WIDTH, transformation.getScale().x),
+                    new Metadata.DataPair<>(metadata.HITBOX_HEIGHT, transformation.getScale().y)
             );
         } else {
             packets.setMetadata(hitbox.getEntityId(), player,
-                    new Metadata.DataInfo<>(metadata.HITBOX_WIDTH, hitboxWidth),
-                    new Metadata.DataInfo<>(metadata.HITBOX_HEIGHT, hitboxHeight)
+                    new Metadata.DataPair<>(metadata.HITBOX_WIDTH, hitboxWidth),
+                    new Metadata.DataPair<>(metadata.HITBOX_HEIGHT, hitboxHeight)
             );
         }
 
         packets.setMetadata(entityId, player,
-                new Metadata.DataInfo<>(metadata.TRANSFORMATION_START, transformation.getTranslation()),
-                new Metadata.DataInfo<>(metadata.TRANSFORMATION_START + 1, transformation.getScale()),
-                new Metadata.DataInfo<>(metadata.TRANSFORMATION_START + 2, transformation.getLeftRotation()),
-                new Metadata.DataInfo<>(metadata.TRANSFORMATION_START + 3, transformation.getRightRotation()),
-                new Metadata.DataInfo<>(metadata.BILLBOARD, Metadata.getBillboardByte(billboard)),
-                new Metadata.DataInfo<>(metadata.BRIGHTNESS, brightness.getBlockLight() << 4 | brightness.getSkyLight() << 20),
-                new Metadata.DataInfo<>(metadata.SHADOW_RADIUS, shadowRadius),
-                new Metadata.DataInfo<>(metadata.SHADOW_STRENGTH, shadowStrength),
-                new Metadata.DataInfo<>(metadata.PROPERTIES, (byte) (isGlowing ? 0x40 : 0)),
-                new Metadata.DataInfo<>(metadata.GLOW_COLOR, glowColorOverride.asRGB())
+                new Metadata.DataPair<>(metadata.TRANSLATION, transformation.getTranslation()),
+                new Metadata.DataPair<>(metadata.SCALE, transformation.getScale()),
+                new Metadata.DataPair<>(metadata.LEFT_ROTATION, transformation.getLeftRotation()),
+                new Metadata.DataPair<>(metadata.RIGHT_ROTATION, transformation.getRightRotation()),
+                new Metadata.DataPair<>(metadata.BILLBOARD, Metadata.getBillboardByte(billboard)),
+                new Metadata.DataPair<>(metadata.BRIGHTNESS, brightness.getBlockLight() << 4 | brightness.getSkyLight() << 20),
+                new Metadata.DataPair<>(metadata.SHADOW_RADIUS, shadowRadius),
+                new Metadata.DataPair<>(metadata.SHADOW_STRENGTH, shadowStrength),
+                new Metadata.DataPair<>(metadata.PROPERTIES, (byte) (isGlowing ? 0x40 : 0)),
+                new Metadata.DataPair<>(metadata.GLOW_COLOR, glowColorOverride.asRGB())
         );
     }
 
@@ -297,8 +297,8 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
     @Override
     public void setShadow(float shadowRadius, float shadowStrength, Player player) {
         packets.setMetadata(entityId, player,
-                new Metadata.DataInfo<>(metadata.SHADOW_RADIUS, shadowRadius),
-                new Metadata.DataInfo<>(metadata.SHADOW_STRENGTH, shadowStrength)
+                new Metadata.DataPair<>(metadata.SHADOW_RADIUS, shadowRadius),
+                new Metadata.DataPair<>(metadata.SHADOW_STRENGTH, shadowStrength)
         );
     }
 
@@ -341,16 +341,16 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
     @Override
     public void setTransformation(Transformation transformation, Player player) {
         packets.setMetadata(entityId, player,
-                new Metadata.DataInfo<>(metadata.TRANSFORMATION_START, transformation.getTranslation()),
-                new Metadata.DataInfo<>(metadata.TRANSFORMATION_START + 1, transformation.getScale()),
-                new Metadata.DataInfo<>(metadata.TRANSFORMATION_START + 2, transformation.getLeftRotation()),
-                new Metadata.DataInfo<>(metadata.TRANSFORMATION_START + 3, transformation.getRightRotation())
+                new Metadata.DataPair<>(metadata.TRANSLATION, transformation.getTranslation()),
+                new Metadata.DataPair<>(metadata.SCALE, transformation.getScale()),
+                new Metadata.DataPair<>(metadata.LEFT_ROTATION, transformation.getLeftRotation()),
+                new Metadata.DataPair<>(metadata.RIGHT_ROTATION, transformation.getRightRotation())
         );
 
         if (!overrideHitboxSize) {
             packets.setMetadata(hitbox.getEntityId(), player,
-                    new Metadata.DataInfo<>(metadata.HITBOX_WIDTH, transformation.getScale().x),
-                    new Metadata.DataInfo<>(metadata.HITBOX_HEIGHT, transformation.getScale().y)
+                    new Metadata.DataPair<>(metadata.HITBOX_WIDTH, transformation.getScale().x),
+                    new Metadata.DataPair<>(metadata.HITBOX_HEIGHT, transformation.getScale().y)
             );
         }
     }
@@ -373,8 +373,8 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
         hitbox.setInteractionHeight(hitboxHeight);
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             packets.setMetadata(hitbox.getEntityId(), onlinePlayer,
-                    new Metadata.DataInfo<>(metadata.HITBOX_WIDTH, hitboxWidth),
-                    new Metadata.DataInfo<>(metadata.HITBOX_HEIGHT, hitboxHeight)
+                    new Metadata.DataPair<>(metadata.HITBOX_WIDTH, hitboxWidth),
+                    new Metadata.DataPair<>(metadata.HITBOX_HEIGHT, hitboxHeight)
             );
         }
     }
@@ -399,8 +399,8 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
     @Override
     public void setGlowColorOverride(Color color, Player player) {
         packets.setMetadata(entityId, player,
-                new Metadata.DataInfo<>(metadata.PROPERTIES, (byte) (isGlowing ? 0x40 : 0)),
-                new Metadata.DataInfo<>(metadata.GLOW_COLOR, glowColorOverride.asRGB())
+                new Metadata.DataPair<>(metadata.PROPERTIES, (byte) (isGlowing ? 0x40 : 0)),
+                new Metadata.DataPair<>(metadata.GLOW_COLOR, glowColorOverride.asRGB())
         );
     }
 
@@ -422,8 +422,8 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
     @Override
     public void setGlowing(boolean isGlowing, Player player) {
         packets.setMetadata(entityId, player,
-                new Metadata.DataInfo<>(metadata.PROPERTIES, (byte) (isGlowing ? 0x40 : 0)),
-                new Metadata.DataInfo<>(metadata.GLOW_COLOR, glowColorOverride.asRGB())
+                new Metadata.DataPair<>(metadata.PROPERTIES, (byte) (isGlowing ? 0x40 : 0)),
+                new Metadata.DataPair<>(metadata.GLOW_COLOR, glowColorOverride.asRGB())
         );
     }
 

@@ -29,13 +29,13 @@ public interface PacketInterface {
     // --[ Modify displays ]--
     // -[ General ]-
     void setLocation(Entity entity, Location location, Player player);
-    void setGlowing(Entity entity, boolean isGlowing, ChatColor color, Player player);
+    void setGlowingColor(Entity entity, ChatColor color, Player player);
 
     // - [ Metadata ]-
-    default <T> void setMetadata(int displayId, Player player, int dataId, T value) {
-        setMetadata(displayId, player, new Metadata.DataInfo<>(dataId, value));
+    default <T> void setMetadata(int displayId, Player player, Metadata.DataInfo<T> data, T value) {
+        setMetadata(displayId, player, new Metadata.DataPair<>(data, value));
     }
-    void setMetadata(int displayId, Player player, Metadata.DataInfo<?>... data);
+    void setMetadata(int displayId, Player player, Metadata.DataPair<?>... data);
 
     // --[ Other ]--
     void sendToast(JavaPlugin plugin, Player player, ItemStack item, String titleJSON, String descriptionJSON, AdvancementDisplayType type);

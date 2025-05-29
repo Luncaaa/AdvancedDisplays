@@ -1,70 +1,168 @@
 package me.lucaaa.advanceddisplays.nms_common;
 
+import net.kyori.adventure.text.Component;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.inventory.ItemStack;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class Metadata {
     // - [ Common entity settings ]-
-    public final int PROPERTIES = 0;
+    public final DataInfo<Byte> PROPERTIES = DataInfo.ofByte(0);
+    public final DataInfo<Component> CUSTOM_NAME = DataInfo.ofOptionalComponent(2);
+    public final DataInfo<Boolean> CUSTOM_NAME_VISIBLE = DataInfo.ofBoolean(3);
 
     // -[ Interaction entity ]-
-    public final int HITBOX_WIDTH = 8; // Translation = start, scale = start + 1...
-    public final int HITBOX_HEIGHT = 9;
+    public final DataInfo<Float> HITBOX_WIDTH = DataInfo.ofFloat(8);
+    public final DataInfo<Float> HITBOX_HEIGHT = DataInfo.ofFloat(9);
 
     // -[ Common display settings ]-
-    public final int TRANSFORMATION_START; // Translation = start, scale = start + 1...
-    public final int BILLBOARD;
-    public final int BRIGHTNESS;
-    public final int SHADOW_RADIUS; // Radius = start, strength = start + 1
-    public final int SHADOW_STRENGTH; // Radius = start, strength = start + 1
-    public final int GLOW_COLOR;
-    public final int VALUE;
+    public final DataInfo<Vector3f> TRANSLATION;
+    public final DataInfo<Vector3f> SCALE;
+    public final DataInfo<Quaternionf> LEFT_ROTATION;
+    public final DataInfo<Quaternionf> RIGHT_ROTATION;
+    public final DataInfo<Byte> BILLBOARD;
+    public final DataInfo<Integer> BRIGHTNESS;
+    public final DataInfo<Float> SHADOW_RADIUS;
+    public final DataInfo<Float> SHADOW_STRENGTH;
+    public final DataInfo<Integer> GLOW_COLOR;
 
     // -[ Text displays ]-
-    public final int LINE_WIDTH;
-    public final int BG_COLOR;
-    public final int TEXT_OPACITY;
-    public final int TEXT_PROPERTIES;
+    public final DataInfo<Component> TEXT;
+    public final DataInfo<Integer> LINE_WIDTH;
+    public final DataInfo<Integer> BG_COLOR;
+    public final DataInfo<Byte> TEXT_OPACITY;
+    public final DataInfo<Byte> TEXT_PROPERTIES;
 
     // -[ Block displays ]-
-    // Block uses the "VALUE" property.
+    public final DataInfo<BlockData> BLOCK;
 
     // -[ Item displays ]-
-    // Item uses the "VALUE" property.
-    public final int ITEM_TRANSFORM;
+    public final DataInfo<ItemStack> ITEM;
+    public final DataInfo<Byte> ITEM_TRANSFORM;
 
     public Metadata(Version version) {
         if (version.isEqualOrNewerThan(Version.v1_20_R2)) {
-            TRANSFORMATION_START = 11;
-            BILLBOARD = 15;
-            BRIGHTNESS = 16;
-            SHADOW_RADIUS = 18;
-            SHADOW_STRENGTH = 19;
-            GLOW_COLOR = 22;
-            VALUE = 23;
-            LINE_WIDTH = 24;
-            BG_COLOR = 25;
-            TEXT_OPACITY = 26;
-            TEXT_PROPERTIES = 27;
-            ITEM_TRANSFORM = 24;
+            TRANSLATION = DataInfo.ofVector3f(11);
+            SCALE = DataInfo.ofVector3f(12);
+            LEFT_ROTATION = DataInfo.ofQuaternionf(13);
+            RIGHT_ROTATION = DataInfo.ofQuaternionf(14);
+            BILLBOARD = DataInfo.ofByte(15);
+            BRIGHTNESS = DataInfo.ofInt(16);
+            SHADOW_RADIUS = DataInfo.ofFloat(18);
+            SHADOW_STRENGTH = DataInfo.ofFloat(19);
+            GLOW_COLOR = DataInfo.ofInt(22);
+            TEXT = DataInfo.ofComponent(23);
+            LINE_WIDTH = DataInfo.ofInt(24);
+            BG_COLOR = DataInfo.ofInt(25);
+            TEXT_OPACITY = DataInfo.ofByte(26);
+            TEXT_PROPERTIES = DataInfo.ofByte(27);
+            ITEM = DataInfo.ofItemStack(23);
+            ITEM_TRANSFORM = DataInfo.ofByte(24);
+            BLOCK = DataInfo.ofBlockData(23);
 
         } else {
-            TRANSFORMATION_START = 10;
-            BILLBOARD = 14;
-            BRIGHTNESS = 15;
-            SHADOW_RADIUS = 17;
-            SHADOW_STRENGTH = 18;
-            GLOW_COLOR = 21;
-            VALUE = 22;
-            LINE_WIDTH = 23;
-            BG_COLOR = 24;
-            TEXT_OPACITY = 25;
-            TEXT_PROPERTIES = 26;
-            ITEM_TRANSFORM = 23;
+            TRANSLATION = DataInfo.ofVector3f(10);
+            SCALE = DataInfo.ofVector3f(11);
+            LEFT_ROTATION = DataInfo.ofQuaternionf(12);
+            RIGHT_ROTATION = DataInfo.ofQuaternionf(13);
+            BILLBOARD = DataInfo.ofByte(14);
+            BRIGHTNESS = DataInfo.ofInt(15);
+            SHADOW_RADIUS = DataInfo.ofFloat(17);
+            SHADOW_STRENGTH = DataInfo.ofFloat(18);
+            GLOW_COLOR = DataInfo.ofInt(21);
+            TEXT = DataInfo.ofComponent(22);
+            LINE_WIDTH = DataInfo.ofInt(23);
+            BG_COLOR = DataInfo.ofInt(24);
+            TEXT_OPACITY = DataInfo.ofByte(25);
+            TEXT_PROPERTIES = DataInfo.ofByte(26);
+            ITEM = DataInfo.ofItemStack(22);
+            ITEM_TRANSFORM = DataInfo.ofByte(23);
+            BLOCK = DataInfo.ofBlockData(22);
         }
     }
 
-    public record DataInfo<T>(int id, T value) {}
+    /**
+     * A pair of the data's ID along with the value of its type.
+     * @param data The data to set.
+     * @param value The value to set the data to.
+     * @param <T> The data's type.
+     */
+    public record DataPair<T>(DataInfo<T> data, T value) {}
+
+    /**
+     * Stores info related to a certain metadata.
+     * @param id The data's ID (see Protocol wiki).
+     * @param type The data's type (see Protocol wiki).
+     * @param <T> The data's type.
+     */
+    @SuppressWarnings("unused")
+    public record DataInfo<T>(int id, DataType type) {
+        public static DataInfo<Boolean> ofBoolean(int id) {
+            return new DataInfo<>(id, DataType.BOOLEAN);
+        }
+
+        public static DataInfo<Integer> ofInt(int id) {
+            return new DataInfo<>(id, DataType.INT);
+        }
+
+        public static DataInfo<Float> ofFloat(int id) {
+            return new DataInfo<>(id, DataType.FLOAT);
+        }
+
+        public static DataInfo<Byte> ofByte(int id) {
+            return new DataInfo<>(id, DataType.BYTE);
+        }
+
+        public static DataInfo<Component> ofComponent(int id) {
+            return new DataInfo<>(id, DataType.COMPONENT);
+        }
+
+        public static DataInfo<Component> ofOptionalComponent(int id) {
+            return new DataInfo<>(id, DataType.OPTIONAL_COMPONENT);
+        }
+
+        public static DataInfo<ItemStack> ofItemStack(int id) {
+            return new DataInfo<>(id, DataType.ITEM_STACK);
+        }
+
+        public static DataInfo<BlockData> ofBlockData(int id) {
+            return new DataInfo<>(id, DataType.BLOCK_STATE);
+        }
+
+        public static DataInfo<Vector3f> ofVector3f(int id) {
+            return new DataInfo<>(id, DataType.VECTOR3);
+        }
+
+        public static DataInfo<Quaternionf> ofQuaternionf(int id) {
+            return new DataInfo<>(id, DataType.QUATERNION);
+        }
+    }
+
+    public enum DataType {
+        BOOLEAN,
+        INT,
+        FLOAT,
+        BYTE,
+        COMPONENT,
+        OPTIONAL_COMPONENT,
+        ITEM_STACK,
+        BLOCK_STATE,
+        VECTOR3,
+        QUATERNION
+    }
+
+    public static byte getProperties(boolean onFire, boolean sprinting, boolean glowing) {
+        byte options = 0;
+
+        if (onFire) options = (byte) (options | 0x01);
+        if (sprinting) options = (byte) (options | 0x08);
+        if (glowing) options = (byte) (options | 0x40);
+
+        return options;
+    }
 
     public static byte getBillboardByte(Display.Billboard billboard) {
         return switch (billboard) {
@@ -75,7 +173,7 @@ public class Metadata {
         };
     }
 
-    public static byte getProperties(boolean isShadowed, boolean isSeeThrough, boolean defaultBackground, TextDisplay.TextAlignment alignment) {
+    public static byte getTextProperties(boolean isShadowed, boolean isSeeThrough, boolean defaultBackground, TextDisplay.TextAlignment alignment) {
         byte options = 0;
 
         if (isShadowed) options = (byte) (options | 0x01);

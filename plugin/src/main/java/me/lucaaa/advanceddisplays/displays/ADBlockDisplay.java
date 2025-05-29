@@ -58,7 +58,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements BlockDisplay {
     @Override
     public void sendMetadataPackets(Player player) {
         super.sendMetadataPackets(player);
-        packets.setMetadata(entityId, player, metadata.VALUE, block);
+        packets.setMetadata(entityId, player, metadata.BLOCK, block);
     }
 
     public ADBlockDisplay create(BlockData block) {
@@ -97,6 +97,6 @@ public class ADBlockDisplay extends ADBaseDisplay implements BlockDisplay {
     }
     @Override
     public void setBlock(BlockData block, Player player) {
-        packets.setMetadata(entityId, player, metadata.VALUE, block);
+        packets.setMetadata(entityId, player, metadata.BLOCK, block);
     }
 }

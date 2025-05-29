@@ -56,6 +56,7 @@ public class ConfigManager {
         ConfigurationSection section = parent.getConfigurationSection(name);
         if (section == null && createIfNotExists) {
             section = parent.createSection(name);
+            save();
             plugin.log(Level.WARNING, "Missing section \"" + name + "\" in \"" + file.getName() + "\" file! Created an empty section.");
         }
 
@@ -66,7 +67,8 @@ public class ConfigManager {
     public <T> T getOrDefault(String setting, T def, ConfigurationSection section) {
         if (!section.contains(setting)) {
             plugin.log(Level.WARNING, "Missing setting \"" + setting + "\" in \"" + file.getName() + "\" file! Setting to default value: " + def);
-            config.set(setting, def);
+            section.set(setting, def);
+            save();
             return def;
         }
 

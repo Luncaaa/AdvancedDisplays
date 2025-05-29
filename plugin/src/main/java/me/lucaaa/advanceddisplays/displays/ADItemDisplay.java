@@ -81,9 +81,9 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
         else {
             ItemStack clone = item.clone();
             if (enchanted) clone.addUnsafeEnchantment(Enchantment.MENDING, 1);
-            packets.setMetadata(entityId, player, metadata.VALUE, clone);
+            packets.setMetadata(entityId, player, metadata.ITEM, clone);
         }
-        packets.setMetadata(entityId, player, metadata.ITEM_TRANSFORM, itemTransformation);
+        packets.setMetadata(entityId, player, metadata.ITEM_TRANSFORM, (byte) itemTransformation.ordinal());
     }
 
     public ADItemDisplay create(Material item) {
@@ -118,7 +118,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     public void setItem(ItemStack item, Player player) {
         ItemStack clone = item.clone();
         if (enchanted) clone.addUnsafeEnchantment(Enchantment.MENDING, 1);
-        packets.setMetadata(entityId, player, metadata.VALUE, clone);
+        packets.setMetadata(entityId, player, metadata.ITEM, clone);
     }
 
     @Override
@@ -192,7 +192,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
         else {
             ItemStack clone = item.clone();
             if (enchanted) clone.addUnsafeEnchantment(Enchantment.MENDING, 1);
-            packets.setMetadata(entityId, player, metadata.VALUE, clone);
+            packets.setMetadata(entityId, player, metadata.ITEM, clone);
         }
     }
 
@@ -213,7 +213,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setItemTransformation(ItemDisplay.ItemDisplayTransform transformation, Player player) {
-        packets.setMetadata(entityId, player, metadata.ITEM_TRANSFORM, transformation);
+        packets.setMetadata(entityId, player, metadata.ITEM_TRANSFORM, (byte) transformation.ordinal());
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -329,7 +329,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
 
     private void setHead(DisplayHeadType type, String value, Player player) {
-        packets.setMetadata(entityId, player, metadata.VALUE, plugin.cachedHeads.LOADING);
+        packets.setMetadata(entityId, player, metadata.ITEM, plugin.cachedHeads.LOADING);
 
         // Run async because of the HTTP request to parse the head.
         new BukkitRunnable() {
@@ -337,7 +337,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             public void run() {
                 ItemStack head = HeadUtils.getHead(type, value, player, plugin);
                 if (enchanted) head.addUnsafeEnchantment(Enchantment.MENDING, 1);
-                packets.setMetadata(entityId, player, metadata.VALUE, head);
+                packets.setMetadata(entityId, player, metadata.ITEM, head);
             }
         }.runTaskAsynchronously(plugin);
     }

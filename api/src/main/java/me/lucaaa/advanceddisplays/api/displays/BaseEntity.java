@@ -5,6 +5,8 @@ import me.lucaaa.advanceddisplays.api.conditions.Condition;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -13,6 +15,8 @@ import java.util.List;
 
 /**
  * The settings that Entity and Text, Item and Block displays have in common.
+ * <p>
+ * All "missing" properties, such as "is silent", do not affect the entity's appearance so they were not added.
  */
 @SuppressWarnings("unused")
 public interface BaseEntity {
@@ -24,7 +28,7 @@ public interface BaseEntity {
 
     /**
      * Gets the type of the display.
-     * @return The type of the display: Either BLOCK, ITEM or TEXT
+     * @return The type of the display: Either BLOCK, ENTITY, ITEM or TEXT
      */
     DisplayType getType();
 
@@ -52,6 +56,40 @@ public interface BaseEntity {
      * @param player The player for whom the editor will be closed.
      */
     void closeEditor(Player player);
+
+    /**
+     * Adds a condition that the player must meet to see the display.
+     * @param condition The condition that the player must meet.
+     */
+    default void addViewCondition(Condition condition) {
+        getVisibilityManager().addViewCondition(condition);
+    }
+
+    /**
+     * Removes all the conditions.
+     */
+    default void clearConditions() {
+        getVisibilityManager().clearConditions();
+    }
+
+    /**
+     * Sets the code to run when the display is clicked.
+     * @param actions The code to run.
+     */
+    void setClickActions(DisplayActions actions);
+
+    /**
+     * Deletes the display.
+     * <p>
+     * Online players will stop seeing it, and it won't be spawned for new players.
+     */
+    void remove();
+
+    /**
+     * Checks whether the display is removed or not.
+     * @return Whether the display is removed or not.
+     */
+    boolean isRemoved();
 
     /**
      * Gets the location of the display.
@@ -100,6 +138,52 @@ public interface BaseEntity {
     void setRotation(float yaw, float pitch, Player player);
 
     /**
+     * Returns whether the entity appears to be on fire or not.
+     * @return Whether the entity appears to be on fire or not.
+     */
+    boolean isOnFire();
+
+    /**
+     * Makes the entity appear to be on fire for everyone.
+     * <p>
+     * This is just visual - it won't damage the entity.
+     * @param onFire Whether the entity will appear to be on fire or not.
+     */
+    void setOnFire(boolean onFire);
+
+    /**
+     * Makes the entity appear to be on fire for a specific player.
+     * <p>
+     * This is just visual - it won't damage the entity.
+     * @param onFire Whether the entity will appear to be on fire or not.
+     * @param player The player who will see the entity on fire.
+     */
+    void setOnFire(boolean onFire, Player player);
+
+    /**
+     * Returns whether the entity appears to be sprinting or not.
+     * @return Whether the entity appears to be sprinting or not.
+     */
+    boolean isSprinting();
+
+    /**
+     * Makes the entity appear to be sprinting for everyone.
+     * <p>
+     * This just adds particles to the feet of the entity.
+     * @param sprinting Whether the entity will appear to be sprinting or not.
+     */
+    void setSprinting(boolean sprinting);
+
+    /**
+     * Makes the entity appear to be sprinting for a specific player.
+     * <p>
+     * This just adds particles to the feet of the entity.
+     * @param sprinting Whether the entity will appear to be sprinting or not.
+     * @param player The player who will see the entity sprint.
+     */
+    void setSprinting(boolean sprinting, Player player);
+
+    /**
      * Returns whether the display's glow is active or not.
      * @return Whether the display is glowing or not.
      */
@@ -138,36 +222,68 @@ public interface BaseEntity {
     void setGlowColor(ChatColor color, Player player);
 
     /**
-     * Adds a condition that the player must meet to see the display.
-     * @param condition The condition that the player must meet.
-     */
-    default void addViewCondition(Condition condition) {
-        getVisibilityManager().addViewCondition(condition);
-    }
-
-    /**
-     * Removes all the conditions.
-     */
-    default void clearConditions() {
-        getVisibilityManager().clearConditions();
-    }
-
-    /**
-     * Sets the code to run when the display is clicked.
-     * @param actions The code to run.
-     */
-    void setClickActions(DisplayActions actions);
-
-    /**
-     * Deletes the hologram.
+     * Returns the display's custom name.
      * <p>
-     * Online players will stop seeing it, and it won't be spawned for new players.
+     * This may be different from the value returned by {@link #getName()} and may be formatted.
+     * It's the text shown on top of the entity.
+     * @return The display's custom name.
      */
-    void remove();
+    String getCustomName();
 
     /**
-     * Checks whether the hologram is removed or not.
-     * @return Whether the hologram is removed or not.
+     * Sets the display's custom name for everyone.
+     * <p>
+     * Placeholders and colors will be parsed.
+     * @param customName The display's custom name.
      */
-    boolean isRemoved();
+    void setCustomName(String customName);
+
+    /**
+     * Sets the display's custom name for a specific player.
+     * <p>
+     * Placeholders and colors will be parsed.
+     * @param customName The display's custom name.
+     * @param player The player who will see the custom name.
+     */
+    void setCustomName(String customName, Player player);
+
+    /**
+     * Sets the display's custom name for everyone.
+     * <p>
+     * Placeholders and colors will be parsed.
+     * @param customName The display's custom name.
+     */
+    default void setCustomName(Component customName) {
+        setCustomName(MiniMessage.miniMessage().serialize(customName));
+    }
+
+    /**
+     * Sets the display's custom name for a specific player.
+     * <p>
+     * Placeholders and colors will be parsed.
+     * @param customName The display's custom name.
+     * @param player The player who will see the custom name.
+     */
+    default void setCustomName(Component customName, Player player) {
+        setCustomName(MiniMessage.miniMessage().serialize(customName), player);
+    }
+
+    /**
+     * Returns whether the display's custom name is visible or not.
+     * @return Whether the display's custom name is visible or not.
+     */
+    boolean isCustomNameVisible();
+
+    /**
+     * Makes the display's custom name be visible for everyone.
+     * @param visible If the custom name will be visible or not.
+     */
+    void setCustomNameVisible(boolean visible);
+
+    /**
+     * Makes the display's custom name be visible for everyone.
+     * @param visible If the custom name will be visible or not.
+     * @param player The player who will see the custom name.
+     */
+    void setCustomNameVisible(boolean visible, Player player);
 }

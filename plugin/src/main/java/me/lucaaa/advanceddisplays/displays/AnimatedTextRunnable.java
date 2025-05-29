@@ -95,7 +95,7 @@ public class AnimatedTextRunnable {
 
     private void updateDisplay(String text) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            packets.setMetadata(displayId, player, plugin.metadata.VALUE,
+            packets.setMetadata(displayId, player, plugin.metadata.TEXT,
                     ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, text)));
         }
     }
@@ -139,6 +139,6 @@ public class AnimatedTextRunnable {
     // Send the currently displayed text to players who just joined until the task refreshes/animates it.
     // If this wasn't run, the player wouldn't see any text until the task refreshed/animated it.
     public void sendToPlayer(Player player, PacketInterface packets) {
-        packets.setMetadata(displayId, player, plugin.metadata.VALUE, ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, textsList.get(index))));
+        packets.setMetadata(displayId, player, plugin.metadata.TEXT, ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, textsList.get(index))));
     }
 }

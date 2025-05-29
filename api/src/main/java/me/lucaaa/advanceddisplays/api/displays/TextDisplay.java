@@ -1,6 +1,7 @@
 package me.lucaaa.advanceddisplays.api.displays;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay.TextAlignment;
@@ -89,7 +90,9 @@ public interface TextDisplay extends BaseDisplay {
      * @param identifier What the text will be identified with.
      * @param text The text that will be displayed.
      */
-    void setSingleText(String identifier, Component text);
+    default void setSingleText(String identifier, Component text) {
+        setSingleText(identifier, MiniMessage.miniMessage().serialize(text));
+    }
     /**
      * Adds new text that will be animated along with the previously set text.
      * @param identifier What this text will be identified with.

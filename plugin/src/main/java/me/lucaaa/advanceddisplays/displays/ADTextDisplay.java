@@ -82,10 +82,10 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
         super.sendMetadataPackets(player);
         textRunnable.sendToPlayer(player, packets);
         packets.setMetadata(entityId, player,
-                new Metadata.DataInfo<>(metadata.BG_COLOR, backgroundColor.asARGB()),
-                new Metadata.DataInfo<>(metadata.LINE_WIDTH, lineWidth),
-                new Metadata.DataInfo<>(metadata.TEXT_OPACITY, textOpacity),
-                new Metadata.DataInfo<>(metadata.TEXT_PROPERTIES, Metadata.getProperties(shadowed, seeThrough, defaultBackground, alignment))
+                new Metadata.DataPair<>(metadata.BG_COLOR, backgroundColor.asARGB()),
+                new Metadata.DataPair<>(metadata.LINE_WIDTH, lineWidth),
+                new Metadata.DataPair<>(metadata.TEXT_OPACITY, textOpacity),
+                new Metadata.DataPair<>(metadata.TEXT_PROPERTIES, Metadata.getTextProperties(shadowed, seeThrough, defaultBackground, alignment))
         );
     }
 
@@ -132,7 +132,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setAlignment(TextDisplay.TextAlignment alignment, Player player) {
-        packets.setMetadata(entityId, player, metadata.TEXT_PROPERTIES, Metadata.getProperties(shadowed, seeThrough, defaultBackground, alignment));
+        packets.setMetadata(entityId, player, metadata.TEXT_PROPERTIES, Metadata.getTextProperties(shadowed, seeThrough, defaultBackground, alignment));
     }
 
     @Override
@@ -214,11 +214,6 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             save();
         }
         textRunnable.start(texts, animationTime, refreshTime);
-    }
-
-    @Override
-    public void setSingleText(String identifier, Component text) {
-        setSingleText(identifier, MiniMessage.miniMessage().serialize(text));
     }
 
     @Override
@@ -325,7 +320,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setUseDefaultBackground(boolean defaultBackground, Player player) {
-        packets.setMetadata(entityId, player, metadata.TEXT_PROPERTIES, Metadata.getProperties(shadowed, seeThrough, defaultBackground, alignment));
+        packets.setMetadata(entityId, player, metadata.TEXT_PROPERTIES, Metadata.getTextProperties(shadowed, seeThrough, defaultBackground, alignment));
     }
 
     @Override
@@ -345,7 +340,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setSeeThrough(boolean seeThrough, Player player) {
-        packets.setMetadata(entityId, player, metadata.TEXT_PROPERTIES, Metadata.getProperties(shadowed, seeThrough, defaultBackground, alignment));
+        packets.setMetadata(entityId, player, metadata.TEXT_PROPERTIES, Metadata.getTextProperties(shadowed, seeThrough, defaultBackground, alignment));
     }
 
     @Override
@@ -365,7 +360,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setShadowed(boolean shadowed, Player player) {
-        packets.setMetadata(entityId, player, metadata.TEXT_PROPERTIES, Metadata.getProperties(shadowed, seeThrough, defaultBackground, alignment));
+        packets.setMetadata(entityId, player, metadata.TEXT_PROPERTIES, Metadata.getTextProperties(shadowed, seeThrough, defaultBackground, alignment));
     }
 
     @Override

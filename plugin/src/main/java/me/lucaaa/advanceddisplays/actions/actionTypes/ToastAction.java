@@ -11,6 +11,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -24,7 +25,7 @@ public class ToastAction extends Action {
     private final boolean animate;
 
     public ToastAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
-        super(plugin, List.of("material", "enchanted", "title", "description", "frame", "animate"), actionSection);
+        super(plugin, List.of("material", "enchanted", "title", "description", "frame"), actionSection);
         this.plugin = plugin;
 
         Material material;
@@ -53,7 +54,16 @@ public class ToastAction extends Action {
         }
         this.frame = frame;
 
-        this.animate = actionSection.getBoolean("animate");
+        this.animate = actionSection.getBoolean("animate", true);
+        int customModelData = actionSection.getInt("customModelData", 0);
+
+        if (customModelData > 0) {
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                meta.setCustomModelData(customModelData);
+                item.setItemMeta(meta);
+            }
+        }
     }
 
     @Override

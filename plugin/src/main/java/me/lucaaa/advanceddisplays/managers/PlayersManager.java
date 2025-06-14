@@ -16,6 +16,10 @@ public class PlayersManager {
 
     public PlayersManager(AdvancedDisplays plugin) {
         this.plugin = plugin;
+
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            playersData.put(player, new PlayerData(player, plugin));
+        }
     }
 
     public void addPlayer(Player player) {
@@ -25,7 +29,7 @@ public class PlayersManager {
     public void removePlayer(Player player) {
         PlayerData playerData = playersData.remove(player);
         playerData.stopRunnables();
-        playerData.finishEditing();
+        if (playerData.isEditing()) playerData.finishEditing();
     }
 
     public PlayerData getPlayerData(Player player) {

@@ -27,7 +27,7 @@ public interface ComponentSerializer {
      * @return The component.
      */
     static Component deserialize(String text) {
-        text = text.replace("\\n", "\n");
+        text = text.replace("\\n", "\n").replace('§', '&');
         // From legacy and minimessage format to a component
         Component legacy = LegacyComponentSerializer.legacyAmpersand().deserialize(text);
         // From component to Minimessage String. Replacing the "\" with nothing makes the minimessage formats work.

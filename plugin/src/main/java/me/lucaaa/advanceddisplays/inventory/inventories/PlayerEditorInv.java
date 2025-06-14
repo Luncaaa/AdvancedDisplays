@@ -21,7 +21,7 @@ import org.bukkit.util.Transformation;
 
 import java.util.*;
 
-public class PlayerInv {
+public class PlayerEditorInv {
     private final Player player;
     private final List<EditorItem> disabledItems;
     private InventoryRows currentRow = InventoryRows.LEFT_ROTATION_YAW_PITCH;
@@ -35,7 +35,7 @@ public class PlayerInv {
     // Buttons independent of the rows
     private final Map<Integer, Button.PlayerButton<?>> buttons = new HashMap<>();
 
-    public PlayerInv(AdvancedDisplays plugin, Player player, BaseEntity entity, List<EditorItem> disabledItems) {
+    public PlayerEditorInv(AdvancedDisplays plugin, Player player, BaseEntity entity, List<EditorItem> disabledItems) {
         this.player = player;
         this.disabledItems = disabledItems;
         this.entity = entity;
@@ -75,7 +75,7 @@ public class PlayerInv {
             public void onClick(PlayerInteractEvent event) {
                 InventoryMethods inventory;
                 if (isDisplay) {
-                    inventory = new DisplayEditorGUI(plugin, (ADBaseDisplay) PlayerInv.this.entity, disabledItems);
+                    inventory = new DisplayEditorGUI(plugin, (ADBaseDisplay) PlayerEditorInv.this.entity, disabledItems);
                 } else {
                     // TODO: New inventory with base entity settings
                     inventory = null;
@@ -88,7 +88,7 @@ public class PlayerInv {
         buttons.put(8, new Button.PlayerButton<>(GlobalItems.done(plugin)) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                plugin.getInventoryManager().finishEditing(player);
+                plugin.getPlayersManager().getPlayerData(player).finishEditing();
                 player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been successfully given back to you."));
             }
         });

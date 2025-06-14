@@ -10,6 +10,7 @@ import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
+import me.lucaaa.advanceddisplays.data.PlayerData;
 import me.lucaaa.advanceddisplays.data.Ticking;
 import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
@@ -97,7 +98,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         this.glowColor = ChatColor.valueOf(config.getOrDefault("color", ChatColor.GOLD.name(), glowSection));
 
         this.customName = config.getOrDefault("custom-name", entityType.name(), entitySection);
-        this.isCustomNameVisible = config.getOrDefault("custom-name-nisible", false, entitySection);
+        this.isCustomNameVisible = config.getOrDefault("custom-name-visible", false, entitySection);
 
         this.entity = packets.createEntity(entityType, location);
         this.entityId = entity.getEntityId();
@@ -229,15 +230,16 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
 
     @Override
     public void openEditor(Player player, List<EditorItem> disabledSettings) {
-        plugin.getInventoryManager().addEditingPlayer(player, this, disabledSettings);
+        plugin.getPlayersManager().getPlayerData(player).startEditing(this, disabledSettings);
         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are now editing the display &e" + name + "&a. Run &e/ad finish &ato get your old inventory back."));
     }
 
     @Override
     public void closeEditor(Player player) {
-        if (!plugin.getInventoryManager().isPlayerEditing(player)) return;
+        PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
+        if (!playerData.isEditing()) return;
 
-        plugin.getInventoryManager().finishEditing(player);
+        playerData.finishEditing();
         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been successfully given back to you."));
     }
 
@@ -326,9 +328,6 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
             entityId = entity.getEntityId();
 
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (this instanceof ADTextDisplay textDisplay) {
-                    textDisplay.restartRunnable();
-                }
                 sendMetadataPackets(onlinePlayer);
             }
 
@@ -518,5 +517,9 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
     @Override
     public void setCustomNameVisible(boolean visible, Player player) {
         packets.setMetadata(entityId, player, metadata.CUSTOM_NAME_VISIBLE, visible);
+    }
+
+    public int getEntityId() {
+        return entityId;
     }
 }

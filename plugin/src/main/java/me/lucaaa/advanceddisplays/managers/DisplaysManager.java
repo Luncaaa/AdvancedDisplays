@@ -48,7 +48,7 @@ public class DisplaysManager {
                 if (configFile.isDirectory()) continue;
                 ConfigManager configManager = new ConfigManager(plugin, configsFolder + File.separator + configFile.getName(), false);
 
-                if (!configManager.getConfig().isConfigurationSection("view-conditions")) {
+                if (!configManager.getConfig().isConfigurationSection("entity")) {
                     ConversionManager.setConversionNeeded(plugin, true);
                     break;
                 }
@@ -155,7 +155,7 @@ public class DisplaysManager {
         if (display instanceof ADTextDisplay) ((ADTextDisplay) display).stopRunnable();
         display.destroy();
         display.stopTicking();
-        plugin.getInventoryManager().handleRemoval(display);
+        plugin.getPlayersManager().handleDisplayRemoval(display);
         if (removeFromList) displays.remove(display.getName());
         display.setRemoved();
     }

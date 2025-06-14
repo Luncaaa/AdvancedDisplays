@@ -23,6 +23,7 @@ import java.util.logging.Level;
 
 // TODO
 // 1. Animated item and block displays?
+// 2. Improve shitty player data system (too many maps Player-Data: InventoryManager, PlayersManager)
 public class AdvancedDisplays extends JavaPlugin implements Logger {
     // Config files.
     private ConfigManager mainConfig;
@@ -43,6 +44,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
     private InteractionsManager interactionsManager;
     private DisplaysManager displaysManager;
     private MessagesManager messagesManager;
+    private PlayersManager playersManager;
     private InventoryManager inventoryManager;
 
     // API
@@ -60,6 +62,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
             displaysManager.removeAll(true); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
             savedApiDisplays = interactionsManager.getApiDisplays();
             packetsManager.removeAll(); // If the plugin has been reloaded, remove and add all players again.
+            playersManager.removeAll();
             inventoryManager.clearAll(); // If the plugin has been reloaded, clear the map.
             tickManager.stop();
         }
@@ -68,7 +71,8 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         interactionsManager = new InteractionsManager(savedApiDisplays);
         displaysManager = new DisplaysManager(this, getName(), true, false);
         messagesManager = new MessagesManager(mainConfig);
-        inventoryManager = new InventoryManager(this, mainConfig, savesConfig);
+        playersManager = new PlayersManager(this);
+        inventoryManager = new InventoryManager(this, mainConfig);
     }
 
     @Override
@@ -160,6 +164,10 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
     
     public MessagesManager getMessagesManager() {
         return messagesManager;
+    }
+
+    public PlayersManager getPlayersManager() {
+        return playersManager;
     }
 
     public InventoryManager getInventoryManager() {

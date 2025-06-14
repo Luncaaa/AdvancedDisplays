@@ -219,9 +219,6 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
             hitbox = (Interaction) packets.createEntity(EntityType.INTERACTION, location1);
 
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (this instanceof ADTextDisplay textDisplay) {
-                    textDisplay.restartRunnable();
-                }
                 sendMetadataPackets(onlinePlayer);
             }
 

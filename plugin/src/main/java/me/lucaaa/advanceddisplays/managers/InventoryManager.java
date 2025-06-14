@@ -1,9 +1,7 @@
 package me.lucaaa.advanceddisplays.managers;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
-import me.lucaaa.advanceddisplays.data.EditingPlayer;
 import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -13,15 +11,12 @@ import java.util.*;
 import java.util.logging.Level;
 
 public class InventoryManager {
-    private final AdvancedDisplays plugin;
+    private final PlayersManager playersManager;
     private final List<EditorItem> disabledItems = new ArrayList<>();
-    private final ConfigManager savesConfig;
     private final Map<Player, InventoryMethods> openGUIs = new HashMap<>();
-    private final Map<Player, EditingPlayer> editingData = new HashMap<>();
 
-    public InventoryManager(AdvancedDisplays plugin, ConfigManager mainConfig, ConfigManager savesConfig) {
-        this.plugin = plugin;
-        this.savesConfig = savesConfig;
+    public InventoryManager(AdvancedDisplays plugin, ConfigManager mainConfig) {
+        this.playersManager = plugin.getPlayersManager();
 
         if (!mainConfig.getConfig().isList("disabledItems")) {
             mainConfig.getConfig().set("disabledItems", List.of());
@@ -46,13 +41,11 @@ public class InventoryManager {
         gui.onOpen();
         player.openInventory(gui.getInventory());
         openGUIs.put(player, gui);
-        if (editingData.containsKey(player)) {
-            editingData.get(player).setOpenInventory(gui);
-        }
+        playersManager.getPlayerData(player).setOpenInventory(gui);
     }
 
     public void handleClick(InventoryClickEvent event) {
-        if (editingData.containsKey((Player) event.getWhoClicked()) && Objects.requireNonNull(event.getClickedInventory()).getType() == InventoryType.PLAYER) {
+        if (playersManager.getPlayerData((Player) event.getWhoClicked()).isEditing() && Objects.requireNonNull(event.getClickedInventory()).getType() == InventoryType.PLAYER) {
             event.setCancelled(true);
             return;
         }
@@ -74,47 +67,6 @@ public class InventoryManager {
             player.closeInventory();
         }
         openGUIs.clear();
-
-        for (EditingPlayer player : editingData.values()) {
-            player.finishEditing();
-        }
-        editingData.clear();
-    }
-
-    public void addEditingPlayer(Player player, BaseEntity display, List<EditorItem> disabledSettings) {
-        if (editingData.containsKey(player)) editingData.get(player).finishEditing();
-        editingData.put(player, new EditingPlayer(plugin, savesConfig, player, display, disabledSettings));
-    }
-
-    public void finishEditing(Player player) {
-        editingData.remove(player).finishEditing();
-    }
-
-    public boolean isPlayerEditing(Player player) {
-        return editingData.containsKey(player);
-    }
-
-    public EditingPlayer getEditingPlayer(Player player) {
-        return editingData.get(player);
-    }
-
-    public void handleRemoval(BaseEntity display) {
-        for (EditingPlayer player : editingData.values()) {
-            if (player.getEditingDisplay() != display) continue;
-
-            player.finishEditing();
-        }
-    }
-
-    /**
-     * Handles edition
-     * @param player The player who edited
-     * @param input The edition made
-     */
-    public void handleChatEdit(Player player, String input) {
-        if (!editingData.containsKey(player) || !editingData.get(player).isChatEditing()) return;
-
-        editingData.get(player).handleChatEdit(player, input);
     }
 
     public List<EditorItem> getDisabledItems() {

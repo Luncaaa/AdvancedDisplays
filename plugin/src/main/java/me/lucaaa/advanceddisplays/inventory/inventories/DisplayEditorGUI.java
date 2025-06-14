@@ -171,7 +171,7 @@ public class DisplayEditorGUI extends InventoryMethods {
             @Override
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
-                plugin.getInventoryManager().getEditingPlayer((Player) event.getWhoClicked()).setChatEditing(true);
+                plugin.getPlayersManager().getPlayerData((Player) event.getWhoClicked()).setChatEditing(true);
 
                 if (display.getType() != DisplayType.TEXT) {
                     editMap.put((Player) event.getWhoClicked(), EditAction.CHANGE_MATERIAL);

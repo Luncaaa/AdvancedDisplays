@@ -9,13 +9,13 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class NextPageSubCommand extends SubCommandsFormat {
-    public NextPageSubCommand(AdvancedDisplays plugin) {
+public class ResetSubCommand extends SubCommandsFormat {
+    public ResetSubCommand(AdvancedDisplays plugin) {
         super(plugin);
-        this.name = "nextPage";
-        this.description = "Switches to the next page of a text display.";
-        this.usage = "/ad nextPage [name] <player> <silent>";
-        this.minArguments = 1;
+        this.name = "reset";
+        this.description = "Makes the page that the player is seeing be the same as the display's page.";
+        this.usage = "/ad reset [name] [player] <silent>";
+        this.minArguments = 2;
         this.executableByConsole = true;
         this.neededPermission = "ad.page";
     }
@@ -45,20 +45,15 @@ public class NextPageSubCommand extends SubCommandsFormat {
             return;
         }
 
-        if (args.length >= 3) {
-            Player player = plugin.getServer().getPlayer(args[2]);
-            if (player == null) {
-                sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe player &b" + args[2] + " &cdoes not exist or was not found!"));
-            } else {
-                textDisplay.nextPage(player);
-            }
+        Player player = plugin.getServer().getPlayer(args[2]);
+        if (player == null) {
+            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe player &b" + args[2] + " &cdoes not exist or was not found!"));
         } else {
-            textDisplay.nextPage();
-        }
-
-        // "parseBoolean" returns false even if it's not a boolean.
-        if (!Boolean.parseBoolean(args[args.length - 1])) {
-            sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[1] + " &ais now showing its next page."));
+            textDisplay.resetPlayer(player);
+            // "parseBoolean" returns false even if it's not a boolean.
+            if (!Boolean.parseBoolean(args[args.length - 1])) {
+                sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe player &e" + args[1] + " &ais now seeing &e" + args[1] + "&a's default page."));
+            }
         }
     }
 }

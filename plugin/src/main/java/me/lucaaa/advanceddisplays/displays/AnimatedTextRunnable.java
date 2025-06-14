@@ -11,44 +11,69 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Consumer;
 
 public class AnimatedTextRunnable {
     private final AdvancedDisplays plugin;
     private final PacketInterface packets;
-    private int displayId;
+    private final ADTextDisplay display;
 
     // Minimessage String rather than component for placeholder parsing (so that, for example, %prefix% which is <red>Owner is parsed correctly)
     private List<String> textsList;
     private int animationTime = 0;
     private int refreshTime = 0;
 
+    // Using a consumer is better than checking whether the runnable is for an individual player
+    // or all online players every iteration...
+    private final Consumer<String> updateDisplay;
+    private final List<Player> excludedPlayers = new ArrayList<>();
     private BukkitTask displayTask;
     private int index = 0;
 
-    public AnimatedTextRunnable(AdvancedDisplays plugin, int displayId) {
+    public AnimatedTextRunnable(AdvancedDisplays plugin, ADTextDisplay display) {
         this.plugin = plugin;
         this.packets = plugin.getPacketsManager().getPackets();
-        this.displayId = displayId;
+        this.display = display;
+        this.updateDisplay = (text) -> {
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                if (excludedPlayers.contains(onlinePlayer)) continue;
+
+                packets.setMetadata(display.getEntityId(), onlinePlayer, plugin.metadata.TEXT,
+                        ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, text)));
+            }
+        };
     }
 
-    public void start(Map<String, String> texts, int animationTime, int refreshTime) {
-        start(new ArrayList<>(texts.values()), animationTime, refreshTime, 0);
+    // Use for per-player pages.
+    public AnimatedTextRunnable(AdvancedDisplays plugin, ADTextDisplay display, Player player) {
+        this.plugin = plugin;
+        this.packets = plugin.getPacketsManager().getPackets();
+        this.display = display;
+        this.updateDisplay = (text) ->
+                packets.setMetadata(display.getEntityId(), player, plugin.metadata.TEXT,
+                        ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, text)));
+        // Initial values
+        this.textsList = new ArrayList<>(display.getText().values());
+        this.index = display.getTextRunnable().getCurrentIndex();
     }
 
-    private void start(List<String> texts, int animationTime, int refreshTime, int startIndex) {
+    public void start() {
+        start(0);
+    }
+
+    private void start(int startIndex) {
         stop();
 
-        this.textsList = texts;
-        this.animationTime = animationTime;
-        this.refreshTime = refreshTime;
+        this.textsList = new ArrayList<>(display.getText().values());
+        this.animationTime = display.getAnimationTime();
+        this.refreshTime = display.getRefreshTime();
         this.index = startIndex;
 
         if (textsList.isEmpty()) {
             return;
         }
 
-        updateDisplay(textsList.get(index));
+        updateDisplay.accept(textsList.get(index));
 
         if (animationTime <= 0 && refreshTime <= 0) {
             return;
@@ -85,19 +110,12 @@ public class AnimatedTextRunnable {
                 // Update if needed
                 if (shouldUpdate) {
                     if (nextPage) {
-                        AnimatedTextRunnable.this.index = (index + 1) % textsList.size();
+                        AnimatedTextRunnable.this.index = getNextIndex();
                     }
-                    updateDisplay(textsList.get(index));
+                    updateDisplay.accept(textsList.get(index));
                 }
             }
         }.runTaskTimerAsynchronously(plugin, 0L, 1L);
-    }
-
-    private void updateDisplay(String text) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            packets.setMetadata(displayId, player, plugin.metadata.TEXT,
-                    ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, text)));
-        }
     }
 
     // Method to stop the task
@@ -110,35 +128,54 @@ public class AnimatedTextRunnable {
         textsList = null;
     }
 
-    public void updateDisplayId(int newDisplayId) {
-        displayId = newDisplayId;
-    }
-
     public void nextPage() {
-        start(textsList, animationTime, refreshTime, (index + 1) % textsList.size());
+        start(getNextIndex());
     }
 
     public void previousPage() {
-        // index - 1 -> Previously displayed text
-        int previousIndex;
-        if (textsList.size() <= 1) {
-            previousIndex = 0;
-        } else if (index == 0) {
-            previousIndex = textsList.size() - 1;
-        } else {
-            previousIndex = index - 1;
-        }
-
-        start(textsList, animationTime, refreshTime, previousIndex);
+        start(getPreviousIndex());
     }
 
     public void setPage(int index) {
-        start(textsList, animationTime, refreshTime, index);
+        start(index);
     }
 
     // Send the currently displayed text to players who just joined until the task refreshes/animates it.
     // If this wasn't run, the player wouldn't see any text until the task refreshed/animated it.
-    public void sendToPlayer(Player player, PacketInterface packets) {
-        packets.setMetadata(displayId, player, plugin.metadata.TEXT, ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, textsList.get(index))));
+    public void sendToPlayer(Player player) {
+        packets.setMetadata(display.getEntityId(), player, plugin.metadata.TEXT, ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, textsList.get(index))));
+    }
+
+    public int getCurrentIndex() {
+        return index;
+    }
+
+    public int getNextIndex() {
+        return (index + 1) % textsList.size();
+    }
+
+    public int getPreviousIndex() {
+        // index - 1 -> Previously displayed text
+        if (textsList.size() <= 1) {
+            return 0;
+        } else if (index == 0) {
+            return textsList.size() - 1;
+        } else {
+            return index - 1;
+        }
+    }
+
+    public void excludePlayer(Player player) {
+        if (!excludedPlayers.contains(player)) {
+            excludedPlayers.add(player);
+        }
+    }
+
+    public void resetPlayer(Player player) {
+        if (excludedPlayers.contains(player)) {
+            excludedPlayers.remove(player);
+            packets.setMetadata(display.getEntityId(), player, plugin.metadata.TEXT,
+                    ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, textsList.get(index))));
+        }
     }
 }

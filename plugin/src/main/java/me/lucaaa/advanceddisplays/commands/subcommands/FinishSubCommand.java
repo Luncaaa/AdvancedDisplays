@@ -1,6 +1,7 @@
 package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.data.PlayerData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -27,9 +28,10 @@ public class FinishSubCommand extends SubCommandsFormat {
             player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are no longer creating an ATTACHED display."));
         }
 
-        if (plugin.getInventoryManager().isPlayerEditing(player)) {
+        PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
+        if (playerData.isEditing()) {
             sendError = false;
-            plugin.getInventoryManager().finishEditing(player);
+            playerData.finishEditing();
             player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been successfully given back to you."));
         }
 

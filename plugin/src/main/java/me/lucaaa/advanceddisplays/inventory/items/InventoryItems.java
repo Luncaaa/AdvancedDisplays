@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.inventory.items;
 
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
-import me.lucaaa.advanceddisplays.inventory.inventories.PlayerInv;
+import me.lucaaa.advanceddisplays.inventory.inventories.PlayerEditorInv;
 import org.bukkit.Material;
 import org.bukkit.util.Transformation;
 
@@ -26,7 +26,7 @@ public class InventoryItems {
         PITCH = new Item.StepItem(Material.FIRE_CHARGE, "Pitch", "Changes the display's pitch", entity.getPitch(), 10.0, 1.0, true);
 
         OPEN_GUI = new Item.ClickableItem(Material.NETHER_STAR, "Open editor GUI", List.of("Opens a GUI with more options", "to edit the display"), "(" + entity.getType() + ") " + entity.getName());
-        CHANGE_ROW = new Item.EnumItem(Material.ARROW, "Change row", List.of("Changes the tools in your hotbar", "with another row of tools"), PlayerInv.InventoryRows.LEFT_ROTATION_YAW_PITCH, true);
+        CHANGE_ROW = new Item.EnumItem(Material.ARROW, "Change row", List.of("Changes the tools in your hotbar", "with another row of tools"), PlayerEditorInv.InventoryRows.LEFT_ROTATION_YAW_PITCH, true);
     }
 
     public static class DisplayItems extends InventoryItems {

@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
+import me.lucaaa.advanceddisplays.data.PlayerData;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import me.lucaaa.advanceddisplays.nms_common.Metadata;
@@ -35,7 +36,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
 
     public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name) {
         super(plugin, displaysManager, configManager, name, DisplayType.TEXT, EntityType.TEXT_DISPLAY);
-        this.textRunnable = new AnimatedTextRunnable(plugin, entityId);
+        this.textRunnable = new AnimatedTextRunnable(plugin, this);
 
         if (settings != null) {
             this.animationTime = config.getOrDefault("animationTime", 20, settings);
@@ -57,7 +58,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
                     texts.put(sectionName, String.join("\n", textSection.getStringList(sectionName)));
                 }
             }
-            textRunnable.start(texts, animationTime, refreshTime);
+            textRunnable.start();
 
             this.alignment = TextDisplay.TextAlignment.valueOf(config.getOrDefault("alignment", TextDisplay.TextAlignment.CENTER.name(), settings));
 
@@ -74,13 +75,13 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
 
     public ADTextDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, Location location, boolean saveToConfig) {
         super(plugin, displaysManager, name, location, DisplayType.TEXT, EntityType.TEXT_DISPLAY, saveToConfig);
-        this.textRunnable = new AnimatedTextRunnable(plugin, entityId);
+        this.textRunnable = new AnimatedTextRunnable(plugin, this);
     }
 
     @Override
     public void sendMetadataPackets(Player player) {
         super.sendMetadataPackets(player);
-        textRunnable.sendToPlayer(player, packets);
+        textRunnable.sendToPlayer(player);
         packets.setMetadata(entityId, player,
                 new Metadata.DataPair<>(metadata.BG_COLOR, backgroundColor.asARGB()),
                 new Metadata.DataPair<>(metadata.LINE_WIDTH, lineWidth),
@@ -191,7 +192,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             settings.set("texts", textSection);
             save();
         }
-        textRunnable.start(texts, animationTime, refreshTime);
+        textRunnable.start();
     }
 
     @Override
@@ -213,7 +214,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             textSection.set(identifier, text.split(Pattern.quote("\n")));
             save();
         }
-        textRunnable.start(texts, animationTime, refreshTime);
+        textRunnable.start();
     }
 
     @Override
@@ -234,7 +235,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             settings.set("texts", textSection);
             save();
         }
-        textRunnable.start(texts, animationTime, refreshTime);
+        textRunnable.start();
         return true;
     }
 
@@ -260,7 +261,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             texts.put("empty", "&cThere are no texts to display");
             isEmpty = true;
         }
-        textRunnable.start(texts, animationTime, refreshTime);
+        textRunnable.start();
         return true;
     }
 
@@ -270,8 +271,22 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
 
     @Override
+    public void nextPage(Player player) {
+        textRunnable.excludePlayer(player);
+        PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
+        playerData.getRunnable(plugin, this).nextPage();
+    }
+
+    @Override
     public void previousPage() {
         textRunnable.previousPage();
+    }
+
+    @Override
+    public void previousPage(Player player) {
+        textRunnable.excludePlayer(player);
+        PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
+        playerData.getRunnable(plugin, this).previousPage();
     }
 
     @Override
@@ -281,6 +296,23 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
         }
 
         textRunnable.setPage(texts.keySet().stream().toList().indexOf(page));
+    }
+
+    @Override
+    public void setPage(String page, Player player) {
+        if (!texts.containsKey(page)) {
+            throw new IllegalArgumentException("The display " + getName() + " does not have a page called " + page);
+        }
+
+        textRunnable.excludePlayer(player);
+        PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
+        playerData.getRunnable(plugin, this).setPage(texts.keySet().stream().toList().indexOf(page));
+    }
+
+    @Override
+    public void resetPlayer(Player player) {
+        plugin.getPlayersManager().resetDisplay(player, this);
+        textRunnable.resetPlayer(player);
     }
 
     @Override
@@ -374,7 +406,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             settings.set("animationTime", animationTime);
             save();
         }
-        textRunnable.start(texts, animationTime, refreshTime);
+        textRunnable.start();
     }
 
     @Override
@@ -388,16 +420,15 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             settings.set("refreshTime", refreshTime);
             save();
         }
-        textRunnable.start(texts, animationTime, refreshTime);
+        textRunnable.start();
+    }
+
+    public AnimatedTextRunnable getTextRunnable() {
+        return textRunnable;
     }
 
     public void stopRunnable() {
         textRunnable.stop();
-    }
-    public void restartRunnable() {
-        textRunnable.stop();
-        textRunnable.updateDisplayId(entityId);
-        textRunnable.start(texts, animationTime, refreshTime);
     }
 
     public boolean isNotEmpty() {

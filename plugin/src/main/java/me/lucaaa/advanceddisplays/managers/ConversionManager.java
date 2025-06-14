@@ -8,6 +8,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.EntityType;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,13 +37,54 @@ public class ConversionManager {
 
     public static void convert(AdvancedDisplays plugin, File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        ConfigurationSection settingsSection;
-        if (config.contains("settings")) {
-            settingsSection = config.getConfigurationSection("settings");
+
+        ConfigurationSection entitySection;
+        if (!config.isConfigurationSection("entity")) {
+            entitySection = config.createSection("entity");
         } else {
-            settingsSection = config.createSection("settings");
+            entitySection = config.getConfigurationSection("entity");
+        }
+        assert entitySection != null;
+
+        ConfigurationSection displaySection;
+        if (config.isConfigurationSection("display")) {
+            displaySection = config.getConfigurationSection("display");
+        } else {
+            displaySection = config.createSection("display");
+        }
+        assert  displaySection != null;
+
+        ConfigurationSection settingsSection;
+        if (displaySection.isConfigurationSection("settings")) {
+            settingsSection = displaySection.getConfigurationSection("settings");
+        } else if (config.isConfigurationSection("settings")) {
+            displaySection.set("settings", config.getConfigurationSection("settings"));
+            settingsSection = displaySection.getConfigurationSection("settings");
+            config.set("settings", null);
+        } else {
+            settingsSection = displaySection.createSection("settings");
         }
         assert settingsSection != null;
+
+        if (!entitySection.isBoolean("onFire")) entitySection.set("onFire", false);
+        if (!entitySection.isBoolean("sprinting")) entitySection.set("sprinting", false);
+        if (!entitySection.isString("custom-name")) entitySection.set("custom-name", "Custom name");
+        if (!entitySection.isBoolean("custom-name-visible")) entitySection.set("custom-name-visible", false);
+
+        if (config.isConfigurationSection("glow")) {
+            ConfigurationSection oldGlowSection = Objects.requireNonNull(config.getConfigurationSection("glow"));
+            ConfigurationSection glowSection = entitySection.createSection("glow");
+            glowSection.set("glowing", oldGlowSection.getBoolean("glowing"));
+            glowSection.set("color", "GOLD");
+            displaySection.set("glowColorOverride", oldGlowSection.getString("color"));
+            config.set("glow", null);
+
+        } else if (!entitySection.isConfigurationSection("hitbox")) {
+            ConfigurationSection glowSection = entitySection.createSection("glow");
+            glowSection.set("glowing", false);
+            glowSection.set("color", "GOLD");
+            displaySection.set("glowColorOverride", "255;170;0");
+        }
 
         // From version 1.0
         if (config.getString("block") != null) {
@@ -79,7 +121,8 @@ public class ConversionManager {
         DisplayType type = DisplayType.valueOf(config.getString("type"));
 
         if (type == DisplayType.BLOCK) {
-            if (!settingsSection.contains("blockData")) {
+            entitySection.set("type", EntityType.BLOCK_DISPLAY.name());
+            if (!settingsSection.isConfigurationSection("blockData")) {
                 ConfigurationSection dataSection = settingsSection.createSection("blockData");
                 BlockData block = Objects.requireNonNull(Material.getMaterial(Objects.requireNonNull(settingsSection.getString("block")))).createBlockData();
                 if (block.getAsString().indexOf("[") > 0) {
@@ -93,8 +136,9 @@ public class ConversionManager {
             }
 
         } else if (type == DisplayType.TEXT) {
-            if (!settingsSection.contains("animationTime")) settingsSection.set("animationTime", 20);
-            if (!settingsSection.contains("refreshTime")) settingsSection.set("refreshTime", 20);
+            entitySection.set("type", EntityType.TEXT_DISPLAY.name());
+            if (!settingsSection.isInt("animationTime")) settingsSection.set("animationTime", 20);
+            if (!settingsSection.isInt("refreshTime")) settingsSection.set("refreshTime", 20);
 
             if (!settingsSection.isConfigurationSection("texts")) {
                 ConfigurationSection textSection = settingsSection.createSection("texts");
@@ -112,8 +156,41 @@ public class ConversionManager {
             }
 
         } else if (type == DisplayType.ITEM) {
-            if (!settingsSection.contains("enchanted")) settingsSection.set("enchanted", false);
-            if (!settingsSection.contains("customModelData")) settingsSection.set("customModelData", 0);
+            entitySection.set("type", EntityType.ITEM_DISPLAY.name());
+            if (!settingsSection.isBoolean("enchanted")) settingsSection.set("enchanted", false);
+            if (!settingsSection.isInt("customModelData")) settingsSection.set("customModelData", 0);
+        }
+
+        if (config.isConfigurationSection("hitbox")) {
+            displaySection.set("hitbox", config.getConfigurationSection("hitbox"));
+            config.set("hitbox", null);
+
+        } else if (!displaySection.isConfigurationSection("hitbox")) {
+            ConfigurationSection hitboxSection = displaySection.createSection("hitbox");
+            hitboxSection.set("override", false);
+            hitboxSection.set("width", 1.0f);
+            hitboxSection.set("height", 1.0f);
+            displaySection.setComments("hitbox", Arrays.asList("Displays don't have hitboxes of their own, so to have click actions independent entities have to be created.", "These settings allow you to control the hitbox of the display.", "(Use F3 + B to see the hitboxes)"));
+        }
+
+        if (config.isConfigurationSection("transformation")) {
+            displaySection.set("transformation", config.getConfigurationSection("transformation"));
+            config.set("transformation", null);
+        }
+
+        if (config.isConfigurationSection("shadow")) {
+            displaySection.set("shadow", config.getConfigurationSection("shadow"));
+            config.set("shadow", null);
+        }
+
+        if (config.isConfigurationSection("brightness")) {
+            displaySection.set("brightness", config.getConfigurationSection("brightness"));
+            config.set("brightness", null);
+        }
+
+        if (config.isString("rotationType")) {
+            displaySection.set("billboard", config.getString("rotationType"));
+            config.set("rotationType", null);
         }
 
         String hasPermission = config.getString("permission", "none");
@@ -130,20 +207,6 @@ public class ConversionManager {
         config.set("permission", null);
         config.set("hide-permission", null);
         config.set("view-distance", null);
-
-        if (!config.contains("glow")) {
-            ConfigurationSection glowSection = config.createSection("glow");
-            glowSection.set("glowing", false);
-            glowSection.set("color", "255;170;0");
-        }
-
-        if (!config.contains("hitbox")) {
-            ConfigurationSection hitboxSection = config.createSection("hitbox");
-            hitboxSection.set("override", false);
-            hitboxSection.set("width", 1.0f);
-            hitboxSection.set("height", 1.0f);
-            config.setComments("hitbox", Arrays.asList("Displays don't have hitboxes of their own, so to have click actions independent entities have to be created.", "These settings allow you to control the hitbox of the display.", "(Use F3 + B to see the hitboxes)"));
-        }
 
         if (config.contains("id")) {
             Display display = (Display) Bukkit.getEntity(UUID.fromString(Objects.requireNonNull(config.getString("id"))));

@@ -116,21 +116,44 @@ public interface TextDisplay extends BaseDisplay {
     boolean removeText(String identifier);
 
     /**
-     * Shows the next page/animation.
+     * Shows the next page/animation for everyone.
      */
     void nextPage();
+    /**
+     * Shows the next page/animation for a specific player.
+     * @param player The player who will see the next page.
+     */
+    void nextPage(Player player);
 
     /**
-     * Shows the previous page/animation.
+     * Shows the previous page/animation for everyone.
      */
     void previousPage();
+    /**
+     * Shows the previous page/animation for a specific player.
+     * @param player The player who will see the previous page.
+     */
+    void previousPage(Player player);
 
     /**
-     * Shows the given page.
+     * Shows the given page for everyone.
      * @param page The page to show.
      * @throws IllegalArgumentException If the display does not have the given page.
      */
     void setPage(String page);
+    /**
+     * Shows the given page for a specific player.
+     * @param page The page to show.
+     * @param player The player who will see the page.
+     * @throws IllegalArgumentException If the display does not have the given page.
+     */
+    void setPage(String page, Player player);
+
+    /**
+     * Makes the player see the display's page instead of another one.
+     * @param player The player for whom the display will be reset.
+     */
+    void resetPlayer(Player player);
 
     /**
      * Gets the text's opacity.

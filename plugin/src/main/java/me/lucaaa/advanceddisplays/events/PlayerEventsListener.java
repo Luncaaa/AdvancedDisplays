@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.events;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.ADAPIImplementation;
 import me.lucaaa.advanceddisplays.data.AttachedDisplay;
+import me.lucaaa.advanceddisplays.data.PlayerData;
 import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
@@ -48,6 +49,7 @@ public class PlayerEventsListener implements Listener {
         }
 
         plugin.getPacketsManager().add(player);
+        plugin.getPlayersManager().addPlayer(player);
         plugin.getDisplaysManager().spawnDisplays(player);
         for (ADAPIImplementation implementation : plugin.getApiDisplays().getApiMap().values()) {
             implementation.getDisplaysManager().spawnDisplays(player);
@@ -56,30 +58,35 @@ public class PlayerEventsListener implements Listener {
 
     @EventHandler
     public void onWorldChange(PlayerChangedWorldEvent event) {
-        plugin.getDisplaysManager().spawnDisplays(event.getPlayer());
+        Player player = event.getPlayer();
+        plugin.getDisplaysManager().spawnDisplays(player);
         for (ADAPIImplementation implementation : plugin.getApiDisplays().getApiMap().values()) {
-            implementation.getDisplaysManager().spawnDisplays(event.getPlayer());
+            implementation.getDisplaysManager().spawnDisplays(player);
         }
+        plugin.getPlayersManager().getPlayerData(player).stopRunnables();
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
 
         plugin.getPacketsManager().remove(player);
-        if (plugin.getInventoryManager().isPlayerEditing(player)) {
-            plugin.getInventoryManager().finishEditing(player);
+        if (playerData.isEditing()) {
+            playerData.finishEditing();
         }
         plugin.getDisplaysManager().removeAttachingDisplay(player);
+        plugin.getPlayersManager().removePlayer(player);
     }
 
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
-        if (!plugin.getInventoryManager().isPlayerEditing(event.getPlayer())) return;
+        PlayerData playerData = plugin.getPlayersManager().getPlayerData(event.getPlayer());
+        if (!playerData.isChatEditing()) return;
         new BukkitRunnable() {
             @Override
             public void run() {
-                plugin.getInventoryManager().handleChatEdit(event.getPlayer(), event.getMessage());
+                playerData.handleChatEdit(event.getMessage());
             }
         }.runTask(plugin);
         event.setCancelled(true);
@@ -90,6 +97,7 @@ public class PlayerEventsListener implements Listener {
         if (event.getHand() == EquipmentSlot.OFF_HAND) return;
 
         Player player = event.getPlayer();
+        PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
         Action action = event.getAction();
 
         DisplaysManager manager = plugin.getDisplaysManager();
@@ -104,7 +112,7 @@ public class PlayerEventsListener implements Listener {
             }
         }
 
-        if (!plugin.getInventoryManager().isPlayerEditing(player)) return;
+        if (!playerData.isEditing()) return;
 
         // Because the event is fired twice, the current time is stored in a map along with the player that interacted with the display.
         // When the event is called again, the current time and the one stored in the map are compared. If less than or 20ms have passed, ignore this event.
@@ -120,12 +128,12 @@ public class PlayerEventsListener implements Listener {
         }
 
         event.setCancelled(true);
-        plugin.getInventoryManager().getEditingPlayer(event.getPlayer()).handleClick(event);
+        playerData.handleClick(event);
     }
 
     @EventHandler
     public void onItemDrop(PlayerDropItemEvent event) {
-        if (!plugin.getInventoryManager().isPlayerEditing(event.getPlayer())) return;
+        if (!plugin.getPlayersManager().getPlayerData(event.getPlayer()).isEditing()) return;
 
         event.setCancelled(true);
     }
@@ -133,7 +141,7 @@ public class PlayerEventsListener implements Listener {
     @EventHandler
     public void onItemPickup(EntityPickupItemEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
-        if (!plugin.getInventoryManager().isPlayerEditing(player)) return;
+        if (!plugin.getPlayersManager().getPlayerData(player).isEditing()) return;
 
         event.setCancelled(true);
     }

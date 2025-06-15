@@ -123,9 +123,12 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         this.actionsHandler = new ActionsHandler(plugin, this, config);
         this.visibilityManager = new ADVisibilityManager(plugin, this);
 
-        this.location = location;
-        this.yaw = location.getYaw();
-        this.pitch = location.getPitch();
+        Location noRotation = location.clone();
+        noRotation.setYaw(0.0f);
+        noRotation.setPitch(0.0f);
+        this.location = noRotation;
+        this.yaw = 0.0f;
+        this.pitch = 0.0f;
         this.isGlowing = entity.isGlowing();
         this.glowColor = ChatColor.GOLD;
         this.customName = entityType.name();

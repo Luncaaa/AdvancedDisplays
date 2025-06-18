@@ -13,6 +13,10 @@ import org.bukkit.entity.Player;
 public class Utils {
     private static final LegacyComponentSerializer legacy = LegacyComponentSerializer.builder().hexColors().useUnusualXRepeatedCharacterHexFormat().build();
 
+    public static String getLegacyUnparsed(String text) {
+        return legacy.serialize(ComponentSerializer.deserialize(text));
+    }
+
     public static String getColoredText(String text) {
         return ChatColor.translateAlternateColorCodes('&', text);
     }

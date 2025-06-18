@@ -45,7 +45,11 @@ public class InventoryManager {
     }
 
     public void handleClick(InventoryClickEvent event) {
-        if (playersManager.getPlayerData((Player) event.getWhoClicked()).isEditing() && Objects.requireNonNull(event.getClickedInventory()).getType() == InventoryType.PLAYER) {
+        if (event.getClickedInventory() == null) {
+            return;
+        }
+
+        if (playersManager.getPlayerData((Player) event.getWhoClicked()).isEditing() && event.getClickedInventory().getType() == InventoryType.PLAYER) {
             event.setCancelled(true);
             return;
         }

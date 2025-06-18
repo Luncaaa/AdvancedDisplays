@@ -4,13 +4,16 @@ import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
 import me.lucaaa.advanceddisplays.api.conditions.Condition;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
+import me.lucaaa.advanceddisplays.api.displays.enums.NameVisibility;
 import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -20,6 +23,13 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 public interface BaseEntity {
+    /**
+     * Minimessage variable. Internal use only.
+     * @hidden 
+     */
+    @ApiStatus.Internal
+    MiniMessage minimessage = MiniMessage.miniMessage();
+    
     /**
      * Gets the name of the display.
      * @return The name of the display.
@@ -210,12 +220,16 @@ public interface BaseEntity {
 
     /**
      * Sets the glow color of the display for everyone. Only visible if the display is glowing.
+     * <p>
+     * Formats (such as bold or underlined) will be ignored.
      * @param color The glow color of the display.
      */
     void setGlowColor(ChatColor color);
 
     /**
      * Sets the glow color of the display for a specific player. Only visible if the display is glowing.
+     * <p>
+     * Formats (such as bold or underlined) will be ignored.
      * @param color The glow color of the display.
      * @param player The player who will see the glow color.
      */
@@ -228,6 +242,7 @@ public interface BaseEntity {
      * It's the text shown on top of the entity.
      * @return The display's custom name.
      */
+    @Nullable
     String getCustomName();
 
     /**
@@ -236,16 +251,21 @@ public interface BaseEntity {
      * Placeholders and colors will be parsed.
      * @param customName The display's custom name.
      */
-    void setCustomName(String customName);
+    default void setCustomName(@Nullable String customName) {
+        setCustomName(customName, getCustomNameVisibility());
+    }
 
     /**
      * Sets the display's custom name for a specific player.
      * <p>
      * Placeholders and colors will be parsed.
+     * Important! Custom name visibility will be reset. Consider using {@link #setCustomName(String, NameVisibility, Player)} instead.
      * @param customName The display's custom name.
      * @param player The player who will see the custom name.
      */
-    void setCustomName(String customName, Player player);
+    default void setCustomName(@Nullable String customName, Player player) {
+        setCustomName(customName, getCustomNameVisibility(), player);
+    }
 
     /**
      * Sets the display's custom name for everyone.
@@ -254,36 +274,83 @@ public interface BaseEntity {
      * @param customName The display's custom name.
      */
     default void setCustomName(Component customName) {
-        setCustomName(MiniMessage.miniMessage().serialize(customName));
+        setCustomName(minimessage.serialize(customName));
     }
 
     /**
      * Sets the display's custom name for a specific player.
      * <p>
      * Placeholders and colors will be parsed.
+     * Important! Custom name visibility will be reset. Consider using {@link #setCustomName(Component, NameVisibility, Player)} instead.
      * @param customName The display's custom name.
      * @param player The player who will see the custom name.
      */
     default void setCustomName(Component customName, Player player) {
-        setCustomName(MiniMessage.miniMessage().serialize(customName), player);
+        setCustomName(minimessage.serialize(customName), player);
     }
 
     /**
-     * Returns whether the display's custom name is visible or not.
-     * @return Whether the display's custom name is visible or not.
+     * Sets the display's custom name and its visibility for everyone.
+     * <p>
+     * Placeholders and colors will be parsed.
+     * @param customName The display's custom name.
+     * @param visibility The display's custom name visibility.
      */
-    boolean isCustomNameVisible();
+    void setCustomName(String customName, NameVisibility visibility);
 
     /**
-     * Makes the display's custom name be visible for everyone.
-     * @param visible If the custom name will be visible or not.
+     * Sets the display's custom name and its visibility for everyone.
+     * <p>
+     * Placeholders and colors will be parsed.
+     * @param customName The display's custom name.
+     * @param visibility The display's custom name visibility.
      */
-    void setCustomNameVisible(boolean visible);
+    default void setCustomName(Component customName, NameVisibility visibility) {
+        setCustomName(minimessage.serialize(customName), visibility);
+    }
 
     /**
-     * Makes the display's custom name be visible for everyone.
-     * @param visible If the custom name will be visible or not.
+     * Sets the display's custom name and its visibility for everyone.
+     * <p>
+     * Placeholders and colors will be parsed.
+     * @param customName The display's custom name.
+     * @param visibility The display's custom name visibility.
      * @param player The player who will see the custom name.
      */
-    void setCustomNameVisible(boolean visible, Player player);
+    void setCustomName(String customName, NameVisibility visibility, Player player);
+
+    /**
+     * Sets the display's custom name and its visibility for everyone.
+     * <p>
+     * Placeholders and colors will be parsed.
+     * @param customName The display's custom name.
+     * @param visibility The display's custom name visibility.
+     * @param player The player who will see the custom name.
+     */
+    default void setCustomName(Component customName, NameVisibility visibility, Player player) {
+        setCustomName(minimessage.serialize(customName), visibility, player);
+    }
+
+    /**
+     * Returns the display's custom name visibility.
+     * @return The display's custom name visibility.
+     */
+    NameVisibility getCustomNameVisibility();
+
+    /**
+     * Makes the display's custom name be visible for everyone.
+     * @param visibility If the custom name will be visible or not.
+     */
+    default void setCustomNameVisibility(NameVisibility visibility) {
+        setCustomName(getCustomName(), visibility);
+    }
+
+    /**
+     * Makes the display's custom name be visible for a specific player.
+     * @param visibility If the custom name will be visible or not.
+     * @param player The player who will see the custom name.
+     */
+    default void setCustomNameVisibility(NameVisibility visibility, Player player) {
+        setCustomName(getCustomName(), visibility, player);
+    }
 }

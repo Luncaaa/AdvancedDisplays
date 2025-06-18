@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +19,7 @@ public interface ComponentSerializer {
      * Minimessage variable. Internal use only.
      * @hidden
      */
+    @ApiStatus.Internal
     MiniMessage mm = MiniMessage.miniMessage();
 
     /**

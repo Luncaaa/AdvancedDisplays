@@ -58,18 +58,25 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
                     texts.put(sectionName, String.join("\n", textSection.getStringList(sectionName)));
                 }
             }
-            textRunnable.start();
-
-            this.alignment = TextDisplay.TextAlignment.valueOf(config.getOrDefault("alignment", TextDisplay.TextAlignment.CENTER.name(), settings));
-
-            String[] colorParts = config.getOrDefault("backgroundColor", "255;170;0;255", settings).split(";");
-            this.backgroundColor = Color.fromARGB(Integer.parseInt(colorParts[3]), Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]));
 
             this.lineWidth = config.getOrDefault("lineWidth", 250, settings);
             this.textOpacity = (byte) config.getOrDefault("textOpacity", -1, settings).intValue();
             this.defaultBackground = config.getOrDefault("defaultBackground", true, settings);
             this.seeThrough = config.getOrDefault("seeThrough", true, settings);
             this.shadowed = config.getOrDefault("shadowed", true, settings);
+
+            try {
+                this.alignment = TextDisplay.TextAlignment.valueOf(config.getOrDefault("alignment", TextDisplay.TextAlignment.CENTER.name(), settings));
+
+                String[] colorParts = config.getOrDefault("backgroundColor", "255;170;0;255", settings).split(";");
+                this.backgroundColor = Color.fromARGB(Integer.parseInt(colorParts[3]), Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]));
+
+            } catch (IllegalArgumentException e) {
+                errors.add("Invalid text alignment type or invalid background color - make sure none of the color components are lower than 0 or higher than 255");
+                return;
+            }
+
+            textRunnable.start();
         }
     }
 

@@ -247,16 +247,16 @@ public class Packets implements PacketInterface {
                                     )
                             )
                     );
-            case OPTIONAL_COMPONENT ->
-                    SynchedEntityData.DataValue.create(
-                            new EntityDataAccessor<>(id, EntityDataSerializers.OPTIONAL_COMPONENT),
-                            Optional.ofNullable(
-                                    Component.Serializer.fromJson(
-                                            ComponentSerializer.toJSON((net.kyori.adventure.text.Component) value),
-                                            cp.getHandle().registryAccess()
-                                    )
-                            )
-                    );
+            case OPTIONAL_COMPONENT -> {
+                @SuppressWarnings("unchecked")
+                Optional<net.kyori.adventure.text.Component> optional = (Optional<net.kyori.adventure.text.Component>) value;
+                Optional<Component> component = optional.map(component1 -> Component.Serializer.fromJson(
+                        ComponentSerializer.toJSON(component1),
+                        cp.getHandle().registryAccess()
+                ));
+
+                yield SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.OPTIONAL_COMPONENT), component);
+            }
             case ITEM_STACK -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy((ItemStack) value));
             case BLOCK_STATE -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.BLOCK_STATE), ((CraftBlockData) value).getState());
             case VECTOR3 -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.VECTOR3), (Vector3f) value);

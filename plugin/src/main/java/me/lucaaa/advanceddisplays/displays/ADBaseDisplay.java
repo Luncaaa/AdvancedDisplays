@@ -40,8 +40,6 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
         displaySection = config.getSection("display", false, config.getConfig());
         settings = config.getSection("settings", false, displaySection);
 
-        this.billboard = Display.Billboard.valueOf(config.getOrDefault("billboard", "FIXED", displaySection));
-
         ConfigurationSection brightnessSection = config.getSection("brightness", displaySection);
         this.brightness = new Display.Brightness(config.getOrDefault("block", 15, brightnessSection), config.getOrDefault("sky", 15, brightnessSection));
 
@@ -70,8 +68,14 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
         this.hitboxWidth = (float) config.getOrDefault("width", 1.0, hitboxSection).doubleValue();
         this.hitboxHeight = (float) config.getOrDefault("height", 1.0, hitboxSection).doubleValue();
 
-        String[] colorParts = config.getOrDefault("glowColorOverride", "255;170;0", displaySection).split(";");
-        this.glowColorOverride = Color.fromRGB(Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]));
+        try {
+            this.billboard = Display.Billboard.valueOf(config.getOrDefault("billboard", "FIXED", displaySection));
+
+            String[] colorParts = config.getOrDefault("glow-color-override", "255;170;0", displaySection).split(";");
+            this.glowColorOverride = Color.fromRGB(Integer.parseInt(colorParts[0]), Integer.parseInt(colorParts[1]), Integer.parseInt(colorParts[2]));
+        } catch (IllegalArgumentException e) {
+            errors.add("Invalid billboard type or invalid glow color override - make sure none of the color components are lower than 0 or higher than 255");
+        }
     }
 
     protected ADBaseDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, String name, Location location, DisplayType type, EntityType entityType, boolean saveToConfig) {
@@ -135,7 +139,7 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
         hitboxSection.set("height", 1.0f);
         displaySection.setComments("hitbox", Arrays.asList("Displays don't have hitboxes of their own, so to have click actions independent entities have to be created.", "These settings allow you to control the hitbox of the display.", "(Use F3 + B to see the hitboxes)"));
 
-        displaySection.set("glowColorOverride", "255;170;0");
+        displaySection.set("glow-color-override", "255;170;0");
 
         config.save();
         return config;
@@ -385,7 +389,7 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
     public void setGlowColorOverride(Color color) {
         glowColorOverride = color;
         if (config != null) {
-            displaySection.set("glowColorOverride", color.getRed() + ";" + color.getGreen() + ";" + color.getBlue());
+            displaySection.set("glow-color-override", color.getRed() + ";" + color.getGreen() + ";" + color.getBlue());
             save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {

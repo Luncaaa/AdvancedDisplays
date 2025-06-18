@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryCreativeEvent;
 
 public class InventoryEventsListener implements Listener {
     private final AdvancedDisplays plugin;
@@ -22,5 +23,10 @@ public class InventoryEventsListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         plugin.getInventoryManager().handleClose((Player) event.getPlayer());
+    }
+
+    @EventHandler
+    public void onCreativeEvent(InventoryCreativeEvent event) {
+        if (plugin.getPlayersManager().getPlayerData((Player) event.getWhoClicked()).isEditing()) event.setCancelled(true);
     }
 }

@@ -47,7 +47,11 @@ public class ADBlockDisplay extends ADBaseDisplay implements BlockDisplay {
                 dataParts.add(dataKey + "=" + dataSection.get(dataKey));
             }
             blockData = blockData.concat(String.join(",", dataParts));
-            block = Bukkit.getServer().createBlockData(blockData + "]");
+            try {
+                block = Bukkit.getServer().createBlockData(blockData + "]");
+            } catch (IllegalArgumentException e) {
+                errors.add("Invalid block data set! Make sure the block exists and that all of its properties are valid.");
+            }
         }
     }
 

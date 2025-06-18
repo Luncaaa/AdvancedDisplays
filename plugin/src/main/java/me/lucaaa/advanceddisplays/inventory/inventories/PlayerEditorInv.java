@@ -77,8 +77,7 @@ public class PlayerEditorInv {
                 if (isDisplay) {
                     inventory = new DisplayEditorGUI(plugin, (ADBaseDisplay) PlayerEditorInv.this.entity, disabledItems);
                 } else {
-                    // TODO: New inventory with base entity settings
-                    inventory = null;
+                    inventory = new EntityEditorGUI(plugin, PlayerEditorInv.this.entity, disabledItems, null);
                 }
 
                 plugin.getInventoryManager().handleOpen(event.getPlayer(), inventory);

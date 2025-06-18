@@ -12,7 +12,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -24,10 +23,11 @@ public class BlockDataGUI extends InventoryMethods {
     private final Consumer<BlockData> onDone;
     private final Material material;
     private final Map<String, String> dataMap = new HashMap<>();
+    // The value is the setting that the player is editing.
     private final Map<Player, String> editMap = new HashMap<>();
 
     public BlockDataGUI(AdvancedDisplays plugin, DisplayEditorGUI previousInventory, BlockDisplay display, Consumer<BlockData> onDone) {
-        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText("&6Editing block data of: &e" + display.getName())));
+        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText("&6Editing block data of: &e" + display.getName())), List.of());
         this.previous = previousInventory;
         this.onDone = onDone;
         this.material = display.getBlock().getMaterial();
@@ -38,15 +38,6 @@ public class BlockDataGUI extends InventoryMethods {
             String[] dataPart = data.split("=");
             dataMap.put(dataPart[0], dataPart[1]);
         }
-    }
-
-    @Override
-    public void onClick(InventoryClickEvent event) {
-        if (event.getClickedInventory() == getInventory() || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
-            event.setCancelled(true);
-        }
-
-        super.onClick(event);
     }
 
     @Override
@@ -92,9 +83,10 @@ public class BlockDataGUI extends InventoryMethods {
     @Override
     public void handleChatEdit(Player player, String input) {
         if (!input.equalsIgnoreCase("cancel")) {
-            dataMap.put(editMap.remove(player), input);
+            dataMap.put(editMap.get(player), input);
             decorate();
         }
+        editMap.remove(player);
         plugin.getInventoryManager().handleOpen(player, this);
     }
 

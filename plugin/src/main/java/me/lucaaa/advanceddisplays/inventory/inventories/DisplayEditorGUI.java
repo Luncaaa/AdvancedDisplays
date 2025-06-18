@@ -8,44 +8,28 @@ import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
 import me.lucaaa.advanceddisplays.inventory.*;
 import me.lucaaa.advanceddisplays.inventory.Button;
-import me.lucaaa.advanceddisplays.inventory.items.DisplayEditorItems;
+import me.lucaaa.advanceddisplays.inventory.items.EditorItems;
 import me.lucaaa.advanceddisplays.inventory.items.Item;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.List;
 
 public class DisplayEditorGUI extends InventoryMethods {
     private final BaseDisplay display;
-    private final List<EditorItem> disabledSettings;
-    private final DisplayEditorItems items;
+    private final EditorItems items;
     private final Map<Player, EditAction> editMap = new HashMap<>();
 
     public DisplayEditorGUI(AdvancedDisplays plugin, BaseDisplay display, List<EditorItem> disabledSettings) {
-        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))));
+        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))), disabledSettings);
         this.display = display;
-        this.disabledSettings = disabledSettings;
-        this.items = new DisplayEditorItems(display);
-    }
-
-    @Override
-    public void onClick(InventoryClickEvent event) {
-        event.setCancelled(true);
-
-        if (event.getClickedInventory() == getInventory()) {
-            super.onClick(event);
-        }
+        this.items = new EditorItems(display);
     }
 
     @Override
@@ -100,7 +84,7 @@ public class DisplayEditorGUI extends InventoryMethods {
             }
         });
 
-        addIfAllowed(EditorItem.GLOW_COLOR_SELECTOR, 11, new Button.InventoryButton<>(items.GLOW_COLOR_SELECTOR) {
+        addIfAllowed(EditorItem.GLOW_COLOR_SELECTOR, 11, new Button.InventoryButton<>(items.GLOW_COLOR_OVERRIDE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 ColorGUI inventory = new ColorGUI(plugin, DisplayEditorGUI.this, display, false, display.getGlowColorOverride(), color -> {
@@ -108,46 +92,13 @@ public class DisplayEditorGUI extends InventoryMethods {
                     getItem().setColor(display.getGlowColorOverride());
                     getInventory().setItem(11, getItem().getStack());
                 });
-
                 plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
             }
         });
         // ----------
 
-        // ----[ LOCATION ]-----
-        addIfAllowed(EditorItem.TELEPORT, 18, new Button.InventoryButton<>(items.TELEPORT) {
-            @Override
-            public void onClick(InventoryClickEvent event) {
-                event.getWhoClicked().closeInventory();
-                event.getWhoClicked().teleport(display.getLocation());
-            }
-        });
-
-        addIfAllowed(EditorItem.MOVE_HERE, 19, new Button.InventoryButton<>(items.MOVE_HERE) {
-            @Override
-            public void onClick(InventoryClickEvent event) {
-                event.getWhoClicked().closeInventory();
-                display.setLocation(event.getWhoClicked().getLocation());
-                Location loc = event.getWhoClicked().getLocation();
-                String location = BigDecimal.valueOf(loc.getX()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getY()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getZ()).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                getItem().setValue(location);
-                getInventory().setItem(19, getItem().getStack());
-            }
-        });
-
-        addIfAllowed(EditorItem.CENTER, 20, new Button.InventoryButton<>(items.CENTER) {
-            @Override
-            public void onClick(InventoryClickEvent event) {
-                Location loc = display.center();
-                String location = loc.getX() + ";" + loc.getY() + ";" + loc.getZ();
-                getItem().setValue(location);
-                getInventory().setItem(20, getItem().getStack());
-            }
-        });
-        // ----------
-
         // ----[ OTHER ]-----
-        addIfAllowed(EditorItem.BILLBOARD, 4, new Button.InventoryButton<>(items.BILLBOARD) {
+        addIfAllowed(EditorItem.BILLBOARD, 18, new Button.InventoryButton<>(items.BILLBOARD) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 Display.Billboard newBillboard = getItem().changeValue();
@@ -156,12 +107,20 @@ public class DisplayEditorGUI extends InventoryMethods {
             }
         });
 
-        addIfAllowed(EditorItem.HITBOX_OVERRIDE, 12, new Button.InventoryButton<>(items.HITBOX_OVERRIDE) {
+        addIfAllowed(EditorItem.HITBOX_OVERRIDE, 19, new Button.InventoryButton<>(items.HITBOX_OVERRIDE) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 boolean newValue = getItem().changeValue();
                 getInventory().setItem(12, getItem().getStack());
                 display.setHitboxSize(newValue, display.getHitboxWidth(), display.getHitboxHeight());
+            }
+        });
+
+        addButton(20, new Button.InventoryButton<>(items.ENTITY_SETTINGS) {
+            @Override
+            public void onClick(InventoryClickEvent event) {
+                EntityEditorGUI inventory = new EntityEditorGUI(plugin, display, disabledSettings, DisplayEditorGUI.this);
+                plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
             }
         });
         // ----------
@@ -176,10 +135,10 @@ public class DisplayEditorGUI extends InventoryMethods {
                 if (display.getType() != DisplayType.TEXT) {
                     editMap.put((Player) event.getWhoClicked(), EditAction.CHANGE_MATERIAL);
                     if (display.getType() == DisplayType.BLOCK) {
-                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of a valid block."));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of a valid block or \"cancel\" to keep the current one."));
                         event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6You can find a list of them here: &ehttps://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/BlockType.html"));
                     } else {
-                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of a valid material."));
+                        event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the name of a valid material or \"cancel\" to keep the current one."));
                         event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6You can find a list of them here: &ehttps://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html"));
                     }
 
@@ -445,45 +404,26 @@ public class DisplayEditorGUI extends InventoryMethods {
                     item.setValue(material.name());
                 }
             }
+
+            getInventory().setItem(13, item.getStack());
         }
 
-        getInventory().setItem(13, getButton(13).getItem().getStack());
         editMap.remove(player);
         plugin.getInventoryManager().handleOpen(player, this);
+    }
+
+    public void updateGlowToggleItem() {
+        if (disabledSettings.contains(EditorItem.GLOW_TOGGLE)) return;
+
+        @SuppressWarnings("unchecked")
+        Item<Boolean> item = (Item<Boolean>) getButton(2).getItem();
+        item.setValue(display.isGlowing());
+        getInventory().setItem(2, item.getStack());
     }
 
     private enum EditAction {
         ADD_TEXT,
         REMOVE_TEXT,
         CHANGE_MATERIAL
-    }
-
-    private void addIfAllowed(EditorItem requirement, int slot, Button.InventoryButton<?> button) {
-        if (!disabledSettings.contains(requirement)) {
-            addButton(slot, button);
-            return;
-        }
-
-        ItemStack itemStack = button.getItem().getStack();
-        ItemMeta meta = Objects.requireNonNull(itemStack.getItemMeta());
-        List<String> lore = new ArrayList<>();
-        for (String line : Objects.requireNonNull(meta.getLore())) {
-            if (!line.startsWith(ChatColor.YELLOW + "")) continue;
-
-            lore.add(line);
-        }
-
-        lore.remove(lore.size() - 1);
-        lore.add(ChatColor.RED + "" + ChatColor.BOLD + "Setting disabled!");
-        lore.add(ChatColor.GRAY + "You won't be able to change it");
-        lore.add("");
-        lore.add(ChatColor.BLUE + "Current value: " + ChatColor.GRAY + button.getItem().getValue());
-        meta.setLore(lore);
-        itemStack.setItemMeta(meta);
-
-        addButton(slot, new Button.InventoryButton<Item<?>>(button.getItem()) {
-            @Override
-            public void onClick(InventoryClickEvent event) {}
-        });
     }
 }

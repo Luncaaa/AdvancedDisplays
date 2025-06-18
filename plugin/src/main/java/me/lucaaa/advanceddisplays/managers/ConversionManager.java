@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.managers;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
+import me.lucaaa.advanceddisplays.api.displays.enums.NameVisibility;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
@@ -69,21 +70,21 @@ public class ConversionManager {
         if (!entitySection.isBoolean("onFire")) entitySection.set("onFire", false);
         if (!entitySection.isBoolean("sprinting")) entitySection.set("sprinting", false);
         if (!entitySection.isString("custom-name")) entitySection.set("custom-name", "Custom name");
-        if (!entitySection.isBoolean("custom-name-visible")) entitySection.set("custom-name-visible", false);
+        if (!entitySection.isBoolean("name-visibility")) entitySection.set("name-visibility", NameVisibility.HIDDEN.name());
 
         if (config.isConfigurationSection("glow")) {
             ConfigurationSection oldGlowSection = Objects.requireNonNull(config.getConfigurationSection("glow"));
             ConfigurationSection glowSection = entitySection.createSection("glow");
             glowSection.set("glowing", oldGlowSection.getBoolean("glowing"));
             glowSection.set("color", "GOLD");
-            displaySection.set("glowColorOverride", oldGlowSection.getString("color"));
+            displaySection.set("glow-color-override", oldGlowSection.getString("color"));
             config.set("glow", null);
 
         } else if (!entitySection.isConfigurationSection("hitbox")) {
             ConfigurationSection glowSection = entitySection.createSection("glow");
             glowSection.set("glowing", false);
             glowSection.set("color", "GOLD");
-            displaySection.set("glowColorOverride", "255;170;0");
+            displaySection.set("glow-color-override", "255;170;0");
         }
 
         // From version 1.0

@@ -10,11 +10,11 @@ import me.lucaaa.advanceddisplays.inventory.items.GlobalItems;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -26,20 +26,11 @@ public class ColorGUI extends InventoryMethods {
     private final Consumer<Color> onDone;
 
     public ColorGUI(AdvancedDisplays plugin, DisplayEditorGUI previousInventory, BaseDisplay display, boolean alphaEnabled, Color initialColor, Consumer<Color> onDone) {
-        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing glow color of: &e" + display.getName()))));
+        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing glow color of: &e" + display.getName()))), List.of());
         this.previous = previousInventory;
         this.savedColor = initialColor;
         this.alphaEnabled = alphaEnabled;
         this.onDone = onDone;
-    }
-
-    @Override
-    public void onClick(InventoryClickEvent event) {
-        if (event.getClickedInventory() == getInventory() || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
-            event.setCancelled(true);
-        }
-
-        super.onClick(event);
     }
 
     @Override

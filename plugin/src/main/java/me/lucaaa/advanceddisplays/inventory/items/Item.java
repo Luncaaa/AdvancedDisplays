@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.inventory.items;
 
 import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.data.NamedEnum;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -62,17 +63,15 @@ public class Item<T> {
         this.value = value;
         String title = this.title;
 
+        List<String> newLore = new ArrayList<>(lore);
         if (value != null) {
-            // Removes the previous old value.
-            for (int i = lore.size() - 1; i >= 0; i--) {
-                if (lore.get(i).startsWith("&9Current value:")) {
-                    lore.remove(i);
-                }
-            }
-
             String parsedValue = value.toString();
             if (value instanceof NamedEnum namedEnum) {
                 parsedValue = namedEnum.getName();
+
+            } else if (value instanceof ChatColor color) {
+                parsedValue = color + color.name(); // "color" alone is the legacy symbol + the color code
+
             } else if (value instanceof Double) {
                 parsedValue = BigDecimal.valueOf((double) value).setScale(2, RoundingMode.HALF_UP).toString();
 
@@ -92,14 +91,15 @@ public class Item<T> {
                     }
                 }
             }
-            lore.add("&9Current value: &7" + parsedValue);
+
+            newLore.add("&9Current value: &7" + parsedValue);
 
             if (changeTitle) {
                 title = title + ": &e" + parsedValue;
             }
         }
 
-        setMeta(title, lore);
+        setMeta(title, newLore);
     }
 
     public Object getValue() {
@@ -178,7 +178,7 @@ public class Item<T> {
             } else {
                 newBrightness = (int) (value + change);
             }
-            DisplayEditorItems.setBrightness(item, newBrightness);
+            EditorItems.setBrightness(item, newBrightness);
             setValue((double) newBrightness);
             return newBrightness;
         }

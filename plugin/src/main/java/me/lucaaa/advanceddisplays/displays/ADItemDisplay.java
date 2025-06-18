@@ -49,8 +49,13 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
                 this.itemsAdderId = settings.getString("itemsAdder");
                 this.item = plugin.getIntegration(Compatibility.ITEMS_ADDER).getItemStack(itemsAdderId);
             } else {
-                this.item = new ItemStack(Material.valueOf(config.getOrDefault("item", Material.BARRIER.name(), settings)));
-                loadData(item, settings);
+                String material = config.getOrDefault("item", Material.BARRIER.name(), settings);
+                try {
+                    this.item = new ItemStack(Material.valueOf(material));
+                    loadData(item, settings);
+                } catch (IllegalArgumentException e) {
+                    errors.add("Invalid material set: " + material);
+                }
             }
 
             this.enchanted = config.getOrDefault("enchanted", false, settings);

@@ -59,6 +59,7 @@ public class PlayerData {
     }
 
     public void finishEditing() {
+        player.closeInventory();
         player.getInventory().setContents(savedInventory);
         this.openInventory = null;
         this.editingDisplay = null;

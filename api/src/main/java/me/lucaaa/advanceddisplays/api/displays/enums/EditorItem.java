@@ -10,6 +10,26 @@ import java.util.List;
  */
 public enum EditorItem {
     /**
+     * Changes whether the entity is on fire or not.
+     */
+    ON_FIRE,
+
+    /**
+     * Changes whether the entity appears to be sprinting or not.
+     */
+    SPRINTING,
+
+    /**
+     * Changes the entity's custom name.
+     */
+    CUSTOM_NAME,
+
+    /**
+     * Changes the entity's custom name visibility.
+     */
+    CUSTOM_NAME_VISIBILITY,
+
+    /**
      * Changes the display's size.
      */
     SCALE,

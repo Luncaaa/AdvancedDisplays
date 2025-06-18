@@ -227,6 +227,15 @@ public class DisplaysManager {
             return;
         }
 
+        if (newDisplay.hasErrorsOnLoad()) {
+            for (String error : newDisplay.getErrors()) {
+                plugin.log(Level.WARNING, getMessage(name, error));
+            }
+
+            failedLoads++;
+            return;
+        }
+
         displays.put(configManager.getFile().getName().replace(".yml", ""), newDisplay);
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             newDisplay.sendMetadataPackets(onlinePlayer);

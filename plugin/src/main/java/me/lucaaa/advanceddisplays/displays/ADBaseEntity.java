@@ -8,6 +8,7 @@ import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
+import me.lucaaa.advanceddisplays.api.displays.enums.NameVisibility;
 import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.data.PlayerData;
@@ -17,6 +18,7 @@ import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import me.lucaaa.advanceddisplays.nms_common.Metadata;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -26,8 +28,10 @@ import org.bukkit.entity.*;
 import org.bukkit.event.inventory.ClickType;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ADBaseEntity extends Ticking implements BaseEntity {
     protected final AdvancedDisplays plugin;
@@ -47,6 +51,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
     protected int entityId;
     private final boolean isApi;
     private boolean isRemoved = false;
+    protected List<String> errors = new ArrayList<>();
 
     protected Location location;
     protected float yaw;
@@ -57,7 +62,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
     protected boolean isGlowing;
     protected ChatColor glowColor;
     private String customName;
-    private boolean isCustomNameVisible;
+    private NameVisibility customNameVisibility;
 
     protected ADBaseEntity(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager config, String name, DisplayType type, EntityType entityType) {
         super(plugin);
@@ -95,10 +100,16 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
 
         ConfigurationSection glowSection = config.getSection("glow", entitySection);
         this.isGlowing = config.getOrDefault("glowing", false, glowSection);
-        this.glowColor = ChatColor.valueOf(config.getOrDefault("color", ChatColor.GOLD.name(), glowSection));
 
         this.customName = config.getOrDefault("custom-name", entityType.name(), entitySection);
-        this.isCustomNameVisible = config.getOrDefault("custom-name-visible", false, entitySection);
+
+        try {
+            this.glowColor = ChatColor.valueOf(config.getOrDefault("color", ChatColor.GOLD.name(), glowSection));
+            this.customNameVisibility = NameVisibility.valueOf(config.getOrDefault("name-visibility", NameVisibility.HIDDEN.name(), entitySection));
+        } catch (IllegalArgumentException e) {
+            errors.add("Invalid glow color or name visibility.");
+            return;
+        }
 
         this.entity = packets.createEntity(entityType, location);
         this.entityId = entity.getEntityId();
@@ -131,8 +142,8 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         this.pitch = 0.0f;
         this.isGlowing = entity.isGlowing();
         this.glowColor = ChatColor.GOLD;
-        this.customName = entityType.name();
-        this.isCustomNameVisible = false;
+        this.customName = null;
+        this.customNameVisibility = NameVisibility.HIDDEN;
 
         // Even though it may have been set by the createConfig() method, they are set back to "null"
         // Again when the body of this constructor starts running.
@@ -168,7 +179,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         entitySection.set("onFire", false);
         entitySection.set("sprinting", false);
         entitySection.set("custom-name", entityType.name());
-        entitySection.set("custom-name-visible", false);
+        entitySection.set("name-visibility", NameVisibility.HIDDEN.name());
 
         ConfigurationSection glowSection = entitySection.createSection("glow");
         glowSection.set("glowing", false);
@@ -190,10 +201,18 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
 
     public void sendMetadataPackets(Player player) {
         packets.setLocation(entity, location, player);
+
+        Metadata.DataPair<Optional<Component>> customNamePair;
+        if (this.customName == null || customNameVisibility == NameVisibility.HIDDEN) {
+            customNamePair = new Metadata.DataPair<>(metadata.CUSTOM_NAME, Optional.empty());
+        } else {
+            customNamePair = new Metadata.DataPair<>(metadata.CUSTOM_NAME, Optional.of(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, this.customName))));
+        }
+
         packets.setMetadata(entityId, player,
                 new Metadata.DataPair<>(metadata.PROPERTIES, Metadata.getProperties(isOnFire, isSprinting, isGlowing)),
-                new Metadata.DataPair<>(metadata.CUSTOM_NAME, ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, customName))),
-                new Metadata.DataPair<>(metadata.CUSTOM_NAME_VISIBLE, isCustomNameVisible)
+                customNamePair,
+                new Metadata.DataPair<>(metadata.CUSTOM_NAME_VISIBLE, customNameVisibility == NameVisibility.SHOWN)
         );
         packets.setGlowingColor(entity, glowColor, player);
     }
@@ -462,20 +481,23 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
 
     @Override
     public void setGlowColor(ChatColor color) {
+        if (color.isFormat()) return;
         glowColor = color;
         if (config != null) {
             ConfigurationSection glowSection = config.getSection("glow", entitySection);
             glowSection.set("color", color.name());
             save();
         }
+
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            setGlowColor(color, onlinePlayer);
+            setGlowColor(glowColor, onlinePlayer);
         }
     }
 
     @Override
     public void setGlowColor(ChatColor color, Player player) {
-        packets.setGlowingColor(entity, color, player);
+        if (color.isFormat()) return;
+        packets.setGlowingColor(entity, glowColor, player);
     }
 
     @Override
@@ -484,45 +506,44 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
     }
 
     @Override
-    public void setCustomName(String customName) {
+    public void setCustomName(String customName, NameVisibility visibility) {
         this.customName = customName;
+        this.customNameVisibility = visibility;
         if (config != null) {
             entitySection.set("custom-name", customName);
+            entitySection.set("name-visibility", visibility.name());
             save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            setCustomName(customName, onlinePlayer);
+            setCustomName(customName, visibility, onlinePlayer);
         }
     }
 
     @Override
-    public void setCustomName(String customName, Player player) {
-        packets.setMetadata(entityId, player, metadata.CUSTOM_NAME, ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, customName)));
-    }
-
-    @Override
-    public boolean isCustomNameVisible() {
-        return isCustomNameVisible;
-    }
-
-    @Override
-    public void setCustomNameVisible(boolean visible) {
-        this.isCustomNameVisible = visible;
-        if (config != null) {
-            entitySection.set("custom-name-visible", visible);
-            save();
+    public void setCustomName(String customName, NameVisibility visibility, Player player) {
+        Metadata.DataPair<Optional<Component>> customNamePair;
+        if (customName == null || visibility == NameVisibility.HIDDEN) {
+            customNamePair = new Metadata.DataPair<>(metadata.CUSTOM_NAME, Optional.empty());
+        } else {
+            customNamePair = new Metadata.DataPair<>(metadata.CUSTOM_NAME, Optional.of(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, customName))));
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            setCustomNameVisible(visible, onlinePlayer);
-        }
+        packets.setMetadata(entityId, player, customNamePair, new Metadata.DataPair<>(metadata.CUSTOM_NAME_VISIBLE, visibility == NameVisibility.SHOWN));
     }
 
     @Override
-    public void setCustomNameVisible(boolean visible, Player player) {
-        packets.setMetadata(entityId, player, metadata.CUSTOM_NAME_VISIBLE, visible);
+    public NameVisibility getCustomNameVisibility() {
+        return customNameVisibility;
     }
 
     public int getEntityId() {
         return entityId;
+    }
+
+    public List<String> getErrors() {
+        return errors;
+    }
+
+    public boolean hasErrorsOnLoad() {
+        return !errors.isEmpty();
     }
 }

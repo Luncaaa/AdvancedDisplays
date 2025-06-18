@@ -88,7 +88,7 @@ public class PlayerEditorInv {
             @Override
             public void onClick(PlayerInteractEvent event) {
                 plugin.getPlayersManager().getPlayerData(player).finishEditing();
-                player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been successfully given back to you."));
+                player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been given back to you."));
             }
         });
         // ----------

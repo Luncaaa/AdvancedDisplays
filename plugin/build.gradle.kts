@@ -17,10 +17,11 @@ dependencies {
     implementation(project(":api"))
     implementation(project(":nms"))
     implementation(project(":nms:nms_common"))
+    implementation(project(":nms:v1_21_R4"))
 
-    file("${rootDir}/nms").listFiles()!!.filter { it.isDirectory && it.name.startsWith("v") }.forEach {
+    /*file("${rootDir}/nms").listFiles()!!.filter { it.isDirectory && it.name.startsWith("v") }.forEach {
         implementation(project(":nms:${it.name}", "reobf"))
-    }
+    }*/
 }
 
 tasks {
@@ -29,13 +30,13 @@ tasks {
     }
 
     shadowJar {
-        exclude("org/apache/commons/io/**", "com/google/gson/**")
+        exclude("org/apache/commons/io/**", "com/google/gson/**", "net/kyori/**")
         minimize {
             file("${rootDir}/nms").listFiles()!!.filter { it.isDirectory && it.name.startsWith("v") }.forEach {
                 exclude(project(":nms:${it.name}"))
             }
         }
-        relocate("net.kyori", "shaded.net.kyori")
+        // relocate("net.kyori", "shaded.net.kyori") Using library provider now
         archiveFileName.set("${project.parent?.name}-${project.version}.jar")
         destinationDirectory.set(file("../build/libs"))
     }

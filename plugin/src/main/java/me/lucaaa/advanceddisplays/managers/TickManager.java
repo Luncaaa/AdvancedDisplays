@@ -5,23 +5,24 @@ import me.lucaaa.advanceddisplays.data.Ticking;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 public class TickManager {
     private final AdvancedDisplays plugin;
-    private final List<Ticking> ticking = new ArrayList<>();
-    private final List<Ticking> toAdd = new ArrayList<>();
-    private final List<Ticking> toRemove = new ArrayList<>();
+    private final List<Ticking> ticking = new CopyOnWriteArrayList<>();
     private BukkitTask task;
-    private boolean isTicking = false;
+    private final AtomicBoolean isTicking = new AtomicBoolean(false);
+    private final AtomicBoolean isCancelled = new AtomicBoolean(false);
 
     public TickManager(AdvancedDisplays plugin) {
         this.plugin = plugin;
         start();
     }
 
-    private synchronized void start() {
+    private void start() {
         task = new BukkitRunnable() {
             @Override
             public void run() {
@@ -30,49 +31,37 @@ public class TickManager {
         }.runTaskTimerAsynchronously(plugin, 0L, 1L);
     }
 
-    public synchronized void stop() {
+    public void stop() {
+        isCancelled.set(true);
+
         if (task != null) {
             task.cancel();
             task = null;
         }
+
         ticking.clear();
-        toAdd.clear();
-        toRemove.clear();
     }
 
     public void addTicking(Ticking ticked) {
-        synchronized (toAdd) {
-            toAdd.add(ticked);
-        }
+        ticking.add(ticked);
     }
 
     public void removeTicking(Ticking ticked) {
-        synchronized (toRemove) {
-            toRemove.add(ticked);
-        }
+        ticking.remove(ticked);
     }
 
     private void tick() {
-        if (isTicking) return;
+        if (isCancelled.get() || !isTicking.compareAndSet(false, true)) return;
 
-        isTicking = true;
-
-        synchronized (ticking) {
+        try {
             for (Ticking ticked : ticking) {
                 ticked.tick();
             }
-        }
+        } catch (Exception e) {
+            plugin.logError(Level.SEVERE, "An error occurred while ticking a display: ", e);
 
-        synchronized (toAdd) {
-            ticking.addAll(toAdd);
-            toAdd.clear();
+        } finally {
+            isTicking.set(false);
         }
-
-        synchronized (toRemove) {
-            ticking.removeAll(toRemove);
-            toRemove.clear();
-        }
-
-        isTicking = false;
     }
 }

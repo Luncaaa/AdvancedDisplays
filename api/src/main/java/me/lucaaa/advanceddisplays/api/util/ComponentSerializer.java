@@ -14,13 +14,34 @@ import java.util.regex.Pattern;
  * Util class to convert a list of strings to components and vice versa.
  */
 @SuppressWarnings("unused")
-public interface ComponentSerializer {
+public class ComponentSerializer {
     /**
      * Minimessage variable. Internal use only.
      * @hidden
      */
     @ApiStatus.Internal
-    MiniMessage mm = MiniMessage.miniMessage();
+    private static final MiniMessage mm = MiniMessage.miniMessage();
+
+    /**
+     * Legacy serializer variable. Internal use only.
+     * @hidden
+     */
+    @ApiStatus.Internal
+    private static final LegacyComponentSerializer legacySerializer = LegacyComponentSerializer.builder().hexColors().useUnusualXRepeatedCharacterHexFormat().character('&').build();
+
+    /**
+     * Legacy serializer variable. Internal use only.
+     * @hidden
+     */
+    @ApiStatus.Internal
+    private static final LegacyComponentSerializer legacySectionSerializer = LegacyComponentSerializer.legacySection();
+
+    /**
+     * Gson serializer variable. Internal use only.
+     * @hidden
+     */
+    @ApiStatus.Internal
+    private static final GsonComponentSerializer gsonSerializer = GsonComponentSerializer.gson();
 
     /**
      * Transforms a string into a component. Every "\n" will be considered as a new line.
@@ -28,10 +49,10 @@ public interface ComponentSerializer {
      * @param text The string to convert into a component.
      * @return The component.
      */
-    static Component deserialize(String text) {
+    public static Component deserialize(String text) {
         text = text.replace("\\n", "\n").replace('§', '&');
         // From legacy and minimessage format to a component
-        Component legacy = LegacyComponentSerializer.legacyAmpersand().deserialize(text);
+        Component legacy = legacySerializer.deserialize(text);
         // From component to Minimessage String. Replacing the "\" with nothing makes the minimessage formats work.
         String minimessage = mm.serialize(legacy).replace("\\", "");
         // From Minimessage String to Minimessage component
@@ -46,7 +67,7 @@ public interface ComponentSerializer {
      * @param text The list of strings to convert into a component.
      * @return The component.
      */
-    static Component deserialize(List<String> text) {
+    public static Component deserialize(List<String> text) {
         return deserialize(String.join("\n", text));
     }
 
@@ -57,8 +78,17 @@ public interface ComponentSerializer {
      * @deprecated Should not be used in any case, so it's susceptible for removal.
      */
     @Deprecated
-    static List<String> serialize(Component component) {
+    public static List<String> serialize(Component component) {
         return Arrays.stream(mm.serialize(component).split(Pattern.quote("\n"))).toList();
+    }
+
+    /**
+     * Returns the provided component as a legacy string (with the legacy symbol instead of '&').
+     * @param component The component to transform into a legacy string.
+     * @return The component transformed into a legacy string.
+     */
+    public static String getLegacyString(Component component) {
+        return legacySectionSerializer.serialize(component);
     }
 
     /**
@@ -66,7 +96,7 @@ public interface ComponentSerializer {
      * @param component The component to convert into a JSON string.
      * @return The JSON string.
      */
-    static String toJSON(Component component) {
-        return GsonComponentSerializer.gson().serialize(component);
+    public static String toJSON(Component component) {
+        return gsonSerializer.serialize(component);
     }
 }

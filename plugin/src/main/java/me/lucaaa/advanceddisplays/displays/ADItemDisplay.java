@@ -5,27 +5,20 @@ import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.data.DisplayHeadType;
 import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.data.HeadUtils;
+import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import org.bukkit.*;
-import org.bukkit.block.banner.Pattern;
-import org.bukkit.block.banner.PatternType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.*;
-import org.bukkit.inventory.meta.trim.ArmorTrim;
-import org.bukkit.inventory.meta.trim.TrimMaterial;
-import org.bukkit.inventory.meta.trim.TrimPattern;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
 
 public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddisplays.api.displays.ItemDisplay {
     private ItemStack item;
@@ -52,13 +45,14 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
                 String material = config.getOrDefault("item", Material.BARRIER.name(), settings);
                 try {
                     this.item = new ItemStack(Material.valueOf(material));
-                    loadData(item, settings);
+                    Utils.loadItemData(item, settings, getLocation().getWorld(), plugin);
                 } catch (IllegalArgumentException e) {
                     errors.add("Invalid material set: " + material);
                 }
             }
 
-            this.enchanted = config.getOrDefault("enchanted", false, settings);
+            // The Utils.loadItemData method already set the enchantments
+            this.enchanted = !item.getEnchantments().isEmpty();
             this.itemTransformation = ItemDisplay.ItemDisplayTransform.valueOf(config.getOrDefault("itemTransformation", ItemDisplay.ItemDisplayTransform.FIXED.name(), settings));
 
             if (settings.contains("head")) {
@@ -82,11 +76,10 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     @Override
     public void sendMetadataPackets(Player player) {
         super.sendMetadataPackets(player);
-        if (item.getType() == Material.PLAYER_HEAD) setHead(displayHeadType, displayHeadValue, player);
-        else {
-            ItemStack clone = item.clone();
-            if (enchanted) clone.addUnsafeEnchantment(Enchantment.MENDING, 1);
-            packets.setMetadata(entityId, player, metadata.ITEM, clone);
+        if (item.getType() == Material.PLAYER_HEAD) {
+            setHead(displayHeadType, displayHeadValue, player, enchanted);
+        } else {
+            packets.setMetadata(entityId, player, metadata.ITEM, item);
         }
         packets.setMetadata(entityId, player, metadata.ITEM_TRANSFORM, (byte) itemTransformation.ordinal());
     }
@@ -111,19 +104,21 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             if (oraxenId != null) settings.set("oraxen", oraxenId);
             if (itemsAdderId != null) settings.set("itemsAdder", itemsAdderId);
             settings.set("item", item.getType().name());
+            // The "enchanted" setting is set in the Utils#saveItemData method.
 
-            saveData(item, settings);
+            Utils.saveItemData(item, settings);
             save();
         }
+
+        this.enchanted = !item.getEnchantments().isEmpty();
+
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             setItem(item, onlinePlayer);
         }
     }
     @Override
     public void setItem(ItemStack item, Player player) {
-        ItemStack clone = item.clone();
-        if (enchanted) clone.addUnsafeEnchantment(Enchantment.MENDING, 1);
-        packets.setMetadata(entityId, player, metadata.ITEM, clone);
+        packets.setMetadata(entityId, player, metadata.ITEM, item);
     }
 
     @Override
@@ -145,7 +140,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
 
     @Override
     public void setBase64Head(String base64, Player player) {
-        setHead(DisplayHeadType.BASE64, base64, player);
+        setHead(DisplayHeadType.BASE64, base64, player, enchanted);
     }
 
     @Override
@@ -167,7 +162,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
 
     @Override
     public void setPlayerHead(String playerName, Player player) {
-        setHead(DisplayHeadType.PLAYER, playerName, player);
+        setHead(DisplayHeadType.PLAYER, playerName, player, enchanted);
     }
 
     @Override
@@ -182,19 +177,34 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     @Override
     public void setEnchanted(boolean enchanted) {
         this.enchanted = enchanted;
+        if (enchanted) {
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                meta.addEnchant(Enchantment.MENDING, 1, true);
+                item.setItemMeta(meta);
+            }
+        } else {
+            for (Enchantment enchantment : item.getEnchantments().keySet()) {
+                item.removeEnchantment(enchantment);
+            }
+        }
         if (config != null) {
             settings.set("enchanted", enchanted);
             save();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            setEnchanted(enchanted, onlinePlayer);
+            // Calling setEnchanted(boolean, Player) would create a clone for every player which would actually
+            // be the same since the item will be enchanted for everyone. Because of that, it'll be more efficient
+            // to send the already-enchanted item to every online player.
+            setItem(item, onlinePlayer);
         }
 
     }
     @Override
     public void setEnchanted(boolean enchanted, Player player) {
-        if (item.getType() == Material.PLAYER_HEAD) setHead(displayHeadType, displayHeadValue, player);
-        else {
+        if (item.getType() == Material.PLAYER_HEAD) {
+            setHead(displayHeadType, displayHeadValue, player, enchanted);
+        } else {
             ItemStack clone = item.clone();
             if (enchanted) clone.addUnsafeEnchantment(Enchantment.MENDING, 1);
             packets.setMetadata(entityId, player, metadata.ITEM, clone);
@@ -221,127 +231,14 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
         packets.setMetadata(entityId, player, metadata.ITEM_TRANSFORM, (byte) transformation.ordinal());
     }
 
-    @SuppressWarnings("UnstableApiUsage")
-    private void saveData(ItemStack item, ConfigurationSection settings) {
-        ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
-        int customModelData = (meta.hasCustomModelData()) ? meta.getCustomModelData() : 0;
-        settings.set("customModelData", customModelData);
-
-        if (meta instanceof PotionMeta potion && potion.getColor() != null) {
-            settings.set("color",
-                    potion.getColor().getRed() + ";" +
-                    potion.getColor().getGreen() + ";" +
-                    potion.getColor().getBlue());
-
-        } else if (meta instanceof ArmorMeta armor) {
-            if (armor.getTrim() != null) {
-                settings.set("trim", null); // Deletes the setting if present
-
-            } else {
-                settings.set("trim", armor.getTrim().getPattern().getKey() + ":" + armor.getTrim().getMaterial().getKey());
-            }
-
-            if (meta instanceof LeatherArmorMeta leatherArmor) {
-                settings.set("color",
-                        leatherArmor.getColor().getRed() + ";" +
-                        leatherArmor.getColor().getGreen() + ";" +
-                        leatherArmor.getColor().getBlue());
-            }
-
-        } else if (meta instanceof BannerMeta banner) {
-            List<String> patterns = new ArrayList<>();
-
-            for (Pattern pattern : banner.getPatterns()) {
-                patterns.add(pattern.getPattern().name() + ":" + pattern.getColor().name());
-            }
-
-            settings.set("patterns", patterns);
-
-        } else if (meta instanceof CompassMeta compass) {
-            if (compass.getLodestone() == null) {
-                settings.set("lodestone", null); // Deletes the setting if present
-
-            } else {
-                Location lodestone = compass.getLodestone();
-                settings.set("lodestone", lodestone.getX() + ";" + lodestone.getY() + ";" + lodestone.getZ());
-            }
-
-        } else if (meta instanceof BundleMeta bundle) {
-            settings.set("hasItems", bundle.hasItems());
-        }
-    }
-
-    @SuppressWarnings("UnstableApiUsage")
-    private void loadData(ItemStack item, ConfigurationSection settings) {
-        ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
-
-        int customModelData = settings.getInt("customModelData");
-        if (customModelData > 0) {
-            meta.setCustomModelData(customModelData);
-        }
-
-        if (meta instanceof PotionMeta potion && settings.isString("color")) {
-            String[] saved = settings.getString("color", "255;255;255").split(";");
-            Color color = Color.fromRGB(Integer.parseInt(saved[0]), Integer.parseInt(saved[1]), Integer.parseInt(saved[2]));
-            potion.setColor(color);
-
-        } else if (meta instanceof ArmorMeta armor) {
-            if (settings.isString("trim")) {
-                String[] trim = settings.getString("trim", "sentry:netherite").toLowerCase().split(":");
-                TrimMaterial material = Registry.TRIM_MATERIAL.get(NamespacedKey.minecraft(trim[1]));
-                TrimPattern pattern = Registry.TRIM_PATTERN.get(NamespacedKey.minecraft(trim[0]));
-
-                if (material == null || pattern == null) {
-                    plugin.log(Level.WARNING, "Invalid armor trim for item display " + getName());
-                } else {
-                    armor.setTrim(new ArmorTrim(material, pattern));
-                }
-            }
-
-            if (meta instanceof LeatherArmorMeta leatherArmor && settings.isString("color")) {
-                String[] saved = settings.getString("color", "255;255;255").split(";");
-                Color color = Color.fromRGB(Integer.parseInt(saved[0]), Integer.parseInt(saved[1]), Integer.parseInt(saved[2]));
-                leatherArmor.setColor(color);
-            }
-
-        } else if (meta instanceof BannerMeta banner && settings.isList("patterns")) {
-            List<String> patterns = settings.getStringList("patterns");
-
-            for (String configPattern : patterns) {
-                String[] parts = configPattern.split(":");
-
-                PatternType pattern = PatternType.valueOf(parts[0]);
-                DyeColor color = DyeColor.valueOf(parts[1]);
-
-                banner.addPattern(new Pattern(color, pattern));
-            }
-
-        } else if (meta instanceof CompassMeta compass && settings.isString("lodestone")) {
-            String[] location = settings.getString("lodestone", "0.0;0.0;0.0").split(";");
-            Location lodestone = new Location(getLocation().getWorld(),
-                    Double.parseDouble(location[0]),
-                    Double.parseDouble(location[1]),
-                    Double.parseDouble(location[1]));
-            compass.setLodestone(lodestone);
-
-        } else if (meta instanceof BundleMeta bundle) {
-            if (settings.getBoolean("hasItems")) {
-                bundle.addItem(new ItemStack(Material.DIAMOND));
-            }
-        }
-
-        item.setItemMeta(meta);
-    }
-
-    private void setHead(DisplayHeadType type, String value, Player player) {
+    private void setHead(DisplayHeadType type, String value, Player player, boolean enchanted) {
         packets.setMetadata(entityId, player, metadata.ITEM, plugin.cachedHeads.LOADING);
 
         // Run async because of the HTTP request to parse the head.
         new BukkitRunnable() {
             @Override
             public void run() {
-                ItemStack head = HeadUtils.getHead(type, value, player, plugin);
-                if (enchanted) head.addUnsafeEnchantment(Enchantment.MENDING, 1);
+                ItemStack head = HeadUtils.getHead(type, value, enchanted, player, plugin);
                 packets.setMetadata(entityId, player, metadata.ITEM, head);
             }
         }.runTaskAsynchronously(plugin);

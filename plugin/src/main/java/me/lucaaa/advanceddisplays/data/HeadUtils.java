@@ -6,6 +6,7 @@ import me.lucaaa.advanceddisplays.nms_common.Logger;
 import me.lucaaa.advanceddisplays.nms_common.PacketException;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -26,7 +27,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class HeadUtils {
-    public static ItemStack getHead(DisplayHeadType displayHeadType, String displayHeadValue, Player player, Logger logger) {
+    public static ItemStack getHead(DisplayHeadType displayHeadType, String displayHeadValue, boolean enchanted, Player player, Logger logger) {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
 
         SkullMeta skullMeta = (SkullMeta) Objects.requireNonNull(item.getItemMeta());
@@ -74,6 +75,9 @@ public class HeadUtils {
             return item;
         }
 
+        if (enchanted) {
+            skullMeta.addEnchant(Enchantment.MENDING, 1, true);
+        }
 
         item.setItemMeta(skullMeta);
         return item;

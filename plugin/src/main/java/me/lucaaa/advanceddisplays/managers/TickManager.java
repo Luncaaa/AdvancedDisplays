@@ -53,15 +53,15 @@ public class TickManager {
     private void tick() {
         if (isCancelled.get() || !isTicking.compareAndSet(false, true)) return;
 
-        try {
-            for (Ticking ticked : ticking) {
+        for (Ticking ticked : ticking) {
+            try {
                 ticked.tick();
+            } catch (Exception e) {
+                ticking.remove(ticked);
+                plugin.logError(Level.SEVERE, "An error occurred while ticking a display: ", e);
             }
-        } catch (Exception e) {
-            plugin.logError(Level.SEVERE, "An error occurred while ticking a display: ", e);
-
-        } finally {
-            isTicking.set(false);
         }
+
+        isTicking.set(false);
     }
 }

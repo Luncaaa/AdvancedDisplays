@@ -76,16 +76,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         this.type = type;
         this.entityType = entityType;
         this.isApi = displaysManager.isApi();
-
         this.config = config;
-        this.actionsHandler = new ActionsHandler(plugin, this, config);
-        this.visibilityManager = new ADVisibilityManager(plugin, this);
-
-        this.entitySection = config.getSection("entity", false, config.getConfig());
-
-        ConfigurationSection rotationSection = config.getSection("rotation");
-        this.yaw = (float) config.getOrDefault("yaw", 0.0, rotationSection).doubleValue();
-        this.pitch = (float) config.getOrDefault("pitch", 0.0, rotationSection).doubleValue();
 
         // Location is already validated.
         ConfigurationSection locationSection = config.getSection("location");
@@ -94,6 +85,15 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         double y = locationSection.getDouble("y");
         double z = locationSection.getDouble("z");
         this.location = new Location(Bukkit.getWorld(world), x, y, z, yaw, pitch);
+
+        this.actionsHandler = new ActionsHandler(plugin, this, config);
+        this.visibilityManager = new ADVisibilityManager(plugin, this);
+
+        this.entitySection = config.getSection("entity", false, config.getConfig());
+
+        ConfigurationSection rotationSection = config.getSection("rotation");
+        this.yaw = (float) config.getOrDefault("yaw", 0.0, rotationSection).doubleValue();
+        this.pitch = (float) config.getOrDefault("pitch", 0.0, rotationSection).doubleValue();
 
         this.isOnFire = config.getOrDefault("onFire", false, entitySection);
         this.isSprinting = config.getOrDefault("sprinting", false, entitySection);
@@ -129,15 +129,16 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         this.entityType = entityType;
         this.entityId = entity.getEntityId();
         this.isApi = displaysManager.isApi();
-
         this.config = (saveToConfig) ? createConfig(location) : null;
-        this.actionsHandler = new ActionsHandler(plugin, this, config);
-        this.visibilityManager = new ADVisibilityManager(plugin, this);
 
         Location noRotation = location.clone();
         noRotation.setYaw(0.0f);
         noRotation.setPitch(0.0f);
         this.location = noRotation;
+
+        this.actionsHandler = new ActionsHandler(plugin, this, config);
+        this.visibilityManager = new ADVisibilityManager(plugin, this);
+
         this.yaw = 0.0f;
         this.pitch = 0.0f;
         this.isGlowing = entity.isGlowing();
@@ -262,7 +263,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         if (!playerData.isEditing()) return;
 
         playerData.finishEditing();
-        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been successfully given back to you."));
+        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been given back to you."));
     }
 
     @Override
@@ -285,6 +286,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
 
     public void destroy() {
         packets.removeEntity(entityId);
+        stopTicking();
     }
 
     @Override

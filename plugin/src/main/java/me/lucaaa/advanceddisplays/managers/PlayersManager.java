@@ -51,9 +51,8 @@ public class PlayersManager {
 
     public void handleDisplayRemoval(BaseEntity display) {
         for (PlayerData player : playersData.values()) {
-            if (player.getEditingDisplay() != display) continue;
-
-            player.finishEditing();
+            if (player.getEditingDisplay() == display) player.finishEditing();
+            if (display instanceof ADTextDisplay textDisplay) player.stopRunnable(textDisplay);
         }
     }
 }

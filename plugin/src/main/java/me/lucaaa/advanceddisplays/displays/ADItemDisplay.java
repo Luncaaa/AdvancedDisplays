@@ -231,6 +231,23 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
         packets.setMetadata(entityId, player, metadata.ITEM_TRANSFORM, (byte) transformation.ordinal());
     }
 
+    // TODO: Extend head caching system here
+    // When the class is initialized, save the head to the cache and then grab it so that players don't see
+    // the loading head if not necessary.
+    /*
+    Pseudocode:
+
+    public ADItemDisplay() {
+        if (type == HEAD) HeadCache.save(this, HeadUtils.getHead(...));
+    }
+
+
+    private void setHead() {
+        CompletableFuture future = HeadCache.getHead(this);
+
+        if future is completed, grab the head. If it isn't set the loading head until it is.
+    }
+     */
     private void setHead(DisplayHeadType type, String value, Player player, boolean enchanted) {
         packets.setMetadata(entityId, player, metadata.ITEM, plugin.cachedHeads.LOADING);
 

@@ -4,7 +4,7 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.BlockDisplay;
 import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.inventory.Button;
-import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
+import me.lucaaa.advanceddisplays.inventory.ADInventory;
 import me.lucaaa.advanceddisplays.inventory.items.GlobalItems;
 import me.lucaaa.advanceddisplays.inventory.items.Item;
 import org.bukkit.Bukkit;
@@ -18,7 +18,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class BlockDataGUI extends InventoryMethods {
+public class BlockDataGUI extends ADInventory {
     private final DisplayEditorGUI previous;
     private final Consumer<BlockData> onDone;
     private final Material material;

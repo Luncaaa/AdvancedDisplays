@@ -5,7 +5,7 @@ import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
 import me.lucaaa.advanceddisplays.displays.AnimatedTextRunnable;
-import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
+import me.lucaaa.advanceddisplays.inventory.ADInventory;
 import me.lucaaa.advanceddisplays.inventory.inventories.PlayerEditorInv;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import org.bukkit.configuration.ConfigurationSection;
@@ -26,7 +26,7 @@ public class PlayerData {
     private BaseEntity editingDisplay;
     private ItemStack[] savedInventory;
     private PlayerEditorInv playerEditorInventory;
-    private InventoryMethods openInventory;
+    private ADInventory openInventory;
     private boolean isChatEditing = false;
     private final Map<ADTextDisplay, AnimatedTextRunnable> runnables = new HashMap<>();
 
@@ -74,7 +74,7 @@ public class PlayerData {
         return editingDisplay != null;
     }
 
-    public void setOpenInventory(InventoryMethods inventory) {
+    public void setOpenInventory(ADInventory inventory) {
         openInventory = inventory;
     }
 

@@ -7,7 +7,7 @@ import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.data.NamedEnum;
 import me.lucaaa.advanceddisplays.displays.ADBaseDisplay;
 import me.lucaaa.advanceddisplays.inventory.Button;
-import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
+import me.lucaaa.advanceddisplays.inventory.ADInventory;
 import me.lucaaa.advanceddisplays.inventory.items.GlobalItems;
 import me.lucaaa.advanceddisplays.inventory.items.InventoryItems;
 import me.lucaaa.advanceddisplays.inventory.items.Item;
@@ -73,7 +73,7 @@ public class PlayerEditorInv {
         buttons.put(7, new Button.PlayerButton<>(items.OPEN_GUI) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                InventoryMethods inventory;
+                ADInventory inventory;
                 if (isDisplay) {
                     inventory = new DisplayEditorGUI(plugin, (ADBaseDisplay) PlayerEditorInv.this.entity, disabledItems);
                 } else {

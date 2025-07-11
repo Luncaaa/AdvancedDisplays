@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.managers;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
-import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
+import me.lucaaa.advanceddisplays.inventory.ADInventory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -13,7 +13,7 @@ import java.util.logging.Level;
 public class InventoryManager {
     private final PlayersManager playersManager;
     private final List<EditorItem> disabledItems = new ArrayList<>();
-    private final Map<Player, InventoryMethods> openGUIs = new HashMap<>();
+    private final Map<Player, ADInventory> openGUIs = new HashMap<>();
 
     public InventoryManager(AdvancedDisplays plugin, ConfigManager mainConfig) {
         this.playersManager = plugin.getPlayersManager();
@@ -37,7 +37,7 @@ public class InventoryManager {
         }
     }
 
-    public void handleOpen(Player player, InventoryMethods gui) {
+    public void handleOpen(Player player, ADInventory gui) {
         gui.onOpen();
         player.openInventory(gui.getInventory());
         openGUIs.put(player, gui);

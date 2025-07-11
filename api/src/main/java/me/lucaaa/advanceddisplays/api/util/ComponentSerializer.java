@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.api.util;
 
+import com.google.gson.JsonElement;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -96,7 +97,16 @@ public class ComponentSerializer {
      * @param component The component to convert into a JSON string.
      * @return The JSON string.
      */
-    public static String toJSON(Component component) {
+    public static String toJSONString(Component component) {
         return gsonSerializer.serialize(component);
+    }
+
+    /**
+     * Transforms a component into a JSON object.
+     * @param component he component to convert into a JSON object.
+     * @return The JSON object.
+     */
+    public static JsonElement toJSON(Component component) {
+        return gsonSerializer.serializeToTree(component);
     }
 }

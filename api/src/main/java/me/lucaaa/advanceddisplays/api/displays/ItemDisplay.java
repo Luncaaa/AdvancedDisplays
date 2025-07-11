@@ -21,6 +21,8 @@ public interface ItemDisplay extends BaseDisplay {
     void setItem(ItemStack item);
     /**
      * Sets the displayed item for a specific player.
+     * <p>
+     * This will also change the value returned by {@link #isEnchanted()}
      * @param item The new displayed item.
      * @param player The player who will see the new displayed item.
      */

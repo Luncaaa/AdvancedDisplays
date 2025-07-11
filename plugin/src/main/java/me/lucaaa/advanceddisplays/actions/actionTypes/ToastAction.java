@@ -83,8 +83,8 @@ public class ToastAction extends Action {
                 plugin,
                 actionPlayer,
                 item,
-                ComponentSerializer.toJSON(title),
-                ComponentSerializer.toJSON(description),
+                ComponentSerializer.toJSONString(title),
+                ComponentSerializer.toJSONString(description),
                 frame
         );
     }

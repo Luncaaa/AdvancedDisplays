@@ -21,6 +21,7 @@ import java.util.logging.Level;
 
 public class ActionsHandler {
     private final AdvancedDisplays plugin;
+    private final BaseEntity display;
     private final ConditionsHandler conditionsHandler;
     private final String conditionsNotMetMessage;
     private final Map<ClickType, List<Action>> actionsMap = new EnumMap<>(ClickType.class);
@@ -28,6 +29,7 @@ public class ActionsHandler {
 
     public ActionsHandler(AdvancedDisplays plugin, BaseEntity display, ConfigManager config) {
         this.plugin = plugin;
+        this.display = display;
 
         if (config == null) {
             this.conditionsHandler = null;
@@ -99,7 +101,7 @@ public class ActionsHandler {
                 case ACTIONBAR -> new ActionbarAction(plugin, actionSection);
                 case PLAY_SOUND -> new SoundAction(plugin, actionSection);
                 case EFFECT -> new EffectAction(plugin, actionSection);
-                case TOAST -> new ToastAction(plugin, actionSection);
+                case TOAST -> new ToastAction(plugin, actionSection, display);
             };
 
             List<String> missingFields = action.getMissingFields();

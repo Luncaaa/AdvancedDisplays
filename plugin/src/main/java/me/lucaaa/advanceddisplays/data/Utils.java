@@ -115,7 +115,7 @@ public class Utils {
         } else if (meta instanceof BundleMeta bundle) {
             settings.set("hasItems", bundle.hasItems());
 
-        } else if (meta instanceof AxolotlBucketMeta bucketMeta) {
+        } else if (meta instanceof AxolotlBucketMeta bucketMeta && bucketMeta.hasVariant()) {
             settings.set("axolotl-bucket", bucketMeta.getVariant().name());
         }
 
@@ -162,12 +162,16 @@ public class Utils {
             List<String> patterns = settings.getStringList("patterns");
 
             for (String configPattern : patterns) {
+                if (configPattern.isBlank()) continue;
                 String[] parts = configPattern.split(":");
 
-                PatternType pattern = PatternType.valueOf(parts[0]);
-                DyeColor color = DyeColor.valueOf(parts[1]);
-
-                banner.addPattern(new Pattern(color, pattern));
+                try {
+                    PatternType pattern = PatternType.valueOf(parts[0]);
+                    DyeColor color = DyeColor.valueOf(parts[1]);
+                    banner.addPattern(new Pattern(color, pattern));
+                } catch (IllegalArgumentException e) {
+                    logger.log(Level.WARNING, "Invalid banner pattern type and/or color: " + configPattern);
+                }
             }
 
         } else if (meta instanceof CompassMeta compass && settings.isString("lodestone")) {
@@ -180,7 +184,7 @@ public class Utils {
 
         } else if (meta instanceof BundleMeta bundle) {
             if (settings.getBoolean("hasItems")) {
-                bundle.addItem(new ItemStack(Material.DIAMOND));
+                bundle.addItem(new ItemStack(Material.DIAMOND, 64));
             }
 
         } else if (meta instanceof AxolotlBucketMeta bucketMeta) {

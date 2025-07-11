@@ -93,7 +93,8 @@ public class MainCommand implements TabExecutor {
         }
 
         // Command's second argument.
-        if (args.length >= 2 && subCommands.containsKey(args[0])) {
+        SubCommandsFormat subcommand = subCommands.get(args[0]);
+        if (args.length >= 2 && subcommand != null && sender.hasPermission(subcommand.neededPermission)) {
             completions = subCommands.get(args[0]).getTabCompletions(sender, args);
         }
 

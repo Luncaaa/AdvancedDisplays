@@ -30,6 +30,14 @@ public enum EditorItem {
     CUSTOM_NAME_VISIBILITY,
 
     /**
+     * Changes the entity display's metadata.
+     * <p>
+     * This will change how to the entity looks like.
+     * For example, whether an allay is dancing or not.
+     */
+    METADATA,
+
+    /**
      * Changes the display's size.
      */
     SCALE,
@@ -141,6 +149,19 @@ public enum EditorItem {
      * Changes whether the enchanted effect is visible or not.
      */
     ENCHANTED,
+
+    /**
+     * Item displays only.
+     * Changes the item's custom model data.
+     */
+    CUSTOM_MODEL_DATA,
+
+    /**
+     * Item displays only.
+     * Changes the item's meta so that it looks different.
+     * For example, a potion's color.
+     */
+    ITEM_META,
 
     /**
      * Text display only.

@@ -1,16 +1,15 @@
 package me.lucaaa.advanceddisplays.inventory.items;
 
 import me.lucaaa.advanceddisplays.api.displays.*;
+import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockDataMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +26,8 @@ public class EditorItems {
     public final Item.ClickableItem TELEPORT;
     public final Item.ClickableItem MOVE_HERE;
     public final Item.ClickableItem CENTER;
+
+    public final Item.ClickableItem METADATA;
 
     // General display settings
     public Item.StepItem BLOCK_LIGHT;
@@ -49,6 +50,7 @@ public class EditorItems {
 
     public Item.EnumItem ITEM_TRANSFORMATION;
     public Item.BooleanItem ENCHANTED;
+    public Item.StepItem CUSTOM_MODEL_DATA;
 
     public Item.EnumItem TEXT_ALIGNMENT;
     public ColorItems.ColorPreview BACKGROUND_COLOR;
@@ -68,15 +70,16 @@ public class EditorItems {
         if (entity.getCustomName() == null) {
             CUSTOM_NAME = new Item.ClickableItem(Material.NAME_TAG, "Custom name", List.of("Changes the entity's custom name", "", "&7Click to change"), Utils.getColoredText("&cNo custom name set"));
         } else {
-            CUSTOM_NAME = new Item.ClickableItem(Material.NAME_TAG, "Custom name", List.of("Changes the entity's custom name", "", "&7Click to change"), Utils.getLegacyUnparsed(entity.getCustomName()));
+            CUSTOM_NAME = new Item.ClickableItem(Material.NAME_TAG, "Custom name", List.of("Changes the entity's custom name", "", "&7Click to change"), ComponentSerializer.getLegacyString(ComponentSerializer.deserialize(entity.getCustomName())));
         }
         CUSTOM_NAME_VISIBILITY = new Item.EnumItem(Material.REDSTONE, "Custom name visiblity", "Changes the entity's custom name visibility", entity.getCustomNameVisibility());
 
-        Location loc = entity.getLocation();
-        String location = BigDecimal.valueOf(loc.getX()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getY()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getZ()).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        String location = Utils.locToString(entity.getLocation());
         TELEPORT = new Item.ClickableItem(Material.ENDER_PEARL, "Teleport", "Teleports you to the display", location);
         MOVE_HERE = new Item.ClickableItem(Material.CHORUS_FRUIT, "Move here", "Moves the display to your location", location);
         CENTER = new Item.ClickableItem(Material.LIGHTNING_ROD, "Center", "Centers the display on the block it's on", location);
+
+        METADATA = new Item.ClickableItem(Material.REPEATING_COMMAND_BLOCK, "Metadata", "Properties that change how to the entity looks like.");
 
         if (entity instanceof BaseDisplay display) {
             BLOCK_LIGHT = createLight("Block light", "Changes the block lighting component of the display", display.getBrightness().getBlockLight());
@@ -113,9 +116,15 @@ public class EditorItems {
                     REFRESH_TIME = new Item.StepItem(Material.NAME_TAG, "Refresh time", List.of("Changes how often placeholders update", "Value must be in ticks"), textDisplay.getRefreshTime(), 10.0, 1.0);
                 }
                 case ITEM -> {
-                    CURRENT_VALUE = new Item.ClickableItem(((ItemDisplay) display).getItem(), "Display item", List.of("The item that is being displayed", "", "&7Click to change"), ((ItemDisplay) display).getItem().getType().name());
-                    ITEM_TRANSFORMATION = new Item.EnumItem(Material.ARMOR_STAND, "Item model transform", "Changes how the displayed item is shown", ((ItemDisplay) display).getItemTransformation());
-                    ENCHANTED = new Item.BooleanItem(Material.ENCHANTED_BOOK, "Enchanted", "Changes whether the enchanted effect is visible or not", ((ItemDisplay) display).isEnchanted());
+                    ItemDisplay itemDisplay = (ItemDisplay) display;
+                    ItemMeta meta = itemDisplay.getItem().clone().getItemMeta();
+
+                    CURRENT_VALUE = new Item.ClickableItem(itemDisplay.getItem(), "Display item", List.of("The item that is being displayed", "", "&7Click to change"), itemDisplay.getItem().getType().name());
+                    ITEM_TRANSFORMATION = new Item.EnumItem(Material.ARMOR_STAND, "Item model transform", "Changes how the displayed item is shown", itemDisplay.getItemTransformation());
+                    ENCHANTED = new Item.BooleanItem(Material.ENCHANTED_BOOK, "Enchanted", "Changes whether the enchanted effect is visible or not", itemDisplay.isEnchanted());
+                    if (meta != null) {
+                        CUSTOM_MODEL_DATA = new Item.StepItem(Material.REPEATING_COMMAND_BLOCK, "Custom model data", List.of("Changes the item's custom model data"), (meta.hasCustomModelData()) ? meta.getCustomModelData() : 0, 1);
+                    }
                 }
                 case BLOCK -> {
                     CURRENT_VALUE = new Item.ClickableItem(((BlockDisplay) display).getBlock().getMaterial(), "Display block", List.of("The block that is being displayed", "", "&7Click to change"), ((BlockDisplay) display).getBlock().getMaterial().name());

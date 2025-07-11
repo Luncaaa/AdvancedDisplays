@@ -2,26 +2,26 @@ package me.lucaaa.advanceddisplays.inventory.inventories;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
+import me.lucaaa.advanceddisplays.api.displays.EntityDisplay;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.api.displays.enums.NameVisibility;
+import me.lucaaa.advanceddisplays.api.displays.enums.Property;
+import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.data.Utils;
+import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
 import me.lucaaa.advanceddisplays.inventory.Button;
-import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
+import me.lucaaa.advanceddisplays.inventory.ADInventory;
 import me.lucaaa.advanceddisplays.inventory.items.EditorItems;
 import me.lucaaa.advanceddisplays.inventory.items.Item;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntityEditorGUI extends InventoryMethods {
+public class EntityEditorGUI extends ADInventory {
     private final BaseEntity display;
     private final DisplayEditorGUI previous;
     private final EditorItems items;
@@ -114,9 +114,7 @@ public class EntityEditorGUI extends InventoryMethods {
             public void onClick(InventoryClickEvent event) {
                 event.getWhoClicked().closeInventory();
                 display.setLocation(event.getWhoClicked().getLocation());
-                Location loc = event.getWhoClicked().getLocation();
-                String location = BigDecimal.valueOf(loc.getX()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getY()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getZ()).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                getItem().setValue(location);
+                getItem().setValue(Utils.locToString(event.getWhoClicked().getLocation()));
                 getInventory().setItem(19, getItem().getStack());
             }
         });
@@ -132,15 +130,76 @@ public class EntityEditorGUI extends InventoryMethods {
         });
         // ----------
 
+        // ----[ OTHER ]-----
+        if (display instanceof EntityDisplay entityDisplay) {
+            addMetadataButtons(entityDisplay);
+        }
+
         addIfAllowed(EditorItem.REMOVE, 13, new Button.InventoryButton<>(items.REMOVE) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                plugin.getDisplaysManager().removeDisplay(display.getName());
+                plugin.getDisplaysManager().removeDisplay((ADBaseEntity) display, true, true);
                 event.getWhoClicked().closeInventory();
             }
         });
+        // ----------
 
         super.decorate();
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private void addMetadataButtons(EntityDisplay display) {
+        int i = 0;
+        for (Property<?> property : Property.getProperties()) {
+            if (!display.isPropertyApplicable(property)) continue;
+
+            Class<?> type = property.type();
+            Object value = display.getPropertyValue(property);
+            int slot = metadataSlots.get(i);
+
+            if (type.isEnum()) {
+                Item.EnumItem item = new Item.EnumItem(Material.REPEATING_COMMAND_BLOCK, property.name(), "", Enum.valueOf((Class<Enum>) type, value.toString().toUpperCase()));
+                addButton(slot, new Button.InventoryButton<>(item) {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        Enum<?> newValue = item.changeValue();
+                        getInventory().setItem(slot, getItem().getStack());
+                        display.setProperty((Property<Object>) property, newValue);
+                    }
+                });
+
+            } else if (Keyed.class.isAssignableFrom(type)) {
+                Item.RegistryItem item = new Item.RegistryItem(Material.REPEATING_COMMAND_BLOCK, property.name(), (Keyed) value);
+                addButton(slot, new Button.InventoryButton<>(item) {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        Keyed newValue = item.changeValue();
+                        getInventory().setItem(slot, getItem().getStack());
+                        display.setProperty((Property<Keyed>) property, newValue);
+                    }
+                });
+
+            } else if (Boolean.class.isAssignableFrom(type)) {
+                Item.BooleanItem item = new Item.BooleanItem(Material.REPEATING_COMMAND_BLOCK, property.name(), "", (Boolean) value);
+                addButton(slot, new Button.InventoryButton<>(item) {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        Boolean newValue = item.changeValue();
+                        getInventory().setItem(slot, getItem().getStack());
+                        display.setProperty((Property<Boolean>) property, newValue);
+                    }
+                });
+
+            } else {
+                Item.ClickableItem item = new Item.ClickableItem(Material.REPEATING_COMMAND_BLOCK, property.name(), "", value.toString());
+                addButton(slot, new Button.InventoryButton<>(item) {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {}
+                });
+            }
+
+            i++;
+        }
     }
 
     @Override
@@ -149,7 +208,7 @@ public class EntityEditorGUI extends InventoryMethods {
             display.setCustomName(input);
             @SuppressWarnings("unchecked")
             Item<String> item = (Item<String>) getButton(1).getItem();
-            item.setValue(input);
+            item.setValue(ComponentSerializer.getLegacyString(ComponentSerializer.deserialize(input)));
             getInventory().setItem(1, item.getStack());
         }
 
@@ -159,14 +218,17 @@ public class EntityEditorGUI extends InventoryMethods {
 
     @Override
     public void onClose(Player player) {
-        if (previous != null && !editingPlayers.contains(player) && !display.isRemoved()) {
+        if (previous != null && !editingPlayers.contains(player)) {
             // The task is run so that the InventoryCloseEvent is fully run before opening a new inventory.
             // Otherwise, the inventory will open but won't be registered as a plugin's GUI.
+            // The "isRemoved" check is performed inside the runnable so that it has time to be updated if necessary.
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    previous.updateGlowToggleItem(); // Both inventories have a glow toggle button
-                    plugin.getInventoryManager().handleOpen(player, previous);
+                    if (!display.isRemoved()) {
+                        previous.updateGlowToggleItem(); // Both inventories have a glow toggle button
+                        plugin.getInventoryManager().handleOpen(player, previous);
+                    }
                 }
             }.runTask(plugin);
         }

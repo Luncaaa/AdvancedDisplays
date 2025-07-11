@@ -4,11 +4,12 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.BaseDisplay;
 import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.inventory.Button;
-import me.lucaaa.advanceddisplays.inventory.InventoryMethods;
+import me.lucaaa.advanceddisplays.inventory.ADInventory;
 import me.lucaaa.advanceddisplays.inventory.items.ColorItems;
 import me.lucaaa.advanceddisplays.inventory.items.GlobalItems;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -18,16 +19,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class ColorGUI extends InventoryMethods {
+public class ColorGUI extends ADInventory {
     private final DisplayEditorGUI previous;
+    private final Material previewMaterial;
     private Color savedColor;
     private final boolean alphaEnabled;
     private ColorItems.ColorPreview preview;
     private final Consumer<Color> onDone;
 
     public ColorGUI(AdvancedDisplays plugin, DisplayEditorGUI previousInventory, BaseDisplay display, boolean alphaEnabled, Color initialColor, Consumer<Color> onDone) {
+        this(plugin, previousInventory, Material.LEATHER_CHESTPLATE, display, alphaEnabled, initialColor, onDone);
+    }
+
+    public ColorGUI(AdvancedDisplays plugin, DisplayEditorGUI previousInventory, Material previewMaterial, BaseDisplay display, boolean alphaEnabled, Color initialColor, Consumer<Color> onDone) {
         super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing glow color of: &e" + display.getName()))), List.of());
         this.previous = previousInventory;
+        this.previewMaterial = previewMaterial;
         this.savedColor = initialColor;
         this.alphaEnabled = alphaEnabled;
         this.onDone = onDone;
@@ -35,7 +42,7 @@ public class ColorGUI extends InventoryMethods {
 
     @Override
     public void decorate() {
-        ColorItems items = new ColorItems(savedColor, alphaEnabled);
+        ColorItems items = new ColorItems(previewMaterial, savedColor, alphaEnabled);
         preview = items.PREVIEW;
 
         // ---[ RED ]----

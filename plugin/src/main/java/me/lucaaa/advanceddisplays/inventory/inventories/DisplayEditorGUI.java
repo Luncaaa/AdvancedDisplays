@@ -8,32 +8,40 @@ import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
 import me.lucaaa.advanceddisplays.inventory.*;
 import me.lucaaa.advanceddisplays.inventory.Button;
+import me.lucaaa.advanceddisplays.inventory.items.ColorItems;
 import me.lucaaa.advanceddisplays.inventory.items.EditorItems;
 import me.lucaaa.advanceddisplays.inventory.items.Item;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Axolotl;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.*;
+import org.bukkit.inventory.meta.trim.ArmorTrim;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import java.util.*;
 import java.util.List;
 
-public class DisplayEditorGUI extends InventoryMethods {
+public class DisplayEditorGUI extends ADInventory {
     private final BaseDisplay display;
-    private final EditorItems items;
+    // private final EditorItems items;
     private final Map<Player, EditAction> editMap = new HashMap<>();
 
     public DisplayEditorGUI(AdvancedDisplays plugin, BaseDisplay display, List<EditorItem> disabledSettings) {
         super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))), disabledSettings);
         this.display = display;
-        this.items = new EditorItems(display);
     }
 
     @Override
     public void decorate() {
+        EditorItems items = new EditorItems(display);
+
         // ---[ BRIGHTNESS ]----
         addIfAllowed(EditorItem.BLOCK_LIGHT, 0, new Button.InventoryButton<>(items.BLOCK_LIGHT) {
             @Override
@@ -102,7 +110,7 @@ public class DisplayEditorGUI extends InventoryMethods {
             @Override
             public void onClick(InventoryClickEvent event) {
                 Display.Billboard newBillboard = getItem().changeValue();
-                getInventory().setItem(4, getItem().getStack());
+                getInventory().setItem(18, getItem().getStack());
                 display.setBillboard(newBillboard);
             }
         });
@@ -168,15 +176,16 @@ public class DisplayEditorGUI extends InventoryMethods {
 
         // ----[ DISPLAY-SPECIFIC ]-----
         switch (display.getType()) {
-            case BLOCK -> setBlockData();
+            case BLOCK -> setBlockData(items);
 
             case ITEM -> {
+                ItemDisplay itemDisplay = (ItemDisplay) display;
                 addIfAllowed(EditorItem.ITEM_TRANSFORMATION, 8, new Button.InventoryButton<>(items.ITEM_TRANSFORMATION) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         org.bukkit.entity.ItemDisplay.ItemDisplayTransform newTransform = getItem().changeValue();
                         getInventory().setItem(8, getItem().getStack());
-                        ((ItemDisplay) display).setItemTransformation(newTransform);
+                        itemDisplay.setItemTransformation(newTransform);
                     }
                 });
 
@@ -185,9 +194,29 @@ public class DisplayEditorGUI extends InventoryMethods {
                     public void onClick(InventoryClickEvent event) {
                         boolean isEnchanted = getItem().changeValue();
                         getInventory().setItem(7, getItem().getStack());
-                        ((ItemDisplay) display).setEnchanted(isEnchanted);
+                        itemDisplay.setEnchanted(isEnchanted);
+                        updateCurrentValue(itemDisplay.getItem().getItemMeta(), itemDisplay.getItem().getType().name());
                     }
                 });
+
+                addIfAllowed(EditorItem.CUSTOM_MODEL_DATA, metadataSlots.get(2), new Button.InventoryButton<>(items.CUSTOM_MODEL_DATA) {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        double newValue = getItem().changeValue(event.isLeftClick(), event.isShiftClick(), 0);
+                        getInventory().setItem(metadataSlots.get(2), getItem().getStack());
+
+                        ItemStack item = itemDisplay.getItem().clone();
+                        ItemMeta meta = item.getItemMeta();
+                        if (meta != null) {
+                            meta.setCustomModelData((int) newValue);
+                            item.setItemMeta(meta);
+                            itemDisplay.setItem(item);
+                            getInventory().setItem(13, item);
+                        }
+                    }
+                });
+
+                addMetadataButtons(itemDisplay);
             }
 
             case TEXT -> {
@@ -283,14 +312,14 @@ public class DisplayEditorGUI extends InventoryMethods {
         super.decorate();
     }
 
-    private void setBlockData() {
+    private void setBlockData(EditorItems items) {
         BlockDisplay blockDisplay = (BlockDisplay) display;
         String data = blockDisplay.getBlock().getAsString();
         if (data.contains("[")) {
             addIfAllowed(EditorItem.BLOCK_DATA, 8, new Button.InventoryButton<>(items.BLOCK_DATA) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
-                    InventoryMethods inventory = new BlockDataGUI(plugin, DisplayEditorGUI.this, blockDisplay, blockData -> {
+                    ADInventory inventory = new BlockDataGUI(plugin, DisplayEditorGUI.this, blockDisplay, blockData -> {
                         blockDisplay.setBlock(blockData);
                         getItem().setValue(blockData.toString());
                         getInventory().setItem(8, getItem().getStack());
@@ -314,8 +343,7 @@ public class DisplayEditorGUI extends InventoryMethods {
     @Override
     public void handleChatEdit(Player player, String input) {
         if (!input.equalsIgnoreCase("cancel")) {
-            @SuppressWarnings("unchecked")
-            Item<String> item = (Item<String>) getButton(13).getItem();
+            Item.ClickableItem item = (Item.ClickableItem) getButton(13).getItem();
 
             switch (editMap.get(player)) {
                 case REMOVE_TEXT -> {
@@ -385,38 +413,48 @@ public class DisplayEditorGUI extends InventoryMethods {
                     }
 
                     if (display.getType() == DisplayType.ITEM) {
-                        ((ItemDisplay) display).setItem(new ItemStack(material));
+                        ItemDisplay itemDisplay = (ItemDisplay) display;
+                        // Save the enchanted state to a variable because setting a new item stack
+                        // will make the item not be enchanted.
+                        boolean enchanted = itemDisplay.isEnchanted();
+                        itemDisplay.setItem(new ItemStack(material));
+                        itemDisplay.setEnchanted(enchanted);
 
                     } else {
                         try {
-                            BlockData blockData = material.createBlockData();
-                            ((BlockDisplay) display).setBlock(blockData);
-                            setBlockData();
+                            ((BlockDisplay) display).setBlock(material.createBlockData());
 
                         } catch (IllegalArgumentException | NullPointerException ignored) {
                             player.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + material.name() + " &cis not a valid block!"));
                             return;
                         }
                     }
-
-                    item.getStack().setType(material);
-                    item.getStack().setAmount(1);
-                    item.setValue(material.name());
                 }
             }
 
-            getInventory().setItem(13, item.getStack());
+            clearButtons();
+            decorate();
         }
 
         editMap.remove(player);
         plugin.getInventoryManager().handleOpen(player, this);
     }
 
+    // The current item has the title and lore.
+    // The new meta (argument parameter) has the "visible" properties, such as a potion's color.
+    public void updateCurrentValue(ItemMeta meta, String value) {
+        if (meta == null) return;
+
+        Item.ClickableItem item = (Item.ClickableItem) getButton(13).getItem();
+        item.setValue(value);
+        item.applyMeta(meta);
+        getInventory().setItem(13, item.getStack());
+    }
+
     public void updateGlowToggleItem() {
         if (disabledSettings.contains(EditorItem.GLOW_TOGGLE)) return;
 
-        @SuppressWarnings("unchecked")
-        Item<Boolean> item = (Item<Boolean>) getButton(2).getItem();
+        Item.BooleanItem item = (Item.BooleanItem) getButton(2).getItem();
         item.setValue(display.isGlowing());
         getInventory().setItem(2, item.getStack());
     }
@@ -425,5 +463,267 @@ public class DisplayEditorGUI extends InventoryMethods {
         ADD_TEXT,
         REMOVE_TEXT,
         CHANGE_MATERIAL
+    }
+
+    /**
+     * Adds buttons to modify the item's metadata, such as a potion's color.
+     */
+    @SuppressWarnings("UnstableApiUsage")
+    private void addMetadataButtons(ItemDisplay display) {
+        ItemStack item = display.getItem().clone();
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return;
+
+        int slot = metadataSlots.get(3);
+        if (meta instanceof PotionMeta potion) {
+            // Item type must be a potion (normal, splash or lingering) because meta is an instance of PotionMeta
+            Color color = (potion.getColor() == null) ? Color.ORANGE : potion.getColor();
+            ColorItems.ColorPreview preview = new ColorItems.ColorPreview(item.getType(), "Potion color", List.of("", "&7Use &cRIGHT_CLICK &7to reset"), color, ColorItems.ColorComponent.ALL, false);
+            addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(preview) {
+                @Override
+                public void onClick(InventoryClickEvent event) {
+                    if (event.isRightClick()) {
+                        getItem().setColor(Color.ORANGE);
+                        getInventory().setItem(slot, getItem().getStack());
+                        setPotionColor(display, null);
+                        return;
+                    }
+
+                    ColorGUI inventory = new ColorGUI(plugin, DisplayEditorGUI.this, item.getType(), display, false, color, color -> {
+                        getItem().setColor(color);
+                        getInventory().setItem(slot, getItem().getStack());
+                        setPotionColor(display, color);
+                    });
+
+                    plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
+                }
+            });
+
+        } else if (meta instanceof ArmorMeta armor) {
+            final TrimPattern[] pattern = {(armor.getTrim() == null) ? null : armor.getTrim().getPattern()};
+            final TrimMaterial[] material = {(armor.getTrim() == null) ? null : armor.getTrim().getMaterial()};
+
+            Item.RegistryItem patternItem = new Item.RegistryItem(getMatFromPattern(pattern[0]), "Armor trim pattern", List.of("Changes the armor's trim pattern"), pattern[0] == null ? TrimPattern.SENTRY : pattern[0], true, !armor.hasTrim());
+            addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(patternItem) {
+                @Override
+                public void onClick(InventoryClickEvent event) {
+                    pattern[0] = (TrimPattern) getItem().changeValue();
+                    // Item is set in this method
+                    setArmorTrim(display, pattern[0], material[0], slot, metadataSlots.get(4));
+                }
+            });
+
+            Item.RegistryItem materialItem = new Item.RegistryItem(getMatFromTrimMat(material[0]), "Armor trim material", List.of("Changes the armor's trim material"), material[0] == null ? TrimMaterial.NETHERITE : material[0], true, !armor.hasTrim());
+            addIfAllowed(EditorItem.ITEM_META, metadataSlots.get(4), new Button.InventoryButton<>(materialItem) {
+                @Override
+                public void onClick(InventoryClickEvent event) {
+                    material[0] = (TrimMaterial) getItem().changeValue();
+                    // Item is set in this method
+                    setArmorTrim(display, pattern[0], material[0], slot, metadataSlots.get(4));
+                }
+            });
+
+            if (meta instanceof LeatherArmorMeta leatherArmor) {
+                // Item type must be an armor part (helmet, boots...) because meta is an instance of LeatherArmorMeta
+                ColorItems.ColorPreview preview = new ColorItems.ColorPreview(item.getType(), "Armor color", List.of("", "&7Use &cRIGHT_CLICK &7to reset"), leatherArmor.getColor(), ColorItems.ColorComponent.ALL, false);
+                addIfAllowed(EditorItem.ITEM_META, metadataSlots.get(5), new Button.InventoryButton<>(preview) {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        if (event.isRightClick()) {
+                            getItem().setColor(plugin.getServer().getItemFactory().getDefaultLeatherColor());
+                            getInventory().setItem(metadataSlots.get(5), getItem().getStack());
+                            setArmorColor(display, null);
+                            return;
+                        }
+
+                        ColorGUI inventory = new ColorGUI(plugin, DisplayEditorGUI.this, item.getType(), display, false, leatherArmor.getColor(), color -> {
+                            getItem().setColor(color);
+                            getInventory().setItem(metadataSlots.get(5), getItem().getStack());
+                            setArmorColor(display, color);
+                        });
+
+                        plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
+                    }
+                });
+            }
+
+        } else if (meta instanceof BannerMeta banner) {
+            Item.ClickableItem bannerItem = new Item.ClickableItem(item, "Banner patterns", List.of("Changes the banner's pattern"), null);
+            addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(bannerItem) {
+                private BannerMeta meta = banner;
+
+                @Override
+                public void onClick(InventoryClickEvent event) {
+                    BannerEditorGUI inventory = new BannerEditorGUI(plugin, DisplayEditorGUI.this, item.getType(), this.meta, meta -> {
+                        this.meta = meta;
+                        ItemStack item = display.getItem().clone(); // Gets the potion type (normal, splash or lingering)
+                        item.setItemMeta(meta);
+                        display.setItem(item);
+                        // Cloning the meta prevents the "applyMeta" method run in "updateCurrentValue" from changing anything in the metadata item.
+                        getItem().applyMeta(meta.clone());
+                        getInventory().setItem(slot, getItem().getStack());
+                        updateCurrentValue(meta, item.getType().name());
+                    });
+
+                    plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
+                }
+            });
+
+        } else if (meta instanceof CompassMeta compass) {
+            String location = compass.hasLodestone() ? Utils.locToString(Objects.requireNonNull(compass.getLodestone())) : "No lodestone";
+            Item.ClickableItem lodestoneLocation = new Item.ClickableItem(Material.LODESTONE, "Compass lodestone", List.of("Changes the compass' lodestone", "", "&7Use &cRIGHT_CLICK &7to reset"), location);
+            addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(lodestoneLocation) {
+                @Override
+                public void onClick(InventoryClickEvent event) {
+                    boolean sameWorld = event.getWhoClicked().getWorld().equals(display.getLocation().getWorld());
+                    if (event.isRightClick() || !sameWorld) {
+                        getItem().setValue(sameWorld ? "No lodestone" : "Player and display world don't match!");
+                        getInventory().setItem(slot, getItem().getStack());
+                        setCompassLodestone(display, null);
+                        return;
+                    }
+
+                    Location loc = event.getWhoClicked().getLocation();
+                    getItem().setValue(Utils.locToString(loc));
+                    getInventory().setItem(slot, getItem().getStack());
+                    setCompassLodestone(display, loc);
+                }
+            });
+
+        } else if (meta instanceof BundleMeta bundle) {
+            Item.BooleanItem hasItems = new Item.BooleanItem(item, "Has items", List.of("Changes whether the bundle has items or not"), bundle.hasItems(), false);
+            addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(hasItems) {
+                @Override
+                public void onClick(InventoryClickEvent event) {
+                    boolean hasItems = getItem().changeValue();
+                    ItemStack item = display.getItem().clone();
+                    ItemMeta meta = item.getItemMeta();
+                    if (meta instanceof BundleMeta bundleMeta) {
+                        if (hasItems) {
+                            bundleMeta.addItem(new ItemStack(Material.DIAMOND, 64));
+                        } else {
+                            bundleMeta.setItems(List.of());
+                        }
+
+                        item.setItemMeta(meta);
+                        display.setItem(item);
+                        // Cloning the meta prevents the "applyMeta" method run in "updateCurrentValue" from changing anything in the metadata item.
+                        getItem().applyMeta(meta.clone());
+                        getInventory().setItem(slot, getItem().getStack());
+                        updateCurrentValue(meta, item.getType().name());
+                    }
+                }
+            });
+
+        } else if (meta instanceof AxolotlBucketMeta bucketMeta) {
+            Item.EnumItem bucketItem = new Item.EnumItem(item, "Axolotl variant", List.of("Changes the variant of the axolotl"), bucketMeta.hasVariant() ? bucketMeta.getVariant() : Axolotl.Variant.LUCY, false);
+            addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(bucketItem) {
+                @Override
+                public void onClick(InventoryClickEvent event) {
+                    Axolotl.Variant newVariant = getItem().changeValue();
+                    ItemStack item = display.getItem().clone();
+                    ItemMeta meta = item.getItemMeta();
+                    if (meta instanceof AxolotlBucketMeta axolotlBucketMeta) {
+                        axolotlBucketMeta.setVariant(newVariant);
+                        item.setItemMeta(meta);
+                        display.setItem(item);
+                        // Cloning the meta prevents the "applyMeta" method run in "updateCurrentValue" from changing anything in the metadata item.
+                        getItem().applyMeta(meta.clone());
+                        getInventory().setItem(slot, getItem().getStack());
+                        updateCurrentValue(meta, item.getType().name());
+                    }
+                }
+            });
+        }
+    }
+
+    private void setPotionColor(ItemDisplay display, Color color) {
+        ItemStack item = display.getItem().clone(); // Gets the potion type (normal, splash or lingering)
+        ItemMeta meta = item.getItemMeta();
+        if (meta instanceof PotionMeta potionMeta) {
+            potionMeta.setColor(color);
+            item.setItemMeta(meta);
+            display.setItem(item);
+            updateCurrentValue(meta, item.getType().name());
+        }
+    }
+
+    private void setArmorColor(ItemDisplay display, Color color) {
+        ItemStack item = display.getItem().clone(); // Gets the armor part (helmet, boots...)
+        ItemMeta meta = item.getItemMeta();
+        if (meta instanceof LeatherArmorMeta leatherArmor) {
+            leatherArmor.setColor(color);
+            item.setItemMeta(meta);
+            display.setItem(item);
+            updateCurrentValue(meta, item.getType().name());
+        }
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    private void setArmorTrim(ItemDisplay display, TrimPattern pattern, TrimMaterial material, int patternSlot, int matSlot) {
+        ItemStack item = display.getItem().clone(); // Gets the armor type (part and material)
+        ItemMeta meta = item.getItemMeta();
+        if (meta instanceof ArmorMeta armorMeta) {
+            if (pattern == null || material == null) {
+                armorMeta.setTrim(null);
+            } else {
+                armorMeta.setTrim(new ArmorTrim(material, pattern));
+            }
+
+            item.setItemMeta(meta);
+            display.setItem(item);
+            updateCurrentValue(meta, item.getType().name());
+        }
+
+        Item.RegistryItem patternItem = (Item.RegistryItem) getButton(patternSlot).getItem();
+        patternItem.getStack().setType(getMatFromPattern(pattern));
+        getInventory().setItem(patternSlot, patternItem.getStack());
+
+        Item.RegistryItem materialItem = (Item.RegistryItem) getButton(matSlot).getItem();
+        materialItem.getStack().setType(getMatFromTrimMat(material));
+        getInventory().setItem(matSlot, materialItem.getStack());
+    }
+
+    private void setCompassLodestone(ItemDisplay display, Location lodestone) {
+        ItemStack item = display.getItem().clone();
+        ItemMeta meta = item.getItemMeta();
+        if (meta instanceof CompassMeta compass) {
+            compass.setLodestone(lodestone);
+            compass.setLodestoneTracked(lodestone != null);
+            item.setItemMeta(meta);
+            display.setItem(item);
+            updateCurrentValue(meta, item.getType().name());
+        }
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    private Material getMatFromPattern(TrimPattern pattern) {
+        if (pattern == null) return Material.BARRIER;
+
+        try {
+            return Material.valueOf(pattern.getKey().getKey().toUpperCase() + "_ARMOR_TRIM_SMITHING_TEMPLATE");
+        } catch (IllegalArgumentException e) {
+            return Material.BARRIER;
+        }
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    private Material getMatFromTrimMat(TrimMaterial mat) {
+        if (mat == null) return Material.BARRIER;
+
+        return switch (mat.getKey().getKey().toLowerCase()) {
+            case "amethyst" -> Material.AMETHYST_SHARD;
+            case "copper" -> Material.COPPER_INGOT;
+            case "diamond" -> Material.DIAMOND;
+            case "emerald" -> Material.EMERALD;
+            case "gold" -> Material.GOLD_INGOT;
+            case "iron" -> Material.IRON_INGOT;
+            case "lapis" -> Material.LAPIS_LAZULI;
+            case "netherite" -> Material.NETHERITE_INGOT;
+            case "quartz" -> Material.QUARTZ;
+            case "redstone" -> Material.REDSTONE;
+            case "resin" -> Material.getMaterial("RESIN_BRICK"); // Not available in 1.19.4
+            default -> Material.BARRIER;
+        };
     }
 }

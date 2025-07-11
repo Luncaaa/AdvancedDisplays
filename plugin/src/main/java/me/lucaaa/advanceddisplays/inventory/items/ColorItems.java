@@ -5,11 +5,12 @@ import me.lucaaa.advanceddisplays.data.ADChatColor;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class ColorItems {
     public final ColorSelector RED_1;
@@ -34,28 +35,28 @@ public class ColorItems {
 
     public final ColorPreview PREVIEW;
 
-    public ColorItems(Color color, boolean alphaEnabled) {
+    public ColorItems(Material previewMaterial, Color color, boolean alphaEnabled) {
         RED_1 = new ColorSelector(ColorComponent.RED, 1, color.getRed());
         RED_10 = new ColorSelector(ColorComponent.RED, 10, color.getRed());
         RED_100 = new ColorSelector(ColorComponent.RED, 100, color.getRed());
-        RED_PREVIEW = new ColorPreview("&cRed preview", color, ColorComponent.RED, false);
+        RED_PREVIEW = new ColorPreview(previewMaterial, "&cRed preview", color, ColorComponent.RED, false);
 
         GREEN_1 = new ColorSelector(ColorComponent.GREEN, 1, color.getGreen());
         GREEN_10 = new ColorSelector(ColorComponent.GREEN, 10, color.getGreen());
         GREEN_100 = new ColorSelector(ColorComponent.GREEN, 100, color.getGreen());
-        GREEN_PREVIEW = new ColorPreview("&aGreen preview", color, ColorComponent.GREEN, false);
+        GREEN_PREVIEW = new ColorPreview(previewMaterial, "&aGreen preview", color, ColorComponent.GREEN, false);
 
         BLUE_1 = new ColorSelector(ColorComponent.BLUE, 1, color.getBlue());
         BLUE_10 = new ColorSelector(ColorComponent.BLUE, 10, color.getBlue());
         BLUE_100 = new ColorSelector(ColorComponent.BLUE, 100, color.getBlue());
-        BLUE_PREVIEW = new ColorPreview("&9Blue preview", color, ColorComponent.BLUE, false);
+        BLUE_PREVIEW = new ColorPreview(previewMaterial, "&9Blue preview", color, ColorComponent.BLUE, false);
 
         ALPHA_1 = new ColorSelector(ColorComponent.ALPHA, 1, color.getAlpha());
         ALPHA_10 = new ColorSelector(ColorComponent.ALPHA, 10, color.getAlpha());
         ALPHA_100 = new ColorSelector(ColorComponent.ALPHA, 100, color.getAlpha());
-        ALPHA_PREVIEW = new ColorPreview("&fAlpha preview", color, ColorComponent.ALPHA, true);
+        ALPHA_PREVIEW = new ColorPreview(previewMaterial, "&fAlpha preview", color, ColorComponent.ALPHA, true);
 
-        PREVIEW = new ColorPreview("Color preview", color, ColorComponent.ALL, alphaEnabled);
+        PREVIEW = new ColorPreview(previewMaterial, "Color preview", color, ColorComponent.ALL, alphaEnabled);
     }
 
     public static class ColorPreview extends Item<Double> {
@@ -63,7 +64,15 @@ public class ColorItems {
         private final boolean alphaEnabled;
 
         public ColorPreview(String title, Color color, ColorItems.ColorComponent component, boolean alphaEnabled) {
-            super(Material.LEATHER_CHESTPLATE, title, List.of(), false, null);
+            this(Material.LEATHER_CHESTPLATE, title, List.of(), color, component, alphaEnabled);
+        }
+
+        public ColorPreview(Material material, String title, Color color, ColorItems.ColorComponent component, boolean alphaEnabled) {
+            this(material, title, List.of(), color, component, alphaEnabled);
+        }
+
+        public ColorPreview(Material material, String title, List<String> lore, Color color, ColorItems.ColorComponent component, boolean alphaEnabled) {
+            super(material, title, lore, null, false);
             this.component = component;
             this.alphaEnabled = alphaEnabled;
             // Title and armor color will be set in the setColor function.
@@ -73,7 +82,8 @@ public class ColorItems {
         public void setColor(Color color) {
             ADChatColor colors = new ADChatColor(color, component);
 
-            List<String> lore = new ArrayList<>();
+            List<String> lore = new ArrayList<>(this.lore);
+            lore.add("");
 
             if (component == ColorItems.ColorComponent.ALL) {
                 lore.add(Utils.getColoredText("&9Current values:"));
@@ -94,9 +104,18 @@ public class ColorItems {
                 lore.add("&9Current value: " + colors.fromComponent() + component.name() + component.code + " (" + componentNumber + ")");
             }
 
-            LeatherArmorMeta leatherMeta = (LeatherArmorMeta) Objects.requireNonNull(item.getItemMeta());
-            leatherMeta.setColor(ADChatColor.fromChatColor(colors.fromComponent()));
-            item.setItemMeta(leatherMeta);
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                Color parsedColor = ADChatColor.fromChatColor(colors.fromComponent());
+                if (meta instanceof LeatherArmorMeta leatherMeta) {
+                    leatherMeta.setColor(parsedColor);
+                } else if (meta instanceof PotionMeta potionMeta) {
+                    potionMeta.setColor(parsedColor);
+                }
+
+                item.setItemMeta(meta);
+            }
+
             setMeta(title, lore);
         }
     }

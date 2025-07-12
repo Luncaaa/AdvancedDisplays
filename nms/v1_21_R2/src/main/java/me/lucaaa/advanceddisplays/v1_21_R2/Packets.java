@@ -6,6 +6,7 @@ import me.lucaaa.advanceddisplays.nms_common.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.*;
 import net.minecraft.advancements.critereon.ImpossibleTrigger;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.Connection;
@@ -23,13 +24,14 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PositionMoveRotation;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.advancement.AdvancementDisplayType;
+import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.CraftArt;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.entity.CraftEntity;
@@ -240,25 +242,33 @@ public class Packets implements PacketInterface {
                             new EntityDataAccessor<>(id, EntityDataSerializers.COMPONENT),
                             Objects.requireNonNull(
                                     Component.Serializer.fromJson(
-                                            ComponentSerializer.toJSON((net.kyori.adventure.text.Component) value),
+                                            ComponentSerializer.toJSONString((net.kyori.adventure.text.Component) value),
                                             cp.getHandle().registryAccess()
                                     )
                             )
                     );
-            case OPTIONAL_COMPONENT ->
-                    SynchedEntityData.DataValue.create(
-                            new EntityDataAccessor<>(id, EntityDataSerializers.OPTIONAL_COMPONENT),
-                            Optional.ofNullable(
-                                    Component.Serializer.fromJson(
-                                            ComponentSerializer.toJSON((net.kyori.adventure.text.Component) value),
-                                            cp.getHandle().registryAccess()
-                                    )
-                            )
-                    );
+            case OPTIONAL_COMPONENT -> {
+                @SuppressWarnings("unchecked")
+                Optional<net.kyori.adventure.text.Component> optional = (Optional<net.kyori.adventure.text.Component>) value;
+                Optional<Component> component = optional.map(component1 -> Component.Serializer.fromJson(
+                        ComponentSerializer.toJSONString(component1),
+                        cp.getHandle().registryAccess()
+                ));
+
+                yield SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.OPTIONAL_COMPONENT), component);
+            }
             case ITEM_STACK -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.ITEM_STACK), CraftItemStack.asNMSCopy((ItemStack) value));
             case BLOCK_STATE -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.BLOCK_STATE), ((CraftBlockData) value).getState());
             case VECTOR3 -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.VECTOR3), (Vector3f) value);
             case QUATERNION -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.QUATERNION), (Quaternionf) value);
+            case BLOCK_FACE -> {
+                BlockFace blockFace = (BlockFace) value;
+                Direction direction = blockFace.isCartesian() ? Direction.valueOf(blockFace.name()) : Direction.SOUTH;
+                yield SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.DIRECTION), direction);
+            }
+            case ROTATION -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.INT), ((Rotation) value).ordinal());
+            case ART -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.PAINTING_VARIANT), CraftArt.bukkitToMinecraftHolder((Art) value));
+            case DYE_COLOR -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.INT), DyeColor.valueOf(((org.bukkit.DyeColor) value).name()).ordinal());
         };
     }
 

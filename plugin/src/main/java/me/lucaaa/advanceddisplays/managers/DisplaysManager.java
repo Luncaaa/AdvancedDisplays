@@ -28,6 +28,23 @@ public class DisplaysManager {
     private final boolean isApi;
     private final Map<String, ADBaseEntity> displays = new HashMap<>();
     private final Map<Player, AttachedDisplay> attachDisplays = new HashMap<>();
+    // TODO: Check EVOKER_FANGS,
+    public static final List<EntityType> FORBIDDEN_ENTITIES = List.of(
+            EntityType.BLOCK_DISPLAY,
+            EntityType.ITEM_DISPLAY,
+            EntityType.TEXT_DISPLAY,
+            EntityType.PLAYER,
+            EntityType.UNKNOWN,
+            EntityType.AREA_EFFECT_CLOUD,
+            EntityType.EXPERIENCE_ORB,
+            EntityType.FALLING_BLOCK,
+            EntityType.FIREWORK,
+            EntityType.INTERACTION,
+            EntityType.DROPPED_ITEM,
+            EntityType.LIGHTNING,
+            EntityType.LLAMA_SPIT,
+            EntityType.MARKER
+    );
 
     private int failedLoads = 0;
 
@@ -152,9 +169,8 @@ public class DisplaysManager {
             display.getConfigManager().getFile().delete();
         }
 
-        if (display instanceof ADTextDisplay) ((ADTextDisplay) display).stopRunnable();
+        if (display instanceof ADTextDisplay textDisplay) textDisplay.stopRunnable();
         display.destroy();
-        display.stopTicking();
         plugin.getPlayersManager().handleDisplayRemoval(display);
         if (removeFromList) displays.remove(display.getName());
         display.setRemoved();
@@ -214,7 +230,12 @@ public class DisplaysManager {
                 }
 
                 try {
-                    yield new ADEntityDisplay(plugin, this, configManager, name, EntityType.valueOf(configType));
+                    EntityType entityType = EntityType.valueOf(configType);
+                    if (FORBIDDEN_ENTITIES.contains(entityType)) {
+                        plugin.log(Level.WARNING, getMessage(name, "cannot be of entity type: " + configType));
+                        yield null;
+                    }
+                    yield new ADEntityDisplay(plugin, this, configManager, name, entityType);
                 } catch (IllegalArgumentException e) {
                     plugin.log(Level.WARNING, getMessage(name, "has an invalid entity type set: " + configType));
                     yield null;
@@ -228,8 +249,9 @@ public class DisplaysManager {
         }
 
         if (newDisplay.hasErrorsOnLoad()) {
+            plugin.log(Level.WARNING, "The display \"" + name + "\" for plugin \"" + pluginName + "\" registered the following errors:");
             for (String error : newDisplay.getErrors()) {
-                plugin.log(Level.WARNING, getMessage(name, error));
+                plugin.log(Level.WARNING, error);
             }
 
             failedLoads++;

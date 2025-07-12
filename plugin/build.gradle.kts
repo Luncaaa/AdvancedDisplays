@@ -17,11 +17,9 @@ dependencies {
     implementation(project(":api"))
     implementation(project(":nms"))
     implementation(project(":nms:nms_common"))
-    implementation(project(":nms:v1_21_R4"))
-
-    /*file("${rootDir}/nms").listFiles()!!.filter { it.isDirectory && it.name.startsWith("v") }.forEach {
+    file("${rootDir}/nms").listFiles()!!.filter { it.isDirectory && it.name.startsWith("v") }.forEach {
         implementation(project(":nms:${it.name}", "reobf"))
-    }*/
+    }
 }
 
 tasks {

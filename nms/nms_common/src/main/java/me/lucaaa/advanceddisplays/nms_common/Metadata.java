@@ -1,5 +1,6 @@
 package me.lucaaa.advanceddisplays.nms_common;
 
+import me.lucaaa.advanceddisplays.api.displays.enums.Property;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Display;
@@ -8,10 +9,16 @@ import org.bukkit.inventory.ItemStack;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 public class Metadata {
+    public final Map<Property<?>, DataInfo<?>> propertyData = new HashMap<>();
+
     // - [ Common entity settings ]-
     public final DataInfo<Byte> PROPERTIES = DataInfo.ofByte(0);
-    public final DataInfo<Component> CUSTOM_NAME = DataInfo.ofOptionalComponent(2);
+    public final DataInfo<Optional<Component>> CUSTOM_NAME = new DataInfo<>(2, DataType.OPTIONAL_COMPONENT);
     public final DataInfo<Boolean> CUSTOM_NAME_VISIBLE = DataInfo.ofBoolean(3);
 
     // -[ Interaction entity ]-
@@ -44,6 +51,25 @@ public class Metadata {
     public final DataInfo<Byte> ITEM_TRANSFORM;
 
     public Metadata(Version version) {
+        propertyData.put(Property.ALLAY_DANCING, new DataInfo<>(16, DataType.BOOLEAN));
+        propertyData.put(Property.ANIMAL_SITTING, new DataInfo<>(17, DataType.BYTE));
+        propertyData.put(Property.ANIMAL_TAMED, new DataInfo<>(17, DataType.BYTE));
+        propertyData.put(Property.WOLF_BEGGING, new DataInfo<>(19, DataType.BOOLEAN));
+        propertyData.put(Property.WOLF_COLLAR_COLOR, new DataInfo<>(20, DataType.DYE_COLOR));
+
+        if (version.isEqualOrNewerThan(Version.v1_21_R5)) {
+            propertyData.put(Property.ITEM_FRAME_DIRECTION, new DataInfo<>(8, DataType.BLOCK_FACE));
+            propertyData.put(Property.ITEM_FRAME_ITEM, new DataInfo<>(9, DataType.ITEM_STACK));
+            propertyData.put(Property.ITEM_FRAME_ROTATION, new DataInfo<>(10, DataType.ROTATION));
+            propertyData.put(Property.PAINTING_DIRECTION, new DataInfo<>(8, DataType.BLOCK_FACE));
+            propertyData.put(Property.PAINTING_ART, new DataInfo<>(9, DataType.ART));
+
+        } else {
+            propertyData.put(Property.ITEM_FRAME_ITEM, new DataInfo<>(8, DataType.ITEM_STACK));
+            propertyData.put(Property.ITEM_FRAME_ROTATION, new DataInfo<>(9, DataType.ROTATION));
+            propertyData.put(Property.PAINTING_ART, new DataInfo<>(8, DataType.ART));
+        }
+
         if (version.isEqualOrNewerThan(Version.v1_20_R2)) {
             TRANSLATION = DataInfo.ofVector3f(11);
             SCALE = DataInfo.ofVector3f(12);
@@ -64,6 +90,7 @@ public class Metadata {
             BLOCK = DataInfo.ofBlockData(23);
 
         } else {
+
             TRANSLATION = DataInfo.ofVector3f(10);
             SCALE = DataInfo.ofVector3f(11);
             LEFT_ROTATION = DataInfo.ofQuaternionf(12);
@@ -120,10 +147,6 @@ public class Metadata {
             return new DataInfo<>(id, DataType.COMPONENT);
         }
 
-        public static DataInfo<Component> ofOptionalComponent(int id) {
-            return new DataInfo<>(id, DataType.OPTIONAL_COMPONENT);
-        }
-
         public static DataInfo<ItemStack> ofItemStack(int id) {
             return new DataInfo<>(id, DataType.ITEM_STACK);
         }
@@ -151,7 +174,26 @@ public class Metadata {
         ITEM_STACK,
         BLOCK_STATE,
         VECTOR3,
-        QUATERNION
+        QUATERNION,
+        BLOCK_FACE,
+        ROTATION,
+        ART,
+        DYE_COLOR
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> Metadata.DataPair<T> createDataPair(Map<Property<?>, Object> properties, Property<T> property, T value) {
+        // Property is not present in the server's version (e.g painting direction in 1.19.4)
+        if (!propertyData.containsKey(property)) return null;
+
+        Metadata.DataInfo<T> dataInfo = (DataInfo<T>) propertyData.get(property);
+
+        if (property.hasBytePack()) {
+            return new DataPair<>(dataInfo, (T) (Byte) property.getByteFlags(properties));
+
+        } else {
+            return new Metadata.DataPair<>(dataInfo, value);
+        }
     }
 
     public static byte getProperties(boolean onFire, boolean sprinting, boolean glowing) {

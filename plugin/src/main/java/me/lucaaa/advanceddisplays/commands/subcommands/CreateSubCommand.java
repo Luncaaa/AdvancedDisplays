@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.commands.subcommands;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.data.AttachedDisplay;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
+import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
@@ -52,7 +53,7 @@ public class CreateSubCommand extends SubCommandsFormat {
                 return Arrays.stream(AttachedDisplay.Side.values()).map(Enum::name).toList();
 
             } else if (args[1].equalsIgnoreCase("ENTITY")) {
-                return Arrays.stream(EntityType.values()).map(Enum::name).toList();
+                return Arrays.stream(EntityType.values()).filter(entityType -> !DisplaysManager.FORBIDDEN_ENTITIES.contains(entityType)).map(Enum::name).toList();
             }
         }
 
@@ -106,6 +107,11 @@ public class CreateSubCommand extends SubCommandsFormat {
                 EntityType.valueOf(value);
             } catch (IllegalArgumentException e) {
                 sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + value + " &cis not a valid material!"));
+                return;
+            }
+
+            if (DisplaysManager.FORBIDDEN_ENTITIES.contains(EntityType.valueOf(value))) {
+                sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cYou cannot create an entity display with this entity!"));
                 return;
             }
         }

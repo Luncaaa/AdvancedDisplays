@@ -1,5 +1,7 @@
-package me.lucaaa.advanceddisplays.v1_20_R2;
+package me.lucaaa.advanceddisplays.v1_21_R5;
 
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
 import io.netty.channel.ChannelPipeline;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.nms_common.*;
@@ -7,19 +9,24 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.*;
 import net.minecraft.advancements.critereon.ImpossibleTrigger;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.scores.PlayerTeam;
@@ -27,13 +34,13 @@ import net.minecraft.world.scores.Team;
 import org.bukkit.*;
 import org.bukkit.advancement.AdvancementDisplayType;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_20_R2.CraftArt;
-import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R2.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_20_R2.util.CraftNamespacedKey;
+import org.bukkit.craftbukkit.CraftRegistry;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.entity.CraftEntity;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.util.CraftNamespacedKey;
 import org.bukkit.entity.*;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -61,7 +68,7 @@ public class Packets implements PacketInterface {
         CraftPlayer craftPlayer = (CraftPlayer) player;
 
         try {
-            Field field = craftPlayer.getHandle().connection.getClass().getSuperclass().getDeclaredField("c");
+            Field field = craftPlayer.getHandle().connection.getClass().getSuperclass().getDeclaredField("e");
             field.setAccessible(true);
             return ((Connection) field.get(craftPlayer.getHandle().connection)).channel.pipeline();
 
@@ -79,11 +86,11 @@ public class Packets implements PacketInterface {
 
         ServerboundInteractPacket packet = (ServerboundInteractPacket) anyPacket;
         try {
-            Field idField = packet.getClass().getDeclaredField("a");
+            Field idField = packet.getClass().getDeclaredField("b");
             idField.setAccessible(true);
             int interactionId = (int) idField.get(packet);
 
-            Field actionField = packet.getClass().getDeclaredField("b");
+            Field actionField = packet.getClass().getDeclaredField("c");
             actionField.setAccessible(true);
             Object action = actionField.get(packet);
 
@@ -94,7 +101,7 @@ public class Packets implements PacketInterface {
                 // Prevents interaction event from being fired twice (once for main and once for offhand).
                 if (hand == InteractionHand.OFF_HAND) return null;
 
-                // Left-clicking doesn't have this field, so the error should be ignored.
+            // Left-clicking doesn't have this field, so the error should be ignored.
             } catch (NoSuchFieldException ignored) {}
 
             Method getActionTypeMethod = action.getClass().getDeclaredMethod("a");
@@ -113,18 +120,34 @@ public class Packets implements PacketInterface {
 
     @Override
     public Entity createEntity(org.bukkit.entity.EntityType type, Location location) {
-        EntityType<?> nmsType = BuiltInRegistries.ENTITY_TYPE.get(CraftNamespacedKey.toMinecraft(type.getKey()));
+        Optional<Holder.Reference<EntityType<?>>> optional = BuiltInRegistries.ENTITY_TYPE.get(CraftNamespacedKey.toMinecraft(type.getKey()));
+        if (optional.isEmpty()) {
+            logger.logError(java.util.logging.Level.SEVERE, "Entity not found for entity type \"" + type.name() + "\". ", new PacketException("Invalid entity type"));
+            return null;
+        }
+
+        EntityType<?> nmsType = optional.get().value();
         CraftWorld world = (CraftWorld) location.getWorld();
         Level level = Objects.requireNonNull(world).getHandle();
 
-        net.minecraft.world.entity.Entity entity = nmsType.create(level);
+        net.minecraft.world.entity.Entity entity = nmsType.create(level, EntitySpawnReason.EVENT);
         if (entity == null) {
             logger.logError(java.util.logging.Level.SEVERE, "Entity couldn't be created for entity type \"" + type.name() + "\". ", new PacketException("Entity not created"));
             return null;
         }
 
         entity.setPos(location.getX(), location.getY(), location.getZ());
-        Packet<ClientGamePacketListener> packet = entity.getAddEntityPacket();
+        Packet<ClientGamePacketListener> packet = entity.getAddEntityPacket(
+                new ServerEntity(
+                        level.getMinecraftWorld(),
+                        entity,
+                        0,
+                        false,
+                        consumer -> {},
+                        (packet1, list) -> {},
+                        Set.of()
+                )
+        );
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             CraftPlayer cp = (CraftPlayer) onlinePlayer;
@@ -141,7 +164,19 @@ public class Packets implements PacketInterface {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
-        connection.send(new ClientboundAddEntityPacket(((CraftEntity) entity).getHandle()));
+        net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) entity).getHandle();
+        Packet<ClientGamePacketListener> packet = nmsEntity.getAddEntityPacket(
+                new ServerEntity(
+                        ((CraftWorld) entity.getWorld()).getHandle(),
+                        nmsEntity,
+                        0,
+                        false,
+                        consumer -> {},
+                        (packet1, list) -> {},
+                        Set.of()
+                )
+        );
+        connection.send(packet);
     }
 
     @Override
@@ -161,7 +196,7 @@ public class Packets implements PacketInterface {
         nmsEntity.setPos(location.getX(), location.getY(), location.getZ());
         nmsEntity.setRot(location.getYaw(), location.getPitch());
         nmsEntity.setYHeadRot(location.getYaw());
-        connection.send(new ClientboundTeleportEntityPacket(((CraftEntity) entity).getHandle()));
+        connection.send(new ClientboundTeleportEntityPacket(nmsEntity.getId(), PositionMoveRotation.of(nmsEntity), Set.of(), true));
     }
 
     @Override
@@ -210,18 +245,15 @@ public class Packets implements PacketInterface {
             case COMPONENT ->
                     SynchedEntityData.DataValue.create(
                             new EntityDataAccessor<>(id, EntityDataSerializers.COMPONENT),
-                            Objects.requireNonNull(
-                                    Component.Serializer.fromJson(
-                                            ComponentSerializer.toJSONString((net.kyori.adventure.text.Component) value)
-                                    )
-                            )
+                            ComponentSerialization.CODEC.parse(JsonOps.INSTANCE, ComponentSerializer.toJSON((net.kyori.adventure.text.Component) value)).getOrThrow()
                     );
             case OPTIONAL_COMPONENT -> {
                 @SuppressWarnings("unchecked")
                 Optional<net.kyori.adventure.text.Component> optional = (Optional<net.kyori.adventure.text.Component>) value;
-                Optional<Component> component = optional.map(component1 -> Component.Serializer.fromJson(
-                        ComponentSerializer.toJSONString(component1)
-                ));
+                Optional<Component> component = optional.map(component1 -> ComponentSerialization.CODEC.parse(
+                        JsonOps.INSTANCE,
+                        ComponentSerializer.toJSON(component1)
+                ).getOrThrow());
 
                 yield SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.OPTIONAL_COMPONENT), component);
             }
@@ -231,11 +263,12 @@ public class Packets implements PacketInterface {
             case QUATERNION -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.QUATERNION), (Quaternionf) value);
             case BLOCK_FACE -> {
                 BlockFace blockFace = (BlockFace) value;
+                logger.log(java.util.logging.Level.WARNING, blockFace.name() + " - " + blockFace.isCartesian());
                 Direction direction = blockFace.isCartesian() ? Direction.valueOf(blockFace.name()) : Direction.SOUTH;
                 yield SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.DIRECTION), direction);
             }
             case ROTATION -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.INT), ((Rotation) value).ordinal());
-            case ART -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.PAINTING_VARIANT), CraftArt.bukkitToMinecraftHolder((Art) value));
+            case ART -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.PAINTING_VARIANT), Holder.direct(CraftRegistry.bukkitToMinecraft((Art) value)));
             case DYE_COLOR -> SynchedEntityData.DataValue.create(new EntityDataAccessor<>(id, EntityDataSerializers.INT), DyeColor.valueOf(((org.bukkit.DyeColor) value).name()).ordinal());
         };
     }
@@ -245,21 +278,21 @@ public class Packets implements PacketInterface {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
-        ResourceLocation resourceLocation = new ResourceLocation("advanceddisplays", UUID.randomUUID().toString());
+        ResourceLocation resourceLocation = ResourceLocation.fromNamespaceAndPath("advanceddisplays", UUID.randomUUID().toString());
 
         DisplayInfo info = new DisplayInfo(
                 CraftItemStack.asNMSCopy(item),
-                Objects.requireNonNull(Component.Serializer.fromJson(titleJSON)),
-                Objects.requireNonNull(Component.Serializer.fromJson(descriptionJSON)),
-                null,
-                FrameType.valueOf(type.name()),
+                ComponentSerialization.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(titleJSON)).getOrThrow(),
+                ComponentSerialization.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(descriptionJSON)).getOrThrow(),
+                Optional.empty(),
+                AdvancementType.valueOf(type.name()),
                 true,
                 false,
                 true
         );
 
         Map<String, Criterion<?>> criteria = Map.of("impossible", new Criterion<>(new ImpossibleTrigger(), new ImpossibleTrigger.TriggerInstance()));
-        AdvancementRequirements requirements = new AdvancementRequirements(new String[][]{{"impossible"}});
+        AdvancementRequirements requirements = new AdvancementRequirements(List.of(List.of("impossible")));
 
         Advancement advancement = new Advancement(
                 Optional.empty(),
@@ -278,7 +311,8 @@ public class Packets implements PacketInterface {
                 false,
                 List.of(new AdvancementHolder(resourceLocation, advancement)),
                 Set.of(),
-                Map.of(resourceLocation, progress)
+                Map.of(resourceLocation, progress),
+                true
         ));
 
         new BukkitRunnable() {
@@ -288,7 +322,8 @@ public class Packets implements PacketInterface {
                         false,
                         List.of(),
                         Set.of(resourceLocation),
-                        Map.of()
+                        Map.of(),
+                        true
                 ));
             }
         }.runTaskLater(plugin, 0L);

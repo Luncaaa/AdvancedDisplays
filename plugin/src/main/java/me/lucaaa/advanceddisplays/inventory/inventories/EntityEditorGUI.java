@@ -147,6 +147,19 @@ public class EntityEditorGUI extends ADInventory {
         super.decorate();
     }
 
+    private static final List<String> LORE = new ArrayList<>();
+    static {
+        LORE.add("");
+        LORE.add("&c&lPREVIEW FEATURE");
+        LORE.add("&7Entity metadata is a WIP feature.");
+        LORE.add("");
+        LORE.add("&7This button has been added to the editor");
+        LORE.add("&7to show how it could look like in the future.");
+        LORE.add("&7Right now, changing the value will have no effect.");
+        LORE.add("");
+        LORE.add("&7This feature will be added in a future update!");
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void addMetadataButtons(EntityDisplay display) {
         int i = 0;
@@ -158,7 +171,7 @@ public class EntityEditorGUI extends ADInventory {
             int slot = metadataSlots.get(i);
 
             if (type.isEnum()) {
-                Item.EnumItem item = new Item.EnumItem(Material.REPEATING_COMMAND_BLOCK, property.name(), "", Enum.valueOf((Class<Enum>) type, value.toString().toUpperCase()));
+                Item.EnumItem item = new Item.EnumItem(Material.REPEATING_COMMAND_BLOCK, property.name(), LORE, Enum.valueOf((Class<Enum>) type, value.toString().toUpperCase()), false);
                 addButton(slot, new Button.InventoryButton<>(item) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
@@ -169,7 +182,7 @@ public class EntityEditorGUI extends ADInventory {
                 });
 
             } else if (Keyed.class.isAssignableFrom(type)) {
-                Item.RegistryItem item = new Item.RegistryItem(Material.REPEATING_COMMAND_BLOCK, property.name(), (Keyed) value);
+                Item.RegistryItem item = new Item.RegistryItem(Material.REPEATING_COMMAND_BLOCK, property.name(), LORE, (Keyed) value, false, false);
                 addButton(slot, new Button.InventoryButton<>(item) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
@@ -180,7 +193,7 @@ public class EntityEditorGUI extends ADInventory {
                 });
 
             } else if (Boolean.class.isAssignableFrom(type)) {
-                Item.BooleanItem item = new Item.BooleanItem(Material.REPEATING_COMMAND_BLOCK, property.name(), "", (Boolean) value);
+                Item.BooleanItem item = new Item.BooleanItem(Material.REPEATING_COMMAND_BLOCK, property.name(), LORE, (Boolean) value);
                 addButton(slot, new Button.InventoryButton<>(item) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
@@ -191,7 +204,7 @@ public class EntityEditorGUI extends ADInventory {
                 });
 
             } else {
-                Item.ClickableItem item = new Item.ClickableItem(Material.REPEATING_COMMAND_BLOCK, property.name(), "", value.toString());
+                Item.ClickableItem item = new Item.ClickableItem(Material.REPEATING_COMMAND_BLOCK, property.name(), LORE, value.toString());
                 addButton(slot, new Button.InventoryButton<>(item) {
                     @Override
                     public void onClick(InventoryClickEvent event) {}

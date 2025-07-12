@@ -51,6 +51,7 @@ public class Metadata {
     public final DataInfo<Byte> ITEM_TRANSFORM;
 
     public Metadata(Version version) {
+        /* TODO: Fix implementation
         propertyData.put(Property.ALLAY_DANCING, new DataInfo<>(16, DataType.BOOLEAN));
         propertyData.put(Property.ANIMAL_SITTING, new DataInfo<>(17, DataType.BYTE));
         propertyData.put(Property.ANIMAL_TAMED, new DataInfo<>(17, DataType.BYTE));
@@ -69,6 +70,7 @@ public class Metadata {
             propertyData.put(Property.ITEM_FRAME_ROTATION, new DataInfo<>(9, DataType.ROTATION));
             propertyData.put(Property.PAINTING_ART, new DataInfo<>(8, DataType.ART));
         }
+        */
 
         if (version.isEqualOrNewerThan(Version.v1_20_R2)) {
             TRANSLATION = DataInfo.ofVector3f(11);

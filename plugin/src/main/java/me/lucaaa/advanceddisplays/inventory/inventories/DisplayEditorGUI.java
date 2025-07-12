@@ -507,6 +507,8 @@ public class DisplayEditorGUI extends ADInventory {
             addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(patternItem) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
+                    // If, for whatever reason, trim patterns are null, do not attempt to change the value.
+                    if (TrimPattern.SENTRY == null) return;
                     pattern[0] = (TrimPattern) getItem().changeValue();
                     // Item is set in this method
                     setArmorTrim(display, pattern[0], material[0], slot, metadataSlots.get(4));
@@ -517,6 +519,8 @@ public class DisplayEditorGUI extends ADInventory {
             addIfAllowed(EditorItem.ITEM_META, metadataSlots.get(4), new Button.InventoryButton<>(materialItem) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
+                    // If, for whatever reason, trim materials are null, do not attempt to change the value.
+                    if (TrimMaterial.DIAMOND == null) return;
                     material[0] = (TrimMaterial) getItem().changeValue();
                     // Item is set in this method
                     setArmorTrim(display, pattern[0], material[0], slot, metadataSlots.get(4));

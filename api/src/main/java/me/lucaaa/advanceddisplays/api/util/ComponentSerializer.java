@@ -17,6 +17,12 @@ import java.util.regex.Pattern;
 @SuppressWarnings("unused")
 public class ComponentSerializer {
     /**
+     * This is just here to prever Javadoc warnings.
+     * @hidden
+     */
+    private ComponentSerializer() {}
+
+    /**
      * Minimessage variable. Internal use only.
      * @hidden
      */
@@ -84,7 +90,7 @@ public class ComponentSerializer {
     }
 
     /**
-     * Returns the provided component as a legacy string (with the legacy symbol instead of '&').
+     * Returns the provided component as a legacy string (with the legacy symbol instead of '&amp;').
      * @param component The component to transform into a legacy string.
      * @return The component transformed into a legacy string.
      */

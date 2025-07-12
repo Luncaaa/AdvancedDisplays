@@ -104,6 +104,6 @@ public class BlockDataGUI extends ADInventory {
     }
 
     private Item.ClickableItem create(String title, String value) {
-        return new Item.ClickableItem(Material.COMMAND_BLOCK, ChatColor.GOLD + title, List.of(), value);
+        return new Item.ClickableItem(Material.COMMAND_BLOCK, ChatColor.GOLD + title, List.of("", "&7Click to change"), value);
     }
 }

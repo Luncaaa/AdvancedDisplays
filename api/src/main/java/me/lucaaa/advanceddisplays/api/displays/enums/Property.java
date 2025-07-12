@@ -3,12 +3,7 @@ package me.lucaaa.advanceddisplays.api.displays.enums;
 import com.google.common.annotations.Beta;
 import io.netty.util.internal.UnstableApi;
 import org.bukkit.Art;
-import org.bukkit.DyeColor;
-import org.bukkit.Material;
-import org.bukkit.Rotation;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
@@ -63,16 +58,23 @@ public class Property<T> {
         REGISTRY.put(name, this);
     }
 
+    /* TODO: Fix Implementation
     public static final Property<BlockFace> ITEM_FRAME_DIRECTION = new Property<>("direction", BlockFace.SOUTH, ItemFrame.class);
     public static final Property<ItemStack> ITEM_FRAME_ITEM = new Property<>("item", new ItemStack(Material.AIR), ItemFrame.class);
     public static final Property<Rotation> ITEM_FRAME_ROTATION = new Property<>("rotation", Rotation.NONE, ItemFrame.class);
     public static final Property<BlockFace> PAINTING_DIRECTION = new Property<>("direction", BlockFace.SOUTH, Painting.class);
+    */
+    /**
+     * Changes the art a painting is showing.
+     */
     public static final Property<Art> PAINTING_ART = new Property<>("painting", Art.KEBAB, Painting.class);
+    /* TODO: Fix Implementation
     public static final Property<Boolean> ALLAY_DANCING = new Property<>("dancing", false, Allay.class);
     public static final Property<Boolean> ANIMAL_SITTING = new Property<>("sitting", false, BytePack.TAMEABLE_FLAGS, Tameable.class);
     public static final Property<Boolean> ANIMAL_TAMED = new Property<>("tamed", false, BytePack.TAMEABLE_FLAGS, Tameable.class);
     public static final Property<Boolean> WOLF_BEGGING = new Property<>("begging", false, Wolf.class);
     public static final Property<DyeColor> WOLF_COLLAR_COLOR = new Property<>("collar-color", DyeColor.ORANGE, Wolf.class);
+     */
 
     // TODO: 1.21 features
     // public static final Property<> WOLF_VARIANT = new Property<>("variant", Boolean.class);
@@ -105,12 +107,14 @@ public class Property<T> {
 
         byte options = 0;
 
+        /* TODO: Fix Implementation
         if (bytePack == BytePack.TAMEABLE_FLAGS) {
             if (properties.containsKey(Property.ANIMAL_SITTING) &&
                     (Boolean) properties.get(Property.ANIMAL_SITTING)) options = (byte) (options | 0x01);
             if (properties.containsKey(Property.ANIMAL_TAMED) &&
                     (Boolean) properties.get(Property.ANIMAL_TAMED)) options = (byte) (options | 0x04);
         }
+         */
 
         return options;
     }

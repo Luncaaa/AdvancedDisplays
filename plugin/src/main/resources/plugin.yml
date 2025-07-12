@@ -28,6 +28,7 @@ permissions:
       ad.create: true
       ad.remove: true
       ad.movehere: true
+      ad.moveto: true
       ad.teleport: true
       ad.edit: true
       ad.page: true
@@ -45,6 +46,9 @@ permissions:
     default: op
   ad.movehere:
     description: Moves a display to the player's location.
+    default: op
+  ad.moveto:
+    description: Moves a display to the given location.
     default: op
   ad.teleport:
     description: Teleports the player to the display's location.

@@ -132,7 +132,7 @@ public class CreateSubCommand extends SubCommandsFormat {
             case TEXT -> value.replace("\\n", "\n");
         };
 
-        plugin.getDisplaysManager().createDisplay(type, player.getEyeLocation(), args[2], parsedValue, true);
+        plugin.getDisplaysManager().createDisplay(type, player.getLocation(), args[2], parsedValue, true);
 
         sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display &e" + args[2] + " &ahas been successfully created."));
     }

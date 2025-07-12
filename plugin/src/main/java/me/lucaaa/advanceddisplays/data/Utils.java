@@ -215,6 +215,10 @@ public class Utils {
     }
 
     public static String locToString(Location loc) {
-        return BigDecimal.valueOf(loc.getX()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getY()).setScale(2, RoundingMode.HALF_UP).doubleValue() + ";" + BigDecimal.valueOf(loc.getZ()).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        return round(loc.getX()) + ";" + round(loc.getY()) + ";" + round(loc.getZ());
+    }
+
+    public static double round(double toRound) {
+        return BigDecimal.valueOf(toRound).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 }

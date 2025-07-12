@@ -6,8 +6,6 @@ import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -89,7 +87,7 @@ public class Item<T> {
                 parsedValue = keyed.getKey().getKey();
 
             } else if (value instanceof Double) {
-                parsedValue = BigDecimal.valueOf((double) value).setScale(2, RoundingMode.HALF_UP).toString();
+                parsedValue = String.valueOf(Utils.round((double) value));
 
                 // Remove the last zeroes from the decimal positions
                 if (parsedValue.contains(".")) {
@@ -176,7 +174,7 @@ public class Item<T> {
 
             double filterMax = (max == null) ? (value + change) : Math.min(max, value + change);
             double filterMin = Math.max(min, filterMax);
-            setValue(BigDecimal.valueOf(filterMin).setScale(2, RoundingMode.HALF_UP).doubleValue());
+            setValue(Utils.round(filterMin));
             return value;
         }
 

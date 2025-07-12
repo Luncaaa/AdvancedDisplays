@@ -21,6 +21,7 @@ public class MainCommand implements TabExecutor {
         subCommands.put("create", new CreateSubCommand(plugin));
         subCommands.put("remove", new RemoveSubCommand(plugin));
         subCommands.put("movehere", new MoveHereSubCommand(plugin));
+        subCommands.put("moveto", new MoveToSubCommand(plugin));
         subCommands.put("teleport", new TeleportSubCommand(plugin));
         subCommands.put("convert", new ConvertSubCommand(plugin));
         subCommands.put("list", new ListSubCommand(plugin));

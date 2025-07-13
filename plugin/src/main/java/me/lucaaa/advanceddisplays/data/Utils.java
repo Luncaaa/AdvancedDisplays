@@ -117,6 +117,17 @@ public class Utils {
 
         } else if (meta instanceof AxolotlBucketMeta bucketMeta && bucketMeta.hasVariant()) {
             settings.set("axolotl-bucket", bucketMeta.getVariant().name());
+
+        } else if (meta instanceof CrossbowMeta crossbowMeta) {
+            List<ItemStack> chargedProjectiles = crossbowMeta.getChargedProjectiles();
+            if (!chargedProjectiles.isEmpty()) {
+                ItemStack firstProjectile = chargedProjectiles.get(0);
+                if (firstProjectile.getType() == Material.FIREWORK_ROCKET) {
+                    settings.set("loaded-rocket", true);
+                } else {
+                    settings.set("loaded-arrow", true);
+                }
+            }
         }
 
         if (!item.getEnchantments().isEmpty()) {
@@ -195,6 +206,13 @@ public class Utils {
                 } catch (IllegalArgumentException e) {
                     logger.log(Level.WARNING, "Invalid axolotl variant: " + variant);
                 }
+            }
+
+        } else if (meta instanceof CrossbowMeta crossbowMeta) {
+            if (settings.isString("loaded-arrow")) {
+                crossbowMeta.addChargedProjectile(new ItemStack(Material.ARROW));
+            } else if (settings.isString("loaded-rocket")) {
+                crossbowMeta.addChargedProjectile(new ItemStack(Material.FIREWORK_ROCKET));
             }
         }
 

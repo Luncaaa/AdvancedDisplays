@@ -638,6 +638,34 @@ public class DisplayEditorGUI extends ADInventory {
                     }
                 }
             });
+
+        } else if (meta instanceof CrossbowMeta crossbowMeta) {
+            CrossbowAmmo ammo;
+            if (!crossbowMeta.getChargedProjectiles().isEmpty()) {
+                ItemStack firstProjectile = crossbowMeta.getChargedProjectiles().get(0);
+                ammo = (firstProjectile.getType() == Material.FIREWORK_ROCKET) ? CrossbowAmmo.ROCKET :CrossbowAmmo.ARROW;
+            } else {
+                ammo = CrossbowAmmo.NONE;
+            }
+
+            Item.EnumItem ammoItem = new Item.EnumItem(item, "Crossbow ammo", List.of("Changes the ammo loaded into the crossbow"), ammo, false);
+            addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(ammoItem) {
+                @Override
+                public void onClick(InventoryClickEvent event) {
+                    CrossbowAmmo newAmmo = getItem().changeValue();
+                    ItemStack item = display.getItem().clone();
+                    ItemMeta meta = item.getItemMeta();
+                    if (meta instanceof CrossbowMeta crossbowMeta) {
+                        crossbowMeta.setChargedProjectiles(newAmmo.getItems());
+                        item.setItemMeta(meta);
+                        display.setItem(item);
+                        // Cloning the meta prevents the "applyMeta" method run in "updateCurrentValue" from changing anything in the metadata item.
+                        getItem().applyMeta(meta.clone());
+                        getInventory().setItem(slot, getItem().getStack());
+                        updateCurrentValue(meta, item.getType().name());
+                    }
+                }
+            });
         }
     }
 
@@ -729,5 +757,21 @@ public class DisplayEditorGUI extends ADInventory {
             case "resin" -> Material.getMaterial("RESIN_BRICK"); // Not available in 1.19.4
             default -> Material.BARRIER;
         };
+    }
+
+    private enum CrossbowAmmo {
+        NONE(null),
+        ARROW(new ItemStack(Material.ARROW)),
+        ROCKET(new ItemStack(Material.FIREWORK_ROCKET));
+
+        private final List<ItemStack> items;
+
+        CrossbowAmmo(ItemStack item) {
+            this.items = (item == null) ? List.of() : List.of(item);
+        }
+
+        public List<ItemStack> getItems() {
+            return items;
+        }
     }
 }

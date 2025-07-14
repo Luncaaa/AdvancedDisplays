@@ -13,7 +13,8 @@ configurations.all {
 
 dependencies {
     implementation(project(":nms:nms_common"))
-    paperweight.paperDevBundle("1.21.7-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.7-R0.1-SNAPSHOT") // Important for the custom model data component
+    compileOnly("org.spigotmc:spigot-api:1.21.7-R0.1-SNAPSHOT")
 }
 
 paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.REOBF_PRODUCTION

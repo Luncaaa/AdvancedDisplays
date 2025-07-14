@@ -157,7 +157,7 @@ public class ADEntityDisplay extends ADBaseEntity implements EntityDisplay {
         } else if (ItemStack.class.isAssignableFrom(type)) {
             ConfigurationSection itemSection = dataSection.createSection(property.name());
             itemSection.set("material", ((ItemStack) value).getType().name());
-            Utils.saveItemData((ItemStack) value, itemSection);
+            Utils.saveItemData((ItemStack) value, itemSection, plugin.getNmsVersion());
 
         } else {
             dataSection.set(property.name(), value);

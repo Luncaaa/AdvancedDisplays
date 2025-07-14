@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.managers;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.NameVisibility;
+import me.lucaaa.advanceddisplays.nms_common.Version;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
@@ -159,7 +160,22 @@ public class ConversionManager {
         } else if (type == DisplayType.ITEM) {
             entitySection.set("type", EntityType.ITEM_DISPLAY.name());
             if (!settingsSection.isBoolean("enchanted")) settingsSection.set("enchanted", false);
-            if (!settingsSection.isInt("customModelData")) settingsSection.set("customModelData", 0);
+
+            if (plugin.getNmsVersion().isEqualOrNewerThan(Version.v1_21_R3)) {
+                ConfigurationSection customModelDataSection = settingsSection.createSection("customModelData");
+                customModelDataSection.set("colors", List.of());
+                customModelDataSection.set("strings", List.of());
+                customModelDataSection.set("flags", List.of());
+
+                if (settingsSection.isInt("customModelData")) {
+                    customModelDataSection.set("floats", List.of((float) settingsSection.getInt("customModelData")));
+                } else {
+                    customModelDataSection.set("floats", List.of());
+                }
+
+            } else {
+                if (!settingsSection.isInt("customModelData")) settingsSection.set("customModelData", 0);
+            }
         }
 
         if (config.isConfigurationSection("hitbox")) {

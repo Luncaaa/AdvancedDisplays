@@ -106,7 +106,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             settings.set("item", item.getType().name());
             // The "enchanted" setting is set in the Utils#saveItemData method.
 
-            Utils.saveItemData(item, settings);
+            Utils.saveItemData(item, settings, plugin.getNmsVersion());
             save();
         }
 

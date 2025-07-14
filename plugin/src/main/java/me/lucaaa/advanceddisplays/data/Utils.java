@@ -1,8 +1,10 @@
 package me.lucaaa.advanceddisplays.data;
 
 import me.clip.placeholderapi.PlaceholderAPI;
+import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
-import me.lucaaa.advanceddisplays.nms_common.Logger;
+import me.lucaaa.advanceddisplays.nms_common.Version;
+import me.lucaaa.advanceddisplays.v1_21_R5.VersionUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -66,12 +68,16 @@ public class Utils {
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    public static void saveItemData(ItemStack item, ConfigurationSection settings) {
+    public static void saveItemData(ItemStack item, ConfigurationSection settings, Version version) {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
 
-        int customModelData = (meta.hasCustomModelData()) ? meta.getCustomModelData() : 0;
-        settings.set("customModelData", customModelData);
+        if (version.isEqualOrNewerThan(Version.v1_21_R3)) {
+            VersionUtils.saveMetaCustomModelData(meta, settings);
+        } else {
+            int customModelData = (meta.hasCustomModelData()) ? meta.getCustomModelData() : 0;
+            settings.set("customModelData", customModelData);
+        }
 
         if (meta instanceof PotionMeta potion && potion.getColor() != null) {
             settings.set("color",
@@ -136,13 +142,18 @@ public class Utils {
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    public static ItemStack loadItemData(ItemStack item, ConfigurationSection settings, World compassWorld, Logger logger) {
+    public static ItemStack loadItemData(ItemStack item, ConfigurationSection settings, World compassWorld, AdvancedDisplays plugin) {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return item;
 
-        int customModelData = settings.getInt("customModelData");
-        if (customModelData > 0) {
-            meta.setCustomModelData(customModelData);
+        if (plugin.getNmsVersion().isEqualOrNewerThan(Version.v1_21_R3)) {
+            VersionUtils.loadMetaCustomModelData(meta, settings);
+
+        } else {
+            int customModelData = settings.getInt("customModelData");
+            if (customModelData != 0) {
+                meta.setCustomModelData(customModelData);
+            }
         }
 
         if (meta instanceof PotionMeta potion && settings.isString("color")) {
@@ -157,7 +168,7 @@ public class Utils {
                 TrimPattern pattern = Registry.TRIM_PATTERN.get(NamespacedKey.minecraft(trim[0]));
 
                 if (material == null || pattern == null) {
-                    logger.log(Level.WARNING, "Invalid armor trim material and/or pattern: Material: " + trim[1] + " - Pattern: " + trim[0]);
+                    plugin.log(Level.WARNING, "Invalid armor trim material and/or pattern: Material: " + trim[1] + " - Pattern: " + trim[0]);
                 } else {
                     armor.setTrim(new ArmorTrim(material, pattern));
                 }
@@ -181,7 +192,7 @@ public class Utils {
                     DyeColor color = DyeColor.valueOf(parts[1]);
                     banner.addPattern(new Pattern(color, pattern));
                 } catch (IllegalArgumentException e) {
-                    logger.log(Level.WARNING, "Invalid banner pattern type and/or color: " + configPattern);
+                    plugin.log(Level.WARNING, "Invalid banner pattern type and/or color: " + configPattern);
                 }
             }
 
@@ -204,7 +215,7 @@ public class Utils {
                 try {
                     bucketMeta.setVariant(Axolotl.Variant.valueOf(variant));
                 } catch (IllegalArgumentException e) {
-                    logger.log(Level.WARNING, "Invalid axolotl variant: " + variant);
+                    plugin.log(Level.WARNING, "Invalid axolotl variant: " + variant);
                 }
             }
 

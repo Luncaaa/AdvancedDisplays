@@ -11,6 +11,7 @@ import me.lucaaa.advanceddisplays.inventory.Button;
 import me.lucaaa.advanceddisplays.inventory.items.ColorItems;
 import me.lucaaa.advanceddisplays.inventory.items.EditorItems;
 import me.lucaaa.advanceddisplays.inventory.items.Item;
+import me.lucaaa.advanceddisplays.nms_common.Version;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -199,9 +200,12 @@ public class DisplayEditorGUI extends ADInventory {
                     }
                 });
 
+                Item.StepItem cmdItem = items.CUSTOM_MODEL_DATA;
+                if (plugin.getNmsVersion().isEqualOrNewerThan(Version.v1_21_R3)) cmdItem.disable(List.of("Versions >=1.21.4 have more complex custom model data.", "Edit it through the display's config file."));
                 addIfAllowed(EditorItem.CUSTOM_MODEL_DATA, metadataSlots.get(2), new Button.InventoryButton<>(items.CUSTOM_MODEL_DATA) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
+                        if (plugin.getNmsVersion().isEqualOrNewerThan(Version.v1_21_R3)) return;
                         double newValue = getItem().changeValue(event.isLeftClick(), event.isShiftClick(), 0.0);
                         getInventory().setItem(metadataSlots.get(2), getItem().getStack());
 

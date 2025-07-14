@@ -66,6 +66,23 @@ public class Item<T> {
         setMeta(title, lore);
     }
 
+    public void disable(List<String> reason) {
+        lore.add("");
+        lore.add(net.md_5.bungee.api.ChatColor.RED + "" + net.md_5.bungee.api.ChatColor.BOLD + "Setting disabled!");
+        lore.add(net.md_5.bungee.api.ChatColor.GRAY + "You won't be able to change it");
+        lore.add(net.md_5.bungee.api.ChatColor.DARK_GRAY + "Reason:");
+        if (reason.isEmpty()) {
+            lore.add(net.md_5.bungee.api.ChatColor.DARK_GRAY + "" + net.md_5.bungee.api.ChatColor.ITALIC + "Disabled by plugin");
+        } else {
+            for (String line : reason) {
+                lore.add(net.md_5.bungee.api.ChatColor.DARK_GRAY + "" + net.md_5.bungee.api.ChatColor.ITALIC + line);
+            }
+        }
+
+        lore.add("");
+        setValue(value); // To set the lore
+    }
+
     public ItemStack getStack() {
         return item;
     }

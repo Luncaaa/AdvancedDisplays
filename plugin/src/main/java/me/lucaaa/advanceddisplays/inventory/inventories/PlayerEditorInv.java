@@ -187,7 +187,7 @@ public class PlayerEditorInv {
         leftRotationMap.put(4, getCheckedAllowed(EditorItem.ROTATION, new Button.PlayerButton<>(items.YAW) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = getItem().changeValue(isLeftClick(event), event.getPlayer().isSneaking(), 0.0);
+                double newValue = getItem().changeValue(isLeftClick(event), event.getPlayer().isSneaking(), null);
                 player.getInventory().setItem(4, getItem().getStack());
                 entity.setRotation((float) newValue, entity.getPitch());
             }
@@ -196,7 +196,7 @@ public class PlayerEditorInv {
         leftRotationMap.put(5, getCheckedAllowed(EditorItem.ROTATION, new Button.PlayerButton<>(items.PITCH) {
             @Override
             public void onClick(PlayerInteractEvent event) {
-                double newValue = getItem().changeValue(isLeftClick(event), event.getPlayer().isSneaking(), 0.0);
+                double newValue = getItem().changeValue(isLeftClick(event), event.getPlayer().isSneaking(), null);
                 player.getInventory().setItem(5, getItem().getStack());
                 entity.setRotation(entity.getYaw(), (float) newValue);
             }

@@ -202,7 +202,7 @@ public class DisplayEditorGUI extends ADInventory {
                 addIfAllowed(EditorItem.CUSTOM_MODEL_DATA, metadataSlots.get(2), new Button.InventoryButton<>(items.CUSTOM_MODEL_DATA) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
-                        double newValue = getItem().changeValue(event.isLeftClick(), event.isShiftClick(), 0);
+                        double newValue = getItem().changeValue(event.isLeftClick(), event.isShiftClick(), 0.0);
                         getInventory().setItem(metadataSlots.get(2), getItem().getStack());
 
                         ItemStack item = itemDisplay.getItem().clone();

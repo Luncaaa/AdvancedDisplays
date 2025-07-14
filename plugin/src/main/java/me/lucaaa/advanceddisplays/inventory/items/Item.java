@@ -160,11 +160,11 @@ public class Item<T> {
             setValue(value);
         }
 
-        public double changeValue(boolean increase, boolean small, double min) {
+        public double changeValue(boolean increase, boolean small, Double min) {
             return changeValue(increase, small, min, null);
         }
 
-        public double changeValue(boolean increase, boolean small, double min, Double max) {
+        public double changeValue(boolean increase, boolean small, Double min, Double max) {
             double change;
             if (small && smallEnabled) {
                 change = (increase) ? smallChange : -smallChange;
@@ -173,7 +173,7 @@ public class Item<T> {
             }
 
             double filterMax = (max == null) ? (value + change) : Math.min(max, value + change);
-            double filterMin = Math.max(min, filterMax);
+            double filterMin = (min == null) ? filterMax : Math.max(min, filterMax);
             setValue(Utils.round(filterMin));
             return value;
         }

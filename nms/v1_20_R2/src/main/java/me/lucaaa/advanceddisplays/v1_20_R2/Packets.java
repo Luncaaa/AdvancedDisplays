@@ -131,6 +131,8 @@ public class Packets implements PacketInterface {
             ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
             connection.send(packet);
+            // For some reason, entity.setNoGravity(true) will not make arrows not fall
+            setMetadata(entity.getId(), onlinePlayer, Metadata.DataInfo.ofBoolean(5), true);
         }
 
         return entity.getBukkitEntity();
@@ -141,7 +143,10 @@ public class Packets implements PacketInterface {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
-        connection.send(new ClientboundAddEntityPacket(((CraftEntity) entity).getHandle()));
+        net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) entity).getHandle();
+        connection.send(new ClientboundAddEntityPacket(nmsEntity));
+        // For some reason, entity.setNoGravity(true) will not make arrows not fall
+        setMetadata(nmsEntity.getId(), player, Metadata.DataInfo.ofBoolean(5), true);
     }
 
     @Override

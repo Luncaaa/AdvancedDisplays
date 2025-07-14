@@ -154,6 +154,8 @@ public class Packets implements PacketInterface {
             ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
             connection.send(packet);
+            // For some reason, entity.setNoGravity(true) will not make arrows not fall
+            setMetadata(entity.getId(), onlinePlayer, Metadata.DataInfo.ofBoolean(5), true);
         }
 
         return entity.getBukkitEntity();
@@ -177,6 +179,8 @@ public class Packets implements PacketInterface {
                 )
         );
         connection.send(packet);
+        // For some reason, entity.setNoGravity(true) will not make arrows not fall
+        setMetadata(nmsEntity.getId(), player, Metadata.DataInfo.ofBoolean(5), true);
     }
 
     @Override

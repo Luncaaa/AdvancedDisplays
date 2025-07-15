@@ -32,16 +32,13 @@ public abstract class Button<T extends Item<?>> {
         }
     }
 
-    public static class Unclickable<T extends Item<?>> extends Button<T> {
+    public static class Unclickable<T extends Item<?>> extends InventoryButton<T> {
         public Unclickable(T item) {
             super(item);
         }
 
         @Override
         public final void onClick(InventoryClickEvent event) {}
-
-        @Override
-        public final void onClick(PlayerInteractEvent event) {}
     }
 
     public abstract static class PlayerButton<T extends Item<?>> extends Button<T> {

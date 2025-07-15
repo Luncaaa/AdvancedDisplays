@@ -4,6 +4,7 @@ import me.lucaaa.advanceddisplays.api.displays.*;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
+import me.lucaaa.advanceddisplays.nms_common.Version;
 import org.bukkit.Material;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.inventory.ItemStack;
@@ -50,7 +51,7 @@ public class EditorItems {
 
     public Item.EnumItem ITEM_TRANSFORMATION;
     public Item.BooleanItem ENCHANTED;
-    public Item.StepItem CUSTOM_MODEL_DATA;
+    public Item<?> CUSTOM_MODEL_DATA;
 
     public Item.EnumItem TEXT_ALIGNMENT;
     public ColorItems.ColorPreview BACKGROUND_COLOR;
@@ -62,7 +63,7 @@ public class EditorItems {
     public Item.StepItem ANIMATION_TIME;
     public Item.StepItem REFRESH_TIME;
 
-    public EditorItems(BaseEntity entity) {
+    public EditorItems(BaseEntity entity, Version nmsVersion) {
         ON_FIRE = new Item.BooleanItem(Material.CAMPFIRE, "On fire", "Changes whether the entity is on fire or not", entity.isOnFire());
         SPRINTING = new Item.BooleanItem(Material.IRON_BOOTS, "Sprinting", "Changes whether the entity appears to be sprinting or not", entity.isSprinting());
         GLOW_TOGGLE = new Item.BooleanItem(Material.GLOW_BERRIES, "Toggle glow", "Enables or disables the display's glowing status", entity.isGlowing());
@@ -123,7 +124,11 @@ public class EditorItems {
                     ITEM_TRANSFORMATION = new Item.EnumItem(Material.ARMOR_STAND, "Item model transform", "Changes how the displayed item is shown", itemDisplay.getItemTransformation());
                     ENCHANTED = new Item.BooleanItem(Material.ENCHANTED_BOOK, "Enchanted", "Changes whether the enchanted effect is visible or not", itemDisplay.isEnchanted());
                     if (meta != null) {
-                        CUSTOM_MODEL_DATA = new Item.StepItem(Material.REPEATING_COMMAND_BLOCK, "Custom model data", List.of("Changes the item's custom model data"), (meta.hasCustomModelData()) ? meta.getCustomModelData() : 0, 1);
+                        if (nmsVersion.isEqualOrNewerThan(Version.v1_21_R3)) {
+                            CUSTOM_MODEL_DATA = new Item.ClickableItem(Material.REPEATING_COMMAND_BLOCK, "Custom model data", List.of("Changes the item's custom model data"), "Custom model data component");
+                        } else {
+                            CUSTOM_MODEL_DATA = new Item.StepItem(Material.REPEATING_COMMAND_BLOCK, "Custom model data", List.of("Changes the item's custom model data"), (meta.hasCustomModelData()) ? meta.getCustomModelData() : 0, 1);
+                        }
                     }
                 }
                 case BLOCK -> {

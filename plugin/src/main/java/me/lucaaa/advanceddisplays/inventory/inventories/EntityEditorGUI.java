@@ -31,7 +31,7 @@ public class EntityEditorGUI extends ADInventory {
         super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))), disabledSettings);
         this.display = display;
         this.previous = previous;
-        this.items = new EditorItems(display);
+        this.items = new EditorItems(display, plugin.getNmsVersion());
     }
 
     @Override

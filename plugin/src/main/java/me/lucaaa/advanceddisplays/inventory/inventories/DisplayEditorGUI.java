@@ -41,7 +41,7 @@ public class DisplayEditorGUI extends ADInventory {
 
     @Override
     public void decorate() {
-        EditorItems items = new EditorItems(display);
+        EditorItems items = new EditorItems(display, plugin.getNmsVersion());
 
         // ---[ BRIGHTNESS ]----
         addIfAllowed(EditorItem.BLOCK_LIGHT, 0, new Button.InventoryButton<>(items.BLOCK_LIGHT) {
@@ -200,13 +200,13 @@ public class DisplayEditorGUI extends ADInventory {
                     }
                 });
 
-                Item.StepItem cmdItem = items.CUSTOM_MODEL_DATA;
+                Item<?> cmdItem = items.CUSTOM_MODEL_DATA;
                 if (plugin.getNmsVersion().isEqualOrNewerThan(Version.v1_21_R3)) cmdItem.disable(List.of("Versions >=1.21.4 have more complex custom model data.", "Edit it through the display's config file."));
-                addIfAllowed(EditorItem.CUSTOM_MODEL_DATA, metadataSlots.get(2), new Button.InventoryButton<>(items.CUSTOM_MODEL_DATA) {
+                addIfAllowed(EditorItem.CUSTOM_MODEL_DATA, metadataSlots.get(2), new Button.InventoryButton<Item<?>>(items.CUSTOM_MODEL_DATA) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         if (plugin.getNmsVersion().isEqualOrNewerThan(Version.v1_21_R3)) return;
-                        double newValue = getItem().changeValue(event.isLeftClick(), event.isShiftClick(), 0.0);
+                        double newValue = ((Item.StepItem) getItem()).changeValue(event.isLeftClick(), event.isShiftClick(), 0.0);
                         getInventory().setItem(metadataSlots.get(2), getItem().getStack());
 
                         ItemStack item = itemDisplay.getItem().clone();
@@ -335,10 +335,7 @@ public class DisplayEditorGUI extends ADInventory {
             items.BLOCK_DATA.setValue(blockDisplay.getBlock().getAsString());
 
         } else {
-            addIfAllowed(EditorItem.BLOCK_DATA, 8, new Button.InventoryButton<>(items.BLOCK_DATA) {
-                @Override
-                public void onClick(InventoryClickEvent event) {}
-            });
+            addIfAllowed(EditorItem.BLOCK_DATA, 8, new Button.Unclickable<>(items.BLOCK_DATA));
             items.BLOCK_DATA.setValue("This block has no data");
         }
         getInventory().setItem(8, items.BLOCK_DATA.getStack());

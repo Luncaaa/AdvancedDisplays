@@ -3,7 +3,6 @@ package me.lucaaa.advanceddisplays.inventory;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.data.Utils;
-import me.lucaaa.advanceddisplays.inventory.items.Item;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -92,9 +91,6 @@ public abstract class ADInventory {
 
         button.getItem().disable(List.of());
 
-        addButton(slot, new Button.InventoryButton<Item<?>>(button.getItem()) {
-            @Override
-            public void onClick(InventoryClickEvent event) {}
-        });
+        addButton(slot, new Button.Unclickable<>(button.getItem()));
     }
 }

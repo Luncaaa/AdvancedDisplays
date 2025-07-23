@@ -78,6 +78,10 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         this.isApi = displaysManager.isApi();
         this.config = config;
 
+        ConfigurationSection rotationSection = config.getSection("rotation");
+        this.yaw = (float) config.getOrDefault("yaw", 0.0, rotationSection).doubleValue();
+        this.pitch = (float) config.getOrDefault("pitch", 0.0, rotationSection).doubleValue();
+
         // Location is already validated.
         ConfigurationSection locationSection = config.getSection("location");
         String world = locationSection.getString("world", Bukkit.getWorlds().get(0).getName());
@@ -90,10 +94,6 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         this.visibilityManager = new ADVisibilityManager(plugin, this);
 
         this.entitySection = config.getSection("entity", false, config.getConfig());
-
-        ConfigurationSection rotationSection = config.getSection("rotation");
-        this.yaw = (float) config.getOrDefault("yaw", 0.0, rotationSection).doubleValue();
-        this.pitch = (float) config.getOrDefault("pitch", 0.0, rotationSection).doubleValue();
 
         this.isOnFire = config.getOrDefault("onFire", false, entitySection);
         this.isSprinting = config.getOrDefault("sprinting", false, entitySection);
@@ -112,6 +112,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         }
 
         this.entity = packets.createEntity(entityType, location);
+        entity.teleport(location);
         this.entityId = entity.getEntityId();
     }
 
@@ -339,6 +340,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         location.setPitch(pitch);
 
         if (this.location.getWorld() == location.getWorld()) {
+            entity.teleport(location);
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 packets.setLocation(entity, location, onlinePlayer);
             }
@@ -396,17 +398,11 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
             rotationSection.set("pitch", pitch);
             save();
         }
+        entity.teleport(location);
+        entity.setRotation(yaw, pitch);
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            setRotation(yaw, pitch, onlinePlayer);
+            packets.setLocation(entity, location, onlinePlayer);
         }
-
-    }
-    @Override
-    public void setRotation(float yaw, float pitch, Player player) {
-        Location loc = location.clone();
-        loc.setYaw(yaw);
-        loc.setPitch(pitch);
-        packets.setLocation(entity, loc, player);
     }
 
     @Override

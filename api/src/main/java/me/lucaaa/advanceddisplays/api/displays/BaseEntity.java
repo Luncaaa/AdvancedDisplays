@@ -140,14 +140,6 @@ public interface BaseEntity {
     void setRotation(float yaw, float pitch);
 
     /**
-     * Sets the display's rotation for a specific player.
-     * @param yaw The new yaw.
-     * @param pitch The new pitch.
-     * @param player The player who will see the new rotation.
-     */
-    void setRotation(float yaw, float pitch, Player player);
-
-    /**
      * Returns whether the entity appears to be on fire or not.
      * @return Whether the entity appears to be on fire or not.
      */

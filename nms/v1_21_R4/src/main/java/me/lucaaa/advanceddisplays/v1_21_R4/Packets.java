@@ -195,8 +195,8 @@ public class Packets implements PacketInterface {
         net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) entity).getHandle();
 
         nmsEntity.setPos(location.getX(), location.getY(), location.getZ());
-        nmsEntity.setRot(location.getYaw(), location.getPitch());
-        nmsEntity.setYHeadRot(location.getYaw());
+        //nmsEntity.setRot(location.getYaw(), location.getPitch());
+        // nmsEntity.setYHeadRot(location.getYaw());
         connection.send(new ClientboundTeleportEntityPacket(nmsEntity.getId(), PositionMoveRotation.of(nmsEntity), Set.of(), true));
     }
 

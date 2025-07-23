@@ -29,13 +29,9 @@ public class DisplaysManager {
     private final Map<String, ADBaseEntity> displays = new HashMap<>();
     private final Map<Player, AttachedDisplay> attachDisplays = new HashMap<>();
     // TODO: Check EVOKER_FANGS,
+    // TODO: Check YAW and PITCH
     public static final List<EntityType> FORBIDDEN_ENTITIES = List.of(
-            EntityType.BLOCK_DISPLAY,
-            EntityType.ITEM_DISPLAY,
-            EntityType.TEXT_DISPLAY,
-            EntityType.PLAYER,
             EntityType.UNKNOWN,
-            EntityType.AREA_EFFECT_CLOUD,
             EntityType.EXPERIENCE_ORB,
             EntityType.FALLING_BLOCK,
             EntityType.FIREWORK,
@@ -43,7 +39,13 @@ public class DisplaysManager {
             EntityType.DROPPED_ITEM,
             EntityType.LIGHTNING,
             EntityType.LLAMA_SPIT,
-            EntityType.MARKER
+            EntityType.MARKER,
+            EntityType.PRIMED_TNT,
+            EntityType.FISHING_HOOK,
+            EntityType.BLOCK_DISPLAY,
+            EntityType.ITEM_DISPLAY,
+            EntityType.TEXT_DISPLAY,
+            EntityType.PLAYER
     );
 
     private int failedLoads = 0;

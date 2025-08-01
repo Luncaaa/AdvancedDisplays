@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.commands;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.commands.subcommands.*;
 import org.bukkit.command.*;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -54,13 +55,13 @@ public class MainCommand implements TabExecutor {
         SubCommandsFormat subCommand = subCommands.get(args[0]);
 
         // If the player who ran the command does not have the needed permissions, show an error.
-        if (!sender.hasPermission("ad.admin") && (subCommand.neededPermission != null && !sender.hasPermission(subCommand.neededPermission))) {
+        if (subCommand.neededPermission != null && !sender.hasPermission(subCommand.neededPermission)) {
             sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cYou don't have permission to execute this command!"));
             return true;
         }
 
         // If the command was executed by console but only players can execute it, show an error.
-        if (sender instanceof ConsoleCommandSender && !subCommand.executableByConsole) {
+        if (!(sender instanceof Player) && !subCommand.executableByConsole) {
             sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cOnly players can execute this command!"));
             return true;
         }
@@ -87,7 +88,7 @@ public class MainCommand implements TabExecutor {
         // to be executed, complete it. If it needs a permission, check if the user has it and add more completions.
         if (args.length == 1) {
             for (Map.Entry<String, SubCommandsFormat> entry : subCommands.entrySet()) {
-                if (entry.getValue().neededPermission == null || sender.hasPermission(entry.getValue().neededPermission) || sender.hasPermission("ad.admin")) {
+                if (entry.getValue().neededPermission == null || sender.hasPermission(entry.getValue().neededPermission)) {
                     completions.add(entry.getKey());
                 }
             }

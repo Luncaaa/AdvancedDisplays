@@ -16,7 +16,7 @@ If you have an issue, found a bug or want to suggest something, you can do it he
 - Contact me on Discord: Lucaaa#6268 / luncaaa
 
 ## How to compile
-The plugin is compiled using Gradle and Java 17, although it must run with Java 21 on >=1.20.5.
+The plugin is compiled using Gradle and Java 21. It can run on Java 17 on versions <1.20.5, but it must run with Java 21 on >=1.20.5.
 Build the jar running the Gradle command "./gradlew build" in the root folder.
 
 ## Developer API [![](https://jitpack.io/v/Luncaaa/AdvancedDisplays.svg)](https://jitpack.io/#Luncaaa/AdvancedDisplays)

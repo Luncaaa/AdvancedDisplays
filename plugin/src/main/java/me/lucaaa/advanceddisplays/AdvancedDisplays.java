@@ -21,9 +21,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 
-// TODO
-// 1. Animated item and block displays?
-// 2. Improve shitty player data system (too many maps Player-Data: InventoryManager, PlayersManager)
+// TODO (not in order)
+// 1. Animated item and block displays
+// 2. Multi-line displays
+// 3. Better head fetching/caching system (grab on plugin enable/reload, not on metadata update)
+// 4. Better actions system and in-game editor
+// 5. Finish entity displays (metadata system)
 public class AdvancedDisplays extends JavaPlugin implements Logger {
     // Config files.
     private ConfigManager mainConfig;

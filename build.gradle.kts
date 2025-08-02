@@ -35,6 +35,6 @@ subprojects {
         implementation("net.kyori:adventure-text-minimessage:4.24.0")
         implementation("net.kyori:adventure-text-serializer-legacy:4.24.0")
         implementation("net.kyori:adventure-text-serializer-gson:4.24.0")
-        implementation("net.kyori:adventure-text-serializer-bungeecord:4.4.1")
+        implementation("net.kyori:adventure-platform-bukkit:4.4.1")
     }
 }

@@ -131,7 +131,7 @@ public class ActionsHandler {
 
         if (!meetsConditions) {
             if (conditionsNotMetMessage != null && !conditionsNotMetMessage.isBlank()) {
-                player.spigot().sendMessage(Utils.getTextComponent(conditionsNotMetMessage, player, null, false));
+                plugin.getAudience(player).sendMessage(Utils.getText(conditionsNotMetMessage, player, null, false));
             }
             return;
         }

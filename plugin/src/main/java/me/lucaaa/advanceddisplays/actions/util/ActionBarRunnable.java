@@ -2,8 +2,8 @@ package me.lucaaa.advanceddisplays.actions.util;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.ActionbarAction;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -21,12 +21,13 @@ public class ActionBarRunnable {
     }
 
     public void sendToPlayer(Player clickedPlayer, Player actionPlayer) {
-        BaseComponent[] component = action.getTextComponent(message, clickedPlayer, actionPlayer);
+        Audience audience = plugin.getAudience(actionPlayer);
+        Component component = action.getText(message, clickedPlayer, actionPlayer);
         new BukkitRunnable() {
             private  int timeLeft = duration;
             @Override
             public void run() {
-                actionPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, component);
+                audience.sendActionBar(component);
                 --timeLeft;
                 if (timeLeft == 0) cancel();
             }

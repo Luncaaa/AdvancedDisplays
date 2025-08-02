@@ -6,8 +6,6 @@ import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.nms_common.Version;
 import me.lucaaa.advanceddisplays.v1_21_R5.VersionUtils;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.*;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
@@ -45,10 +43,6 @@ public class Utils {
 
     public static String getTextString(String message, Player clickedPlayer, Player globalPlayer, boolean useGlobalPlaceholders) {
         return ComponentSerializer.getLegacyString(getText(message, clickedPlayer, globalPlayer, useGlobalPlaceholders));
-    }
-
-    public static BaseComponent[] getTextComponent(String message, Player clickedPlayer, Player globalPlayer, boolean useGlobalPlaceholders) {
-        return BungeeComponentSerializer.get().serialize(getText(message, clickedPlayer, globalPlayer, useGlobalPlaceholders));
     }
 
     public static Component getText(String message, Player clickedPlayer, Player globalPlayer, boolean useGlobalPlaceholders) {

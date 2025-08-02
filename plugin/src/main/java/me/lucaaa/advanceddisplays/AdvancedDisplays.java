@@ -13,7 +13,10 @@ import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.nms_common.Logger;
 import me.lucaaa.advanceddisplays.nms_common.Metadata;
 import me.lucaaa.advanceddisplays.nms_common.Version;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
@@ -37,6 +40,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
     private boolean isRunning = false;
     public final CachedHeads cachedHeads = new CachedHeads(this);
     public Metadata metadata;
+    private BukkitAudiences audiences;
 
     // Integrations.
     private final Map<Compatibility, Integration> integrations = new HashMap<>();
@@ -92,6 +96,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         }
 
         metadata = new Metadata(nmsVersion);
+        audiences = BukkitAudiences.create(this);
 
         ADAPIProvider.setImplementation(apiDisplays);
 
@@ -127,6 +132,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
     public void onDisable() {
         if (inventoryManager != null) inventoryManager.clearAll();
         if (tickManager != null) tickManager.stop();
+        if (audiences != null) audiences.close();
     }
 
     public ConfigManager getMainConfig() {
@@ -139,6 +145,10 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
 
     public Version getNmsVersion() {
         return nmsVersion;
+    }
+
+    public Audience getAudience(Player player) {
+        return audiences.player(player);
     }
 
     public boolean isIntegrationLoaded(Compatibility compatibility) {

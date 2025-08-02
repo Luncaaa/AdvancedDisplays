@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.actions.actionTypes;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.Action;
+import net.kyori.adventure.audience.Audience;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -22,8 +23,9 @@ public class MessageAction extends Action {
 
     @Override
     public void runAction(Player clickedPlayer, Player actionPlayer) {
+        Audience audience = plugin.getAudience(actionPlayer);
         for (String message : messages) {
-            actionPlayer.spigot().sendMessage(getTextComponent(message, clickedPlayer, actionPlayer));
+            audience.sendMessage(getText(message, clickedPlayer, actionPlayer));
         }
     }
 }

@@ -1,5 +1,5 @@
 # AdvancedDisplays
-Create block, item and text displays!
+Create entity, block, item and text displays!
 
 ## Links & Support
 You can download the plugin here:

@@ -1,5 +1,5 @@
 main: me.lucaaa.advanceddisplays.AdvancedDisplays
-description: "Create block, item and text displays!"
+description: "Create entity, block, item and text displays!"
 name: "AdvancedDisplays"
 version: 1.7
 softdepend: [PlaceholderAPI, Oraxen, ItemsAdder]
@@ -12,7 +12,7 @@ libraries:
   - net.kyori:adventure-text-minimessage:4.24.0
   - net.kyori:adventure-text-serializer-legacy:4.24.0
   - net.kyori:adventure-text-serializer-gson:4.24.0
-  - net.kyori:adventure-text-serializer-bungeecord:4.4.1
+  - net.kyori:adventure-platform-bukkit:4.4.0 # 4.4.1 doesn't work for some reason
 
 commands:
   ad:

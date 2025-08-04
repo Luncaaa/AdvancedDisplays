@@ -28,9 +28,8 @@ public class DisplaysManager {
     private final boolean isApi;
     private final Map<String, ADBaseEntity> displays = new HashMap<>();
     private final Map<Player, AttachedDisplay> attachDisplays = new HashMap<>();
-    // TODO: Check EVOKER_FANGS,
-    // TODO: Check YAW and PITCH
     public static final List<EntityType> FORBIDDEN_ENTITIES = List.of(
+            EntityType.EVOKER_FANGS,
             EntityType.UNKNOWN,
             EntityType.EXPERIENCE_ORB,
             EntityType.FALLING_BLOCK,

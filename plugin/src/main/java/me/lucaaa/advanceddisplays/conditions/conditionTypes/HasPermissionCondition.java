@@ -7,10 +7,6 @@ import org.bukkit.entity.Player;
 public class HasPermissionCondition extends ADCondition {
     private final String permission;
 
-    public HasPermissionCondition(Object permission) {
-        this.permission = (String) permission;
-    }
-
     public HasPermissionCondition(String permission) {
         this.permission = permission;
     }

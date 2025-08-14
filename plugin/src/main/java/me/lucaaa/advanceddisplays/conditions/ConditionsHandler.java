@@ -51,9 +51,9 @@ public class ConditionsHandler {
         }
 
         ADCondition condition = switch (conditionType) {
-            case DISTANCE -> new DistanceCondition(value);
-            case HAS_PERMISSION -> new HasPermissionCondition(value);
-            case LACKS_PERMISSION -> new LacksPermissionCondition(value);
+            case DISTANCE -> new DistanceCondition((double) value);
+            case HAS_PERMISSION -> new HasPermissionCondition((String) value);
+            case LACKS_PERMISSION -> new LacksPermissionCondition((String) value);
         };
 
         // The reason why it isn't correct is handled by the action class.

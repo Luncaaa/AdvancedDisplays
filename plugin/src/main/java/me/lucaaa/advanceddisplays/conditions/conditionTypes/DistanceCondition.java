@@ -5,18 +5,14 @@ import me.lucaaa.advanceddisplays.conditions.ADCondition;
 import org.bukkit.entity.Player;
 
 public class DistanceCondition extends ADCondition {
-    private final double distance;
-
-    public DistanceCondition(Object value) {
-        this.distance = (double) value;
-    }
+    private final double distanceSquared;
 
     public DistanceCondition(double distance) {
-        this.distance = distance;
+        this.distanceSquared = Math.pow(distance, 2);
     }
 
     @Override
     public boolean meetsCondition(BaseEntity display, Player player) {
-        return distance <= 0.0 || player.getLocation().distanceSquared(display.getLocation()) <= Math.pow(distance, 2);
+        return distanceSquared <= 0.0 || player.getLocation().distanceSquared(display.getLocation()) <= distanceSquared;
     }
 }

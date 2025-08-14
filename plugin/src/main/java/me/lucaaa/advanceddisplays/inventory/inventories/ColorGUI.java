@@ -10,9 +10,7 @@ import me.lucaaa.advanceddisplays.inventory.items.GlobalItems;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,20 +18,21 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class ColorGUI extends ADInventory {
-    private final DisplayEditorGUI previous;
     private final Material previewMaterial;
     private Color savedColor;
     private final boolean alphaEnabled;
     private ColorItems.ColorPreview preview;
+
+    // This is run when clicking the check head. The super onDone method is null so, when closing the
+    // inventory, it'll be as if the player had cancelled the editing (previous inv is opened with no changes)
     private final Consumer<Color> onDone;
 
-    public ColorGUI(AdvancedDisplays plugin, DisplayEditorGUI previousInventory, BaseDisplay display, boolean alphaEnabled, Color initialColor, Consumer<Color> onDone) {
-        this(plugin, previousInventory, Material.LEATHER_CHESTPLATE, display, alphaEnabled, initialColor, onDone);
+    public ColorGUI(AdvancedDisplays plugin, DisplayEditorGUI previousInventory, BaseDisplay display, boolean alphaEnabled, Color initialColor, Consumer<Color> onDone, Runnable onClose) {
+        this(plugin, previousInventory, Material.LEATHER_CHESTPLATE, display, alphaEnabled, initialColor, onDone, onClose);
     }
 
-    public ColorGUI(AdvancedDisplays plugin, DisplayEditorGUI previousInventory, Material previewMaterial, BaseDisplay display, boolean alphaEnabled, Color initialColor, Consumer<Color> onDone) {
-        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing glow color of: &e" + display.getName()))), List.of());
-        this.previous = previousInventory;
+    public ColorGUI(AdvancedDisplays plugin, DisplayEditorGUI previousInventory, Material previewMaterial, BaseDisplay display, boolean alphaEnabled, Color initialColor, Consumer<Color> onDone, Runnable onClose) {
+        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing glow color of: &e" + display.getName()))), List.of(), previousInventory, onClose);
         this.previewMaterial = previewMaterial;
         this.savedColor = initialColor;
         this.alphaEnabled = alphaEnabled;
@@ -79,7 +78,7 @@ public class ColorGUI extends ADInventory {
         addButton(8, new Button.InventoryButton<>(GlobalItems.cancel(plugin)) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                onClose((Player) event.getWhoClicked());
+                event.getWhoClicked().closeInventory();
             }
         });
 
@@ -89,24 +88,12 @@ public class ColorGUI extends ADInventory {
             @Override
             public void onClick(InventoryClickEvent event) {
                 onDone.accept(savedColor);
-                onClose((Player) event.getWhoClicked());
+                event.getWhoClicked().closeInventory();
             }
         });
         // ----------
 
         super.decorate();
-    }
-
-    @Override
-    public void onClose(Player player) {
-        // The task is run so that the InventoryCloseEvent is fully run before opening a new inventory.
-        // Otherwise, the inventory will open but won't be registered as a plugin's GUI.
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                plugin.getInventoryManager().handleOpen(player, previous);
-            }
-        }.runTask(plugin);
     }
 
     public ColorItems.ColorPreview getPreview() {

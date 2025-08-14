@@ -13,22 +13,19 @@ import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 import java.util.function.Consumer;
 
 public class BlockDataGUI extends ADInventory {
-    private final DisplayEditorGUI previous;
     private final Consumer<BlockData> onDone;
     private final Material material;
     private final Map<String, String> dataMap = new HashMap<>();
     // The value is the setting that the player is editing.
     private final Map<Player, String> editMap = new HashMap<>();
 
-    public BlockDataGUI(AdvancedDisplays plugin, DisplayEditorGUI previousInventory, BlockDisplay display, Consumer<BlockData> onDone) {
-        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText("&6Editing block data of: &e" + display.getName())), List.of());
-        this.previous = previousInventory;
+    public BlockDataGUI(AdvancedDisplays plugin, DisplayEditorGUI previousInventory, BlockDisplay display, Consumer<BlockData> onDone, Runnable onClose) {
+        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText("&6Editing block data of: &e" + display.getName())), List.of(), previousInventory, onClose);
         this.onDone = onDone;
         this.material = display.getBlock().getMaterial();
 
@@ -59,7 +56,7 @@ public class BlockDataGUI extends ADInventory {
         addButton(18, new Button.InventoryButton<>(GlobalItems.cancel(plugin)) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                onClose((Player) event.getWhoClicked());
+                event.getWhoClicked().closeInventory();
             }
         });
 
@@ -73,7 +70,7 @@ public class BlockDataGUI extends ADInventory {
                 }
                 blockData = blockData.concat(String.join(",", dataParts));
                 onDone.accept(Bukkit.createBlockData(blockData + "]"));
-                onClose((Player) event.getWhoClicked());
+                event.getWhoClicked().closeInventory();
             }
         });
 
@@ -81,26 +78,13 @@ public class BlockDataGUI extends ADInventory {
     }
 
     @Override
-    public void handleChatEdit(Player player, String input) {
+    public boolean handleChatEdit(Player player, String input) {
         if (!input.equalsIgnoreCase("cancel")) {
             dataMap.put(editMap.get(player), input);
             decorate();
         }
         editMap.remove(player);
-        plugin.getInventoryManager().handleOpen(player, this);
-    }
-
-    @Override
-    public void onClose(Player player) {
-        if (editMap.containsKey(player)) return;
-        // The task is run so that the InventoryCloseEvent is fully run before opening a new inventory.
-        // Otherwise, the inventory will open but won't be registered as a plugin's GUI.
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                plugin.getInventoryManager().handleOpen(player, previous);
-            }
-        }.runTask(plugin);
+        return true;
     }
 
     private Item.ClickableItem create(String title, String value) {

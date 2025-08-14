@@ -239,16 +239,16 @@ public class Item<T> {
         }
     }
 
-    public static class EnumItem extends Item<Enum<?>> {
-        public EnumItem(Material material, String title, String lore, Enum<?> initialValue) {
+    public static class EnumItem<T extends Enum<T>> extends Item<T> {
+        public EnumItem(Material material, String title, String lore, T initialValue) {
             this(material, title, List.of(lore), initialValue, false);
         }
 
-        public EnumItem(Material material, String title, List<String> baseLore, Enum<?> initialValue, boolean changeTitle) {
+        public EnumItem(Material material, String title, List<String> baseLore, T initialValue, boolean changeTitle) {
             this(new ItemStack(material), title, baseLore, initialValue, changeTitle);
         }
 
-        public EnumItem(ItemStack item, String title, List<String> baseLore, Enum<?> initialValue, boolean changeTitle) {
+        public EnumItem(ItemStack item, String title, List<String> baseLore, T initialValue, boolean changeTitle) {
             super(item, title, baseLore, initialValue, changeTitle);
 
             lore.add("");
@@ -260,14 +260,10 @@ public class Item<T> {
         /**
          * Gets the next enum value from enum class of the given enum.
          * @return The next enum in the enum class or the first if the provided one was the last.
-         * @param <T> The enum class.
          */
-        public <T extends Enum<T>> T changeValue() {
-            @SuppressWarnings("unchecked")
-            T enumValue = (T) value;
-
-            T[] values = enumValue.getDeclaringClass().getEnumConstants();
-            int currentIndex = enumValue.ordinal();
+        public T changeValue() {
+            T[] values = value.getDeclaringClass().getEnumConstants();
+            int currentIndex = value.ordinal();
             int newValueIndex = (currentIndex + 1 == values.length) ? 0 : currentIndex + 1;
             T newValue = values[newValueIndex];
 

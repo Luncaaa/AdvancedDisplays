@@ -15,21 +15,12 @@ public abstract class Button<T extends Item<?>> {
         return item;
     }
 
-    public abstract void onClick(InventoryClickEvent event);
-    public abstract void onClick(PlayerInteractEvent event);
-
     public abstract static class InventoryButton<T extends Item<?>> extends Button<T> {
         public InventoryButton(T item) {
             super(item);
         }
 
-        @Override
         public abstract void onClick(InventoryClickEvent event);
-
-        @Override
-        public final void onClick(PlayerInteractEvent event) {
-            throw new UnsupportedOperationException("This button does not support PlayerInteractEvent");
-        }
     }
 
     public static class Unclickable<T extends Item<?>> extends InventoryButton<T> {
@@ -46,12 +37,6 @@ public abstract class Button<T extends Item<?>> {
             super(item);
         }
 
-        @Override
         public abstract void onClick(PlayerInteractEvent event);
-
-        @Override
-        public final void onClick(InventoryClickEvent event) {
-            throw new UnsupportedOperationException("This button does not support InventoryClickEvent");
-        }
     }
 }

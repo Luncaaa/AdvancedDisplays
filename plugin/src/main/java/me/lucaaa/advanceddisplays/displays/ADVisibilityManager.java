@@ -48,7 +48,7 @@ public class ADVisibilityManager implements VisibilityManager {
         if (!player.getWorld().equals(display.getLocation().getWorld())) return false;
 
         boolean def = globalVisibility == Visibility.SHOW;
-        boolean individual = individualVis.containsKey(player.getName()) && individualVis.get(player.getName()) == Visibility.SHOW;
+        boolean individual = individualVis.get(player.getName()) == Visibility.SHOW;
         boolean meetsConditions = conditionsHandler.checkConditions(player);
 
         return (def || individual) && meetsConditions;
@@ -85,16 +85,16 @@ public class ADVisibilityManager implements VisibilityManager {
                 } else {
                     display.removeToPlayer(onlinePlayer);
                 }
-                cachedVis.put(onlinePlayer, isSeen);
 
             } else if (cached && !isSeen) {
                 display.removeToPlayer(onlinePlayer);
-                cachedVis.put(onlinePlayer, false);
 
             } else if (!cached && isSeen) {
                 display.spawnToPlayer(onlinePlayer);
-                cachedVis.put(onlinePlayer, true);
+
             }
+
+            cachedVis.put(onlinePlayer, isSeen);
         }
 
         // Removes a cached player if he goes offline.

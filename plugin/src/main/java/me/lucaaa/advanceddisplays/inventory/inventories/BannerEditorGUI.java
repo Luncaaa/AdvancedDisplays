@@ -14,34 +14,30 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 import java.util.function.Consumer;
 
 public class BannerEditorGUI extends ADInventory {
-    private final ADInventory previous;
     private final int startLayer;
     private final Map<Integer, Pattern> patterns;
     private final Material banner; // For banner color
     private final Consumer<BannerMeta> onDone;
+    private final Runnable onClose;
     private final ItemStack DISABLED_LAYER;
-    // When clicking on banner or dye buttons, a new GUI is opened, triggering "onClose".
-    // To prevent the method from closing the selector GUI, set this variable to false when clicking on the buttons.
-    private boolean openPreviousOnClose = true;
 
-    public BannerEditorGUI(AdvancedDisplays plugin, ADInventory previous, Material banner, BannerMeta meta, Consumer<BannerMeta> onDone) {
-        this(plugin, previous, 1, getPatterns(meta), banner, onDone);
+    public BannerEditorGUI(AdvancedDisplays plugin, ADInventory previous, Material banner, BannerMeta meta, Consumer<BannerMeta> onDone, Runnable onClose) {
+        this(plugin, previous, 1, getPatterns(meta), banner, onDone, onClose);
     }
 
-    public BannerEditorGUI(AdvancedDisplays plugin, ADInventory previous, int startLayer, Map<Integer, Pattern> patterns, Material banner, Consumer<BannerMeta> onDone) {
-        super(plugin, Bukkit.createInventory(null, 54, Utils.getColoredText(("&6Banner editor"))), List.of());
+    public BannerEditorGUI(AdvancedDisplays plugin, ADInventory previous, int startLayer, Map<Integer, Pattern> patterns, Material banner, Consumer<BannerMeta> onDone, Runnable onClose) {
+        super(plugin, Bukkit.createInventory(null, 54, Utils.getColoredText(("&6Banner editor"))), List.of(), previous, onClose);
 
         this.startLayer = startLayer;
         this.patterns = patterns;
         this.banner = banner;
-        this.previous = previous;
         this.onDone = onDone;
+        this.onClose = onClose;
 
         this.DISABLED_LAYER = new ItemStack(Material.BARRIER);
         ItemMeta disabledMeta = Objects.requireNonNull(DISABLED_LAYER.getItemMeta());
@@ -70,8 +66,8 @@ public class BannerEditorGUI extends ADInventory {
             addButton(45, new Button.InventoryButton<>(new Item.ClickableItem(plugin.cachedHeads.LEFT, "Previous layer", List.of("See one more layer to the bottom"), null)) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
-                    openPreviousOnClose = false;
-                    plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), new BannerEditorGUI(plugin, previous, startLayer - 1, patterns, banner, onDone));
+                    shouldOpenPrevious = false;
+                    plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), new BannerEditorGUI(plugin, previous, startLayer - 1, patterns, banner, onDone, onClose));
                 }
             });
         }
@@ -80,7 +76,7 @@ public class BannerEditorGUI extends ADInventory {
         addButton(48, new Button.InventoryButton<>(GlobalItems.cancel(plugin)) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                onClose((Player) event.getWhoClicked());
+                event.getWhoClicked().closeInventory();
             }
         });
 
@@ -92,7 +88,7 @@ public class BannerEditorGUI extends ADInventory {
             @Override
             public void onClick(InventoryClickEvent event) {
                 onDone.accept(getMeta());
-                onClose((Player) event.getWhoClicked());
+                event.getWhoClicked().closeInventory();
             }
         });
 
@@ -100,26 +96,12 @@ public class BannerEditorGUI extends ADInventory {
         addButton(53, new Button.InventoryButton<>(new Item.ClickableItem(plugin.cachedHeads.RIGHT, "Next layer", List.of("See one more layer on top"), null)) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                openPreviousOnClose = false;
-                plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), new BannerEditorGUI(plugin, previous, startLayer + 1, patterns, banner, onDone));
+                shouldOpenPrevious = false;
+                plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), new BannerEditorGUI(plugin, previous, startLayer + 1, patterns, banner, onDone, onClose));
             }
         });
 
         super.decorate();
-    }
-
-    @Override
-    public void onClose(Player player) {
-        if (!openPreviousOnClose) return;
-
-        // The task is run so that the InventoryCloseEvent is fully run before opening a new inventory.
-        // Otherwise, the inventory will open but won't be registered as a plugin's GUI.
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                plugin.getInventoryManager().handleOpen(player, previous);
-            }
-        }.runTask(plugin);
     }
 
     private void setDisabledLayer(int topSlotIndex, int layer) {
@@ -169,10 +151,10 @@ public class BannerEditorGUI extends ADInventory {
                             return banner;
                         },
                         selected -> setLayerButtons(topSlotIndex, layer, selected, color),
-                        () -> openPreviousOnClose = true
+                        () -> shouldOpenPrevious = true
                 );
 
-                openPreviousOnClose = false;
+                shouldOpenPrevious = false;
                 plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
             }
         });
@@ -187,10 +169,10 @@ public class BannerEditorGUI extends ADInventory {
                         color.getDeclaringClass().getEnumConstants(),
                         value -> new ItemStack(Material.valueOf(value.name() + "_DYE")),
                         selected -> setLayerButtons(topSlotIndex, layer, pattern, selected),
-                        () -> openPreviousOnClose = true
+                        () -> shouldOpenPrevious = true
                 );
 
-                openPreviousOnClose = false;
+                shouldOpenPrevious = false;
                 plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
             }
         });

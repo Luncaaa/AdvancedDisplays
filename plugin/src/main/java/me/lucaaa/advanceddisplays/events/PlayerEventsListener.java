@@ -76,17 +76,17 @@ public class PlayerEventsListener implements Listener {
             playerData.finishEditing();
         }
         plugin.getDisplaysManager().removeAttachingDisplay(player);
+        plugin.getInventoryManager().onQuit(player);
         plugin.getPlayersManager().removePlayer(player);
     }
 
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
-        PlayerData playerData = plugin.getPlayersManager().getPlayerData(event.getPlayer());
-        if (!playerData.isChatEditing()) return;
+        if (!plugin.getPlayersManager().getPlayerData(event.getPlayer()).isChatEditing()) return;
         new BukkitRunnable() {
             @Override
             public void run() {
-                playerData.handleChatEdit(event.getMessage());
+                plugin.getInventoryManager().handleChatEdit(event.getPlayer(), event.getMessage());
             }
         }.runTask(plugin);
         event.setCancelled(true);

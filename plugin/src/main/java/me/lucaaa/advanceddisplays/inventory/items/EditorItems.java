@@ -1,15 +1,20 @@
 package me.lucaaa.advanceddisplays.inventory.items;
 
 import me.lucaaa.advanceddisplays.api.displays.*;
+import me.lucaaa.advanceddisplays.api.displays.enums.NameVisibility;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
 import me.lucaaa.advanceddisplays.nms_common.Version;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.data.Levelled;
+import org.bukkit.entity.Display;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockDataMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.entity.TextDisplay.TextAlignment;
+import org.bukkit.entity.ItemDisplay.ItemDisplayTransform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +25,9 @@ public class EditorItems {
     public final Item.BooleanItem ON_FIRE;
     public final Item.BooleanItem SPRINTING;
     public final Item.BooleanItem GLOW_TOGGLE;
-    public final Item.EnumItem GLOW_COLOR;
+    public final Item.EnumItem<ChatColor> GLOW_COLOR;
     public final Item.ClickableItem CUSTOM_NAME;
-    public final Item.EnumItem CUSTOM_NAME_VISIBILITY;
+    public final Item.EnumItem<NameVisibility> CUSTOM_NAME_VISIBILITY;
 
     public final Item.ClickableItem TELEPORT;
     public final Item.ClickableItem MOVE_HERE;
@@ -39,7 +44,7 @@ public class EditorItems {
 
     public ColorItems.ColorPreview GLOW_COLOR_OVERRIDE;
 
-    public Item.EnumItem BILLBOARD;
+    public Item.EnumItem<Display.Billboard> BILLBOARD;
     public Item.BooleanItem HITBOX_OVERRIDE;
     public Item.ClickableItem ENTITY_SETTINGS;
 
@@ -49,11 +54,11 @@ public class EditorItems {
     // Display-specific
     public Item.ClickableItem BLOCK_DATA;
 
-    public Item.EnumItem ITEM_TRANSFORMATION;
+    public Item.EnumItem<ItemDisplayTransform> ITEM_TRANSFORMATION;
     public Item.BooleanItem ENCHANTED;
     public Item<?> CUSTOM_MODEL_DATA;
 
-    public Item.EnumItem TEXT_ALIGNMENT;
+    public Item.EnumItem<TextAlignment> TEXT_ALIGNMENT;
     public ColorItems.ColorPreview BACKGROUND_COLOR;
     public Item.StepItem LINE_WIDTH;
     public Item.StepItem TEXT_OPACITY;
@@ -67,13 +72,13 @@ public class EditorItems {
         ON_FIRE = new Item.BooleanItem(Material.CAMPFIRE, "On fire", "Changes whether the entity is on fire or not", entity.isOnFire());
         SPRINTING = new Item.BooleanItem(Material.IRON_BOOTS, "Sprinting", "Changes whether the entity appears to be sprinting or not", entity.isSprinting());
         GLOW_TOGGLE = new Item.BooleanItem(Material.GLOW_BERRIES, "Toggle glow", "Enables or disables the display's glowing status", entity.isGlowing());
-        GLOW_COLOR = new Item.EnumItem(Material.RED_DYE, "Glow color", "Enables or disables the display's glowing status", entity.getGlowColor());
+        GLOW_COLOR = new Item.EnumItem<>(Material.RED_DYE, "Glow color", "Enables or disables the display's glowing status", entity.getGlowColor());
         if (entity.getCustomName() == null) {
             CUSTOM_NAME = new Item.ClickableItem(Material.NAME_TAG, "Custom name", List.of("Changes the entity's custom name", "", "&7Click to change"), Utils.getColoredText("&cNo custom name set"));
         } else {
             CUSTOM_NAME = new Item.ClickableItem(Material.NAME_TAG, "Custom name", List.of("Changes the entity's custom name", "", "&7Click to change"), ComponentSerializer.getLegacyString(ComponentSerializer.deserialize(entity.getCustomName())));
         }
-        CUSTOM_NAME_VISIBILITY = new Item.EnumItem(Material.REDSTONE, "Custom name visiblity", "Changes the entity's custom name visibility", entity.getCustomNameVisibility());
+        CUSTOM_NAME_VISIBILITY = new Item.EnumItem<>(Material.REDSTONE, "Custom name visiblity", "Changes the entity's custom name visibility", entity.getCustomNameVisibility());
 
         String location = Utils.locToString(entity.getLocation());
         TELEPORT = new Item.ClickableItem(Material.ENDER_PEARL, "Teleport", "Teleports you to the display", location);
@@ -91,7 +96,7 @@ public class EditorItems {
 
             GLOW_COLOR_OVERRIDE = new ColorItems.ColorPreview("Glow color", display.getGlowColorOverride(), ColorItems.ColorComponent.ALL, false);
 
-            BILLBOARD = new Item.EnumItem(Material.STRUCTURE_VOID, "Change billboard", "Changes the display's rotation axis", display.getBillboard());
+            BILLBOARD = new Item.EnumItem<>(Material.STRUCTURE_VOID, "Change billboard", "Changes the display's rotation axis", display.getBillboard());
             HITBOX_OVERRIDE = new Item.BooleanItem(Material.END_CRYSTAL, "Override hitbox size", List.of("Whether the hitbox size is set", "automatically or manually"), display.isHitboxSizeOverriden());
             ENTITY_SETTINGS = new Item.ClickableItem(Material.CREEPER_HEAD, "Entity settings", "Changes this entity's properties");
 
@@ -106,7 +111,7 @@ public class EditorItems {
                         lore.add("&7Use &cRIGHT_CLICK &7to remove an animation");
                     }
                     CURRENT_VALUE = new Item.ClickableItem(Material.OAK_SIGN, "Display text", lore, textDisplay.getTextsNumber() + " text animation(s)");
-                    TEXT_ALIGNMENT = new Item.EnumItem(Material.FILLED_MAP, "Text alignment", "Changes the text's alignment", textDisplay.getAlignment());
+                    TEXT_ALIGNMENT = new Item.EnumItem<>(Material.FILLED_MAP, "Text alignment", "Changes the text's alignment", textDisplay.getAlignment());
                     BACKGROUND_COLOR = new ColorItems.ColorPreview("Background color", textDisplay.getBackgroundColor(), ColorItems.ColorComponent.ALL, true);
                     LINE_WIDTH = new Item.StepItem(Material.BLACK_DYE, "Line width", List.of("Changes the display's line width"), textDisplay.getLineWidth(), 10.0, 1.0);
                     TEXT_OPACITY = new Item.StepItem(Material.GRAY_DYE, "Text opacity", List.of("Changes the text's opacity"), textDisplay.getTextOpacity(), 10.0, 1.0);
@@ -121,7 +126,7 @@ public class EditorItems {
                     ItemMeta meta = itemDisplay.getItem().clone().getItemMeta();
 
                     CURRENT_VALUE = new Item.ClickableItem(itemDisplay.getItem(), "Display item", List.of("The item that is being displayed", "", "&7Click to change"), itemDisplay.getItem().getType().name());
-                    ITEM_TRANSFORMATION = new Item.EnumItem(Material.ARMOR_STAND, "Item model transform", "Changes how the displayed item is shown", itemDisplay.getItemTransformation());
+                    ITEM_TRANSFORMATION = new Item.EnumItem<>(Material.ARMOR_STAND, "Item model transform", "Changes how the displayed item is shown", itemDisplay.getItemTransformation());
                     ENCHANTED = new Item.BooleanItem(Material.ENCHANTED_BOOK, "Enchanted", "Changes whether the enchanted effect is visible or not", itemDisplay.isEnchanted());
                     if (meta != null) {
                         if (nmsVersion.isEqualOrNewerThan(Version.v1_21_R3)) {

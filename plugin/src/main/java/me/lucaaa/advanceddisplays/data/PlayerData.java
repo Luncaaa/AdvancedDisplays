@@ -5,7 +5,6 @@ import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
 import me.lucaaa.advanceddisplays.displays.AnimatedTextRunnable;
-import me.lucaaa.advanceddisplays.inventory.ADInventory;
 import me.lucaaa.advanceddisplays.inventory.inventories.PlayerEditorInv;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import org.bukkit.configuration.ConfigurationSection;
@@ -26,7 +25,6 @@ public class PlayerData {
     private BaseEntity editingDisplay;
     private ItemStack[] savedInventory;
     private PlayerEditorInv playerEditorInventory;
-    private ADInventory openInventory;
     private boolean isChatEditing = false;
     private final Map<ADTextDisplay, AnimatedTextRunnable> runnables = new HashMap<>();
 
@@ -61,7 +59,6 @@ public class PlayerData {
     public void finishEditing() {
         player.closeInventory();
         player.getInventory().setContents(savedInventory);
-        this.openInventory = null;
         this.editingDisplay = null;
 
         YamlConfiguration config = savesConfig.getConfig();
@@ -74,20 +71,12 @@ public class PlayerData {
         return editingDisplay != null;
     }
 
-    public void setOpenInventory(ADInventory inventory) {
-        openInventory = inventory;
-    }
-
     public void setChatEditing(boolean chatEditing) {
         isChatEditing = chatEditing;
     }
 
     public boolean isChatEditing() {
         return isChatEditing;
-    }
-
-    public void handleChatEdit(String input) {
-        openInventory.handleChatEdit(player, input);
     }
 
     public void handleClick(PlayerInteractEvent event) {

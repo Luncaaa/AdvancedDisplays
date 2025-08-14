@@ -35,7 +35,7 @@ public class DisplayEditorGUI extends ADInventory {
     private final Map<Player, EditAction> editMap = new HashMap<>();
 
     public DisplayEditorGUI(AdvancedDisplays plugin, BaseDisplay display, List<EditorItem> disabledSettings) {
-        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))), disabledSettings);
+        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))), disabledSettings, null);
         this.display = display;
     }
 
@@ -96,11 +96,12 @@ public class DisplayEditorGUI extends ADInventory {
         addIfAllowed(EditorItem.GLOW_COLOR_SELECTOR, 11, new Button.InventoryButton<>(items.GLOW_COLOR_OVERRIDE) {
             @Override
             public void onClick(InventoryClickEvent event) {
+                shouldOpenPrevious = false;
                 ColorGUI inventory = new ColorGUI(plugin, DisplayEditorGUI.this, display, false, display.getGlowColorOverride(), color -> {
                     display.setGlowColorOverride(color);
                     getItem().setColor(display.getGlowColorOverride());
                     getInventory().setItem(11, getItem().getStack());
-                });
+                }, () -> shouldOpenPrevious = true);
                 plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
             }
         });
@@ -128,7 +129,11 @@ public class DisplayEditorGUI extends ADInventory {
         addButton(20, new Button.InventoryButton<>(items.ENTITY_SETTINGS) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                EntityEditorGUI inventory = new EntityEditorGUI(plugin, display, disabledSettings, DisplayEditorGUI.this);
+                shouldOpenPrevious = false;
+                EntityEditorGUI inventory = new EntityEditorGUI(plugin, display, disabledSettings, DisplayEditorGUI.this, () -> {
+                    updateGlowToggleItem();
+                    shouldOpenPrevious = true;
+                });
                 plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
             }
         });
@@ -202,12 +207,12 @@ public class DisplayEditorGUI extends ADInventory {
 
                 Item<?> cmdItem = items.CUSTOM_MODEL_DATA;
                 if (plugin.getNmsVersion().isEqualOrNewerThan(Version.v1_21_R3)) cmdItem.disable(List.of("Versions >=1.21.4 have more complex custom model data.", "Edit it through the display's config file."));
-                addIfAllowed(EditorItem.CUSTOM_MODEL_DATA, metadataSlots.get(2), new Button.InventoryButton<Item<?>>(items.CUSTOM_MODEL_DATA) {
+                addIfAllowed(EditorItem.CUSTOM_MODEL_DATA, METADATA_SLOTS.get(2), new Button.InventoryButton<Item<?>>(items.CUSTOM_MODEL_DATA) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         if (plugin.getNmsVersion().isEqualOrNewerThan(Version.v1_21_R3)) return;
                         double newValue = ((Item.StepItem) getItem()).changeValue(event.isLeftClick(), event.isShiftClick(), 0.0);
-                        getInventory().setItem(metadataSlots.get(2), getItem().getStack());
+                        getInventory().setItem(METADATA_SLOTS.get(2), getItem().getStack());
 
                         ItemStack item = itemDisplay.getItem().clone();
                         ItemMeta meta = item.getItemMeta();
@@ -237,12 +242,12 @@ public class DisplayEditorGUI extends ADInventory {
                 addIfAllowed(EditorItem.BACKGROUND_COLOR, 7, new Button.InventoryButton<>(items.BACKGROUND_COLOR) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
+                        shouldOpenPrevious = false;
                         ColorGUI inventory = new ColorGUI(plugin, DisplayEditorGUI.this, display, true, textDisplay.getBackgroundColor(), color -> {
                             textDisplay.setBackgroundColor(color);
                             getItem().setColor(color);
                             getInventory().setItem(7, getItem().getStack());
-                        });
-
+                        }, () -> shouldOpenPrevious = true);
                         plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
                     }
                 });
@@ -323,11 +328,12 @@ public class DisplayEditorGUI extends ADInventory {
             addIfAllowed(EditorItem.BLOCK_DATA, 8, new Button.InventoryButton<>(items.BLOCK_DATA) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
+                    shouldOpenPrevious = false;
                     ADInventory inventory = new BlockDataGUI(plugin, DisplayEditorGUI.this, blockDisplay, blockData -> {
                         blockDisplay.setBlock(blockData);
                         getItem().setValue(blockData.toString());
                         getInventory().setItem(8, getItem().getStack());
-                    });
+                    }, () -> shouldOpenPrevious = true);
 
                     plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
                 }
@@ -342,7 +348,7 @@ public class DisplayEditorGUI extends ADInventory {
     }
 
     @Override
-    public void handleChatEdit(Player player, String input) {
+    public boolean handleChatEdit(Player player, String input) {
         if (!input.equalsIgnoreCase("cancel")) {
             Item.ClickableItem item = (Item.ClickableItem) getButton(13).getItem();
 
@@ -353,7 +359,7 @@ public class DisplayEditorGUI extends ADInventory {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + input + " &a has been removed. If it didn't exist, nothing will be changed."));
                     } else {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe animation &b" + input + " &cdoes not exist!"));
-                        return;
+                        return false;
                     }
 
                     List<String> lore = new ArrayList<>();
@@ -375,7 +381,7 @@ public class DisplayEditorGUI extends ADInventory {
 
                     if (firstSpace == -1){
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe text you have entered is invalid. Remember that the format is &b<animation name (no spaces)> <animation text>"));
-                        return;
+                        return false;
                     }
 
                     String identifier = input.substring(0, firstSpace);
@@ -384,7 +390,7 @@ public class DisplayEditorGUI extends ADInventory {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + identifier + " &a has been created and added after the last animation."));
                     } else {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cAn animation with the name &b" + identifier + " &calready exists!"));
-                        return;
+                        return false;
                     }
 
                     List<String> lore = new ArrayList<>();
@@ -405,12 +411,12 @@ public class DisplayEditorGUI extends ADInventory {
 
                     if (material == null) {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + input + " &cis not a valid material!"));
-                        return;
+                        return false;
                     }
 
                     if (material == Material.AIR) {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe material cannot be air!"));
-                        return;
+                        return false;
                     }
 
                     if (display.getType() == DisplayType.ITEM) {
@@ -427,7 +433,7 @@ public class DisplayEditorGUI extends ADInventory {
 
                         } catch (IllegalArgumentException | NullPointerException ignored) {
                             player.sendMessage(plugin.getMessagesManager().getColoredMessage("&b" + material.name() + " &cis not a valid block!"));
-                            return;
+                            return false;
                         }
                     }
                 }
@@ -438,7 +444,7 @@ public class DisplayEditorGUI extends ADInventory {
         }
 
         editMap.remove(player);
-        plugin.getInventoryManager().handleOpen(player, this);
+        return true;
     }
 
     // The current item has the title and lore.
@@ -475,7 +481,7 @@ public class DisplayEditorGUI extends ADInventory {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
 
-        int slot = metadataSlots.get(3);
+        int slot = METADATA_SLOTS.get(3);
         if (meta instanceof PotionMeta potion) {
             // Item type must be a potion (normal, splash or lingering) because meta is an instance of PotionMeta
             Color color = (potion.getColor() == null) ? Color.ORANGE : potion.getColor();
@@ -490,12 +496,12 @@ public class DisplayEditorGUI extends ADInventory {
                         return;
                     }
 
+                    shouldOpenPrevious = false;
                     ColorGUI inventory = new ColorGUI(plugin, DisplayEditorGUI.this, item.getType(), display, false, color, color -> {
                         getItem().setColor(color);
                         getInventory().setItem(slot, getItem().getStack());
                         setPotionColor(display, color);
-                    });
-
+                    }, () -> shouldOpenPrevious = true);
                     plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
                 }
             });
@@ -512,41 +518,41 @@ public class DisplayEditorGUI extends ADInventory {
                     if (TrimPattern.SENTRY == null) return;
                     pattern[0] = (TrimPattern) getItem().changeValue();
                     // Item is set in this method
-                    setArmorTrim(display, pattern[0], material[0], slot, metadataSlots.get(4));
+                    setArmorTrim(display, pattern[0], material[0], slot, METADATA_SLOTS.get(4));
                 }
             });
 
             Item.RegistryItem materialItem = new Item.RegistryItem(getMatFromTrimMat(material[0]), "Armor trim material", List.of("Changes the armor's trim material"), material[0] == null ? TrimMaterial.NETHERITE : material[0], true, !armor.hasTrim());
-            addIfAllowed(EditorItem.ITEM_META, metadataSlots.get(4), new Button.InventoryButton<>(materialItem) {
+            addIfAllowed(EditorItem.ITEM_META, METADATA_SLOTS.get(4), new Button.InventoryButton<>(materialItem) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
                     // If, for whatever reason, trim materials are null, do not attempt to change the value.
                     if (TrimMaterial.DIAMOND == null) return;
                     material[0] = (TrimMaterial) getItem().changeValue();
                     // Item is set in this method
-                    setArmorTrim(display, pattern[0], material[0], slot, metadataSlots.get(4));
+                    setArmorTrim(display, pattern[0], material[0], slot, METADATA_SLOTS.get(4));
                 }
             });
 
             if (meta instanceof LeatherArmorMeta leatherArmor) {
                 // Item type must be an armor part (helmet, boots...) because meta is an instance of LeatherArmorMeta
                 ColorItems.ColorPreview preview = new ColorItems.ColorPreview(item.getType(), "Armor color", List.of("", "&7Use &cRIGHT_CLICK &7to reset"), leatherArmor.getColor(), ColorItems.ColorComponent.ALL, false);
-                addIfAllowed(EditorItem.ITEM_META, metadataSlots.get(5), new Button.InventoryButton<>(preview) {
+                addIfAllowed(EditorItem.ITEM_META, METADATA_SLOTS.get(5), new Button.InventoryButton<>(preview) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         if (event.isRightClick()) {
                             getItem().setColor(plugin.getServer().getItemFactory().getDefaultLeatherColor());
-                            getInventory().setItem(metadataSlots.get(5), getItem().getStack());
+                            getInventory().setItem(METADATA_SLOTS.get(5), getItem().getStack());
                             setArmorColor(display, null);
                             return;
                         }
 
+                        shouldOpenPrevious = false;
                         ColorGUI inventory = new ColorGUI(plugin, DisplayEditorGUI.this, item.getType(), display, false, leatherArmor.getColor(), color -> {
                             getItem().setColor(color);
-                            getInventory().setItem(metadataSlots.get(5), getItem().getStack());
+                            getInventory().setItem(METADATA_SLOTS.get(5), getItem().getStack());
                             setArmorColor(display, color);
-                        });
-
+                        }, () -> shouldOpenPrevious = true);
                         plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
                     }
                 });
@@ -559,6 +565,7 @@ public class DisplayEditorGUI extends ADInventory {
 
                 @Override
                 public void onClick(InventoryClickEvent event) {
+                    shouldOpenPrevious = false;
                     BannerEditorGUI inventory = new BannerEditorGUI(plugin, DisplayEditorGUI.this, item.getType(), this.meta, meta -> {
                         this.meta = meta;
                         ItemStack item = display.getItem().clone(); // Gets the potion type (normal, splash or lingering)
@@ -568,7 +575,7 @@ public class DisplayEditorGUI extends ADInventory {
                         getItem().applyMeta(meta.clone());
                         getInventory().setItem(slot, getItem().getStack());
                         updateCurrentValue(meta, item.getType().name());
-                    });
+                    }, () -> shouldOpenPrevious = true);
 
                     plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
                 }
@@ -621,7 +628,7 @@ public class DisplayEditorGUI extends ADInventory {
             });
 
         } else if (meta instanceof AxolotlBucketMeta bucketMeta) {
-            Item.EnumItem bucketItem = new Item.EnumItem(item, "Axolotl variant", List.of("Changes the variant of the axolotl"), bucketMeta.hasVariant() ? bucketMeta.getVariant() : Axolotl.Variant.LUCY, false);
+            Item.EnumItem<Axolotl.Variant> bucketItem = new Item.EnumItem<>(item, "Axolotl variant", List.of("Changes the variant of the axolotl"), bucketMeta.hasVariant() ? bucketMeta.getVariant() : Axolotl.Variant.LUCY, false);
             addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(bucketItem) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
@@ -649,7 +656,7 @@ public class DisplayEditorGUI extends ADInventory {
                 ammo = CrossbowAmmo.NONE;
             }
 
-            Item.EnumItem ammoItem = new Item.EnumItem(item, "Crossbow ammo", List.of("Changes the ammo loaded into the crossbow"), ammo, false);
+            Item.EnumItem<CrossbowAmmo> ammoItem = new Item.EnumItem<>(item, "Crossbow ammo", List.of("Changes the ammo loaded into the crossbow"), ammo, false);
             addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(ammoItem) {
                 @Override
                 public void onClick(InventoryClickEvent event) {

@@ -16,21 +16,17 @@ import me.lucaaa.advanceddisplays.inventory.items.Item;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class EntityEditorGUI extends ADInventory {
     private final BaseEntity display;
-    private final DisplayEditorGUI previous;
     private final EditorItems items;
-    private final List<Player> editingPlayers = new ArrayList<>();
 
-    public EntityEditorGUI(AdvancedDisplays plugin, BaseEntity display, List<EditorItem> disabledSettings, DisplayEditorGUI previous) {
-        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))), disabledSettings);
+    public EntityEditorGUI(AdvancedDisplays plugin, BaseEntity display, List<EditorItem> disabledSettings, DisplayEditorGUI previous, Runnable onDone) {
+        super(plugin, Bukkit.createInventory(null, 27, Utils.getColoredText(("&6Editing " + display.getType().name() + " display: &e" + display.getName()))), disabledSettings, previous, onDone);
         this.display = display;
-        this.previous = previous;
         this.items = new EditorItems(display, plugin.getNmsVersion());
     }
 
@@ -60,7 +56,6 @@ public class EntityEditorGUI extends ADInventory {
         addIfAllowed(EditorItem.CUSTOM_NAME, 1, new Button.InventoryButton<>(items.CUSTOM_NAME) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                editingPlayers.add((Player) event.getWhoClicked());
                 plugin.getPlayersManager().getPlayerData((Player) event.getWhoClicked()).setChatEditing(true);
                 event.getWhoClicked().closeInventory();
                 event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the new custom name or \"cancel\" to keep the current one."));
@@ -168,7 +163,7 @@ public class EntityEditorGUI extends ADInventory {
 
             Class<?> type = property.type();
             Object value = display.getPropertyValue(property);
-            int slot = metadataSlots.get(i);
+            int slot = METADATA_SLOTS.get(i);
 
             if (type.isEnum()) {
                 Item.EnumItem item = new Item.EnumItem(Material.REPEATING_COMMAND_BLOCK, property.name(), LORE, Enum.valueOf((Class<Enum>) type, value.toString().toUpperCase()), false);
@@ -216,7 +211,7 @@ public class EntityEditorGUI extends ADInventory {
     }
 
     @Override
-    public void handleChatEdit(Player player, String input) {
+    public boolean handleChatEdit(Player player, String input) {
         if (!input.equalsIgnoreCase("cancel")) {
             display.setCustomName(input);
             @SuppressWarnings("unchecked")
@@ -225,25 +220,6 @@ public class EntityEditorGUI extends ADInventory {
             getInventory().setItem(1, item.getStack());
         }
 
-        editingPlayers.remove(player);
-        plugin.getInventoryManager().handleOpen(player, this);
-    }
-
-    @Override
-    public void onClose(Player player) {
-        if (previous != null && !editingPlayers.contains(player)) {
-            // The task is run so that the InventoryCloseEvent is fully run before opening a new inventory.
-            // Otherwise, the inventory will open but won't be registered as a plugin's GUI.
-            // The "isRemoved" check is performed inside the runnable so that it has time to be updated if necessary.
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (!display.isRemoved()) {
-                        previous.updateGlowToggleItem(); // Both inventories have a glow toggle button
-                        plugin.getInventoryManager().handleOpen(player, previous);
-                    }
-                }
-            }.runTask(plugin);
-        }
+        return true;
     }
 }

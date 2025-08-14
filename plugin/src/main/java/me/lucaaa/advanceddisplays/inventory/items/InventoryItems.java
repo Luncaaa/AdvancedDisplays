@@ -17,7 +17,7 @@ public class InventoryItems {
 
     // GLOBAL
     public final Item.ClickableItem OPEN_GUI;
-    public final Item.EnumItem CHANGE_ROW;
+    public final Item.EnumItem<PlayerEditorInv.InventoryRows> CHANGE_ROW;
     // ---
 
     public InventoryItems(BaseEntity entity) {
@@ -25,7 +25,7 @@ public class InventoryItems {
         PITCH = new Item.StepItem(Material.FIRE_CHARGE, "Pitch", "Changes the display's pitch", entity.getPitch(), 10.0, 1.0, true);
 
         OPEN_GUI = new Item.ClickableItem(Material.NETHER_STAR, "Open editor GUI", List.of("Opens a GUI with more options", "to edit the display"), "(" + entity.getType() + ") " + entity.getName());
-        CHANGE_ROW = new Item.EnumItem(Material.ARROW, "Change row", List.of("Changes the tools in your hotbar", "with another row of tools"), PlayerEditorInv.InventoryRows.LEFT_ROTATION_YAW_PITCH, true);
+        CHANGE_ROW = new Item.EnumItem<>(Material.ARROW, "Change row", List.of("Changes the tools in your hotbar", "with another row of tools"), PlayerEditorInv.InventoryRows.LEFT_ROTATION_YAW_PITCH, true);
     }
 
     public static class DisplayItems extends InventoryItems {

@@ -22,7 +22,7 @@ public class InventoryEventsListener implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        plugin.getInventoryManager().handleClose((Player) event.getPlayer());
+        plugin.getInventoryManager().handleClose(event);
     }
 
     @EventHandler

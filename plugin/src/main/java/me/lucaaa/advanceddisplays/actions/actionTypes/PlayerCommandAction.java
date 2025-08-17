@@ -11,7 +11,14 @@ public class PlayerCommandAction extends Action {
     private final List<String> commands;
 
     public PlayerCommandAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
-        super(plugin, List.of("command"), actionSection);
+        super(
+                plugin,
+                ActionType.PLAYER_COMMAND,
+                actionSection,
+                List.of(
+                        new Field("command", String.class, List.class)
+                )
+        );
 
         if (actionSection.isList("command")) {
             this.commands = actionSection.getStringList("command");

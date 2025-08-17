@@ -131,6 +131,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
     @Override
     public void onDisable() {
         if (inventoryManager != null) inventoryManager.clearAll();
+        if (playersManager != null) playersManager.removeAll();
         if (tickManager != null) tickManager.stop();
         if (audiences != null) audiences.close();
     }

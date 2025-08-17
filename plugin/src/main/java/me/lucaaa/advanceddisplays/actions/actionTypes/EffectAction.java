@@ -9,19 +9,27 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
 
 public class EffectAction extends Action {
     private final PotionEffect effect;
 
     public EffectAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
-        super(plugin, List.of("effect", "duration", "amplifier"), actionSection);
+        super(
+                plugin,
+                ActionType.EFFECT,
+                actionSection,
+                List.of(
+                        new Field("effect", String.class),
+                        new Field("duration", Integer.class),
+                        new Field("amplifier", Integer.class)
+                )
+        );
+
         PotionEffectType type = PotionEffectType.getByName(Objects.requireNonNull(actionSection.getString("effect")));
 
         if (type == null) {
-            plugin.log(Level.WARNING, "Invalid effect type found on action \"" + actionSection.getName() + "\": " + actionSection.getString("effect"));
+            errors.add("Invalid effect: " + actionSection.getString("effect"));
             this.effect = null;
-            this.isCorrect = false;
             return;
         }
 

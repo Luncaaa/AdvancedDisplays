@@ -2,7 +2,6 @@ package me.lucaaa.advanceddisplays.actions.actionTypes;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.Action;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -12,7 +11,14 @@ public class ConsoleCommandAction extends Action {
     private final List<String> commands;
 
     public ConsoleCommandAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
-        super(plugin, List.of("command"), actionSection);
+        super(
+                plugin,
+                ActionType.CONSOLE_COMMAND,
+                actionSection,
+                List.of(
+                        new Field("command", String.class, List.class)
+                )
+        );
 
         if (actionSection.isList("command")) {
             this.commands = actionSection.getStringList("command");
@@ -25,7 +31,7 @@ public class ConsoleCommandAction extends Action {
     @Override
     public void runAction(Player clickedPlayer, Player actionPlayer) {
         for (String command : commands) {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), getTextString(command, clickedPlayer, actionPlayer));
+            plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), getTextString(command, clickedPlayer, actionPlayer));
         }
     }
 }

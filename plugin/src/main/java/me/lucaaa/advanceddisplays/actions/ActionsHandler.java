@@ -8,15 +8,11 @@ import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.conditions.ConditionsHandler;
 import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 public class ActionsHandler {
@@ -27,38 +23,44 @@ public class ActionsHandler {
     private final Map<ClickType, List<Action>> actionsMap = new EnumMap<>(ClickType.class);
     private DisplayActions clickActions = null;
 
-    public ActionsHandler(AdvancedDisplays plugin, BaseEntity display, ConfigManager config) {
+    public ActionsHandler(AdvancedDisplays plugin, BaseEntity display, ConfigManager configManager) {
         this.plugin = plugin;
         this.display = display;
 
-        if (config == null) {
-            this.conditionsHandler = null;
+        if (configManager == null) {
+            this.conditionsHandler = new ConditionsHandler(plugin, display);
             this.conditionsNotMetMessage = null;
             return;
         }
 
-        ConfigurationSection actionsSection = config.getSection("actions", false, config.getConfig());
+        ConfigurationSection actionsSection = configManager.getSection("actions", false, configManager.getConfig());
         if (actionsSection == null) {
-            this.conditionsHandler = null;
+            this.conditionsHandler = new ConditionsHandler(plugin, display);
             this.conditionsNotMetMessage = null;
             return;
-        } else {
-            this.conditionsHandler = new ConditionsHandler(plugin, display, actionsSection.getConfigurationSection("conditions"));
-            this.conditionsNotMetMessage = actionsSection.getString("conditions-not-met", null);
         }
+
+        ConfigurationSection conditionsSection = configManager.getSection("conditions", false, actionsSection);
+        this.conditionsHandler = (conditionsSection == null) ? null : new ConditionsHandler(plugin, display, conditionsSection);
+        this.conditionsNotMetMessage = actionsSection.getString("conditions-not-met", null);
 
         List<ClickType> validClickTypes = List.of(ClickType.LEFT, ClickType.RIGHT, ClickType.SHIFT_LEFT, ClickType.SHIFT_RIGHT);
         for (String clickTypeKey : actionsSection.getKeys(false)) {
+            if (!actionsSection.isConfigurationSection(clickTypeKey) || clickTypeKey.equalsIgnoreCase("conditions")) continue;
+
+            ConfigurationSection actionSection = Objects.requireNonNull(actionsSection.getConfigurationSection(clickTypeKey));
             if (clickTypeKey.equalsIgnoreCase("ANY")) {
+                List<String> ignoredActions = new ArrayList<>();
                 for (ClickType clickType : validClickTypes) {
-                    addAction(clickType, actionsSection.getConfigurationSection(clickTypeKey));
+                    ignoredActions = addAction(clickType, actionSection, ignoredActions);
                 }
 
             } else if (clickTypeKey.contains(";")) {
                 String[] clickTypes = clickTypeKey.split(";");
+                List<String> ignoredActions = new ArrayList<>();
                 for (String clickType : clickTypes) {
                     try {
-                        addAction(ClickType.valueOf(clickType), actionsSection.getConfigurationSection(clickTypeKey));
+                        ignoredActions = addAction(ClickType.valueOf(clickType), actionSection, ignoredActions);
                     } catch (IllegalArgumentException e) {
                         plugin.log(Level.WARNING, "Invalid click type found for display \"" + display.getName() + "\": " + clickType);
                     }
@@ -66,11 +68,9 @@ public class ActionsHandler {
 
             } else {
                 try {
-                    addAction(ClickType.valueOf(clickTypeKey), actionsSection.getConfigurationSection(clickTypeKey));
+                    addAction(ClickType.valueOf(clickTypeKey), actionSection, List.of());
                 } catch (IllegalArgumentException e) {
-                    if (!clickTypeKey.equals("conditions") && !clickTypeKey.equals("conditions-not-met")) {
-                        plugin.log(Level.WARNING, "Invalid click type found for display \"" + display.getName() + "\": " + clickTypeKey);
-                    }
+                    plugin.log(Level.WARNING, "Invalid click type found for display \"" + display.getName() + "\": " + clickTypeKey);
                 }
             }
         }
@@ -80,16 +80,30 @@ public class ActionsHandler {
      * Adds an action to the map.
      * @param clickType The click that should be used to execute the action.
      * @param actionsSection The section with the action data.
+     * @param ignoredActions The list of actions to ignore (they had errors so we don't want to try and register them again)
+     * @return The list of actions which had an error.
      */
-    private void addAction(ClickType clickType, ConfigurationSection actionsSection) {
-        if (actionsSection == null) return;
-
+    private List<String> addAction(ClickType clickType, ConfigurationSection actionsSection, List<String> ignoredActions) {
+        List<String> errorActions = new ArrayList<>(ignoredActions);
         for (Map.Entry<String, Object> actions : actionsSection.getValues(false).entrySet()) {
             ConfigurationSection actionSection = (ConfigurationSection) actions.getValue();
+            String actionName = actions.getKey();
+
+            if (errorActions.contains(actionName)) continue;
+
+            String typeName = actionSection.getString("type");
+
+            if (typeName == null) {
+                plugin.log(Level.WARNING, "Action \"" + actionName + "\" for display " + display.getName() + " does not have a type set!");
+                errorActions.add(actionName);
+                continue;
+            }
+
             ActionType actionType = ActionType.getFromConfigName(actionSection.getString("type"));
 
             if (actionType == null) {
-                plugin.log(Level.WARNING, "Invalid action type detected in \"" + actionSection.getName() + "\" for click type " + clickType.name() + actionSection.getString("type"));
+                plugin.log(Level.WARNING, "Action \"" + actionName + "\" for display " + display.getName() + " does not have a type set: " + actionName);
+                errorActions.add(actionName);
                 continue;
             }
 
@@ -104,19 +118,19 @@ public class ActionsHandler {
                 case TOAST -> new ToastAction(plugin, actionSection, display);
             };
 
-            List<String> missingFields = action.getMissingFields();
-            if (!missingFields.isEmpty()) {
-                String missing = String.join(", ", missingFields);
-                plugin.log(Level.WARNING, "Your action \"" + actionSection.getName() + "\" is missing necessary fields: " + missing);
-                continue;
+            if (action.hasErrors()) {
+                plugin.log(Level.WARNING, "=== Found errors for action \"" + actionName + "\" ===");
+                for (String error : action.getErrors()) {
+                    plugin.log(Level.WARNING, " - " + error);
+                }
+                errorActions.add(actionName);
+
+            } else {
+                actionsMap.computeIfAbsent(clickType, k -> new ArrayList<>());
+                actionsMap.get(clickType).add(action);
             }
-
-            // The reason why it isn't correct is handled by the action class.
-            if (!action.isCorrect()) continue;
-
-            actionsMap.computeIfAbsent(clickType, k -> new ArrayList<>());
-            actionsMap.get(clickType).add(action);
         }
+        return errorActions;
     }
 
     public void runActions(Player player, ClickType clickType, ADBaseEntity display) {
@@ -125,9 +139,9 @@ public class ActionsHandler {
             return;
         }
 
-        if (display.isApi() || conditionsHandler == null) return;
+        if (display.isApi()) return;
 
-        boolean meetsConditions = conditionsHandler.checkConditions(player);
+        boolean meetsConditions = conditionsHandler == null || conditionsHandler.checkConditions(player);
 
         if (!meetsConditions) {
             if (conditionsNotMetMessage != null && !conditionsNotMetMessage.isBlank()) {
@@ -140,12 +154,10 @@ public class ActionsHandler {
         if (actionsToRun == null) return;
 
         for (Action action : actionsToRun) {
-            if (action.isGlobal()) {
-                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    executeAction(action, player, onlinePlayer);
-                }
+            if (action.getDelay() > 0) {
+                plugin.getServer().getScheduler().runTaskLater(plugin, () -> executeAction(action, player), action.getDelay());
             } else {
-                executeAction(action, player, player);
+                executeAction(action, player);
             }
         }
     }
@@ -154,13 +166,14 @@ public class ActionsHandler {
      * Runs the action for a specific player.
      * @param action The action to run.
      * @param clickedPlayer The player who clicked the display.
-     * @param actionPlayer Who to run the action for.
      */
-    public void executeAction(Action action, Player clickedPlayer, Player actionPlayer) {
-        if (action.getDelay() > 0) {
-            Bukkit.getScheduler().runTaskLater(plugin, () -> action.runAction(clickedPlayer, actionPlayer), action.getDelay());
+    public void executeAction(Action action, Player clickedPlayer) {
+        if (action.isGlobal()) {
+            for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
+                action.runAction(clickedPlayer, onlinePlayer);
+            }
         } else {
-            action.runAction(clickedPlayer, actionPlayer);
+            action.runAction(clickedPlayer, clickedPlayer);
         }
     }
 

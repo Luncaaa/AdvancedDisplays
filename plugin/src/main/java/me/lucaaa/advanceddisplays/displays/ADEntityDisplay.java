@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -85,7 +86,10 @@ public class ADEntityDisplay extends ADBaseEntity implements EntityDisplay {
         // Set properties in the display file.
         // The "entity" section is retrieved and not created because it was already created in the parent method.
         entitySection = Objects.requireNonNull(config.getConfig().getConfigurationSection("entity"));
+
         entitySection.createSection("data");
+        // TODO
+        entitySection.setComments("data", List.of("PREVIEW FEATURE - Entity metadata is a WIP feature.", "Modifying this section will do nothing for now."));
 
         config.save();
         return config;

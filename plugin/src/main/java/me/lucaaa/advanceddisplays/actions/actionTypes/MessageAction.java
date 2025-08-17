@@ -12,7 +12,14 @@ public class MessageAction extends Action {
     private final List<String> messages;
 
     public MessageAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
-        super(plugin, List.of("message"), actionSection);
+        super(
+                plugin,
+                ActionType.MESSAGE,
+                actionSection,
+                List.of(
+                        new Field("message", String.class, List.class)
+                )
+        );
 
         if (actionSection.isList("message")) {
             this.messages = actionSection.getStringList("message");

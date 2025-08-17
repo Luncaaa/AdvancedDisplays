@@ -7,7 +7,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.util.List;
-import java.util.logging.Level;
 
 public class SoundAction extends Action {
     private final Sound sound;
@@ -15,13 +14,22 @@ public class SoundAction extends Action {
     private final float pitch;
 
     public SoundAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
-        super(plugin, List.of("sound", "volume", "pitch"), actionSection);
+        super(
+                plugin,
+                ActionType.PLAY_SOUND,
+                actionSection,
+                List.of(
+                        new Field("sound", String.class),
+                        new Field("volume", Double.class),
+                        new Field("pitch", Double.class)
+                )
+        );
+
         Sound sound = null;
         try {
             sound = Sound.valueOf(actionSection.getString("sound"));
         } catch (IllegalArgumentException exception) {
-            plugin.log(Level.WARNING, "Invalid sound found on action \"" + actionSection.getName() + "\": " + actionSection.getString("sound"));
-            this.isCorrect = false;
+            errors.add("Invalid sound: " + actionSection.getString("sound"));
         }
 
         this.sound = sound;

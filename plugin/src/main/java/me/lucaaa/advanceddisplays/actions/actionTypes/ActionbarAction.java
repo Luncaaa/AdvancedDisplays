@@ -12,7 +12,16 @@ public class ActionbarAction extends Action {
     private final ActionBarRunnable runnable;
 
     public ActionbarAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
-        super(plugin, List.of("message", "duration"), actionSection);
+        super(
+                plugin,
+                ActionType.ACTIONBAR,
+                actionSection,
+                List.of(
+                        new Field("message", String.class),
+                        new Field("duration", Integer.class)
+                )
+        );
+
         String message = actionSection.getString("message");
         int duration = actionSection.getInt("duration");
         this.runnable = new ActionBarRunnable(plugin, this, message, duration);

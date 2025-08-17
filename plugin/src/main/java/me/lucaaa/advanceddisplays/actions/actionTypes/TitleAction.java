@@ -15,7 +15,17 @@ public class TitleAction extends Action {
     private final int fadeOut;
 
     public TitleAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
-        super(plugin, List.of("title", "subtitle", "fadeIn", "stay", "fadeOut"), actionSection);
+        super(
+                plugin,
+                ActionType.TITLE,
+                actionSection,
+                List.of(
+                        new Field("title", String.class),
+                        new Field("subtitle", String.class),
+                        new Field("stay", Integer.class)
+                )
+        );
+
         this.title = actionSection.getString("title");
         this.subtitle = actionSection.getString("subtitle");
         this.fadeIn = actionSection.getInt("fadeIn", 20);

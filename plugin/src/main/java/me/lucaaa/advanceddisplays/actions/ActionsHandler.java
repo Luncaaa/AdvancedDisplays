@@ -116,6 +116,7 @@ public class ActionsHandler {
                 case PLAY_SOUND -> new SoundAction(plugin, actionSection);
                 case EFFECT -> new EffectAction(plugin, actionSection);
                 case TOAST -> new ToastAction(plugin, actionSection, display);
+                case PARTICLE -> new ParticleAction(plugin, actionSection);
             };
 
             if (action.hasErrors()) {
@@ -170,10 +171,10 @@ public class ActionsHandler {
     public void executeAction(Action action, Player clickedPlayer) {
         if (action.isGlobal()) {
             for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
-                action.run(clickedPlayer, onlinePlayer);
+                action.run(clickedPlayer, onlinePlayer, display);
             }
         } else {
-            action.run(clickedPlayer, clickedPlayer);
+            action.run(clickedPlayer, clickedPlayer, display);
         }
     }
 

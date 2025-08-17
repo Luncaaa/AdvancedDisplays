@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.actions.actionTypes;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.Action;
+import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -29,7 +30,7 @@ public class ConsoleCommandAction extends Action {
     }
 
     @Override
-    public void runAction(Player clickedPlayer, Player actionPlayer) {
+    public void runAction(Player clickedPlayer, Player actionPlayer, BaseEntity display) {
         for (String command : commands) {
             plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), getTextString(command, clickedPlayer, actionPlayer));
         }

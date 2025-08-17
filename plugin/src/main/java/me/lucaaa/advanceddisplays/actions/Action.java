@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.actions;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.ActionType;
+import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import me.lucaaa.advanceddisplays.data.Utils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.configuration.ConfigurationSection;
@@ -67,10 +68,12 @@ public abstract class Action {
 
     /**
      * Tries to run the action taking the cooldown into account.
+     *
      * @param clickedPlayer The player who clicked the display.
      * @param actionPlayer Who to run the action for.
+     * @param display The clicked display.
      */
-    public void run(Player clickedPlayer, Player actionPlayer) {
+    public void run(Player clickedPlayer, Player actionPlayer, BaseEntity display) {
         if (coolingDown.contains(clickedPlayer)) {
             if (cooldownMessage != null && !cooldownMessage.isBlank()) {
                 plugin.getAudience(clickedPlayer).sendMessage(Utils.getText(cooldownMessage, clickedPlayer, null, false));
@@ -78,7 +81,7 @@ public abstract class Action {
             return;
         }
 
-        runAction(clickedPlayer, actionPlayer);
+        runAction(clickedPlayer, actionPlayer, display);
 
         if (cooldown > 0) {
             coolingDown.add(clickedPlayer);
@@ -88,10 +91,12 @@ public abstract class Action {
 
     /**
      * Runs the action for a specific player.
+     *
      * @param clickedPlayer The player who clicked the display.
      * @param actionPlayer Who to run the action for.
+     * @param display The clicked display.
      */
-    public abstract void runAction(Player clickedPlayer, Player actionPlayer);
+    public abstract void runAction(Player clickedPlayer, Player actionPlayer, BaseEntity display);
 
     public int getDelay() {
         return delay;

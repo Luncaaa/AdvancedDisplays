@@ -3,7 +3,6 @@ package me.lucaaa.advanceddisplays.displays;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.data.DisplayHeadType;
-import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.data.HeadUtils;
 import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
@@ -27,28 +26,16 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     private boolean enchanted;
     private ItemDisplay.ItemDisplayTransform itemTransformation;
 
-    // Compatibility
-    private String oraxenId;
-    private String itemsAdderId;
-
     public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name) {
         super(plugin, displaysManager, configManager, name, DisplayType.ITEM, EntityType.ITEM_DISPLAY);
 
         if (settings != null) {
-            if (settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
-                this.oraxenId = settings.getString("oraxen");
-                this.item = plugin.getIntegration(Compatibility.ORAXEN).getItemStack(oraxenId);
-            } else if (settings.isString("itemsAdder") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
-                this.itemsAdderId = settings.getString("itemsAdder");
-                this.item = plugin.getIntegration(Compatibility.ITEMS_ADDER).getItemStack(itemsAdderId);
-            } else {
-                String material = config.getOrDefault("item", Material.BARRIER.name(), settings);
-                try {
-                    this.item = new ItemStack(Material.valueOf(material));
-                    Utils.loadItemData(item, settings, getLocation().getWorld(), plugin);
-                } catch (IllegalArgumentException e) {
-                    errors.add("Invalid material set: " + material);
-                }
+            String material = config.getOrDefault("item", Material.BARRIER.name(), settings);
+            try {
+                this.item = new ItemStack(Material.valueOf(material));
+                Utils.loadItemData(item, settings, getLocation().getWorld(), plugin);
+            } catch (IllegalArgumentException e) {
+                errors.add("Invalid material set: " + material);
             }
 
             // The Utils.loadItemData method already set the enchantments
@@ -101,8 +88,6 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     public void setItem(ItemStack item) {
         this.item = item;
         if (config != null) {
-            if (oraxenId != null) settings.set("oraxen", oraxenId);
-            if (itemsAdderId != null) settings.set("itemsAdder", itemsAdderId);
             settings.set("item", item.getType().name());
             // The "enchanted" setting is set in the Utils#saveItemData method.
 

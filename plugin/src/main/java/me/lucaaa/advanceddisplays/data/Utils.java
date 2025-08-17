@@ -3,12 +3,14 @@ package me.lucaaa.advanceddisplays.data;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
+import me.lucaaa.advanceddisplays.inventory.inventories.DisplayEditorGUI;
 import me.lucaaa.advanceddisplays.nms_common.Version;
 import me.lucaaa.advanceddisplays.v1_21_R5.VersionUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Axolotl;
@@ -123,10 +125,12 @@ public class Utils {
             if (!chargedProjectiles.isEmpty()) {
                 ItemStack firstProjectile = chargedProjectiles.get(0);
                 if (firstProjectile.getType() == Material.FIREWORK_ROCKET) {
-                    settings.set("loaded-rocket", true);
+                    settings.set("crossbow-ammo", DisplayEditorGUI.CrossbowAmmo.ROCKET.name());
                 } else {
-                    settings.set("loaded-arrow", true);
+                    settings.set("crossbow-ammo", DisplayEditorGUI.CrossbowAmmo.ARROW.name());
                 }
+            } else {
+                settings.set("crossbow-ammo", DisplayEditorGUI.CrossbowAmmo.NONE.name());
             }
         }
 
@@ -139,6 +143,12 @@ public class Utils {
     public static ItemStack loadItemData(ItemStack item, ConfigurationSection settings, World compassWorld, AdvancedDisplays plugin) {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return item;
+
+        if (settings.isString("oraxen") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
+            return plugin.getIntegration(Compatibility.ORAXEN).getItemStack(settings.getString("oraxen"));
+        } else if (settings.isString("itemsAdder") && plugin.isIntegrationLoaded(Compatibility.ORAXEN)) {
+            return plugin.getIntegration(Compatibility.ITEMS_ADDER).getItemStack(settings.getString("itemsAdder"));
+        }
 
         if (plugin.getNmsVersion().isEqualOrNewerThan(Version.v1_21_R3)) {
             VersionUtils.loadMetaCustomModelData(meta, settings);
@@ -214,10 +224,14 @@ public class Utils {
             }
 
         } else if (meta instanceof CrossbowMeta crossbowMeta) {
-            if (settings.isString("loaded-arrow")) {
-                crossbowMeta.addChargedProjectile(new ItemStack(Material.ARROW));
-            } else if (settings.isString("loaded-rocket")) {
-                crossbowMeta.addChargedProjectile(new ItemStack(Material.FIREWORK_ROCKET));
+            if (settings.isString("crossbow-ammo")) {
+                String ammo = settings.getString("crossbow-ammo");
+                try {
+                    DisplayEditorGUI.CrossbowAmmo crossbowAmmo = DisplayEditorGUI.CrossbowAmmo.valueOf(ammo);
+                    crossbowMeta.setChargedProjectiles(crossbowAmmo.getItems());
+                } catch (IllegalArgumentException e) {
+                    plugin.log(Level.WARNING, "Invalid crossbow ammo: " + ammo);
+                }
             }
         }
 
@@ -243,5 +257,46 @@ public class Utils {
 
     public static double round(double toRound) {
         return BigDecimal.valueOf(toRound).setScale(2, RoundingMode.HALF_UP).doubleValue();
+    }
+
+    public static List<String> isStringValidLoc(String loc) {
+        List<String> errors = new ArrayList<>();
+        if (!loc.matches("^[0-9~*;]+$")) {
+            errors.add("The location can only have numbers, \";\", \"~\" or \"*\"! For decimals use dots (\".\"), NOT commas (\",\").");
+
+        } else if (loc.split(";").length != 3) {
+            errors.add("The location has an invalid format! It must be x;y;z");
+        }
+        return errors;
+    }
+
+    public static Double parsePosition(String toParse, CoordComponent component, Location relative, CommandSender sender) throws NumberFormatException {
+        double parsedArg = 0;
+
+        if (toParse.contains("~") && sender instanceof Player player) {
+            toParse = toParse.replace("~", "");
+            parsedArg = switch (component) {
+                case X -> player.getLocation().getX();
+                case Y -> player.getLocation().getY() ;
+                case Z -> player.getLocation().getZ();
+            };
+
+        } else if (toParse.contains("*")) {
+            toParse = toParse.replace("*", "");
+            parsedArg = switch (component) {
+                case X -> relative.getX();
+                case Y -> relative.getY();
+                case Z -> relative.getZ();
+            };
+        }
+
+        double parsed = toParse.isBlank() ? 0 : Double.parseDouble(toParse);
+        return Utils.round(parsedArg + parsed);
+    }
+
+    public enum CoordComponent {
+        X,
+        Y,
+        Z
     }
 }

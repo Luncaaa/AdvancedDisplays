@@ -74,7 +74,7 @@ public class ToastAction extends Action {
     }
 
     @Override
-    public void runAction(Player clickedPlayer, Player actionPlayer) {
+    public void runAction(Player clickedPlayer, Player actionPlayer, BaseEntity display) {
         Component title = getText(this.title, clickedPlayer, actionPlayer);
         Component description = getText(this.description, clickedPlayer, actionPlayer);
 

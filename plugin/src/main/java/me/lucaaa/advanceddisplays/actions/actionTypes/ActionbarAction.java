@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.actions.actionTypes;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.Action;
 import me.lucaaa.advanceddisplays.actions.util.ActionBarRunnable;
+import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -28,7 +29,7 @@ public class ActionbarAction extends Action {
     }
 
     @Override
-    public void runAction(Player clickedPlayer, Player actionPlayer) {
+    public void runAction(Player clickedPlayer, Player actionPlayer, BaseEntity display) {
         runnable.sendToPlayer(clickedPlayer, actionPlayer);
     }
 }

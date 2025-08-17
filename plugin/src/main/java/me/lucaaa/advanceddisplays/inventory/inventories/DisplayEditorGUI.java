@@ -767,7 +767,7 @@ public class DisplayEditorGUI extends ADInventory {
         };
     }
 
-    private enum CrossbowAmmo {
+    public enum CrossbowAmmo {
         NONE(null),
         ARROW(new ItemStack(Material.ARROW)),
         ROCKET(new ItemStack(Material.FIREWORK_ROCKET));

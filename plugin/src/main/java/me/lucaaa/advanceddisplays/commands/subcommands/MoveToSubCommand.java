@@ -61,9 +61,9 @@ public class MoveToSubCommand extends SubCommandsFormat {
         }
 
         try {
-            double x = getNewPosition(args[2], CoordComponent.X, display, sender);
-            double y = getNewPosition(args[3], CoordComponent.Y, display, sender);
-            double z = getNewPosition(args[4], CoordComponent.Z, display, sender);
+            double x = Utils.parsePosition(args[2], Utils.CoordComponent.X, display.getLocation(), sender);
+            double y = Utils.parsePosition(args[3], Utils.CoordComponent.Y, display.getLocation(), sender);
+            double z = Utils.parsePosition(args[4], Utils.CoordComponent.Z, display.getLocation(), sender);
 
             display.setLocation(new Location(world, x, y, z));
             sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe display has been successfully moved to &e" + x + " " + y + " " + z + " &ain world &e" + Objects.requireNonNull(world).getName()));
@@ -71,36 +71,5 @@ public class MoveToSubCommand extends SubCommandsFormat {
             sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cOne of the coordinates is not a valid number or relative position! For decimals use dots (\".\"), NOT commas (\",\")."));
         }
 
-    }
-
-    private Double getNewPosition(String toParse, CoordComponent component, BaseEntity display, CommandSender sender) throws NumberFormatException {
-        double parsedArg = 0;
-
-        if (toParse.contains("~")) {
-            Player player = (Player) sender;
-            toParse = toParse.replace("~", "");
-            parsedArg = switch (component) {
-                case X -> player.getLocation().getX();
-                case Y -> player.getLocation().getY() ;
-                case Z -> player.getLocation().getZ();
-            };
-
-        } else if (toParse.contains("*")) {
-            toParse = toParse.replace("*", "");
-            parsedArg = switch (component) {
-                case X -> display.getLocation().getX();
-                case Y -> display.getLocation().getY();
-                case Z -> display.getLocation().getZ();
-            };
-        }
-
-        double parsed = toParse.isBlank() ? 0 : Double.parseDouble(toParse);
-        return Utils.round(parsedArg + parsed);
-    }
-
-    private enum CoordComponent {
-        X,
-        Y,
-        Z
     }
 }

@@ -2,6 +2,7 @@ package me.lucaaa.advanceddisplays.actions.actionTypes;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.Action;
+import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -34,7 +35,7 @@ public class TitleAction extends Action {
     }
 
     @Override
-    public void runAction(Player clickedPlayer, Player actionPlayer) {
+    public void runAction(Player clickedPlayer, Player actionPlayer, BaseEntity display) {
         String top = getTextString(title, clickedPlayer, actionPlayer);
         String bottom = getTextString(subtitle, clickedPlayer, actionPlayer);
         actionPlayer.sendTitle(top, bottom, fadeIn, stay, fadeOut);

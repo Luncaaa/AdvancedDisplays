@@ -12,19 +12,24 @@ import java.util.*;
 public abstract class Action {
     protected final AdvancedDisplays plugin;
     protected final List<String> errors = new ArrayList<>();
+    private final List<Player> coolingDown = new ArrayList<>();
 
     private final ActionType type;
     private final boolean isGlobal;
-    private final int delay;
     private final boolean globalPlaceholders;
+    private final int delay;
+    private final int cooldown;
+    private final String cooldownMessage;
 
     public Action(AdvancedDisplays plugin, ActionType type, ConfigurationSection section, List<Field> requiredFields) {
         this.plugin = plugin;
         this.type = type;
 
-        this.delay = section.getInt("delay", 0);
         this.isGlobal = section.getBoolean("global", false);
         this.globalPlaceholders = section.getBoolean("global-placeholders", true);
+        this.delay = section.getInt("delay", 0);
+        this.cooldown = section.getInt("cooldown", 0);
+        this.cooldownMessage = section.getString("cooldown-message", null);
 
         for (Field field : requiredFields) {
             if (!section.contains(field.name)) {
@@ -58,6 +63,27 @@ public abstract class Action {
 
     public List<String> getErrors() {
         return Collections.unmodifiableList(errors);
+    }
+
+    /**
+     * Tries to run the action taking the cooldown into account.
+     * @param clickedPlayer The player who clicked the display.
+     * @param actionPlayer Who to run the action for.
+     */
+    public void run(Player clickedPlayer, Player actionPlayer) {
+        if (coolingDown.contains(clickedPlayer)) {
+            if (cooldownMessage != null && !cooldownMessage.isBlank()) {
+                plugin.getAudience(clickedPlayer).sendMessage(Utils.getText(cooldownMessage, clickedPlayer, null, false));
+            }
+            return;
+        }
+
+        runAction(clickedPlayer, actionPlayer);
+
+        if (cooldown > 0) {
+            coolingDown.add(clickedPlayer);
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> coolingDown.remove(clickedPlayer), cooldown);
+        }
     }
 
     /**

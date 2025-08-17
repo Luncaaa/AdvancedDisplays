@@ -170,10 +170,10 @@ public class ActionsHandler {
     public void executeAction(Action action, Player clickedPlayer) {
         if (action.isGlobal()) {
             for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
-                action.runAction(clickedPlayer, onlinePlayer);
+                action.run(clickedPlayer, onlinePlayer);
             }
         } else {
-            action.runAction(clickedPlayer, clickedPlayer);
+            action.run(clickedPlayer, clickedPlayer);
         }
     }
 

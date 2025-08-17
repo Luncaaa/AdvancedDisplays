@@ -191,10 +191,13 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         ConfigurationSection actionSetting = anySection.createSection("messagePlayer");
         actionSetting.set("type", ActionType.MESSAGE.getConfigName());
         actionSetting.set("message", "You clicked me, %player_name%!");
-        actionSetting.set("delay", 0);
         actionSetting.set("global", false);
         actionSetting.set("global-placeholders", true);
+        actionSetting.set("delay", 0);
+        actionSetting.set("cooldown", 0);
+        actionSetting.set("cooldown-message", "&cAction cooling down!");
         actionSetting.setInlineComments("delay", List.of("In ticks"));
+        actionSetting.setInlineComments("cooldown", List.of("In ticks"));
         displayConfigManager.save();
 
         return displayConfigManager;

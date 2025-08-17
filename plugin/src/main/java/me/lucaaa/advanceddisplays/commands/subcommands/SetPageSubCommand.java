@@ -14,7 +14,7 @@ public class SetPageSubCommand extends SubCommandsFormat {
         super(plugin);
         this.name = "setPage";
         this.description = "Switches to the given page of a text display.";
-        this.usage = "/ad nextPage [name] [page] <player> <silent>";
+        this.usage = "/ad setPage [name] [page] <player> <silent>";
         this.minArguments = 2;
         this.executableByConsole = true;
         this.neededPermission = "ad.page";

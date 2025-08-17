@@ -112,7 +112,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
 
         this.enchanted = !item.getEnchantments().isEmpty();
 
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setItem(item, onlinePlayer);
         }
     }
@@ -133,7 +133,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             save();
         }
 
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setBase64Head(base64, onlinePlayer);
         }
     }
@@ -155,7 +155,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             save();
         }
 
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setPlayerHead(playerName, onlinePlayer);
         }
     }
@@ -192,7 +192,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             settings.set("enchanted", enchanted);
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             // Calling setEnchanted(boolean, Player) would create a clone for every player which would actually
             // be the same since the item will be enchanted for everyone. Because of that, it'll be more efficient
             // to send the already-enchanted item to every online player.
@@ -222,7 +222,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             settings.set("itemTransformation", transformation.name());
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setItemTransformation(transformation, onlinePlayer);
         }
     }

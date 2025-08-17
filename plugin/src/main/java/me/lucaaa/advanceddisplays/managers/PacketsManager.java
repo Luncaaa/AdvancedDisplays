@@ -6,7 +6,6 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.nms_common.Logger;
 import me.lucaaa.advanceddisplays.nms_common.PacketException;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.NoSuchElementException;
@@ -58,7 +57,7 @@ public class PacketsManager {
     }
 
     public void addAll() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
             add(player);
         }
     }
@@ -72,7 +71,7 @@ public class PacketsManager {
     }
 
     public void removeAll() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
             remove(player);
         }
     }

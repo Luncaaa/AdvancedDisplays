@@ -6,7 +6,6 @@ import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.data.Compatibility;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
@@ -48,7 +47,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements BlockDisplay {
             }
             blockData = blockData.concat(String.join(",", dataParts));
             try {
-                block = Bukkit.getServer().createBlockData(blockData + "]");
+                block = plugin.getServer().createBlockData(blockData + "]");
             } catch (IllegalArgumentException e) {
                 errors.add("Invalid block data set! Make sure the block exists and that all of its properties are valid.");
             }
@@ -95,7 +94,7 @@ public class ADBlockDisplay extends ADBaseDisplay implements BlockDisplay {
             settings.setComments("blockData", List.of("For more information about what these values are, visit https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/data/BlockData.html"));
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setBlock(block, onlinePlayer);
         }
     }

@@ -19,7 +19,6 @@ import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import me.lucaaa.advanceddisplays.nms_common.Metadata;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -84,11 +83,11 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
 
         // Location is already validated.
         ConfigurationSection locationSection = config.getSection("location");
-        String world = locationSection.getString("world", Bukkit.getWorlds().get(0).getName());
+        String world = locationSection.getString("world", plugin.getServer().getWorlds().get(0).getName());
         double x = locationSection.getDouble("x");
         double y = locationSection.getDouble("y");
         double z = locationSection.getDouble("z");
-        this.location = new Location(Bukkit.getWorld(world), x, y, z, yaw, pitch);
+        this.location = new Location(plugin.getServer().getWorld(world), x, y, z, yaw, pitch);
 
         this.actionsHandler = new ActionsHandler(plugin, this, config);
         this.visibilityManager = new ADVisibilityManager(plugin, this);
@@ -341,7 +340,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
 
         if (this.location.getWorld() == location.getWorld()) {
             entity.teleport(location);
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
                 packets.setLocation(entity, location, onlinePlayer);
             }
         } else {
@@ -353,7 +352,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
             entity = packets.createEntity(entityType, location);
             entityId = entity.getEntityId();
 
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
                 sendMetadataPackets(onlinePlayer);
             }
 
@@ -400,7 +399,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         }
         entity.teleport(location);
         entity.setRotation(yaw, pitch);
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             packets.setLocation(entity, location, onlinePlayer);
         }
     }
@@ -417,7 +416,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
             entitySection.set("onFire", onFire);
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setOnFire(onFire, onlinePlayer);
         }
     }
@@ -439,7 +438,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
             entitySection.set("sprinting", sprinting);
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setSprinting(sprinting, onlinePlayer);
         }
     }
@@ -462,7 +461,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
             glowSection.set("glowing", isGlowing);
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setGlowing(isGlowing, onlinePlayer);
         }
     }
@@ -487,7 +486,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
             save();
         }
 
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setGlowColor(glowColor, onlinePlayer);
         }
     }
@@ -512,7 +511,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
             entitySection.set("name-visibility", visibility.name());
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setCustomName(customName, visibility, onlinePlayer);
         }
     }

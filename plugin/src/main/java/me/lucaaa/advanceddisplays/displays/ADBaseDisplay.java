@@ -8,7 +8,6 @@ import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.data.ConfigAxisAngle4f;
 import me.lucaaa.advanceddisplays.data.ConfigVector3f;
 import me.lucaaa.advanceddisplays.nms_common.Metadata;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -201,7 +200,7 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
                 location1.add(x1, 0.0, z1);
             }
 
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
                 packets.setLocation(entity, location, onlinePlayer);
                 packets.setLocation(hitbox, location1, onlinePlayer);
             }
@@ -222,7 +221,7 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
             }
             hitbox = (Interaction) packets.createEntity(EntityType.INTERACTION, location1);
 
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
                 sendMetadataPackets(onlinePlayer);
             }
 
@@ -242,7 +241,7 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
             displaySection.set("billboard", billboard.name());
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setBillboard(billboard, onlinePlayer);
         }
     }
@@ -264,7 +263,7 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
             brightnessSection.set("sky", brightness.getSkyLight());
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setBrightness(brightness, onlinePlayer);
         }
     }
@@ -291,7 +290,7 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
             shadowSection.set("strength", shadowStrength);
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setShadow(shadowRadius, shadowStrength, onlinePlayer);
         }
     }
@@ -333,7 +332,7 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
         }
         hitbox.teleport(location1);
 
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setTransformation(transformation, onlinePlayer);
             packets.setLocation(hitbox, location, onlinePlayer);
         }
@@ -372,7 +371,7 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
 
         hitbox.setInteractionWidth(hitboxWidth);
         hitbox.setInteractionHeight(hitboxHeight);
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             packets.setMetadata(hitbox.getEntityId(), onlinePlayer,
                     new Metadata.DataPair<>(metadata.HITBOX_WIDTH, hitboxWidth),
                     new Metadata.DataPair<>(metadata.HITBOX_HEIGHT, hitboxHeight)
@@ -392,7 +391,7 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
             displaySection.set("glow-color-override", color.getRed() + ";" + color.getGreen() + ";" + color.getBlue());
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setGlowColorOverride(color, onlinePlayer);
         }
     }

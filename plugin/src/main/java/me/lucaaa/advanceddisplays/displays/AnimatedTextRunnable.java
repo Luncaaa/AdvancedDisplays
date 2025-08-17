@@ -4,7 +4,6 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -35,7 +34,7 @@ public class AnimatedTextRunnable {
         this.packets = plugin.getPacketsManager().getPackets();
         this.display = display;
         this.updateDisplay = (text) -> {
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
                 if (excludedPlayers.contains(onlinePlayer)) continue;
 
                 packets.setMetadata(display.getEntityId(), onlinePlayer, plugin.metadata.TEXT,

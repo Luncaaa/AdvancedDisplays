@@ -4,7 +4,6 @@ import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.NameVisibility;
 import me.lucaaa.advanceddisplays.nms_common.Version;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
@@ -226,7 +225,7 @@ public class ConversionManager {
         config.set("view-distance", null);
 
         if (config.contains("id")) {
-            Display display = (Display) Bukkit.getEntity(UUID.fromString(Objects.requireNonNull(config.getString("id"))));
+            Display display = (Display) plugin.getServer().getEntity(UUID.fromString(Objects.requireNonNull(config.getString("id"))));
             Objects.requireNonNull(display).remove();
             config.set("id", null);
         }

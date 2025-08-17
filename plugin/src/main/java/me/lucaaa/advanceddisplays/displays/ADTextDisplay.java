@@ -8,7 +8,6 @@ import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import me.lucaaa.advanceddisplays.nms_common.Metadata;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -134,7 +133,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             settings.set("alignment", alignment.name());
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setAlignment(alignment, onlinePlayer);
         }
     }
@@ -154,7 +153,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             settings.set("backgroundColor", color.getRed() + ";" + color.getGreen() + ";" + color.getBlue() + ";" + color.getAlpha());
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setBackgroundColor(color, onlinePlayer);
         }
     }
@@ -174,7 +173,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             settings.set("lineWidth", width);
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setLineWidth(width, onlinePlayer);
         }
     }
@@ -333,7 +332,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             settings.set("textOpacity", opacity);
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setTextOpacity(opacity, onlinePlayer);
         }
     }
@@ -353,7 +352,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             settings.set("defaultBackground", defaultBackground);
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setUseDefaultBackground(defaultBackground, onlinePlayer);
         }
     }
@@ -373,7 +372,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             settings.set("seeThrough", seeThrough);
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setSeeThrough(seeThrough, onlinePlayer);
         }
     }
@@ -393,7 +392,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             settings.set("shadowed", shadowed);
             save();
         }
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setShadowed(shadowed, onlinePlayer);
         }
     }

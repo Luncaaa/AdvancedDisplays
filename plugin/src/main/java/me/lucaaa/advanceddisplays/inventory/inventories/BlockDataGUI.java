@@ -69,7 +69,7 @@ public class BlockDataGUI extends ADInventory {
                     dataParts.add(entry.getKey() + "=" + entry.getValue());
                 }
                 blockData = blockData.concat(String.join(",", dataParts));
-                onDone.accept(Bukkit.createBlockData(blockData + "]"));
+                onDone.accept(plugin.getServer().createBlockData(blockData + "]"));
                 event.getWhoClicked().closeInventory();
             }
         });

@@ -1,7 +1,6 @@
 package me.lucaaa.advanceddisplays.managers;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import org.bukkit.Bukkit;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +17,7 @@ public class UpdateManager {
     }
 
     public void getVersion(final Consumer<String> consumer) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 InputStream resourcePage = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + RESOURCE_ID + "/~").openStream();
                 Scanner scanner = new Scanner(resourcePage);
@@ -41,15 +40,15 @@ public class UpdateManager {
         double pluginVerMinor = (pluginVerDivided.length > 2) ? Integer.parseInt(pluginVerDivided[2]) : 0;
 
         if (spigotVerMajor == pluginVerMajor && spigotVerMinor == pluginVerMinor) {
-            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe plugin is up to date! &7(v" + pluginVersion + ")"));
+            plugin.getServer().getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe plugin is up to date! &7(v" + pluginVersion + ")"));
 
         } else if (spigotVerMajor > pluginVerMajor || (spigotVerMajor == pluginVerMajor && spigotVerMinor > pluginVerMinor)) {
-            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6There's a new update available on Spigot! &c" + pluginVersion + " &7-> &a" + spigotVersion));
-            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Download it at &7https://www.spigotmc.org/resources/advanceddisplays.110865/"));
+            plugin.getServer().getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6There's a new update available on Spigot! &c" + pluginVersion + " &7-> &a" + spigotVersion));
+            plugin.getServer().getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Download it at &7https://www.spigotmc.org/resources/advanceddisplays.110865/"));
 
         } else {
-            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Your plugin version is newer than the Spigot version! &a" + pluginVersion + " &7-> &c" + spigotVersion));
-            Bukkit.getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6There may be bugs and/or untested features!"));
+            plugin.getServer().getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Your plugin version is newer than the Spigot version! &a" + pluginVersion + " &7-> &c" + spigotVersion));
+            plugin.getServer().getConsoleSender().sendMessage(plugin.getMessagesManager().getColoredMessage("&6There may be bugs and/or untested features!"));
         }
     }
 }

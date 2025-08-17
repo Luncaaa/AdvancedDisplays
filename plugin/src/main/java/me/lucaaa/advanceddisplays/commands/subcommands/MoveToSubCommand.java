@@ -3,7 +3,6 @@ package me.lucaaa.advanceddisplays.commands.subcommands;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import me.lucaaa.advanceddisplays.data.Utils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -51,7 +50,7 @@ public class MoveToSubCommand extends SubCommandsFormat {
         World world;
         if (args.length >= 6) {
             String worldName = String.join(" ", Arrays.copyOfRange(args, 5, args.length));
-            world = Bukkit.getWorld(worldName);
+            world = plugin.getServer().getWorld(worldName);
 
             if (world == null) {
                 sender.sendMessage(plugin.getMessagesManager().getColoredMessage("&cThe world &b" + worldName + " &cdoes not exist!"));

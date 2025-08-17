@@ -7,7 +7,6 @@ import me.lucaaa.advanceddisplays.data.AttachedDisplay;
 import me.lucaaa.advanceddisplays.displays.*;
 import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -146,7 +145,7 @@ public class DisplaysManager {
             }
         };
 
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             display.sendMetadataPackets(onlinePlayer);
         }
 
@@ -260,7 +259,7 @@ public class DisplaysManager {
         }
 
         displays.put(configManager.getFile().getName().replace(".yml", ""), newDisplay);
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             newDisplay.sendMetadataPackets(onlinePlayer);
         }
         plugin.getInteractionsManager().addInteraction(newDisplay.getInteractionId(), newDisplay);

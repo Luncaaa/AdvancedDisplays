@@ -15,7 +15,6 @@ import me.lucaaa.advanceddisplays.nms_common.Metadata;
 import me.lucaaa.advanceddisplays.nms_common.Version;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -101,11 +100,11 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         ADAPIProvider.setImplementation(apiDisplays);
 
         // Set up integrations.
-        if (Bukkit.getPluginManager().isPluginEnabled("Oraxen")) {
+        if (getServer().getPluginManager().isPluginEnabled("Oraxen")) {
             integrations.put(Compatibility.ORAXEN, new OraxenCompat(this));
         }
 
-        if (Bukkit.getPluginManager().isPluginEnabled("ItemsAdder")) {
+        if (getServer().getPluginManager().isPluginEnabled("ItemsAdder")) {
             integrations.put(Compatibility.ITEMS_ADDER, new ItemsAdderCompat(this));
         }
 
@@ -125,7 +124,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         Objects.requireNonNull(getCommand("ad")).setExecutor(new MainCommand(this));
 
         isRunning = true;
-        Bukkit.getConsoleSender().sendMessage(messagesManager.getColoredMessage("&aThe plugin has been successfully enabled! &7Version: " + getDescription().getVersion()));
+        getServer().getConsoleSender().sendMessage(messagesManager.getColoredMessage("&aThe plugin has been successfully enabled! &7Version: " + getDescription().getVersion()));
     }
 
     @Override

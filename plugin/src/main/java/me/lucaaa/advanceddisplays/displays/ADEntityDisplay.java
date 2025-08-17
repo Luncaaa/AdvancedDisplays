@@ -53,7 +53,7 @@ public class ADEntityDisplay extends ADBaseEntity implements EntityDisplay {
 
                 NamespacedKey key = NamespacedKey.minecraft(data.toString().toLowerCase());
                 // data = property.registry().get(key);
-                data = Objects.requireNonNull(Bukkit.getRegistry(clazz)).get(key);
+                data = Objects.requireNonNull(plugin.getServer().getRegistry(clazz)).get(key);
 
             } else if (ItemStack.class.isAssignableFrom(property.type())) {
                 try {
@@ -136,7 +136,7 @@ public class ADEntityDisplay extends ADBaseEntity implements EntityDisplay {
         entity = packets.createEntity(type, location);
         entityId = entity.getEntityId();
 
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             sendMetadataPackets(onlinePlayer);
         }
 
@@ -169,7 +169,7 @@ public class ADEntityDisplay extends ADBaseEntity implements EntityDisplay {
 
         save();
 
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             setProperty(property, value, onlinePlayer);
         }
     }

@@ -280,7 +280,11 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     public void nextPage(Player player) {
         textRunnable.excludePlayer(player);
         PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
-        playerData.getRunnable(plugin, this).nextPage();
+        int newIndex = playerData.getRunnable(plugin, this).nextPage();
+
+        if (newIndex == textRunnable.getCurrentIndex()) {
+            resetPlayer(player);
+        }
     }
 
     @Override
@@ -292,7 +296,11 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     public void previousPage(Player player) {
         textRunnable.excludePlayer(player);
         PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
-        playerData.getRunnable(plugin, this).previousPage();
+        int newIndex = playerData.getRunnable(plugin, this).previousPage();
+
+        if (newIndex == textRunnable.getCurrentIndex()) {
+            resetPlayer(player);
+        }
     }
 
     @Override
@@ -312,7 +320,13 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
 
         textRunnable.excludePlayer(player);
         PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
-        playerData.getRunnable(plugin, this).setPage(texts.keySet().stream().toList().indexOf(page));
+        int newIndex = texts.keySet().stream().toList().indexOf(page);
+
+        if (newIndex == textRunnable.getCurrentIndex()) {
+            resetPlayer(player);
+        } else {
+            playerData.getRunnable(plugin, this).setPage(newIndex);
+        }
     }
 
     @Override

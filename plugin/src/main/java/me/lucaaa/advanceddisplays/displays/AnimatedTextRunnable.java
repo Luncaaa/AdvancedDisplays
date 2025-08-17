@@ -127,12 +127,16 @@ public class AnimatedTextRunnable {
         textsList = null;
     }
 
-    public void nextPage() {
-        start(getNextIndex());
+    public int nextPage() {
+        int nextIndex = getNextIndex();
+        start(nextIndex);
+        return nextIndex;
     }
 
-    public void previousPage() {
-        start(getPreviousIndex());
+    public int previousPage() {
+        int previousIndex = getPreviousIndex();
+        start(previousIndex);
+        return previousIndex;
     }
 
     public void setPage(int index) {

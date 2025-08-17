@@ -200,6 +200,8 @@ public class ADBaseDisplay extends ADBaseEntity implements BaseDisplay {
                 location1.add(x1, 0.0, z1);
             }
 
+            entity.teleport(location);
+            hitbox.teleport(location1);
             for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
                 packets.setLocation(entity, location, onlinePlayer);
                 packets.setLocation(hitbox, location1, onlinePlayer);

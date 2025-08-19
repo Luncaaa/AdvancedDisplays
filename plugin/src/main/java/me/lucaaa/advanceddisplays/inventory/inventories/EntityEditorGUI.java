@@ -133,6 +133,7 @@ public class EntityEditorGUI extends ADInventory {
         addIfAllowed(EditorItem.REMOVE, 13, new Button.InventoryButton<>(items.REMOVE) {
             @Override
             public void onClick(InventoryClickEvent event) {
+                shouldOpenPrevious = false; // Prevent Display Editor GUI from opening if the entity was a display.
                 plugin.getDisplaysManager().removeDisplay((ADBaseEntity) display, true, true);
                 event.getWhoClicked().closeInventory();
             }

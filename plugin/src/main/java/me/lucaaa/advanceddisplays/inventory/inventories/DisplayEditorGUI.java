@@ -143,8 +143,8 @@ public class DisplayEditorGUI extends ADInventory {
         addIfAllowed(EditorItem.CURRENT_VALUE, 13, new Button.InventoryButton<>(items.CURRENT_VALUE) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                event.getWhoClicked().closeInventory();
                 plugin.getPlayersManager().getPlayerData((Player) event.getWhoClicked()).setChatEditing(true);
+                event.getWhoClicked().closeInventory();
 
                 if (display.getType() != DisplayType.TEXT) {
                     editMap.put((Player) event.getWhoClicked(), EditAction.CHANGE_MATERIAL);
@@ -387,7 +387,7 @@ public class DisplayEditorGUI extends ADInventory {
                     String identifier = input.substring(0, firstSpace);
                     String joined = input.substring(firstSpace + 1).replace("\\n", "\n");
                     if (textDisplay.addText(identifier, joined)) {
-                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + identifier + " &a has been created and added after the last animation."));
+                        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aThe animation &e" + identifier + " &ahas been created and added after the last animation."));
                     } else {
                         player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cAn animation with the name &b" + identifier + " &calready exists!"));
                         return false;

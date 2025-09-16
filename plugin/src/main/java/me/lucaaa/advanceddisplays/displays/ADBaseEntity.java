@@ -10,10 +10,8 @@ import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.api.displays.enums.NameVisibility;
 import me.lucaaa.advanceddisplays.api.displays.visibility.VisibilityManager;
-import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
 import me.lucaaa.advanceddisplays.data.PlayerData;
 import me.lucaaa.advanceddisplays.data.Ticking;
-import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
 import me.lucaaa.advanceddisplays.nms_common.Metadata;
@@ -210,7 +208,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         if (this.customName == null || customNameVisibility == NameVisibility.HIDDEN) {
             customNamePair = new Metadata.DataPair<>(metadata.CUSTOM_NAME, Optional.empty());
         } else {
-            customNamePair = new Metadata.DataPair<>(metadata.CUSTOM_NAME, Optional.of(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, this.customName))));
+            customNamePair = new Metadata.DataPair<>(metadata.CUSTOM_NAME, Optional.of(plugin.getMessagesManager().parseColorsAndPlaceholders(player, this.customName)));
         }
 
         packets.setMetadata(entityId, player,
@@ -525,7 +523,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         if (customName == null || visibility == NameVisibility.HIDDEN) {
             customNamePair = new Metadata.DataPair<>(metadata.CUSTOM_NAME, Optional.empty());
         } else {
-            customNamePair = new Metadata.DataPair<>(metadata.CUSTOM_NAME, Optional.of(ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, customName))));
+            customNamePair = new Metadata.DataPair<>(metadata.CUSTOM_NAME, Optional.of(plugin.getMessagesManager().parseColorsAndPlaceholders(player, customName)));
         }
         packets.setMetadata(entityId, player, customNamePair, new Metadata.DataPair<>(metadata.CUSTOM_NAME_VISIBLE, visibility == NameVisibility.SHOWN));
     }

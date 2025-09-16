@@ -76,7 +76,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         packetsManager = new PacketsManager(this);
         interactionsManager = new InteractionsManager(savedApiDisplays);
         displaysManager = new DisplaysManager(this, getName(), true, false);
-        messagesManager = new MessagesManager(mainConfig);
+        messagesManager = new MessagesManager(this, mainConfig);
         playersManager = new PlayersManager(this);
         inventoryManager = new InventoryManager(this, mainConfig);
     }

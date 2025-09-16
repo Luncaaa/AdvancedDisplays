@@ -33,16 +33,6 @@ public class Utils {
         return ChatColor.translateAlternateColorCodes('&', text);
     }
 
-    public static String getColoredTextWithPlaceholders(Player player, String text) {
-        text = text.replace("%player%", player.getName());
-
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            text = PlaceholderAPI.setPlaceholders(player, text);
-        }
-
-        return text;
-    }
-
     public static String getTextString(String message, Player clickedPlayer, Player globalPlayer, boolean useGlobalPlaceholders) {
         return ComponentSerializer.getLegacyString(getText(message, clickedPlayer, globalPlayer, useGlobalPlaceholders));
     }

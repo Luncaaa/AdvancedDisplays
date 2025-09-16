@@ -1,8 +1,6 @@
 package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.api.util.ComponentSerializer;
-import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -37,8 +35,7 @@ public class AnimatedTextRunnable {
             for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
                 if (excludedPlayers.contains(onlinePlayer)) continue;
 
-                packets.setMetadata(display.getEntityId(), onlinePlayer, plugin.metadata.TEXT,
-                        ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(onlinePlayer, text)));
+                packets.setMetadata(display.getEntityId(), onlinePlayer, plugin.metadata.TEXT, plugin.getMessagesManager().parseColorsAndPlaceholders(onlinePlayer, text));
             }
         };
     }
@@ -49,8 +46,7 @@ public class AnimatedTextRunnable {
         this.packets = plugin.getPacketsManager().getPackets();
         this.display = display;
         this.updateDisplay = (text) ->
-                packets.setMetadata(display.getEntityId(), player, plugin.metadata.TEXT,
-                        ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, text)));
+                packets.setMetadata(display.getEntityId(), player, plugin.metadata.TEXT, plugin.getMessagesManager().parseColorsAndPlaceholders(player, text));
         // Initial values
         this.textsList = new ArrayList<>(display.getText().values());
         this.index = display.getTextRunnable().getCurrentIndex();
@@ -114,7 +110,8 @@ public class AnimatedTextRunnable {
                     updateDisplay.accept(textsList.get(index));
                 }
             }
-        }.runTaskTimerAsynchronously(plugin, 0L, 1L);
+            // TODO: Fix async (thread lock on Utils#getColoredTextWithPlaceholders -> PlaceholderAPI#setPlaceholders)
+        }.runTaskTimerAsynchronously(plugin, 0L, 0L);
     }
 
     // Method to stop the task
@@ -146,7 +143,7 @@ public class AnimatedTextRunnable {
     // Send the currently displayed text to players who just joined until the task refreshes/animates it.
     // If this wasn't run, the player wouldn't see any text until the task refreshed/animated it.
     public void sendToPlayer(Player player) {
-        packets.setMetadata(display.getEntityId(), player, plugin.metadata.TEXT, ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, textsList.get(index))));
+        packets.setMetadata(display.getEntityId(), player, plugin.metadata.TEXT, plugin.getMessagesManager().parseColorsAndPlaceholders(player, textsList.get(index)));
     }
 
     public int getCurrentIndex() {
@@ -177,8 +174,7 @@ public class AnimatedTextRunnable {
     public void resetPlayer(Player player) {
         if (excludedPlayers.contains(player)) {
             excludedPlayers.remove(player);
-            packets.setMetadata(display.getEntityId(), player, plugin.metadata.TEXT,
-                    ComponentSerializer.deserialize(Utils.getColoredTextWithPlaceholders(player, textsList.get(index))));
+            packets.setMetadata(display.getEntityId(), player, plugin.metadata.TEXT, plugin.getMessagesManager().parseColorsAndPlaceholders(player, textsList.get(index)));
         }
     }
 }

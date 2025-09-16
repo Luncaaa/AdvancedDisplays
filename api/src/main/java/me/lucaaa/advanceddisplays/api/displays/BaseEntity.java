@@ -17,9 +17,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * The settings that Entity and Text, Item and Block displays have in common.
+ * The settings that {@link EntityDisplay} and {@link BaseDisplay} have in common.
  * <p>
- * All "missing" properties, such as "is silent", do not affect the entity's appearance so they were not added.
+ * All "missing" properties (those which do not affect the entity's appearance, such as "is silent"), were not added.
  */
 @SuppressWarnings("unused")
 public interface BaseEntity {

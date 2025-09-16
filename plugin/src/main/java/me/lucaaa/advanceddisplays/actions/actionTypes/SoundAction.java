@@ -25,7 +25,7 @@ public class SoundAction extends Action {
                 section,
                 List.of(
                         new Field("sound", String.class),
-                        new Field("location", String.class),
+                        // new Field("location", String.class), // Use display's location by default
                         new Field("volume", Double.class),
                         new Field("pitch", Double.class)
                 )
@@ -33,7 +33,7 @@ public class SoundAction extends Action {
 
         sound = section.getString("sound", "");
 
-        String unparsedLocString = section.getString("location", "");
+        String unparsedLocString = section.getString("location", "*;*;*");
         this.unparsedLoc = unparsedLocString.split(";");
         errors.addAll(Utils.isStringValidLoc(unparsedLocString));
 

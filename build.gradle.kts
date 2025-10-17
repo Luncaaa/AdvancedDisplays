@@ -22,6 +22,10 @@ allprojects {
 
 subprojects {
     repositories {
+        maven {
+          name = "papermc"
+          url = uri("https://repo.papermc.io/repository/maven-public/")
+        }
         mavenCentral()
         mavenLocal()
         maven("https://oss.sonatype.org/content/repositories/snapshots")

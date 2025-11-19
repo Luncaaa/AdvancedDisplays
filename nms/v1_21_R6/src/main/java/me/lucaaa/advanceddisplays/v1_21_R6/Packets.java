@@ -47,6 +47,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -147,11 +148,11 @@ public class Packets implements PacketInterface {
                         false,
                         new ServerEntity.Synchronizer() {
                             @Override
-                            public void sendToTrackingPlayers(Packet<? super ClientGamePacketListener> packet) {}
+                            public void sendToTrackingPlayers(@NotNull Packet<? super ClientGamePacketListener> packet) {}
                             @Override
-                            public void sendToTrackingPlayersAndSelf(Packet<? super ClientGamePacketListener> packet) {}
+                            public void sendToTrackingPlayersAndSelf(@NotNull Packet<? super ClientGamePacketListener> packet) {}
                             @Override
-                            public void sendToTrackingPlayersFiltered(Packet<? super ClientGamePacketListener> packet, Predicate<ServerPlayer> predicate) {}
+                            public void sendToTrackingPlayersFiltered(@NotNull Packet<? super ClientGamePacketListener> packet, @NotNull Predicate<ServerPlayer> predicate) {}
                         },
                         Set.of()
                 )
@@ -183,11 +184,11 @@ public class Packets implements PacketInterface {
                         false,
                         new ServerEntity.Synchronizer() {
                             @Override
-                            public void sendToTrackingPlayers(Packet<? super ClientGamePacketListener> packet) {}
+                            public void sendToTrackingPlayers(@NotNull Packet<? super ClientGamePacketListener> packet) {}
                             @Override
-                            public void sendToTrackingPlayersAndSelf(Packet<? super ClientGamePacketListener> packet) {}
+                            public void sendToTrackingPlayersAndSelf(@NotNull Packet<? super ClientGamePacketListener> packet) {}
                             @Override
-                            public void sendToTrackingPlayersFiltered(Packet<? super ClientGamePacketListener> packet, Predicate<ServerPlayer> predicate) {}
+                            public void sendToTrackingPlayersFiltered(@NotNull Packet<? super ClientGamePacketListener> packet, @NotNull Predicate<ServerPlayer> predicate) {}
                         },
                         Set.of()
                 )

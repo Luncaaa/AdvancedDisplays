@@ -211,6 +211,9 @@ public class Packets implements PacketInterface {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
         net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) entity).getHandle();
+        nmsEntity.setPos(location.getX(), location.getY(), location.getZ());
+        nmsEntity.setYRot(location.getYaw());
+        nmsEntity.setXRot(location.getPitch());
         connection.send(new ClientboundTeleportEntityPacket(nmsEntity.getId(), PositionMoveRotation.of(nmsEntity), Set.of(), true));
     }
 

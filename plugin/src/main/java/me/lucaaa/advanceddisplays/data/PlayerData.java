@@ -1,6 +1,7 @@
 package me.lucaaa.advanceddisplays.data;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
+import me.lucaaa.advanceddisplays.actions.Action;
 import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
 import me.lucaaa.advanceddisplays.displays.ADTextDisplay;
@@ -27,6 +28,7 @@ public class PlayerData {
     private PlayerEditorInv playerEditorInventory;
     private boolean isChatEditing = false;
     private final Map<ADTextDisplay, AnimatedTextRunnable> runnables = new HashMap<>();
+    private final Map<Action, Long> cooldowns = new HashMap<>();
 
     public PlayerData(Player player, AdvancedDisplays plugin) {
         this.plugin = plugin;
@@ -108,5 +110,15 @@ public class PlayerData {
             runnable.stop();
         }
         runnables.clear();
+    }
+
+    public void setActionUsed(Action action) {
+        cooldowns.put(action, System.currentTimeMillis());
+    }
+
+    public boolean isCoolingDown(Action action, int cooldown) {
+        if (!cooldowns.containsKey(action)) return false;
+
+        return System.currentTimeMillis() - cooldowns.get(action) < cooldown * 50L;
     }
 }

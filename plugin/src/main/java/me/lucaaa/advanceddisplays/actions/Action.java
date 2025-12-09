@@ -13,7 +13,6 @@ import java.util.*;
 public abstract class Action {
     protected final AdvancedDisplays plugin;
     protected final List<String> errors = new ArrayList<>();
-    private final List<Player> coolingDown = new ArrayList<>();
 
     private final ActionType type;
     private final boolean isGlobal;
@@ -74,7 +73,7 @@ public abstract class Action {
      * @param display The clicked display.
      */
     public void run(Player clickedPlayer, Player actionPlayer, BaseEntity display) {
-        if (coolingDown.contains(clickedPlayer)) {
+        if (plugin.getPlayersManager().getPlayerData(clickedPlayer).isCoolingDown(this, cooldown)) {
             if (cooldownMessage != null && !cooldownMessage.isBlank()) {
                 plugin.getAudience(clickedPlayer).sendMessage(Utils.getText(cooldownMessage, clickedPlayer, null, false));
             }
@@ -84,8 +83,7 @@ public abstract class Action {
         runAction(clickedPlayer, actionPlayer, display);
 
         if (cooldown > 0) {
-            coolingDown.add(clickedPlayer);
-            plugin.getServer().getScheduler().runTaskLater(plugin, () -> coolingDown.remove(clickedPlayer), cooldown);
+            plugin.getPlayersManager().getPlayerData(clickedPlayer).setActionUsed(this);
         }
     }
 

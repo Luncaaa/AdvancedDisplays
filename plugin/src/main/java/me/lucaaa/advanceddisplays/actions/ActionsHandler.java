@@ -49,18 +49,18 @@ public class ActionsHandler {
             if (!actionsSection.isConfigurationSection(clickTypeKey) || clickTypeKey.equalsIgnoreCase("conditions")) continue;
 
             ConfigurationSection actionSection = Objects.requireNonNull(actionsSection.getConfigurationSection(clickTypeKey));
+            List<Action> validActions = getActions(actionSection);
+
             if (clickTypeKey.equalsIgnoreCase("ANY")) {
-                List<String> ignoredActions = new ArrayList<>();
                 for (ClickType clickType : validClickTypes) {
-                    ignoredActions = addAction(clickType, actionSection, ignoredActions);
+                    addActions(clickType, validActions);
                 }
 
             } else if (clickTypeKey.contains(";")) {
                 String[] clickTypes = clickTypeKey.split(";");
-                List<String> ignoredActions = new ArrayList<>();
                 for (String clickType : clickTypes) {
                     try {
-                        ignoredActions = addAction(ClickType.valueOf(clickType), actionSection, ignoredActions);
+                        addActions(ClickType.valueOf(clickType), validActions);
                     } catch (IllegalArgumentException e) {
                         plugin.log(Level.WARNING, "Invalid click type found for display \"" + display.getName() + "\": " + clickType);
                     }
@@ -68,7 +68,7 @@ public class ActionsHandler {
 
             } else {
                 try {
-                    addAction(ClickType.valueOf(clickTypeKey), actionSection, List.of());
+                    addActions(ClickType.valueOf(clickTypeKey), validActions);
                 } catch (IllegalArgumentException e) {
                     plugin.log(Level.WARNING, "Invalid click type found for display \"" + display.getName() + "\": " + clickTypeKey);
                 }
@@ -77,61 +77,76 @@ public class ActionsHandler {
     }
 
     /**
-     * Adds an action to the map.
-     * @param clickType The click that should be used to execute the action.
-     * @param actionsSection The section with the action data.
-     * @param ignoredActions The list of actions to ignore (they had errors so we don't want to try and register them again)
-     * @return The list of actions which had an error.
+     * Adds actions to the map.
+     * @param clickType The type.
+     * @param actions The actions.
      */
-    private List<String> addAction(ClickType clickType, ConfigurationSection actionsSection, List<String> ignoredActions) {
-        List<String> errorActions = new ArrayList<>(ignoredActions);
+    private void addActions(ClickType clickType, List<Action> actions) {
+        actionsMap.computeIfAbsent(clickType, k -> new ArrayList<>());
+        actionsMap.get(clickType).addAll(actions);
+    }
+
+    /**
+     * Creates all the actions defined in a configuration section.
+     * @param actionsSection The configuration section.
+     * @return All created actions (those without errors)
+     */
+    private List<Action> getActions(ConfigurationSection actionsSection) {
+        List<Action> validActions = new ArrayList<>();
         for (Map.Entry<String, Object> actions : actionsSection.getValues(false).entrySet()) {
             ConfigurationSection actionSection = (ConfigurationSection) actions.getValue();
-            String actionName = actions.getKey();
 
-            if (errorActions.contains(actionName)) continue;
-
-            String typeName = actionSection.getString("type");
-
-            if (typeName == null) {
-                plugin.log(Level.WARNING, "Action \"" + actionName + "\" for display " + display.getName() + " does not have a type set!");
-                errorActions.add(actionName);
-                continue;
-            }
-
-            ActionType actionType = ActionType.getFromConfigName(actionSection.getString("type"));
-
-            if (actionType == null) {
-                plugin.log(Level.WARNING, "Action \"" + actionName + "\" for display " + display.getName() + " does not have a type set: " + actionName);
-                errorActions.add(actionName);
-                continue;
-            }
-
-            Action action = switch (actionType) {
-                case MESSAGE -> new MessageAction(plugin, actionSection);
-                case CONSOLE_COMMAND -> new ConsoleCommandAction(plugin, actionSection);
-                case PLAYER_COMMAND -> new PlayerCommandAction(plugin, actionSection);
-                case TITLE -> new TitleAction(plugin, actionSection);
-                case ACTIONBAR -> new ActionbarAction(plugin, actionSection);
-                case PLAY_SOUND -> new SoundAction(plugin, actionSection);
-                case EFFECT -> new EffectAction(plugin, actionSection);
-                case TOAST -> new ToastAction(plugin, actionSection, display);
-                case PARTICLE -> new ParticleAction(plugin, actionSection);
-            };
-
-            if (action.hasErrors()) {
-                plugin.log(Level.WARNING, "=== Found errors for action \"" + actionName + "\" ===");
-                for (String error : action.getErrors()) {
-                    plugin.log(Level.WARNING, " - " + error);
-                }
-                errorActions.add(actionName);
-
-            } else {
-                actionsMap.computeIfAbsent(clickType, k -> new ArrayList<>());
-                actionsMap.get(clickType).add(action);
+            Action action = createAction(actions.getKey(), actionSection);
+            if (action != null) {
+                validActions.add(action);
             }
         }
-        return errorActions;
+
+        return validActions;
+    }
+
+    /**
+     * Creates an action from a configuration section.
+     * @param name The action's name.
+     * @param actionSection The action's section.
+     * @return The created action.
+     */
+    private Action createAction(String name, ConfigurationSection actionSection) {
+        String typeName = actionSection.getString("type");
+
+        if (typeName == null) {
+            plugin.log(Level.WARNING, "Action \"" + name + "\" for display " + display.getName() + " does not have a type set!");
+            return null;
+        }
+
+        ActionType actionType = ActionType.getFromConfigName(actionSection.getString("type"));
+
+        if (actionType == null) {
+            plugin.log(Level.WARNING, "Action \"" + name + "\" for display " + display.getName() + " does not have a type set: " + typeName);
+            return null;
+        }
+
+        Action action = switch (actionType) {
+            case MESSAGE -> new MessageAction(plugin, actionSection);
+            case CONSOLE_COMMAND -> new ConsoleCommandAction(plugin, actionSection);
+            case PLAYER_COMMAND -> new PlayerCommandAction(plugin, actionSection);
+            case TITLE -> new TitleAction(plugin, actionSection);
+            case ACTIONBAR -> new ActionbarAction(plugin, actionSection);
+            case PLAY_SOUND -> new SoundAction(plugin, actionSection);
+            case EFFECT -> new EffectAction(plugin, actionSection);
+            case TOAST -> new ToastAction(plugin, actionSection, display);
+            case PARTICLE -> new ParticleAction(plugin, actionSection);
+        };
+
+        if (action.hasErrors()) {
+            plugin.log(Level.WARNING, "=== Found errors for action \"" + name + "\" ===");
+            for (String error : action.getErrors()) {
+                plugin.log(Level.WARNING, " - " + error);
+            }
+            return null;
+        }
+
+        return action;
     }
 
     public void runActions(Player player, ClickType clickType, ADBaseEntity display) {

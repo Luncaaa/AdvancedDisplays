@@ -171,7 +171,7 @@ public class ActionsHandler {
 
         for (Action action : actionsToRun) {
             if (action.getDelay() > 0) {
-                plugin.getServer().getScheduler().runTaskLater(plugin, () -> executeAction(action, player), action.getDelay());
+                plugin.getTasksManager().runTaskLater(plugin, () -> executeAction(action, player), action.getDelay());
             } else {
                 executeAction(action, player);
             }

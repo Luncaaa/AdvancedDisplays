@@ -16,7 +16,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -83,12 +82,7 @@ public class PlayerEventsListener implements Listener {
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         if (!plugin.getPlayersManager().getPlayerData(event.getPlayer()).isChatEditing()) return;
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                plugin.getInventoryManager().handleChatEdit(event.getPlayer(), event.getMessage());
-            }
-        }.runTask(plugin);
+        plugin.getTasksManager().runTask(plugin, () -> plugin.getInventoryManager().handleChatEdit(event.getPlayer(), event.getMessage()));
         event.setCancelled(true);
     }
 

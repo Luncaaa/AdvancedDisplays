@@ -15,7 +15,6 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Objects;
 
@@ -237,12 +236,9 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
         packets.setMetadata(entityId, player, metadata.ITEM, plugin.cachedHeads.LOADING);
 
         // Run async because of the HTTP request to parse the head.
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                ItemStack head = HeadUtils.getHead(type, value, enchanted, player, plugin);
-                packets.setMetadata(entityId, player, metadata.ITEM, head);
-            }
-        }.runTaskAsynchronously(plugin);
+        plugin.getTasksManager().runTaskAsynchronously(plugin, () -> {
+            ItemStack head = HeadUtils.getHead(type, value, enchanted, player, plugin);
+            packets.setMetadata(entityId, player, metadata.ITEM, head);
+        });
     }
 }

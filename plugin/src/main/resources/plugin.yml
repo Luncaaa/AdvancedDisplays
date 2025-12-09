@@ -6,6 +6,7 @@ softdepend: [PlaceholderAPI, Oraxen, ItemsAdder]
 author: Lucaaa
 prefix: AD
 api-version: 1.19
+folia-supported: true
 
 # https://www.sonatype.com/blog/free-isnt-free-the-hidden-costs-of-tooling-decisions-in-open-source-infrastructure
 # Back to shading - could use Paper's library loader but that isn't compatible with Spigot

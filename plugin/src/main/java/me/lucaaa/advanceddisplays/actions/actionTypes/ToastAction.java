@@ -83,7 +83,7 @@ public class ToastAction extends Action {
         }
 
         plugin.getPacketsManager().getPackets().sendToast(
-                plugin,
+                task -> plugin.getTasksManager().runTaskLater(plugin, task, 1L),
                 actionPlayer,
                 item,
                 ComponentSerializer.toJSONString(title),

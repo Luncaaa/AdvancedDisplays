@@ -9,7 +9,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
@@ -57,12 +56,7 @@ public abstract class ADInventory {
         if (previous != null && shouldOpenPrevious) {
             // The task is run so that the InventoryCloseEvent is fully run before opening a new inventory.
             // Otherwise, the inventory will open but won't be registered as a plugin's GUI.
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    plugin.getInventoryManager().handleOpen(player, previous);
-                }
-            }.runTask(plugin);
+            plugin.getTasksManager().runTask(plugin, () -> plugin.getInventoryManager().handleOpen(player, previous));
         }
     }
 

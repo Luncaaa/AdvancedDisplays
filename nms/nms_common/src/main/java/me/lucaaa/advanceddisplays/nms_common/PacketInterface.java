@@ -7,7 +7,8 @@ import org.bukkit.Location;
 import org.bukkit.advancement.AdvancementDisplayType;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.function.Consumer;
 
 public interface PacketInterface {
     // --[ Packet reader ]--
@@ -38,5 +39,5 @@ public interface PacketInterface {
     void setMetadata(int displayId, Player player, Metadata.DataPair<?>... data);
 
     // --[ Other ]--
-    void sendToast(JavaPlugin plugin, Player player, ItemStack item, String titleJSON, String descriptionJSON, AdvancementDisplayType type);
+    void sendToast(Consumer<Runnable> taskRunner, Player player, ItemStack item, String titleJSON, String descriptionJSON, AdvancementDisplayType type);
 }

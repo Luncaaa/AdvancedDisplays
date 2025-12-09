@@ -17,7 +17,7 @@ public class UpdateManager {
     }
 
     public void getVersion(final Consumer<String> consumer) {
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getTasksManager().runTaskAsynchronously(plugin, () -> {
             try {
                 InputStream resourcePage = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + RESOURCE_ID + "/~").openStream();
                 Scanner scanner = new Scanner(resourcePage);

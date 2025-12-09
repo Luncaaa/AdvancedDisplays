@@ -13,6 +13,7 @@ import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.nms_common.Logger;
 import me.lucaaa.advanceddisplays.nms_common.Metadata;
 import me.lucaaa.advanceddisplays.nms_common.Version;
+import me.lucaaa.advanceddisplays.common.TasksManager;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.entity.Player;
@@ -25,7 +26,7 @@ import java.util.logging.Level;
 
 // TODO (not in order)
 // 1. Animated item and block displays
-// 2. Multi-line displays
+// 2. Multi-line displays (possibility to combine text, item, block and entity in one display)
 // 3. Better head fetching/caching system (grab on plugin enable/reload, not on metadata update)
 // 4. Better actions system and in-game editor
 // 5. Finish entity displays (metadata system)
@@ -45,8 +46,8 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
     private final Map<Compatibility, Integration> integrations = new HashMap<>();
 
     // Managers.
+    private VersionManager versionManager;
     private TickManager tickManager;
-    private PacketsManager packetsManager;
     private InteractionsManager interactionsManager;
     private DisplaysManager displaysManager;
     private MessagesManager messagesManager;
@@ -67,13 +68,14 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         if (isRunning) {
             displaysManager.removeAll(true); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
             savedApiDisplays = interactionsManager.getApiDisplays();
-            packetsManager.removeAll(); // If the plugin has been reloaded, remove and add all players again.
+            versionManager.getPacketsManager().removeAll(); // If the plugin has been reloaded, remove and add all players again.
             playersManager.removeAll();
             inventoryManager.clearAll(); // If the plugin has been reloaded, clear the map.
             tickManager.stop();
         }
+
+        versionManager = new VersionManager(this);
         tickManager = new TickManager(this);
-        packetsManager = new PacketsManager(this);
         interactionsManager = new InteractionsManager(savedApiDisplays);
         displaysManager = new DisplaysManager(this, getName(), true, false);
         messagesManager = new MessagesManager(this, mainConfig);
@@ -86,8 +88,10 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         String version = getServer().getBukkitVersion().split("-")[0];
         nmsVersion = Version.getNMSVersion(version);
         if (nmsVersion == Version.UNKNOWN) {
-            log(Level.SEVERE, "Unknown NMS version! Version: " + version);
+            log(Level.SEVERE, "----------[AdvancedDisplays initialization error]----------");
+            log(Level.SEVERE, "Unknown NMS version! Server version: " + version);
             log(Level.SEVERE, "The plugin may not be updated to support the server's version.");
+            log(Level.SEVERE, "Check dev builds latest versions support: https://github.com/Luncaaa/AdvancedDisplays/releases/tag/dev");
             log(Level.SEVERE, "If you're using a version lower than 1.19.4, upgrade to 1.19.4 or higher to use this plugin.");
             log(Level.SEVERE, "The plugin will be disabled...");
             getServer().getPluginManager().disablePlugin(this);
@@ -159,8 +163,12 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         return integrations.get(compatibility);
     }
 
-    public PacketsManager getPacketsManager() {
-        return packetsManager;
+    public VersionManager.PacketsManager getPacketsManager() {
+        return versionManager.getPacketsManager();
+    }
+
+    public TasksManager getTasksManager() {
+        return versionManager.getTasksManager();
     }
 
     public InteractionsManager getInteractionsManager() {

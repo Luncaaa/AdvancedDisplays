@@ -2,8 +2,7 @@ package me.lucaaa.advanceddisplays.managers;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.data.Ticking;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
+import me.lucaaa.advanceddisplays.common.ITask;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -13,7 +12,7 @@ import java.util.logging.Level;
 public class TickManager {
     private final AdvancedDisplays plugin;
     private final List<Ticking> ticking = new CopyOnWriteArrayList<>();
-    private BukkitTask task;
+    private ITask task;
     private final AtomicBoolean isTicking = new AtomicBoolean(false);
     private final AtomicBoolean isCancelled = new AtomicBoolean(false);
 
@@ -23,12 +22,7 @@ public class TickManager {
     }
 
     private void start() {
-        task = new BukkitRunnable() {
-            @Override
-            public void run() {
-                tick();
-            }
-        }.runTaskTimerAsynchronously(plugin, 0L, 1L);
+        task = plugin.getTasksManager().runTaskTimerAsynchronously(plugin, this::tick, 0L, 1L);
     }
 
     public void stop() {

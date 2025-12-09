@@ -45,8 +45,6 @@ import org.bukkit.craftbukkit.util.CraftNamespacedKey;
 import org.bukkit.entity.*;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -55,6 +53,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @SuppressWarnings("unused")
@@ -292,7 +291,7 @@ public class Packets implements PacketInterface {
     }
 
     @Override
-    public void sendToast(JavaPlugin plugin, Player player, ItemStack item, String titleJSON, String descriptionJSON, AdvancementDisplayType type) {
+    public void sendToast(Consumer<Runnable> taskRunner, Player player, ItemStack item, String titleJSON, String descriptionJSON, AdvancementDisplayType type) {
         CraftPlayer cp = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = cp.getHandle().connection;
 
@@ -333,17 +332,12 @@ public class Packets implements PacketInterface {
                 true
         ));
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                connection.send(new ClientboundUpdateAdvancementsPacket(
-                        false,
-                        List.of(),
-                        Set.of(resourceLocation),
-                        Map.of(),
-                        true
-                ));
-            }
-        }.runTaskLater(plugin, 0L);
+        taskRunner.accept(() -> connection.send(new ClientboundUpdateAdvancementsPacket(
+                false,
+                List.of(),
+                Set.of(resourceLocation),
+                Map.of(),
+                true
+        )));
     }
 }

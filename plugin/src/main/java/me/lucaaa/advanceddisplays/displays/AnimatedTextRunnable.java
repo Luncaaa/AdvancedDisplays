@@ -2,9 +2,8 @@ package me.lucaaa.advanceddisplays.displays;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.nms_common.PacketInterface;
+import me.lucaaa.advanceddisplays.common.ITask;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,7 @@ public class AnimatedTextRunnable {
     // or all online players every iteration...
     private final Consumer<String> updateDisplay;
     private final List<Player> excludedPlayers = new ArrayList<>();
-    private BukkitTask displayTask;
+    private ITask displayTask;
     private int index = 0;
 
     public AnimatedTextRunnable(AdvancedDisplays plugin, ADTextDisplay display) {
@@ -74,7 +73,7 @@ public class AnimatedTextRunnable {
             return;
         }
 
-        displayTask = new BukkitRunnable() {
+        displayTask = plugin.getTasksManager().runTaskTimerAsynchronously(plugin, new Runnable() {
             private int animationTicks = 0;
             private int refreshTicks = 0;
 
@@ -111,7 +110,7 @@ public class AnimatedTextRunnable {
                 }
             }
             // TODO: Fix async (thread lock on Utils#getColoredTextWithPlaceholders -> PlaceholderAPI#setPlaceholders)
-        }.runTaskTimerAsynchronously(plugin, 0L, 0L);
+        }, 0L, 0L);
     }
 
     // Method to stop the task

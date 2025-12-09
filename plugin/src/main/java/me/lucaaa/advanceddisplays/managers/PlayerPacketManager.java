@@ -7,7 +7,6 @@ import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
 import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class PlayerPacketManager extends ChannelDuplexHandler {
     private final AdvancedDisplays plugin;
@@ -55,11 +54,6 @@ public class PlayerPacketManager extends ChannelDuplexHandler {
         if (display == null) return;
 
         // Run sync to prevent errors
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                display.runActions(player,clickType);
-            }
-        }.runTask(plugin);
+        plugin.getTasksManager().runTask(plugin, () -> display.runActions(player,clickType));
     }
 }

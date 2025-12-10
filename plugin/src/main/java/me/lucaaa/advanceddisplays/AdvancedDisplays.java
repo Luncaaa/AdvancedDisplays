@@ -27,9 +27,8 @@ import java.util.logging.Level;
 // TODO (not in order)
 // 1. Animated item and block displays
 // 2. Multi-line displays (possibility to combine text, item, block and entity in one display)
-// 3. Better head fetching/caching system (grab on plugin enable/reload, not on metadata update)
-// 4. Better actions system and in-game editor
-// 5. Finish entity displays (metadata system)
+// 3. Better actions system and in-game editor
+// 4. Finish entity displays (metadata system)
 public class AdvancedDisplays extends JavaPlugin implements Logger {
     // Config files.
     private ConfigManager mainConfig;
@@ -38,7 +37,6 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
     // Other.
     private Version nmsVersion;
     private boolean isRunning = false;
-    public final CachedHeads cachedHeads = new CachedHeads(this);
     public Metadata metadata;
     private BukkitAudiences audiences;
 
@@ -48,6 +46,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
     // Managers.
     private VersionManager versionManager;
     private TickManager tickManager;
+    private HeadCacheManager headCacheManager;
     private InteractionsManager interactionsManager;
     private DisplaysManager displaysManager;
     private MessagesManager messagesManager;
@@ -66,6 +65,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         // Managers
         HashMap<Integer, ADBaseEntity> savedApiDisplays = new HashMap<>(); // If the plugin is reloaded, this will save the click actions for API displays.
         if (isRunning) {
+            headCacheManager.shutdown();
             displaysManager.removeAll(true); // If the plugin has been reloaded, remove the displays to prevent duplicate displays.
             savedApiDisplays = interactionsManager.getApiDisplays();
             versionManager.getPacketsManager().removeAll(); // If the plugin has been reloaded, remove and add all players again.
@@ -76,6 +76,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
 
         versionManager = new VersionManager(this);
         tickManager = new TickManager(this);
+        headCacheManager = new HeadCacheManager(this);
         interactionsManager = new InteractionsManager(savedApiDisplays);
         displaysManager = new DisplaysManager(this, getName(), true, false);
         messagesManager = new MessagesManager(this, mainConfig);
@@ -135,6 +136,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
     public void onDisable() {
         if (inventoryManager != null) inventoryManager.clearAll();
         if (playersManager != null) playersManager.removeAll();
+        if (headCacheManager != null) headCacheManager.shutdown();
         if (tickManager != null) tickManager.stop();
         if (audiences != null) audiences.close();
     }
@@ -171,12 +173,16 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         return versionManager.getTasksManager();
     }
 
-    public InteractionsManager getInteractionsManager() {
-        return interactionsManager;
+    public TickManager getTickManager() {
+        return tickManager;
     }
 
-    public DisplaysManager getDisplaysManager() {
-        return displaysManager;
+    public HeadCacheManager getHeadCacheManager() {
+        return headCacheManager;
+    }
+
+    public InteractionsManager getInteractionsManager() {
+        return interactionsManager;
     }
 
     public ADAPIProviderImplementation getApiDisplays() {
@@ -191,12 +197,12 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         return playersManager;
     }
 
-    public InventoryManager getInventoryManager() {
-        return inventoryManager;
+    public DisplaysManager getDisplaysManager() {
+        return displaysManager;
     }
 
-    public TickManager getTickManager() {
-        return tickManager;
+    public InventoryManager getInventoryManager() {
+        return inventoryManager;
     }
 
     @Override

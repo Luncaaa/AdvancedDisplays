@@ -225,7 +225,6 @@ public class Utils {
             }
         }
 
-        // Item displays (ignoreEnchant = true) have their own way to enchant items.
         if (settings.getBoolean("enchanted")) {
             meta.addEnchant(Enchantment.MENDING, 1, true);
         }

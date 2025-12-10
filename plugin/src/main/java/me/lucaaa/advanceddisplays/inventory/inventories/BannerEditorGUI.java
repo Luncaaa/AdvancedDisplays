@@ -63,7 +63,7 @@ public class BannerEditorGUI extends ADInventory {
 
         // Previous button
         if (startLayer > 1) {
-            addButton(45, new Button.InventoryButton<>(new Item.ClickableItem(plugin.cachedHeads.LEFT, "Previous layer", List.of("See one more layer to the bottom"), null)) {
+            addButton(45, new Button.InventoryButton<>(new Item.ClickableItem(plugin.getHeadCacheManager().LEFT, "Previous layer", List.of("See one more layer to the bottom"), null)) {
                 @Override
                 public void onClick(InventoryClickEvent event) {
                     shouldOpenPrevious = false;
@@ -93,7 +93,7 @@ public class BannerEditorGUI extends ADInventory {
         });
 
         // Next button
-        addButton(53, new Button.InventoryButton<>(new Item.ClickableItem(plugin.cachedHeads.RIGHT, "Next layer", List.of("See one more layer on top"), null)) {
+        addButton(53, new Button.InventoryButton<>(new Item.ClickableItem(plugin.getHeadCacheManager().RIGHT, "Next layer", List.of("See one more layer on top"), null)) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 shouldOpenPrevious = false;
@@ -188,7 +188,7 @@ public class BannerEditorGUI extends ADInventory {
     }
 
     private Button.InventoryButton<Item.ClickableItem> getAddButton(int topSlotIndex, int layer) {
-        ItemStack item = plugin.cachedHeads.ADD.clone();
+        ItemStack item = plugin.getHeadCacheManager().ADD.clone();
         item.setAmount(Math.min(layer, 64));
         Item.ClickableItem addItem = new Item.ClickableItem(item, "Add layer " + layer, List.of("Adds a pattern in layer " + layer), null);
         return new Button.InventoryButton<>(addItem) {
@@ -201,7 +201,7 @@ public class BannerEditorGUI extends ADInventory {
     }
 
     private Button.InventoryButton<Item.ClickableItem> getRemoveButton(int topSlotIndex, int layer) {
-        ItemStack item = plugin.cachedHeads.CANCEL.clone();
+        ItemStack item = plugin.getHeadCacheManager().CANCEL.clone();
         item.setAmount(Math.min(layer, 64));
         Item.ClickableItem removeItem = new Item.ClickableItem(item, "Remove layer " + layer, List.of("Removes the pattern in layer " + layer), null);
         return new Button.InventoryButton<>(removeItem) {

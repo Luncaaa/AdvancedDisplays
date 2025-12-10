@@ -7,6 +7,7 @@ import me.lucaaa.advanceddisplays.data.HeadUtils;
 import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
+import me.lucaaa.advancedlinks.common.ITask;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -16,6 +17,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddisplays.api.displays.ItemDisplay {
@@ -24,6 +27,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     private String displayHeadValue;
     private boolean enchanted;
     private ItemDisplay.ItemDisplayTransform itemTransformation;
+    private final Map<Player, ITask> headLoadTasks = new HashMap<>();
 
     public ADItemDisplay(AdvancedDisplays plugin, DisplaysManager displaysManager, ConfigManager configManager, String name) {
         super(plugin, displaysManager, configManager, name, DisplayType.ITEM, EntityType.ITEM_DISPLAY);
@@ -41,7 +45,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             this.enchanted = !item.getEnchantments().isEmpty();
             this.itemTransformation = ItemDisplay.ItemDisplayTransform.valueOf(config.getOrDefault("itemTransformation", ItemDisplay.ItemDisplayTransform.FIXED.name(), settings));
 
-            if (settings.contains("head")) {
+            if (item.getType() == Material.PLAYER_HEAD && settings.contains("head")) {
                 ConfigurationSection headSection = settings.getConfigurationSection("head");
                 if (Objects.requireNonNull(headSection).contains("player"))  {
                     this.displayHeadType = DisplayHeadType.PLAYER;
@@ -50,6 +54,11 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
                 } else {
                     this.displayHeadType = DisplayHeadType.BASE64;
                     this.displayHeadValue = headSection.getString("base64");
+                }
+
+                this.item = plugin.getHeadCacheManager().LOADING;
+                if (!displayHeadValue.equalsIgnoreCase("%player%")) {
+                    plugin.getHeadCacheManager().loadHead(this, displayHeadType, displayHeadValue);
                 }
             }
         }
@@ -62,7 +71,7 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     @Override
     public void sendMetadataPackets(Player player) {
         super.sendMetadataPackets(player);
-        if (item.getType() == Material.PLAYER_HEAD) {
+        if (displayHeadType == DisplayHeadType.PLAYER && displayHeadValue.equalsIgnoreCase("%player%")) {
             setHead(displayHeadType, displayHeadValue, player, enchanted);
         } else {
             packets.setMetadata(entityId, player, metadata.ITEM, item);
@@ -117,14 +126,13 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
             save();
         }
 
-        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
-            setBase64Head(base64, onlinePlayer);
-        }
+        // Head cache manager will call the setHead method
+        plugin.getHeadCacheManager().loadHead(this,  displayHeadType, displayHeadValue);
     }
 
     @Override
     public void setBase64Head(String base64, Player player) {
-        setHead(DisplayHeadType.BASE64, base64, player, enchanted);
+        setHead(DisplayHeadType.BASE64, base64, player, false);
     }
 
     @Override
@@ -140,13 +148,13 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
         }
 
         for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
-            setPlayerHead(playerName, onlinePlayer);
+            setHead(DisplayHeadType.PLAYER, playerName, onlinePlayer, true);
         }
     }
 
     @Override
     public void setPlayerHead(String playerName, Player player) {
-        setHead(DisplayHeadType.PLAYER, playerName, player, enchanted);
+        setHead(DisplayHeadType.PLAYER, playerName, player, false);
     }
 
     @Override
@@ -186,13 +194,9 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     }
     @Override
     public void setEnchanted(boolean enchanted, Player player) {
-        if (item.getType() == Material.PLAYER_HEAD) {
-            setHead(displayHeadType, displayHeadValue, player, enchanted);
-        } else {
-            ItemStack clone = item.clone();
-            if (enchanted) clone.addUnsafeEnchantment(Enchantment.MENDING, 1);
-            packets.setMetadata(entityId, player, metadata.ITEM, clone);
-        }
+        ItemStack clone = item.clone();
+        if (enchanted) clone.addUnsafeEnchantment(Enchantment.MENDING, 1);
+        packets.setMetadata(entityId, player, metadata.ITEM, clone);
     }
 
     @Override
@@ -215,30 +219,67 @@ public class ADItemDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
         packets.setMetadata(entityId, player, metadata.ITEM_TRANSFORM, (byte) transformation.ordinal());
     }
 
-    // TODO: Extend head caching system here
-    // When the class is initialized, save the head to the cache and then grab it so that players don't see
-    // the loading head if not necessary.
-    /*
-    Pseudocode:
+    @Override
+    public void remove() {
+        super.remove();
+        plugin.getHeadCacheManager().cancelTask(this);
 
-    public ADItemDisplay() {
-        if (type == HEAD) HeadCache.save(this, HeadUtils.getHead(...));
+        for (ITask task : headLoadTasks.values()) {
+            task.cancel();
+        }
+        headLoadTasks.clear();
     }
 
-
-    private void setHead() {
-        CompletableFuture future = HeadCache.getHead(this);
-
-        if future is completed, grab the head. If it isn't set the loading head until it is.
-    }
+    /**
+     * Used by the HeadCacheManager, sets the head once it's done loading.
+     * @param item The head to set.
      */
-    private void setHead(DisplayHeadType type, String value, Player player, boolean enchanted) {
-        packets.setMetadata(entityId, player, metadata.ITEM, plugin.cachedHeads.LOADING);
+    public void setHead(ItemStack item) {
+        if (enchanted) item.addUnsafeEnchantment(Enchantment.MENDING, 1);
+        this.item = item;
 
-        // Run async because of the HTTP request to parse the head.
-        plugin.getTasksManager().runTaskAsynchronously(plugin, () -> {
-            ItemStack head = HeadUtils.getHead(type, value, enchanted, player, plugin);
-            packets.setMetadata(entityId, player, metadata.ITEM, head);
-        });
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
+            setItem(item, onlinePlayer);
+        }
+    }
+
+    /**
+     * Sets the displayed head.
+     * @param type The type.
+     * @param value The value.
+     * @param player The player whom it will be set for.
+     * @param useCache True if the head was cached (global head or saved to config). False if the head was not cached (head for specific player).
+     */
+    private void setHead(DisplayHeadType type, String value, Player player, boolean useCache) {
+        this.item = plugin.getHeadCacheManager().LOADING;
+        packets.setMetadata(entityId, player, metadata.ITEM, item);
+
+        if (type == DisplayHeadType.PLAYER && value.equalsIgnoreCase("%player%")) {
+            ITask task = plugin.getTasksManager().runTaskAsynchronously(plugin, () -> {
+                ItemStack head = HeadUtils.getPlayerHead(player.getName(), plugin);
+                if (enchanted) head.addUnsafeEnchantment(Enchantment.MENDING, 1);
+                packets.setMetadata(entityId, player, metadata.ITEM, head);
+                headLoadTasks.remove(player);
+            });
+            headLoadTasks.put(player, task);
+
+            return;
+        }
+
+        if (!useCache) {
+           ITask task = plugin.getTasksManager().runTaskAsynchronously(plugin, () -> {
+                ItemStack head;
+                if (type == DisplayHeadType.PLAYER) {
+                    head = HeadUtils.getPlayerHead(value, plugin);
+                } else {
+                    head = HeadUtils.getBase64Head(value, plugin);
+                }
+
+                if (enchanted) head.addUnsafeEnchantment(Enchantment.MENDING, 1);
+                packets.setMetadata(entityId, player, metadata.ITEM, head);
+                headLoadTasks.remove(player);
+            });
+            headLoadTasks.put(player, task);
+        }
     }
 }

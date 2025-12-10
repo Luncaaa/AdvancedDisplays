@@ -7,7 +7,7 @@ import me.lucaaa.advanceddisplays.data.HeadUtils;
 import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import me.lucaaa.advanceddisplays.managers.DisplaysManager;
-import me.lucaaa.advancedlinks.common.ITask;
+import me.lucaaa.advanceddisplays.common.ITask;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;

@@ -11,7 +11,6 @@ import net.minecraft.advancements.critereon.ImpossibleTrigger;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.protocol.Packet;
@@ -43,15 +42,12 @@ import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.util.CraftNamespacedKey;
 import org.bukkit.entity.*;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -60,6 +56,11 @@ import java.util.function.Predicate;
 public class Packets implements PacketInterface {
     private final Logger logger;
     private final Map<ChatColor, PlayerTeam> teams = new EnumMap<>(ChatColor.class);
+    private final ServerEntity.Synchronizer ENTITY_SYNC = new ServerEntity.Synchronizer() {
+        @Override public void sendToTrackingPlayers(@NonNull Packet<? super ClientGamePacketListener> packet) {}
+        @Override public void sendToTrackingPlayersAndSelf(@NonNull Packet<? super ClientGamePacketListener> packet) {}
+        @Override public void sendToTrackingPlayersFiltered(@NonNull Packet<? super ClientGamePacketListener> packet, @NonNull Predicate<ServerPlayer> predicate) {}
+    };
 
     public Packets(Logger logger) {
         this.logger = logger;
@@ -68,30 +69,17 @@ public class Packets implements PacketInterface {
     @Override
     public ChannelPipeline getPlayerPipeline(Player player) {
         CraftPlayer craftPlayer = (CraftPlayer) player;
-
-        try {
-            Field field = craftPlayer.getHandle().connection.getClass().getSuperclass().getDeclaredField("e");
-            field.setAccessible(true);
-            return ((Connection) field.get(craftPlayer.getHandle().connection)).channel.pipeline();
-
-        } catch (Exception e) {
-            logger.logError(java.util.logging.Level.SEVERE, "An error occurred while getting " + player.getName() + "'s pipeline.", e);
-            return null;
-        }
+        return craftPlayer.getHandle().connection.connection.channel.pipeline();
     }
 
     @Override
     public InternalEntityClickEvent getClickEvent(Player player, Object anyPacket) {
         // Some plugins may send their own packet implementing the interact packet, making using "instanceof"
-        // not valid in this case because it'll return "true" but might not have the necessary methods o field.
+        // not valid in this case because it'll return "true" but might not have the necessary methods or field.
         if (!anyPacket.getClass().equals(ServerboundInteractPacket.class)) return null;
 
         ServerboundInteractPacket packet = (ServerboundInteractPacket) anyPacket;
         try {
-            Field idField = packet.getClass().getDeclaredField("b");
-            idField.setAccessible(true);
-            int interactionId = (int) idField.get(packet);
-
             Field actionField = packet.getClass().getDeclaredField("c");
             actionField.setAccessible(true);
             Object action = actionField.get(packet);
@@ -106,15 +94,9 @@ public class Packets implements PacketInterface {
             // Left-clicking doesn't have this field, so the error should be ignored.
             } catch (NoSuchFieldException ignored) {}
 
-            Method getActionTypeMethod = action.getClass().getDeclaredMethod("a");
-            getActionTypeMethod.setAccessible(true);
-            int clickTypeNumber = ((Enum<?>) getActionTypeMethod.invoke(action)).ordinal();
+            return new InternalEntityClickEvent(InternalEntityClickEvent.getClickTypeFromPacket(packet.isUsingSecondaryAction(), packet.isAttack()), packet.getEntityId());
 
-            ClickType clickType = InternalEntityClickEvent.getClickTypeFromPacket(packet.isUsingSecondaryAction(), clickTypeNumber);
-
-            return new InternalEntityClickEvent(clickType, interactionId);
-
-        } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             logger.logError(java.util.logging.Level.SEVERE, "An error occurred while handling a click on a display: ", e);
             return null;
         }
@@ -145,14 +127,7 @@ public class Packets implements PacketInterface {
                         entity,
                         0,
                         false,
-                        new ServerEntity.Synchronizer() {
-                            @Override
-                            public void sendToTrackingPlayers(@NotNull Packet<? super ClientGamePacketListener> packet) {}
-                            @Override
-                            public void sendToTrackingPlayersAndSelf(@NotNull Packet<? super ClientGamePacketListener> packet) {}
-                            @Override
-                            public void sendToTrackingPlayersFiltered(@NotNull Packet<? super ClientGamePacketListener> packet, @NotNull Predicate<ServerPlayer> predicate) {}
-                        },
+                        ENTITY_SYNC,
                         Set.of()
                 )
         );
@@ -181,14 +156,7 @@ public class Packets implements PacketInterface {
                         nmsEntity,
                         0,
                         false,
-                        new ServerEntity.Synchronizer() {
-                            @Override
-                            public void sendToTrackingPlayers(@NotNull Packet<? super ClientGamePacketListener> packet) {}
-                            @Override
-                            public void sendToTrackingPlayersAndSelf(@NotNull Packet<? super ClientGamePacketListener> packet) {}
-                            @Override
-                            public void sendToTrackingPlayersFiltered(@NotNull Packet<? super ClientGamePacketListener> packet, @NotNull Predicate<ServerPlayer> predicate) {}
-                        },
+                        ENTITY_SYNC,
                         Set.of()
                 )
         );

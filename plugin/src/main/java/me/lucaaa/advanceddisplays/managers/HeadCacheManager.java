@@ -5,7 +5,7 @@ import me.lucaaa.advanceddisplays.api.displays.ItemDisplay;
 import me.lucaaa.advanceddisplays.data.DisplayHeadType;
 import me.lucaaa.advanceddisplays.data.HeadUtils;
 import me.lucaaa.advanceddisplays.displays.ADItemDisplay;
-import me.lucaaa.advancedlinks.common.ITask;
+import me.lucaaa.advanceddisplays.common.ITask;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;

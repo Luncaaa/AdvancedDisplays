@@ -4,9 +4,9 @@ import org.bukkit.event.inventory.ClickType;
 
 public record InternalEntityClickEvent(ClickType clickType, int interactionId) {
 
-    public static ClickType getClickTypeFromPacket(boolean isSneaking, int clickTypeNumber) {
+    public static ClickType getClickTypeFromPacket(boolean isSneaking, boolean isAttack) {
         ClickType clickType;
-        if (clickTypeNumber == 1) {
+        if (isAttack) {
             clickType = (isSneaking) ? ClickType.SHIFT_LEFT : ClickType.LEFT;
         } else {
             clickType = (isSneaking) ? ClickType.SHIFT_RIGHT : ClickType.RIGHT;

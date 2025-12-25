@@ -14,7 +14,8 @@ public enum Version {
     v1_21_R3(List.of("1.21.4")),
     v1_21_R4(List.of("1.21.5")),
     v1_21_R5(List.of("1.21.6", "1.21.7", "1.21.8")),
-    v1_21_R6(List.of("1.21.9","1.21.10"));
+    v1_21_R6(List.of("1.21.9","1.21.10")),
+    v1_21_R7(List.of("1.21.11"));
 
     private final List<String> mcVersions;
 

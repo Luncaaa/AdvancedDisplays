@@ -135,7 +135,13 @@ public class PlayerEventsListener implements Listener {
     @EventHandler
     public void onItemPickup(EntityPickupItemEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
-        if (!plugin.getPlayersManager().getPlayerData(player).isEditing()) return;
+
+        PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
+
+        // PlayerData being null could happen on player disconnecting:
+        // The quit event is called first, which removes the data from the manager, but then other methods (like Player#touch)
+        // might be called, which trigger events such as this, causing NPEs.
+        if (playerData == null || !playerData.isEditing()) return;
 
         event.setCancelled(true);
     }

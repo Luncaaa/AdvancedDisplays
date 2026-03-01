@@ -9,7 +9,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("me.clip:placeholderapi:2.11.6")
+    compileOnly("me.clip:placeholderapi:2.12.2")
     compileOnly("io.th0rgal:oraxen:1.190.0")
     compileOnly("com.github.LoneDev6:API-ItemsAdder:3.6.3-beta-14")
 

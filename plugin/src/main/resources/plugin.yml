@@ -1,7 +1,7 @@
 main: me.lucaaa.advanceddisplays.AdvancedDisplays
 description: "Create entity, block, item and text displays!"
 name: "AdvancedDisplays"
-version: 1.7
+version: 1.7.1
 softdepend: [PlaceholderAPI, Oraxen, ItemsAdder]
 author: Lucaaa
 prefix: AD

@@ -28,10 +28,6 @@ dependencies {
 }
 
 tasks {
-    compileJava {
-        options.encoding = "UTF-8"
-    }
-
     shadowJar {
         exclude("org/apache/commons/io/**", "com/google/gson/**")
         minimize {

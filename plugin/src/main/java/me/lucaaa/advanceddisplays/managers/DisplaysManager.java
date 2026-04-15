@@ -9,6 +9,7 @@ import me.lucaaa.advanceddisplays.api.displays.enums.DisplayType;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
@@ -26,6 +27,7 @@ public class DisplaysManager {
     private final String configsFolder;
     private final boolean isApi;
     private final Map<String, ADBaseEntity> displays = new HashMap<>();
+    private final Map<World, List<ADBaseEntity>> worldDisplays = new HashMap<>();
     private final Map<Player, AttachedDisplay> attachDisplays = new HashMap<>();
     public static final List<EntityType> FORBIDDEN_ENTITIES = List.of(
             EntityType.EVOKER_FANGS,
@@ -172,7 +174,10 @@ public class DisplaysManager {
         if (display instanceof ADTextDisplay textDisplay) textDisplay.stopRunnable();
         display.destroy();
         plugin.getPlayersManager().handleDisplayRemoval(display);
-        if (removeFromList) displays.remove(display.getName());
+        if (removeFromList) {
+            displays.remove(display.getName());
+            worldDisplays.get(display.getLocation().getWorld()).remove(display);
+        }
         display.setRemoved();
     }
 
@@ -182,6 +187,8 @@ public class DisplaysManager {
         }
 
         attachDisplays.clear();
+        displays.clear();
+        worldDisplays.clear();
     }
 
     public ADBaseEntity getDisplayFromMap(String name) {
@@ -189,8 +196,10 @@ public class DisplaysManager {
     }
 
     public void spawnDisplays(Player player) {
-        for (ADBaseEntity display : displays.values()) {
-            if (display.getLocation().getWorld() != player.getLocation().getWorld()) continue;
+        List<ADBaseEntity> displays = worldDisplays.get(player.getWorld());
+        if (displays == null) return;
+
+        for (ADBaseEntity display : displays) {
             if (display.getVisibilityManager().isVisibleByPlayer(player)) display.spawnToPlayer(player);
         }
     }
@@ -259,9 +268,13 @@ public class DisplaysManager {
         }
 
         displays.put(configManager.getFile().getName().replace(".yml", ""), newDisplay);
+        worldDisplays.computeIfAbsent(newDisplay.getLocation().getWorld(), k -> new ArrayList<>())
+                .add(newDisplay);
+
         for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             newDisplay.sendMetadataPackets(onlinePlayer);
         }
+
         plugin.getInteractionsManager().addInteraction(newDisplay.getInteractionId(), newDisplay);
     }
 
@@ -269,7 +282,10 @@ public class DisplaysManager {
         double closestDistance = Math.pow(radius, 2);
         BaseEntity closestDisplay = null;
 
-        for (BaseEntity display : displays.values()) {
+        List<ADBaseEntity> list = worldDisplays.get(location.getWorld());
+        if (list == null) return null;
+
+        for (BaseEntity display : list) {
             double distanceSquared = display.getLocation().distanceSquared(location);
             boolean isInRadius = distanceSquared <= Math.pow(radius, 2);
 

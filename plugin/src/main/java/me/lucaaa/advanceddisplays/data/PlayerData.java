@@ -29,6 +29,7 @@ public class PlayerData {
     private boolean isChatEditing = false;
     private final Map<ADTextDisplay, AnimatedTextRunnable> runnables = new HashMap<>();
     private final Map<Action, Long> cooldowns = new HashMap<>();
+    public long pastInteraction = 0;
 
     public PlayerData(Player player, AdvancedDisplays plugin) {
         this.plugin = plugin;

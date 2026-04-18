@@ -7,6 +7,12 @@ dependencies {
     paperweight.paperDevBundle("1.20.2-R0.1-SNAPSHOT")
 }
 
+paperweight {
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 tasks {
     assemble {
         dependsOn(reobfJar)

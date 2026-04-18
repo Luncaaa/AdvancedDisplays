@@ -8,3 +8,10 @@ file("nms").listFiles()
         include("nms:$moduleName")
         findProject(":nms:$moduleName")?.name = moduleName
     }
+
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven("https://repo.papermc.io/repository/maven-public/")
+    }
+}

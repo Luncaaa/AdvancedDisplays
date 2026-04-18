@@ -86,7 +86,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
 
     @Override
     public void onEnable() {
-        String version = getServer().getBukkitVersion().split("-")[0];
+        String version = getServer().getBukkitVersion().split("-")[0].replaceAll("\\.build.*", "");
         nmsVersion = Version.getNMSVersion(version);
         if (nmsVersion == Version.UNKNOWN) {
             log(Level.SEVERE, "----------[AdvancedDisplays initialization error]----------");

@@ -23,7 +23,11 @@ dependencies {
     implementation(project(":nms"))
     implementation(project(":nms:nms_common"))
     file("${rootDir}/nms").listFiles()!!.filter { it.isDirectory && it.name.startsWith("v") }.forEach {
-        implementation(project(":nms:${it.name}", "reobf"))
+        if (it.name.startsWith("v1")) {
+            implementation(project(":nms:${it.name}", "reobf"))
+        } else {
+            implementation(project(":nms:${it.name}", "mojangMapped"))
+        }
     }
 }
 
@@ -37,7 +41,7 @@ tasks {
         }
         relocate("net.kyori", "shaded.net.kyori")
         archiveFileName.set("${project.parent?.name}-${project.version}.jar")
-        destinationDirectory.set(file("../build/libs"))
+        destinationDirectory.set(rootProject.layout.buildDirectory.dir("libs"))
     }
 
     assemble {

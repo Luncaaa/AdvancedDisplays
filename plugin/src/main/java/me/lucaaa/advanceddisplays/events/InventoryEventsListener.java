@@ -1,7 +1,7 @@
 package me.lucaaa.advanceddisplays.events;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import org.bukkit.entity.Player;
+import me.lucaaa.advanceddisplays.data.EditorData;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -27,6 +27,8 @@ public class InventoryEventsListener implements Listener {
 
     @EventHandler
     public void onCreativeEvent(InventoryCreativeEvent event) {
-        if (plugin.getPlayersManager().getPlayerData((Player) event.getWhoClicked()).isEditing()) event.setCancelled(true);
+        EditorData editorData = plugin.getPlayersManager().getEditor(event.getWhoClicked());
+
+        if (editorData != null) event.setCancelled(true);
     }
 }

@@ -20,6 +20,8 @@ public class ConditionsHandler {
         this.plugin = plugin;
         this.display = display;
 
+        if (conditionsSection == null) return;
+
         for (String conditionTypeKey : conditionsSection.getKeys(false)) {
             addCondition(conditionTypeKey, conditionsSection.get(conditionTypeKey));
         }

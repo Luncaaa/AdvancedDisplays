@@ -56,7 +56,7 @@ public class EntityEditorGUI extends ADInventory {
         addIfAllowed(EditorItem.CUSTOM_NAME, 1, new Button.InventoryButton<>(items.CUSTOM_NAME) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                plugin.getPlayersManager().getPlayerData((Player) event.getWhoClicked()).setChatEditing(true);
+                plugin.getPlayersManager().getEditor(event.getWhoClicked()).setChatEditing(true);
                 event.getWhoClicked().closeInventory();
                 event.getWhoClicked().sendMessage(plugin.getMessagesManager().getColoredMessage("&6Enter the new custom name or \"cancel\" to keep the current one."));
             }

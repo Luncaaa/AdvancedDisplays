@@ -45,7 +45,8 @@ public class ADVisibilityManager implements VisibilityManager {
 
     @Override
     public boolean isVisibleByPlayer(Player player) {
-        if (!player.getWorld().equals(display.getLocation().getWorld())) return false;
+        // Use != instead of equals because it's faster and World objects are the same for the same world (there are no copies)
+        if (player.getWorld() != display.getLocation().getWorld()) return false;
 
         boolean def = globalVisibility == Visibility.SHOW;
         boolean individual = individualVis.get(player.getName()) == Visibility.SHOW;

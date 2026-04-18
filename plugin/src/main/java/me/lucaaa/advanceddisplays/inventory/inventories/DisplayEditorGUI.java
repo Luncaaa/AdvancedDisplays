@@ -143,7 +143,7 @@ public class DisplayEditorGUI extends ADInventory {
         addIfAllowed(EditorItem.CURRENT_VALUE, 13, new Button.InventoryButton<>(items.CURRENT_VALUE) {
             @Override
             public void onClick(InventoryClickEvent event) {
-                plugin.getPlayersManager().getPlayerData((Player) event.getWhoClicked()).setChatEditing(true);
+                plugin.getPlayersManager().getEditor(event.getWhoClicked()).setChatEditing(true);
                 event.getWhoClicked().closeInventory();
 
                 if (display.getType() != DisplayType.TEXT) {

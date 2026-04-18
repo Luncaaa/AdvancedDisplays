@@ -1,7 +1,6 @@
 package me.lucaaa.advanceddisplays.commands.subcommands;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
-import me.lucaaa.advanceddisplays.data.PlayerData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -20,23 +19,17 @@ public class FinishSubCommand extends SubCommandsFormat {
     public void run(CommandSender sender, String[] args) {
         Player player = (Player) sender;
 
-        boolean sendError = true;
-
         if (plugin.getDisplaysManager().isPlayerAttaching(player)) {
-            sendError = false;
             plugin.getDisplaysManager().removeAttachingDisplay(player);
             player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYou are no longer creating an ATTACHED display."));
+            return;
         }
 
-        PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
-        if (playerData.isEditing()) {
-            sendError = false;
-            playerData.finishEditing();
+        if (plugin.getPlayersManager().finishEditing(player)) {
             player.sendMessage(plugin.getMessagesManager().getColoredMessage("&aYour old inventory has been given back to you."));
+            return;
         }
 
-        if (sendError) {
-            player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cYou are not editing or creating any display!"));
-        }
+        player.sendMessage(plugin.getMessagesManager().getColoredMessage("&cYou are not editing or creating any display!"));
     }
 }

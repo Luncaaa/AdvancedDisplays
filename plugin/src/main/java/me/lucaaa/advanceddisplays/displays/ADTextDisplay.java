@@ -279,7 +279,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     @Override
     public void nextPage(Player player) {
         textRunnable.excludePlayer(player);
-        PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
+        PlayerData playerData = plugin.getPlayersManager().getOrCreatePlayerData(player);
         int newIndex = playerData.getRunnable(plugin, this).nextPage();
 
         if (newIndex == textRunnable.getCurrentIndex()) {
@@ -295,7 +295,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
     @Override
     public void previousPage(Player player) {
         textRunnable.excludePlayer(player);
-        PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
+        PlayerData playerData = plugin.getPlayersManager().getOrCreatePlayerData(player);
         int newIndex = playerData.getRunnable(plugin, this).previousPage();
 
         if (newIndex == textRunnable.getCurrentIndex()) {
@@ -319,7 +319,7 @@ public class ADTextDisplay extends ADBaseDisplay implements me.lucaaa.advanceddi
         }
 
         textRunnable.excludePlayer(player);
-        PlayerData playerData = plugin.getPlayersManager().getPlayerData(player);
+        PlayerData playerData = plugin.getPlayersManager().getOrCreatePlayerData(player);
         int newIndex = texts.keySet().stream().toList().indexOf(page);
 
         if (newIndex == textRunnable.getCurrentIndex()) {

@@ -2,7 +2,7 @@ package me.lucaaa.advanceddisplays.managers;
 
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.api.displays.enums.EditorItem;
-import me.lucaaa.advanceddisplays.data.PlayerData;
+import me.lucaaa.advanceddisplays.data.EditorData;
 import me.lucaaa.advanceddisplays.inventory.ADInventory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -61,7 +61,8 @@ public class InventoryManager {
 
         if (!openGUIs.containsKey(player) || !event.getInventory().equals(openGUIs.get(player).getInventory())) return;
 
-        if (playersManager.getPlayerData(player).isChatEditing()) return; // Don't run on close method if the inventory closed for chat edition
+        EditorData editorData = playersManager.getEditor(player);
+        if (editorData == null || editorData.isChatEditing()) return; // Don't run on close method if the inventory closed for chat edition
         openGUIs.remove(player).onClose(player);
     }
 
@@ -74,13 +75,13 @@ public class InventoryManager {
     }
 
     public void handleChatEdit(Player player, String input) {
-        PlayerData playerData = playersManager.getPlayerData(player);
-        if (!playerData.isChatEditing()) return;
+        EditorData editorData = playersManager.getEditor(player);
+        if (editorData == null || !editorData.isChatEditing()) return;
 
         ADInventory openGUI = openGUIs.get(player);
         boolean stopChatEditing = openGUI.handleChatEdit(player, input);
         if (stopChatEditing) {
-            playerData.setChatEditing(false);
+            editorData.setChatEditing(false);
             handleOpen(player, openGUI);
         }
     }

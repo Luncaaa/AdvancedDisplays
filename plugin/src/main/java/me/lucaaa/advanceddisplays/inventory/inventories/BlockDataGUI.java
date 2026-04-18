@@ -45,7 +45,7 @@ public class BlockDataGUI extends ADInventory {
                 @Override
                 public void onClick(InventoryClickEvent event) {
                     editMap.put((Player) event.getWhoClicked(), entry.getKey());
-                    plugin.getPlayersManager().getPlayerData((Player) event.getWhoClicked()).setChatEditing(true);
+                    plugin.getPlayersManager().getEditor(event.getWhoClicked()).setChatEditing(true);
                     event.getWhoClicked().closeInventory();
                     event.getWhoClicked().sendMessage(Utils.getColoredText("&6Enter the new value for the &e" + entry.getKey() + " &6data value. Type &ecancel &6to cancel the operation."));
                 }

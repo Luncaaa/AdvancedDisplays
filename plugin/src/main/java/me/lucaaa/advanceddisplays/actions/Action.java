@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.actions;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.ActionType;
 import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
+import me.lucaaa.advanceddisplays.data.PlayerData;
 import me.lucaaa.advanceddisplays.data.Utils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.configuration.ConfigurationSection;
@@ -73,7 +74,14 @@ public abstract class Action {
      * @param display The clicked display.
      */
     public void run(Player clickedPlayer, Player actionPlayer, BaseEntity display) {
-        if (plugin.getPlayersManager().getPlayerData(clickedPlayer).isCoolingDown(this, cooldown)) {
+        if (cooldown <= 0) {
+            runAction(clickedPlayer, actionPlayer, display);
+            return;
+        }
+
+        PlayerData playerData = plugin.getPlayersManager().getOrCreatePlayerData(clickedPlayer);
+
+        if (playerData.isCoolingDown(this, cooldown)) {
             if (cooldownMessage != null && !cooldownMessage.isBlank()) {
                 plugin.getAudience(clickedPlayer).sendMessage(Utils.getText(cooldownMessage, clickedPlayer, null, false));
             }
@@ -82,9 +90,7 @@ public abstract class Action {
 
         runAction(clickedPlayer, actionPlayer, display);
 
-        if (cooldown > 0) {
-            plugin.getPlayersManager().getPlayerData(clickedPlayer).setActionUsed(this);
-        }
+        playerData.setActionUsed(this);
     }
 
     /**

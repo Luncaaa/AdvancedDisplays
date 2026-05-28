@@ -32,11 +32,11 @@ subprojects {
 
     dependencies {
         compileOnly("org.spigotmc:spigot-api:1.19.4-R0.1-SNAPSHOT")
-        compileOnly("io.netty:netty-all:4.2.12.Final")
-        implementation("net.kyori:adventure-api:4.26.1")
-        implementation("net.kyori:adventure-text-minimessage:4.26.1")
-        implementation("net.kyori:adventure-text-serializer-legacy:4.26.1")
-        implementation("net.kyori:adventure-text-serializer-gson:4.26.1")
+        compileOnly("io.netty:netty-all:4.2.14.Final")
+        implementation("net.kyori:adventure-api:5.1.1")
+        implementation("net.kyori:adventure-text-minimessage:5.1.1")
+        implementation("net.kyori:adventure-text-serializer-legacy:5.1.1")
+        implementation("net.kyori:adventure-text-serializer-gson:5.1.1")
         implementation("net.kyori:adventure-platform-bukkit:4.4.1")
     }
 }

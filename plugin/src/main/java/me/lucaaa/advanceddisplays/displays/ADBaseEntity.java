@@ -80,7 +80,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
 
         // Location is already validated.
         ConfigurationSection locationSection = config.getSection("location");
-        String world = locationSection.getString("world", plugin.getServer().getWorlds().get(0).getName());
+        String world = locationSection.getString("world", plugin.getServer().getWorlds().getFirst().getName());
         double x = locationSection.getDouble("x");
         double y = locationSection.getDouble("y");
         double z = locationSection.getDouble("z");
@@ -269,7 +269,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
     }
 
     public void runActions(Player player, ClickType clickType) {
-        actionsHandler.runActions(player, clickType, this);
+        actionsHandler.runActions(player, clickType);
     }
 
     public void spawnToPlayer(Player player) {

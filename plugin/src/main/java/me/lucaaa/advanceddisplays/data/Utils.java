@@ -65,63 +65,68 @@ public class Utils {
             settings.set("customModelData", customModelData);
         }
 
-        if (meta instanceof PotionMeta potion && potion.getColor() != null) {
-            settings.set("color",
+        switch (meta) {
+            case PotionMeta potion when potion.getColor() != null -> settings.set("color",
                     potion.getColor().getRed() + ";" +
                             potion.getColor().getGreen() + ";" +
                             potion.getColor().getBlue());
 
-        } else if (meta instanceof ArmorMeta armor) {
-            if (armor.getTrim() == null) {
-                settings.set("trim", null); // Deletes the setting if present
+            case ArmorMeta armor -> {
+                if (armor.getTrim() == null) {
+                    settings.set("trim", null); // Deletes the setting if present
 
-            } else {
-                settings.set("trim", armor.getTrim().getPattern().getKey().getKey() + ":" + armor.getTrim().getMaterial().getKey().getKey());
-            }
-
-            if (meta instanceof LeatherArmorMeta leatherArmor) {
-                settings.set("color",
-                        leatherArmor.getColor().getRed() + ";" +
-                                leatherArmor.getColor().getGreen() + ";" +
-                                leatherArmor.getColor().getBlue());
-            }
-
-        } else if (meta instanceof BannerMeta banner) {
-            List<String> patterns = new ArrayList<>();
-
-            for (Pattern pattern : banner.getPatterns()) {
-                patterns.add(pattern.getPattern().name() + ":" + pattern.getColor().name());
-            }
-
-            settings.set("patterns", patterns);
-
-        } else if (meta instanceof CompassMeta compass) {
-            if (compass.getLodestone() == null) {
-                settings.set("lodestone", null); // Deletes the setting if present
-
-            } else {
-                Location lodestone = compass.getLodestone();
-                settings.set("lodestone", lodestone.getX() + ";" + lodestone.getY() + ";" + lodestone.getZ());
-            }
-
-        } else if (meta instanceof BundleMeta bundle) {
-            settings.set("hasItems", bundle.hasItems());
-
-        } else if (meta instanceof AxolotlBucketMeta bucketMeta && bucketMeta.hasVariant()) {
-            settings.set("axolotl-bucket", bucketMeta.getVariant().name());
-
-        } else if (meta instanceof CrossbowMeta crossbowMeta) {
-            List<ItemStack> chargedProjectiles = crossbowMeta.getChargedProjectiles();
-            if (!chargedProjectiles.isEmpty()) {
-                ItemStack firstProjectile = chargedProjectiles.get(0);
-                if (firstProjectile.getType() == Material.FIREWORK_ROCKET) {
-                    settings.set("crossbow-ammo", DisplayEditorGUI.CrossbowAmmo.ROCKET.name());
                 } else {
-                    settings.set("crossbow-ammo", DisplayEditorGUI.CrossbowAmmo.ARROW.name());
+                    settings.set("trim", armor.getTrim().getPattern().getKey().getKey() + ":" + armor.getTrim().getMaterial().getKey().getKey());
                 }
-            } else {
-                settings.set("crossbow-ammo", DisplayEditorGUI.CrossbowAmmo.NONE.name());
+
+                if (meta instanceof LeatherArmorMeta leatherArmor) {
+                    settings.set("color",
+                            leatherArmor.getColor().getRed() + ";" +
+                                    leatherArmor.getColor().getGreen() + ";" +
+                                    leatherArmor.getColor().getBlue());
+                }
             }
+
+            case BannerMeta banner -> {
+                List<String> patterns = new ArrayList<>();
+
+                for (Pattern pattern : banner.getPatterns()) {
+                    patterns.add(pattern.getPattern().name() + ":" + pattern.getColor().name());
+                }
+
+                settings.set("patterns", patterns);
+            }
+
+            case CompassMeta compass -> {
+                if (compass.getLodestone() == null) {
+                    settings.set("lodestone", null); // Deletes the setting if present
+
+                } else {
+                    Location lodestone = compass.getLodestone();
+                    settings.set("lodestone", lodestone.getX() + ";" + lodestone.getY() + ";" + lodestone.getZ());
+                }
+            }
+
+            case BundleMeta bundle -> settings.set("hasItems", bundle.hasItems());
+
+            case AxolotlBucketMeta bucketMeta when bucketMeta.hasVariant() ->
+                    settings.set("axolotl-bucket", bucketMeta.getVariant().name());
+
+            case CrossbowMeta crossbowMeta -> {
+                List<ItemStack> chargedProjectiles = crossbowMeta.getChargedProjectiles();
+                if (!chargedProjectiles.isEmpty()) {
+                    ItemStack firstProjectile = chargedProjectiles.getFirst();
+                    if (firstProjectile.getType() == Material.FIREWORK_ROCKET) {
+                        settings.set("crossbow-ammo", DisplayEditorGUI.CrossbowAmmo.ROCKET.name());
+                    } else {
+                        settings.set("crossbow-ammo", DisplayEditorGUI.CrossbowAmmo.ARROW.name());
+                    }
+                } else {
+                    settings.set("crossbow-ammo", DisplayEditorGUI.CrossbowAmmo.NONE.name());
+                }
+            }
+
+            default -> { }
         }
 
         if (!item.getEnchantments().isEmpty()) {
@@ -150,79 +155,89 @@ public class Utils {
             }
         }
 
-        if (meta instanceof PotionMeta potion && settings.isString("color")) {
-            String[] saved = settings.getString("color", "255;255;255").split(";");
-            Color color = Color.fromRGB(Integer.parseInt(saved[0]), Integer.parseInt(saved[1]), Integer.parseInt(saved[2]));
-            potion.setColor(color);
-
-        } else if (meta instanceof ArmorMeta armor) {
-            if (settings.isString("trim")) {
-                String[] trim = settings.getString("trim", "sentry:netherite").toLowerCase().split(":");
-                TrimMaterial material = Registry.TRIM_MATERIAL.get(NamespacedKey.minecraft(trim[1]));
-                TrimPattern pattern = Registry.TRIM_PATTERN.get(NamespacedKey.minecraft(trim[0]));
-
-                if (material == null || pattern == null) {
-                    plugin.log(Level.WARNING, "Invalid armor trim material and/or pattern: Material: " + trim[1] + " - Pattern: " + trim[0]);
-                } else {
-                    armor.setTrim(new ArmorTrim(material, pattern));
-                }
-            }
-
-            if (meta instanceof LeatherArmorMeta leatherArmor && settings.isString("color")) {
+        switch (meta) {
+            case PotionMeta potion when settings.isString("color") -> {
                 String[] saved = settings.getString("color", "255;255;255").split(";");
                 Color color = Color.fromRGB(Integer.parseInt(saved[0]), Integer.parseInt(saved[1]), Integer.parseInt(saved[2]));
-                leatherArmor.setColor(color);
+                potion.setColor(color);
             }
 
-        } else if (meta instanceof BannerMeta banner && settings.isList("patterns")) {
-            List<String> patterns = settings.getStringList("patterns");
+            case ArmorMeta armor -> {
+                if (settings.isString("trim")) {
+                    String[] trim = settings.getString("trim", "sentry:netherite").toLowerCase().split(":");
+                    TrimMaterial material = Registry.TRIM_MATERIAL.get(NamespacedKey.minecraft(trim[1]));
+                    TrimPattern pattern = Registry.TRIM_PATTERN.get(NamespacedKey.minecraft(trim[0]));
 
-            for (String configPattern : patterns) {
-                if (configPattern.isBlank()) continue;
-                String[] parts = configPattern.split(":");
+                    if (material == null || pattern == null) {
+                        plugin.log(Level.WARNING, "Invalid armor trim material and/or pattern: Material: " + trim[1] + " - Pattern: " + trim[0]);
+                    } else {
+                        armor.setTrim(new ArmorTrim(material, pattern));
+                    }
+                }
 
-                try {
-                    PatternType pattern = PatternType.valueOf(parts[0]);
-                    DyeColor color = DyeColor.valueOf(parts[1]);
-                    banner.addPattern(new Pattern(color, pattern));
-                } catch (IllegalArgumentException e) {
-                    plugin.log(Level.WARNING, "Invalid banner pattern type and/or color: " + configPattern);
+                if (meta instanceof LeatherArmorMeta leatherArmor && settings.isString("color")) {
+                    String[] saved = settings.getString("color", "255;255;255").split(";");
+                    Color color = Color.fromRGB(Integer.parseInt(saved[0]), Integer.parseInt(saved[1]), Integer.parseInt(saved[2]));
+                    leatherArmor.setColor(color);
                 }
             }
 
-        } else if (meta instanceof CompassMeta compass && settings.isString("lodestone")) {
-            String[] location = settings.getString("lodestone", "0.0;0.0;0.0").split(";");
-            Location lodestone = new Location(compassWorld,
-                    Double.parseDouble(location[0]),
-                    Double.parseDouble(location[1]),
-                    Double.parseDouble(location[2]));
-            compass.setLodestone(lodestone);
+            case BannerMeta banner when settings.isList("patterns") -> {
+                List<String> patterns = settings.getStringList("patterns");
 
-        } else if (meta instanceof BundleMeta bundle) {
-            if (settings.getBoolean("hasItems")) {
-                bundle.addItem(new ItemStack(Material.DIAMOND, 64));
-            }
+                for (String configPattern : patterns) {
+                    if (configPattern.isBlank()) continue;
+                    String[] parts = configPattern.split(":");
 
-        } else if (meta instanceof AxolotlBucketMeta bucketMeta) {
-            if (settings.isString("axolotl-bucket")) {
-                String variant = settings.getString("axolotl-bucket", "").toUpperCase();
-                try {
-                    bucketMeta.setVariant(Axolotl.Variant.valueOf(variant));
-                } catch (IllegalArgumentException e) {
-                    plugin.log(Level.WARNING, "Invalid axolotl variant: " + variant);
+                    try {
+                        PatternType pattern = PatternType.valueOf(parts[0]);
+                        DyeColor color = DyeColor.valueOf(parts[1]);
+                        banner.addPattern(new Pattern(color, pattern));
+                    } catch (IllegalArgumentException e) {
+                        plugin.log(Level.WARNING, "Invalid banner pattern type and/or color: " + configPattern);
+                    }
                 }
             }
 
-        } else if (meta instanceof CrossbowMeta crossbowMeta) {
-            if (settings.isString("crossbow-ammo")) {
-                String ammo = settings.getString("crossbow-ammo");
-                try {
-                    DisplayEditorGUI.CrossbowAmmo crossbowAmmo = DisplayEditorGUI.CrossbowAmmo.valueOf(ammo);
-                    crossbowMeta.setChargedProjectiles(crossbowAmmo.getItems());
-                } catch (IllegalArgumentException e) {
-                    plugin.log(Level.WARNING, "Invalid crossbow ammo: " + ammo);
+            case CompassMeta compass when settings.isString("lodestone") -> {
+                String[] location = settings.getString("lodestone", "0.0;0.0;0.0").split(";");
+                Location lodestone = new Location(compassWorld,
+                        Double.parseDouble(location[0]),
+                        Double.parseDouble(location[1]),
+                        Double.parseDouble(location[2]));
+                compass.setLodestone(lodestone);
+            }
+
+            case BundleMeta bundle -> {
+                if (settings.getBoolean("hasItems")) {
+                    bundle.addItem(new ItemStack(Material.DIAMOND, 64));
                 }
             }
+
+            case AxolotlBucketMeta bucketMeta -> {
+                if (settings.isString("axolotl-bucket")) {
+                    String variant = settings.getString("axolotl-bucket", "").toUpperCase();
+                    try {
+                        bucketMeta.setVariant(Axolotl.Variant.valueOf(variant));
+                    } catch (IllegalArgumentException e) {
+                        plugin.log(Level.WARNING, "Invalid axolotl variant: " + variant);
+                    }
+                }
+            }
+
+            case CrossbowMeta crossbowMeta -> {
+                if (settings.isString("crossbow-ammo")) {
+                    String ammo = settings.getString("crossbow-ammo");
+                    try {
+                        DisplayEditorGUI.CrossbowAmmo crossbowAmmo = DisplayEditorGUI.CrossbowAmmo.valueOf(ammo);
+                        crossbowMeta.setChargedProjectiles(crossbowAmmo.getItems());
+                    } catch (IllegalArgumentException e) {
+                        plugin.log(Level.WARNING, "Invalid crossbow ammo: " + ammo);
+                    }
+                }
+            }
+
+            default -> { }
         }
 
         if (settings.getBoolean("enchanted")) {

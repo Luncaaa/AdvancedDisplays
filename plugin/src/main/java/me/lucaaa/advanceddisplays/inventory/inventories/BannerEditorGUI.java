@@ -282,8 +282,8 @@ public class BannerEditorGUI extends ADInventory {
         sortedKeys.sort(Integer::compareTo);
 
         if (!sortedKeys.isEmpty()) {
-            int min = sortedKeys.get(0);
-            int max = sortedKeys.get(sortedKeys.size() - 1);
+            int min = sortedKeys.getFirst();
+            int max = sortedKeys.getLast();
 
             for (int i = min; i <= max; i++) {
                 Pattern pattern = patterns.get(i);

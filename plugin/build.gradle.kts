@@ -19,6 +19,7 @@ dependencies {
 
     implementation(project(":platform"))
     implementation(project(":platform:spigot"))
+    implementation(project(":platform:paper"))
     implementation(project(":platform:folia"))
     implementation(project(":platform:common"))
 
@@ -41,8 +42,7 @@ tasks {
                 exclude(project(":nms:${it.name}"))
             }
         }
-        relocate("net.kyori", "shaded.net.kyori")
-        archiveFileName.set("${project.parent?.name}-${project.version}.jar")
+        archiveFileName.set("${rootProject.name}-${rootProject.version}.jar")
         destinationDirectory.set(rootProject.layout.buildDirectory.dir("libs"))
     }
 
@@ -51,6 +51,7 @@ tasks {
     }
 
     register("publishToSites") {
+        description = "Publishes the plugin to Modrinth and Hangar"
         dependsOn(publishAllPublicationsToHangar)
         dependsOn(modrinth)
     }

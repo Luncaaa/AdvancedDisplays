@@ -1,6 +1,6 @@
 rootProject.name = "AdvancedDisplays"
 include("plugin", "api", "nms")
-include("platform", "platform:common", "platform:folia", "platform:spigot")
+include("platform", "platform:common", "platform:folia", "platform:spigot", "platform:paper")
 file("nms").listFiles()
     ?.filter { it.isDirectory }
     ?.forEach { subDir ->

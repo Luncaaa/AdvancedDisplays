@@ -46,7 +46,6 @@ subprojects {
         implementation("net.kyori:adventure-text-minimessage:5.1.1")
         implementation("net.kyori:adventure-text-serializer-legacy:5.1.1")
         implementation("net.kyori:adventure-text-serializer-gson:5.1.1")
-        implementation("net.kyori:adventure-platform-bukkit:4.4.1")
     }
 }
 
@@ -56,6 +55,10 @@ tasks {
     }
 
     jar {
+        enabled = false
+    }
+
+    shadowJar {
         enabled = false
     }
 }

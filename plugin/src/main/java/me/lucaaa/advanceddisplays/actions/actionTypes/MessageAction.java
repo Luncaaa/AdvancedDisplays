@@ -3,7 +3,6 @@ package me.lucaaa.advanceddisplays.actions.actionTypes;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.Action;
 import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
-import net.kyori.adventure.audience.Audience;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -31,9 +30,8 @@ public class MessageAction extends Action {
 
     @Override
     public void runAction(Player clickedPlayer, Player actionPlayer, BaseEntity display) {
-        Audience audience = plugin.getAudience(actionPlayer);
         for (String message : messages) {
-            audience.sendMessage(getText(message, clickedPlayer, actionPlayer));
+            plugin.getMessagesManager().sendMessage(actionPlayer, getText(message, clickedPlayer, actionPlayer));
         }
     }
 }

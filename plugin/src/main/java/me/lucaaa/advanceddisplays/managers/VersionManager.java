@@ -69,7 +69,7 @@ public class VersionManager {
                     );
 
                 } catch (NoSuchElementException e) {
-                    String firstName = pipeline.names().isEmpty() ? null : pipeline.names().get(0);
+                    String firstName = pipeline.names().isEmpty() ? null : pipeline.names().getFirst();
                     if (!TAIL_CONTEXT_IDENTIFIER.equals(firstName)) {
                         throw e;
                     }

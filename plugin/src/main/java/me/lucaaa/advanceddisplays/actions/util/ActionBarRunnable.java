@@ -3,7 +3,7 @@ package me.lucaaa.advanceddisplays.actions.util;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.ActionbarAction;
 import me.lucaaa.advanceddisplays.common.ADRunnable;
-import net.kyori.adventure.audience.Audience;
+import me.lucaaa.advanceddisplays.managers.MessagesManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
@@ -21,14 +21,14 @@ public class ActionBarRunnable {
     }
 
     public void sendToPlayer(Player clickedPlayer, Player actionPlayer) {
-        Audience audience = plugin.getAudience(actionPlayer);
+        MessagesManager manager = plugin.getMessagesManager();
         Component component = action.getText(message, clickedPlayer, actionPlayer);
         plugin.getTasksManager().runTaskTimer(plugin, new ADRunnable() {
             private int timeLeft = duration;
 
             @Override
             public void run() {
-                audience.sendActionBar(component);
+                manager.sendActionbar(actionPlayer, component);
                 --timeLeft;
                 if (timeLeft == 0) cancel();
             }

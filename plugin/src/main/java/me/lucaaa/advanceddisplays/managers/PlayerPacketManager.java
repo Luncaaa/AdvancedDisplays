@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
 import me.lucaaa.advanceddisplays.nms_common.InternalEntityClickEvent;
+import me.lucaaa.advanceddisplays.nms_common.Version;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
@@ -30,7 +31,7 @@ public class PlayerPacketManager extends ChannelDuplexHandler {
 
         // Because the event is fired twice, the first time the event is run and the variable is set to "true".
         // The second time, when the variable is true, the event will be ignored.
-        if (clickType == ClickType.RIGHT || clickType == ClickType.SHIFT_RIGHT) {
+        if ((clickType == ClickType.RIGHT || clickType == ClickType.SHIFT_RIGHT) && !plugin.getNmsVersion().isEqualOrNewerThan(Version.v26_1)) {
             if (pastInteraction) {
                 pastInteraction = false;
                 return;

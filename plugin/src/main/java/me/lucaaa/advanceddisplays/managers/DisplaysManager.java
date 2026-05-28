@@ -153,6 +153,8 @@ public class DisplaysManager {
 
         plugin.getInteractionsManager().addInteraction(display.getInteractionId(), display);
         displays.put(name, display);
+        worldDisplays.computeIfAbsent(display.getLocation().getWorld(), k -> new ArrayList<>())
+                .add(display);
         return display;
     }
 

@@ -47,7 +47,7 @@ public class HeadUtils {
         try {
             return getBase64Head(base64);
 
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException | URISyntaxException e) {
             logger.logError(java.util.logging.Level.WARNING, "An error occurred while parsing a base64 head! Head value: " + base64, e);
             return new ItemStack(Material.PLAYER_HEAD);
         }
@@ -59,8 +59,9 @@ public class HeadUtils {
      * @param base64 The head's base64 texture.
      * @return The head with the base64 texture.
      * @throws MalformedURLException Exception occurred while parsing URLs.
+     * @throws URISyntaxException Exception occurred while parsing URLs.
      */
-    private static ItemStack getBase64Head(String base64) throws MalformedURLException {
+    private static ItemStack getBase64Head(String base64) throws MalformedURLException, URISyntaxException {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skullMeta = (SkullMeta) Objects.requireNonNull(item.getItemMeta());
 
@@ -71,7 +72,7 @@ public class HeadUtils {
         PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
         PlayerTextures textures = profile.getTextures();
 
-        URL urlObject = new URL(url);
+        URL urlObject = new URI(url).toURL();
         textures.setSkin(urlObject);
         profile.setTextures(textures);
         skullMeta.setOwnerProfile(profile);

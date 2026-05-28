@@ -83,7 +83,7 @@ public abstract class Action {
 
         if (playerData.isCoolingDown(this, cooldown)) {
             if (cooldownMessage != null && !cooldownMessage.isBlank()) {
-                plugin.getAudience(clickedPlayer).sendMessage(Utils.getText(cooldownMessage, clickedPlayer, null, false));
+                plugin.getMessagesManager().sendMessage(clickedPlayer, Utils.getText(cooldownMessage, clickedPlayer, null, false));
             }
             return;
         }

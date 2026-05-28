@@ -3,7 +3,6 @@ package me.lucaaa.advanceddisplays.actions;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.*;
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
-import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
 import me.lucaaa.advanceddisplays.data.Utils;
 import me.lucaaa.advanceddisplays.conditions.ConditionsHandler;
 import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
@@ -17,13 +16,13 @@ import java.util.logging.Level;
 
 public class ActionsHandler {
     private final AdvancedDisplays plugin;
-    private final BaseEntity display;
+    private final ADBaseEntity display;
     private final ConditionsHandler conditionsHandler;
     private final String conditionsNotMetMessage;
     private final Map<ClickType, List<Action>> actionsMap = new EnumMap<>(ClickType.class);
     private DisplayActions clickActions = null;
 
-    public ActionsHandler(AdvancedDisplays plugin, BaseEntity display, ConfigManager configManager) {
+    public ActionsHandler(AdvancedDisplays plugin, ADBaseEntity display, ConfigManager configManager) {
         this.plugin = plugin;
         this.display = display;
 
@@ -149,7 +148,7 @@ public class ActionsHandler {
         return action;
     }
 
-    public void runActions(Player player, ClickType clickType, ADBaseEntity display) {
+    public void runActions(Player player, ClickType clickType) {
         if (clickActions != null) {
             clickActions.onClick(player, clickType, display);
             return;
@@ -161,7 +160,7 @@ public class ActionsHandler {
 
         if (!meetsConditions) {
             if (conditionsNotMetMessage != null && !conditionsNotMetMessage.isBlank()) {
-                plugin.getAudience(player).sendMessage(Utils.getText(conditionsNotMetMessage, player, null, false));
+                plugin.getMessagesManager().sendMessage(player, Utils.getText(conditionsNotMetMessage, player, null, false));
             }
             return;
         }

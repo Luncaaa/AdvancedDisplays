@@ -482,198 +482,208 @@ public class DisplayEditorGUI extends ADInventory {
         if (meta == null) return;
 
         int slot = METADATA_SLOTS.get(3);
-        if (meta instanceof PotionMeta potion) {
-            // Item type must be a potion (normal, splash or lingering) because meta is an instance of PotionMeta
-            Color color = (potion.getColor() == null) ? Color.ORANGE : potion.getColor();
-            ColorItems.ColorPreview preview = new ColorItems.ColorPreview(item.getType(), "Potion color", List.of("", "&7Use &cRIGHT_CLICK &7to reset"), color, ColorItems.ColorComponent.ALL, false);
-            addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(preview) {
-                @Override
-                public void onClick(InventoryClickEvent event) {
-                    if (event.isRightClick()) {
-                        getItem().setColor(Color.ORANGE);
-                        getInventory().setItem(slot, getItem().getStack());
-                        setPotionColor(display, null);
-                        return;
-                    }
-
-                    shouldOpenPrevious = false;
-                    ColorGUI inventory = new ColorGUI(plugin, DisplayEditorGUI.this, item.getType(), display, false, color, color -> {
-                        getItem().setColor(color);
-                        getInventory().setItem(slot, getItem().getStack());
-                        setPotionColor(display, color);
-                    }, () -> shouldOpenPrevious = true);
-                    plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
-                }
-            });
-
-        } else if (meta instanceof ArmorMeta armor) {
-            final TrimPattern[] pattern = {(armor.getTrim() == null) ? null : armor.getTrim().getPattern()};
-            final TrimMaterial[] material = {(armor.getTrim() == null) ? null : armor.getTrim().getMaterial()};
-
-            Item.RegistryItem patternItem = new Item.RegistryItem(getMatFromPattern(pattern[0]), "Armor trim pattern", List.of("Changes the armor's trim pattern"), pattern[0] == null ? TrimPattern.SENTRY : pattern[0], true, !armor.hasTrim());
-            addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(patternItem) {
-                @Override
-                public void onClick(InventoryClickEvent event) {
-                    // If, for whatever reason, trim patterns are null, do not attempt to change the value.
-                    if (TrimPattern.SENTRY == null) return;
-                    pattern[0] = (TrimPattern) getItem().changeValue();
-                    // Item is set in this method
-                    setArmorTrim(display, pattern[0], material[0], slot, METADATA_SLOTS.get(4));
-                }
-            });
-
-            Item.RegistryItem materialItem = new Item.RegistryItem(getMatFromTrimMat(material[0]), "Armor trim material", List.of("Changes the armor's trim material"), material[0] == null ? TrimMaterial.NETHERITE : material[0], true, !armor.hasTrim());
-            addIfAllowed(EditorItem.ITEM_META, METADATA_SLOTS.get(4), new Button.InventoryButton<>(materialItem) {
-                @Override
-                public void onClick(InventoryClickEvent event) {
-                    // If, for whatever reason, trim materials are null, do not attempt to change the value.
-                    if (TrimMaterial.DIAMOND == null) return;
-                    material[0] = (TrimMaterial) getItem().changeValue();
-                    // Item is set in this method
-                    setArmorTrim(display, pattern[0], material[0], slot, METADATA_SLOTS.get(4));
-                }
-            });
-
-            if (meta instanceof LeatherArmorMeta leatherArmor) {
-                // Item type must be an armor part (helmet, boots...) because meta is an instance of LeatherArmorMeta
-                ColorItems.ColorPreview preview = new ColorItems.ColorPreview(item.getType(), "Armor color", List.of("", "&7Use &cRIGHT_CLICK &7to reset"), leatherArmor.getColor(), ColorItems.ColorComponent.ALL, false);
-                addIfAllowed(EditorItem.ITEM_META, METADATA_SLOTS.get(5), new Button.InventoryButton<>(preview) {
+        switch (meta) {
+            case PotionMeta potion -> {
+                // Item type must be a potion (normal, splash or lingering) because meta is an instance of PotionMeta
+                Color color = (potion.getColor() == null) ? Color.ORANGE : potion.getColor();
+                ColorItems.ColorPreview preview = new ColorItems.ColorPreview(item.getType(), "Potion color", List.of("", "&7Use &cRIGHT_CLICK &7to reset"), color, ColorItems.ColorComponent.ALL, false);
+                addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(preview) {
                     @Override
                     public void onClick(InventoryClickEvent event) {
                         if (event.isRightClick()) {
-                            getItem().setColor(plugin.getServer().getItemFactory().getDefaultLeatherColor());
-                            getInventory().setItem(METADATA_SLOTS.get(5), getItem().getStack());
-                            setArmorColor(display, null);
+                            getItem().setColor(Color.ORANGE);
+                            getInventory().setItem(slot, getItem().getStack());
+                            setPotionColor(display, null);
                             return;
                         }
 
                         shouldOpenPrevious = false;
-                        ColorGUI inventory = new ColorGUI(plugin, DisplayEditorGUI.this, item.getType(), display, false, leatherArmor.getColor(), color -> {
+                        ColorGUI inventory = new ColorGUI(plugin, DisplayEditorGUI.this, item.getType(), display, false, color, color -> {
                             getItem().setColor(color);
-                            getInventory().setItem(METADATA_SLOTS.get(5), getItem().getStack());
-                            setArmorColor(display, color);
+                            getInventory().setItem(slot, getItem().getStack());
+                            setPotionColor(display, color);
                         }, () -> shouldOpenPrevious = true);
                         plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
                     }
                 });
             }
 
-        } else if (meta instanceof BannerMeta banner) {
-            Item.ClickableItem bannerItem = new Item.ClickableItem(item, "Banner patterns", List.of("Changes the banner's pattern"), null);
-            addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(bannerItem) {
-                private BannerMeta meta = banner;
+            case ArmorMeta armor -> {
+                final TrimPattern[] pattern = {(armor.getTrim() == null) ? null : armor.getTrim().getPattern()};
+                final TrimMaterial[] material = {(armor.getTrim() == null) ? null : armor.getTrim().getMaterial()};
 
-                @Override
-                public void onClick(InventoryClickEvent event) {
-                    shouldOpenPrevious = false;
-                    BannerEditorGUI inventory = new BannerEditorGUI(plugin, DisplayEditorGUI.this, item.getType(), this.meta, meta -> {
-                        this.meta = meta;
-                        ItemStack item = display.getItem().clone(); // Gets the potion type (normal, splash or lingering)
-                        item.setItemMeta(meta);
-                        display.setItem(item);
-                        // Cloning the meta prevents the "applyMeta" method run in "updateCurrentValue" from changing anything in the metadata item.
-                        getItem().applyMeta(meta.clone());
-                        getInventory().setItem(slot, getItem().getStack());
-                        updateCurrentValue(meta, item.getType().name());
-                    }, () -> shouldOpenPrevious = true);
-
-                    plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
-                }
-            });
-
-        } else if (meta instanceof CompassMeta compass) {
-            String location = compass.hasLodestone() ? Utils.locToString(Objects.requireNonNull(compass.getLodestone())) : "No lodestone";
-            Item.ClickableItem lodestoneLocation = new Item.ClickableItem(Material.LODESTONE, "Compass lodestone", List.of("Changes the compass' lodestone", "", "&7Use &cRIGHT_CLICK &7to reset"), location);
-            addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(lodestoneLocation) {
-                @Override
-                public void onClick(InventoryClickEvent event) {
-                    boolean sameWorld = event.getWhoClicked().getWorld().equals(display.getLocation().getWorld());
-                    if (event.isRightClick() || !sameWorld) {
-                        getItem().setValue(sameWorld ? "No lodestone" : "Player and display world don't match!");
-                        getInventory().setItem(slot, getItem().getStack());
-                        setCompassLodestone(display, null);
-                        return;
+                Item.RegistryItem patternItem = new Item.RegistryItem(getMatFromPattern(pattern[0]), "Armor trim pattern", List.of("Changes the armor's trim pattern"), pattern[0] == null ? TrimPattern.SENTRY : pattern[0], true, !armor.hasTrim());
+                addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(patternItem) {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        // If, for whatever reason, trim patterns are null, do not attempt to change the value.
+                        if (TrimPattern.SENTRY == null) return;
+                        pattern[0] = (TrimPattern) getItem().changeValue();
+                        // Item is set in this method
+                        setArmorTrim(display, pattern[0], material[0], slot, METADATA_SLOTS.get(4));
                     }
+                });
 
-                    Location loc = event.getWhoClicked().getLocation();
-                    getItem().setValue(Utils.locToString(loc));
-                    getInventory().setItem(slot, getItem().getStack());
-                    setCompassLodestone(display, loc);
-                }
-            });
+                Item.RegistryItem materialItem = new Item.RegistryItem(getMatFromTrimMat(material[0]), "Armor trim material", List.of("Changes the armor's trim material"), material[0] == null ? TrimMaterial.NETHERITE : material[0], true, !armor.hasTrim());
+                addIfAllowed(EditorItem.ITEM_META, METADATA_SLOTS.get(4), new Button.InventoryButton<>(materialItem) {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        // If, for whatever reason, trim materials are null, do not attempt to change the value.
+                        if (TrimMaterial.DIAMOND == null) return;
+                        material[0] = (TrimMaterial) getItem().changeValue();
+                        // Item is set in this method
+                        setArmorTrim(display, pattern[0], material[0], slot, METADATA_SLOTS.get(4));
+                    }
+                });
 
-        } else if (meta instanceof BundleMeta bundle) {
-            Item.BooleanItem hasItems = new Item.BooleanItem(item, "Has items", List.of("Changes whether the bundle has items or not"), bundle.hasItems(), false);
-            addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(hasItems) {
-                @Override
-                public void onClick(InventoryClickEvent event) {
-                    boolean hasItems = getItem().changeValue();
-                    ItemStack item = display.getItem().clone();
-                    ItemMeta meta = item.getItemMeta();
-                    if (meta instanceof BundleMeta bundleMeta) {
-                        if (hasItems) {
-                            bundleMeta.addItem(new ItemStack(Material.DIAMOND, 64));
-                        } else {
-                            bundleMeta.setItems(List.of());
+                if (meta instanceof LeatherArmorMeta leatherArmor) {
+                    // Item type must be an armor part (helmet, boots...) because meta is an instance of LeatherArmorMeta
+                    ColorItems.ColorPreview preview = new ColorItems.ColorPreview(item.getType(), "Armor color", List.of("", "&7Use &cRIGHT_CLICK &7to reset"), leatherArmor.getColor(), ColorItems.ColorComponent.ALL, false);
+                    addIfAllowed(EditorItem.ITEM_META, METADATA_SLOTS.get(5), new Button.InventoryButton<>(preview) {
+                        @Override
+                        public void onClick(InventoryClickEvent event) {
+                            if (event.isRightClick()) {
+                                getItem().setColor(plugin.getServer().getItemFactory().getDefaultLeatherColor());
+                                getInventory().setItem(METADATA_SLOTS.get(5), getItem().getStack());
+                                setArmorColor(display, null);
+                                return;
+                            }
+
+                            shouldOpenPrevious = false;
+                            ColorGUI inventory = new ColorGUI(plugin, DisplayEditorGUI.this, item.getType(), display, false, leatherArmor.getColor(), color -> {
+                                getItem().setColor(color);
+                                getInventory().setItem(METADATA_SLOTS.get(5), getItem().getStack());
+                                setArmorColor(display, color);
+                            }, () -> shouldOpenPrevious = true);
+                            plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
                         }
-
-                        item.setItemMeta(meta);
-                        display.setItem(item);
-                        // Cloning the meta prevents the "applyMeta" method run in "updateCurrentValue" from changing anything in the metadata item.
-                        getItem().applyMeta(meta.clone());
-                        getInventory().setItem(slot, getItem().getStack());
-                        updateCurrentValue(meta, item.getType().name());
-                    }
+                    });
                 }
-            });
-
-        } else if (meta instanceof AxolotlBucketMeta bucketMeta) {
-            Item.EnumItem<Axolotl.Variant> bucketItem = new Item.EnumItem<>(item, "Axolotl variant", List.of("Changes the variant of the axolotl"), bucketMeta.hasVariant() ? bucketMeta.getVariant() : Axolotl.Variant.LUCY, false);
-            addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(bucketItem) {
-                @Override
-                public void onClick(InventoryClickEvent event) {
-                    Axolotl.Variant newVariant = getItem().changeValue();
-                    ItemStack item = display.getItem().clone();
-                    ItemMeta meta = item.getItemMeta();
-                    if (meta instanceof AxolotlBucketMeta axolotlBucketMeta) {
-                        axolotlBucketMeta.setVariant(newVariant);
-                        item.setItemMeta(meta);
-                        display.setItem(item);
-                        // Cloning the meta prevents the "applyMeta" method run in "updateCurrentValue" from changing anything in the metadata item.
-                        getItem().applyMeta(meta.clone());
-                        getInventory().setItem(slot, getItem().getStack());
-                        updateCurrentValue(meta, item.getType().name());
-                    }
-                }
-            });
-
-        } else if (meta instanceof CrossbowMeta crossbowMeta) {
-            CrossbowAmmo ammo;
-            if (!crossbowMeta.getChargedProjectiles().isEmpty()) {
-                ItemStack firstProjectile = crossbowMeta.getChargedProjectiles().get(0);
-                ammo = (firstProjectile.getType() == Material.FIREWORK_ROCKET) ? CrossbowAmmo.ROCKET :CrossbowAmmo.ARROW;
-            } else {
-                ammo = CrossbowAmmo.NONE;
             }
 
-            Item.EnumItem<CrossbowAmmo> ammoItem = new Item.EnumItem<>(item, "Crossbow ammo", List.of("Changes the ammo loaded into the crossbow"), ammo, false);
-            addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(ammoItem) {
-                @Override
-                public void onClick(InventoryClickEvent event) {
-                    CrossbowAmmo newAmmo = getItem().changeValue();
-                    ItemStack item = display.getItem().clone();
-                    ItemMeta meta = item.getItemMeta();
-                    if (meta instanceof CrossbowMeta crossbowMeta) {
-                        crossbowMeta.setChargedProjectiles(newAmmo.getItems());
-                        item.setItemMeta(meta);
-                        display.setItem(item);
-                        // Cloning the meta prevents the "applyMeta" method run in "updateCurrentValue" from changing anything in the metadata item.
-                        getItem().applyMeta(meta.clone());
-                        getInventory().setItem(slot, getItem().getStack());
-                        updateCurrentValue(meta, item.getType().name());
+            case BannerMeta banner -> {
+                Item.ClickableItem bannerItem = new Item.ClickableItem(item, "Banner patterns", List.of("Changes the banner's pattern"), null);
+                addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(bannerItem) {
+                    private BannerMeta meta = banner;
+
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        shouldOpenPrevious = false;
+                        BannerEditorGUI inventory = new BannerEditorGUI(plugin, DisplayEditorGUI.this, item.getType(), this.meta, meta -> {
+                            this.meta = meta;
+                            ItemStack item = display.getItem().clone(); // Gets the potion type (normal, splash or lingering)
+                            item.setItemMeta(meta);
+                            display.setItem(item);
+                            // Cloning the meta prevents the "applyMeta" method run in "updateCurrentValue" from changing anything in the metadata item.
+                            getItem().applyMeta(meta.clone());
+                            getInventory().setItem(slot, getItem().getStack());
+                            updateCurrentValue(meta, item.getType().name());
+                        }, () -> shouldOpenPrevious = true);
+
+                        plugin.getInventoryManager().handleOpen((Player) event.getWhoClicked(), inventory);
                     }
+                });
+            }
+
+            case CompassMeta compass -> {
+                String location = compass.hasLodestone() ? Utils.locToString(Objects.requireNonNull(compass.getLodestone())) : "No lodestone";
+                Item.ClickableItem lodestoneLocation = new Item.ClickableItem(Material.LODESTONE, "Compass lodestone", List.of("Changes the compass' lodestone", "", "&7Use &cRIGHT_CLICK &7to reset"), location);
+                addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(lodestoneLocation) {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        boolean sameWorld = event.getWhoClicked().getWorld().equals(display.getLocation().getWorld());
+                        if (event.isRightClick() || !sameWorld) {
+                            getItem().setValue(sameWorld ? "No lodestone" : "Player and display world don't match!");
+                            getInventory().setItem(slot, getItem().getStack());
+                            setCompassLodestone(display, null);
+                            return;
+                        }
+
+                        Location loc = event.getWhoClicked().getLocation();
+                        getItem().setValue(Utils.locToString(loc));
+                        getInventory().setItem(slot, getItem().getStack());
+                        setCompassLodestone(display, loc);
+                    }
+                });
+            }
+
+            case BundleMeta bundle -> {
+                Item.BooleanItem hasItems = new Item.BooleanItem(item, "Has items", List.of("Changes whether the bundle has items or not"), bundle.hasItems(), false);
+                addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(hasItems) {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        boolean hasItems = getItem().changeValue();
+                        ItemStack item = display.getItem().clone();
+                        ItemMeta meta = item.getItemMeta();
+                        if (meta instanceof BundleMeta bundleMeta) {
+                            if (hasItems) {
+                                bundleMeta.addItem(new ItemStack(Material.DIAMOND, 64));
+                            } else {
+                                bundleMeta.setItems(List.of());
+                            }
+
+                            item.setItemMeta(meta);
+                            display.setItem(item);
+                            // Cloning the meta prevents the "applyMeta" method run in "updateCurrentValue" from changing anything in the metadata item.
+                            getItem().applyMeta(meta.clone());
+                            getInventory().setItem(slot, getItem().getStack());
+                            updateCurrentValue(meta, item.getType().name());
+                        }
+                    }
+                });
+            }
+
+            case AxolotlBucketMeta bucketMeta -> {
+                Item.EnumItem<Axolotl.Variant> bucketItem = new Item.EnumItem<>(item, "Axolotl variant", List.of("Changes the variant of the axolotl"), bucketMeta.hasVariant() ? bucketMeta.getVariant() : Axolotl.Variant.LUCY, false);
+                addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(bucketItem) {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        Axolotl.Variant newVariant = getItem().changeValue();
+                        ItemStack item = display.getItem().clone();
+                        ItemMeta meta = item.getItemMeta();
+                        if (meta instanceof AxolotlBucketMeta axolotlBucketMeta) {
+                            axolotlBucketMeta.setVariant(newVariant);
+                            item.setItemMeta(meta);
+                            display.setItem(item);
+                            // Cloning the meta prevents the "applyMeta" method run in "updateCurrentValue" from changing anything in the metadata item.
+                            getItem().applyMeta(meta.clone());
+                            getInventory().setItem(slot, getItem().getStack());
+                            updateCurrentValue(meta, item.getType().name());
+                        }
+                    }
+                });
+            }
+
+            case CrossbowMeta crossbowMeta -> {
+                CrossbowAmmo ammo;
+                if (!crossbowMeta.getChargedProjectiles().isEmpty()) {
+                    ItemStack firstProjectile = crossbowMeta.getChargedProjectiles().getFirst();
+                    ammo = (firstProjectile.getType() == Material.FIREWORK_ROCKET) ? CrossbowAmmo.ROCKET : CrossbowAmmo.ARROW;
+                } else {
+                    ammo = CrossbowAmmo.NONE;
                 }
-            });
+
+                Item.EnumItem<CrossbowAmmo> ammoItem = new Item.EnumItem<>(item, "Crossbow ammo", List.of("Changes the ammo loaded into the crossbow"), ammo, false);
+                addIfAllowed(EditorItem.ITEM_META, slot, new Button.InventoryButton<>(ammoItem) {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        CrossbowAmmo newAmmo = getItem().changeValue();
+                        ItemStack item = display.getItem().clone();
+                        ItemMeta meta = item.getItemMeta();
+                        if (meta instanceof CrossbowMeta crossbowMeta) {
+                            crossbowMeta.setChargedProjectiles(newAmmo.getItems());
+                            item.setItemMeta(meta);
+                            display.setItem(item);
+                            // Cloning the meta prevents the "applyMeta" method run in "updateCurrentValue" from changing anything in the metadata item.
+                            getItem().applyMeta(meta.clone());
+                            getInventory().setItem(slot, getItem().getStack());
+                            updateCurrentValue(meta, item.getType().name());
+                        }
+                    }
+                });
+            }
+
+            default -> { }
         }
     }
 

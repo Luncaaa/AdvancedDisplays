@@ -1,11 +1,20 @@
 plugins {
     id("java")
+    id("com.gradleup.shadow") version("latest.release")
+    id("io.papermc.hangar-publish-plugin") version("latest.release")
+    id("com.modrinth.minotaur") version("latest.release")
 }
+
+group = "me.lucaaa"
+version = "1.7.1"
+
+val releaseInfo by extra { getReleaseData(project.version) }
 
 allprojects {
     apply(plugin = "java")
-    group = "me.lucaaa"
-    version = "1.7.1"
+
+    group = rootProject.group
+    version = rootProject.version
 
     java {
         toolchain {
@@ -16,7 +25,7 @@ allprojects {
     tasks {
         compileJava {
             options.encoding = "UTF-8"
-            options.release = 17
+            options.release = 21
         }
     }
 }

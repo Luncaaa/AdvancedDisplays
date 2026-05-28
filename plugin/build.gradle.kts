@@ -1,5 +1,7 @@
 plugins {
-    id("com.gradleup.shadow") version("latest.release")
+    id("com.gradleup.shadow")
+    id("io.papermc.hangar-publish-plugin")
+    id("com.modrinth.minotaur")
 }
 
 repositories {
@@ -46,5 +48,51 @@ tasks {
 
     assemble {
         dependsOn(shadowJar)
+    }
+
+    register("publishToSites") {
+        dependsOn(publishAllPublicationsToHangar)
+        dependsOn(modrinth)
+    }
+}
+
+val data = rootProject.extra["releaseInfo"] as ReleaseData
+
+hangarPublish {
+    publications.register("plugin") {
+        version = project.version as String
+        id = "AdvancedDisplays"
+        channel = "Release"
+        changelog = data.body
+
+        apiKey = System.getenv("HANGAR_KEY")
+
+        platforms {
+            paper {
+                jar = tasks.shadowJar.flatMap { it.archiveFile }
+                platformVersions = listOf("1.19.4", "1.20.x", "1.21.x", "26.1.x")
+                dependencies {
+                    hangar("PlaceholderAPI") {
+                        required = false
+                    }
+                }
+            }
+        }
+    }
+}
+
+modrinth {
+    token.set(System.getenv("MODRINTH_TOKEN"))
+    projectId.set(data.modrinthId)
+    versionNumber.set(project.version as String)
+    uploadFile.set(tasks.shadowJar)
+    gameVersions.addAll(data.versions)
+    loaders.addAll("spigot", "paper", "purpur", "folia")
+
+    versionName = data.name
+    changelog = data.body
+
+    dependencies {
+        optional.project("placeholderapi")
     }
 }

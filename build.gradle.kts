@@ -1,17 +1,20 @@
 plugins {
     id("java")
-    id("com.gradleup.shadow") version("latest.release")
-    id("io.papermc.hangar-publish-plugin") version("latest.release")
-    id("com.modrinth.minotaur") version("latest.release")
+    id("shared")
+    id("com.gradleup.shadow") version("latest.release") apply false
+    id("io.papermc.hangar-publish-plugin") version("latest.release") apply false
+    id("com.modrinth.minotaur") version("latest.release") apply false
+    id("io.papermc.paperweight.userdev") version ("latest.release") apply false
 }
 
 group = "me.lucaaa"
-version = "1.7.1"
+version = "1.7.2"
 
-val releaseInfo by extra { getReleaseData(project.version) }
+extra.set("releaseInfo", getReleaseData(project.version))
 
 allprojects {
-    apply(plugin = "java")
+    plugins.apply("java")
+    plugins.apply("shared")
 
     group = rootProject.group
     version = rootProject.version
@@ -41,24 +44,16 @@ subprojects {
 
     dependencies {
         compileOnly("org.spigotmc:spigot-api:1.19.4-R0.1-SNAPSHOT")
-        compileOnly("io.netty:netty-all:4.2.14.Final")
-        implementation("net.kyori:adventure-api:5.1.1")
-        implementation("net.kyori:adventure-text-minimessage:5.1.1")
-        implementation("net.kyori:adventure-text-serializer-legacy:5.1.1")
-        implementation("net.kyori:adventure-text-serializer-gson:5.1.1")
+        compileOnly("io.netty:netty-all:4.2.16.Final")
+        implementation("net.kyori:adventure-api:5.2.0")
+        implementation("net.kyori:adventure-text-minimessage:5.2.0")
+        implementation("net.kyori:adventure-text-serializer-legacy:5.2.0")
+        implementation("net.kyori:adventure-text-serializer-gson:5.2.0")
     }
 }
 
 tasks {
-    wrapper {
-        distributionType = Wrapper.DistributionType.BIN
-    }
-
     jar {
-        enabled = false
-    }
-
-    shadowJar {
         enabled = false
     }
 }

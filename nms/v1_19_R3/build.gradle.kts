@@ -1,5 +1,5 @@
 plugins {
-    id("io.papermc.paperweight.userdev") version "latest.release"
+    id("io.papermc.paperweight.userdev")
 }
 
 dependencies {

@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("me.clip:placeholderapi:2.12.2")
+    compileOnly("me.clip:placeholderapi:2.12.3")
     compileOnly("io.th0rgal:oraxen:1.190.0")
     compileOnly("com.github.LoneDev6:API-ItemsAdder:3.6.3-beta-14")
 
@@ -57,7 +57,7 @@ tasks {
     }
 }
 
-val data = rootProject.extra["releaseInfo"] as ReleaseData
+val data = rootProject.extra.get("releaseInfo") as ReleaseData
 
 hangarPublish {
     publications.register("plugin") {
@@ -71,7 +71,7 @@ hangarPublish {
         platforms {
             paper {
                 jar = tasks.shadowJar.flatMap { it.archiveFile }
-                platformVersions = listOf("1.19.4", "1.20.x", "1.21.x", "26.1.x")
+                platformVersions = data.versions
                 dependencies {
                     hangar("PlaceholderAPI") {
                         required = false

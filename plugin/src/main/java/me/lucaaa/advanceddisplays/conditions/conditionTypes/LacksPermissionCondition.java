@@ -13,7 +13,6 @@ public class LacksPermissionCondition extends ADCondition {
 
     @Override
     public boolean meetsCondition(BaseEntity display, Player player) {
-        if (permission.equalsIgnoreCase("none")) return true;
-        return !player.hasPermission(permission);
+        return permission.equalsIgnoreCase("none") || !player.hasPermission(permission);
     }
 }

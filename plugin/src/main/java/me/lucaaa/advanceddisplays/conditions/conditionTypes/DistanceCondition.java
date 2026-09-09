@@ -8,7 +8,7 @@ public class DistanceCondition extends ADCondition {
     private final double distanceSquared;
 
     public DistanceCondition(double distance) {
-        this.distanceSquared = Math.pow(distance, 2);
+        this.distanceSquared = distance * distance;
     }
 
     @Override

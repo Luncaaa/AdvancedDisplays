@@ -54,6 +54,7 @@ public class ConditionsHandler {
             case DISTANCE -> new DistanceCondition((double) value);
             case HAS_PERMISSION -> new HasPermissionCondition((String) value);
             case LACKS_PERMISSION -> new LacksPermissionCondition((String) value);
+            case PLACEHOLDER -> new PlaceholderCondition(plugin, (String) value);
         };
 
         // The reason why it isn't correct is handled by the action class.

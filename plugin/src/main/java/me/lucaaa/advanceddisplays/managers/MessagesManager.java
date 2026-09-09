@@ -20,7 +20,7 @@ public class MessagesManager {
     
     public MessagesManager(AdvancedDisplays plugin, ConfigManager mainConfigManager) {
         this.prefix = mainConfigManager.getConfig().getString("prefix");
-        this.isPapiInstalled = plugin.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null;
+        this.isPapiInstalled = plugin.isPapiInstalled();
 
         this.isPaper = isPaper();
         if (!isPaper) {

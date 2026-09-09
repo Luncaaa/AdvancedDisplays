@@ -37,6 +37,7 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
     public Metadata metadata;
 
     // Integrations.
+    private boolean isPapiInstalled;
     private final Map<Compatibility, Integration> integrations = new HashMap<>();
 
     // Managers.
@@ -100,6 +101,8 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
         ADAPIProvider.setImplementation(apiDisplays);
 
         // Set up integrations.
+        isPapiInstalled = getServer().getPluginManager().getPlugin("PlaceholderAPI") != null;
+
         if (getServer().getPluginManager().isPluginEnabled("Oraxen")) {
             integrations.put(Compatibility.ORAXEN, new OraxenCompat(this));
         }
@@ -145,6 +148,10 @@ public class AdvancedDisplays extends JavaPlugin implements Logger {
 
     public Version getNmsVersion() {
         return nmsVersion;
+    }
+
+    public boolean isPapiInstalled() {
+        return isPapiInstalled;
     }
 
     public boolean isIntegrationLoaded(Compatibility compatibility) {

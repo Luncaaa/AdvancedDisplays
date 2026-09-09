@@ -1,6 +1,8 @@
 package me.lucaaa.advanceddisplays.api.conditions;
 
 import me.lucaaa.advanceddisplays.api.ADAPI;
+import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
+import org.bukkit.entity.Player;
 
 /**
  * Interface used to get built-in conditions.
@@ -29,4 +31,13 @@ public interface ConditionsFactory {
      * @return The permission condition.
      */
     Condition lacksPermission(String permission);
+
+    /**
+     * A given placeholder must match a value. For example, %player_name% == Luca
+     * @param condition A String with the format [placeholder] == [expected value]
+     * @return The placeholder condition.
+     * @deprecated Use your own {@link Condition#meetsCondition(BaseEntity, Player)} implementation since it'll be much safer and more flexible.
+     */
+    @Deprecated
+    Condition placeholder(String condition);
 }

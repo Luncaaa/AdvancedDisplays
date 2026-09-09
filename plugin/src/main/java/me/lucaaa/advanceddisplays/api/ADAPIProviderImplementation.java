@@ -16,7 +16,7 @@ public class ADAPIProviderImplementation extends ADAPIProvider {
 
     public ADAPIProviderImplementation(AdvancedDisplays plugin) {
         this.plugin = plugin;
-        this.conditionsFactory = new ADConditionsFactory();
+        this.conditionsFactory = new ADConditionsFactory(plugin);
     }
 
     @Override

@@ -5,7 +5,8 @@ public enum ConditionType {
     // Player must have the permission
     HAS_PERMISSION("has-permission", String.class),
     // Player must NOT have the permission
-    LACKS_PERMISSION("lacks-permission", String.class);
+    LACKS_PERMISSION("lacks-permission", String.class),
+    PLACEHOLDER("placeholder", String.class);
 
     private final String configName;
     private final Class<?> type;

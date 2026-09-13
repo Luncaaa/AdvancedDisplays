@@ -18,10 +18,11 @@ public class SoundAction extends Action {
     private final float volume;
     private final float pitch;
 
-    public SoundAction(AdvancedDisplays plugin, ConfigurationSection section) {
+    public SoundAction(AdvancedDisplays plugin, BaseEntity display, ConfigurationSection section) {
         super(
                 plugin,
                 ActionType.PLAY_SOUND,
+                display,
                 section,
                 List.of(
                         new Field("sound", String.class),

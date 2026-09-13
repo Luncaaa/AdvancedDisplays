@@ -12,10 +12,11 @@ import java.util.List;
 public class ActionbarAction extends Action {
     private final ActionBarRunnable runnable;
 
-    public ActionbarAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
+    public ActionbarAction(AdvancedDisplays plugin, BaseEntity display, ConfigurationSection actionSection) {
         super(
                 plugin,
                 ActionType.ACTIONBAR,
+                display,
                 actionSection,
                 List.of(
                         new Field("message", String.class),

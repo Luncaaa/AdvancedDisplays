@@ -11,10 +11,11 @@ import java.util.List;
 public class ConsoleCommandAction extends Action {
     private final List<String> commands;
 
-    public ConsoleCommandAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
+    public ConsoleCommandAction(AdvancedDisplays plugin, BaseEntity display, ConfigurationSection actionSection) {
         super(
                 plugin,
                 ActionType.CONSOLE_COMMAND,
+                display,
                 actionSection,
                 List.of(
                         new Field("command", String.class, List.class)

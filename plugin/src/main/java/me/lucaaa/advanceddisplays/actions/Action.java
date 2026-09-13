@@ -3,6 +3,7 @@ package me.lucaaa.advanceddisplays.actions;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.ActionType;
 import me.lucaaa.advanceddisplays.api.displays.BaseEntity;
+import me.lucaaa.advanceddisplays.conditions.ConditionsHandler;
 import me.lucaaa.advanceddisplays.data.PlayerData;
 import me.lucaaa.advanceddisplays.data.Utils;
 import net.kyori.adventure.text.Component;
@@ -22,7 +23,11 @@ public abstract class Action {
     private final int cooldown;
     private final String cooldownMessage;
 
-    public Action(AdvancedDisplays plugin, ActionType type, ConfigurationSection section, List<Field> requiredFields) {
+    // Per-action conditions
+    private final ConditionsHandler conditionsHandler;
+    private final String conditionsNotMetMessage;
+
+    public Action(AdvancedDisplays plugin, ActionType type, BaseEntity display, ConfigurationSection section, List<Field> requiredFields) {
         this.plugin = plugin;
         this.type = type;
 
@@ -44,6 +49,10 @@ public abstract class Action {
                 break;
             }
         }
+
+        ConfigurationSection conditionsSection = section.getConfigurationSection("conditions");
+        this.conditionsHandler = (conditionsSection == null) ? null :  new ConditionsHandler(plugin, display, conditionsSection);
+        this.conditionsNotMetMessage = section.getString("conditions-not-met", null);
     }
 
     /* TODO: In-game editor
@@ -84,6 +93,15 @@ public abstract class Action {
         if (playerData.isCoolingDown(this, cooldown)) {
             if (cooldownMessage != null && !cooldownMessage.isBlank()) {
                 plugin.getMessagesManager().sendMessage(clickedPlayer, Utils.getText(cooldownMessage, clickedPlayer, null, false));
+            }
+            return;
+        }
+
+        boolean meetsConditions = conditionsHandler == null || conditionsHandler.checkConditions(clickedPlayer);
+
+        if (!meetsConditions) {
+            if (conditionsNotMetMessage != null && !conditionsNotMetMessage.isBlank()) {
+                plugin.getMessagesManager().sendMessage(clickedPlayer, Utils.getText(conditionsNotMetMessage, clickedPlayer, null, false));
             }
             return;
         }

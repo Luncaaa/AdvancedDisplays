@@ -14,10 +14,11 @@ import java.util.Objects;
 public class EffectAction extends Action {
     private final PotionEffect effect;
 
-    public EffectAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
+    public EffectAction(AdvancedDisplays plugin, BaseEntity display, ConfigurationSection actionSection) {
         super(
                 plugin,
                 ActionType.EFFECT,
+                display,
                 actionSection,
                 List.of(
                         new Field("effect", String.class),

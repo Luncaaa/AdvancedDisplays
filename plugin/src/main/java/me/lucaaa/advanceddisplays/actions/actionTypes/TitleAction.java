@@ -15,10 +15,11 @@ public class TitleAction extends Action {
     private final int stay;
     private final int fadeOut;
 
-    public TitleAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
+    public TitleAction(AdvancedDisplays plugin, BaseEntity display, ConfigurationSection actionSection) {
         super(
                 plugin,
                 ActionType.TITLE,
+                display,
                 actionSection,
                 List.of(
                         new Field("title", String.class),

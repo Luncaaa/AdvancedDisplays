@@ -3,8 +3,6 @@ package me.lucaaa.advanceddisplays.actions;
 import me.lucaaa.advanceddisplays.AdvancedDisplays;
 import me.lucaaa.advanceddisplays.actions.actionTypes.*;
 import me.lucaaa.advanceddisplays.api.actions.DisplayActions;
-import me.lucaaa.advanceddisplays.data.Utils;
-import me.lucaaa.advanceddisplays.conditions.ConditionsHandler;
 import me.lucaaa.advanceddisplays.displays.ADBaseEntity;
 import me.lucaaa.advanceddisplays.managers.ConfigManager;
 import org.bukkit.configuration.ConfigurationSection;
@@ -17,8 +15,6 @@ import java.util.logging.Level;
 public class ActionsHandler {
     private final AdvancedDisplays plugin;
     private final ADBaseEntity display;
-    private final ConditionsHandler conditionsHandler;
-    private final String conditionsNotMetMessage;
     private final Map<ClickType, List<Action>> actionsMap = new EnumMap<>(ClickType.class);
     private DisplayActions clickActions = null;
 
@@ -26,22 +22,8 @@ public class ActionsHandler {
         this.plugin = plugin;
         this.display = display;
 
-        if (configManager == null) {
-            this.conditionsHandler = new ConditionsHandler(plugin, display);
-            this.conditionsNotMetMessage = null;
-            return;
-        }
-
         ConfigurationSection actionsSection = configManager.getSection("actions", false, configManager.getConfig());
-        if (actionsSection == null) {
-            this.conditionsHandler = new ConditionsHandler(plugin, display);
-            this.conditionsNotMetMessage = null;
-            return;
-        }
-
-        ConfigurationSection conditionsSection = configManager.getSection("conditions", false, actionsSection);
-        this.conditionsHandler = (conditionsSection == null) ? null : new ConditionsHandler(plugin, display, conditionsSection);
-        this.conditionsNotMetMessage = actionsSection.getString("conditions-not-met", null);
+        if (actionsSection == null) return;
 
         List<ClickType> validClickTypes = List.of(ClickType.LEFT, ClickType.RIGHT, ClickType.SHIFT_LEFT, ClickType.SHIFT_RIGHT);
         for (String clickTypeKey : actionsSection.getKeys(false)) {
@@ -126,15 +108,15 @@ public class ActionsHandler {
         }
 
         Action action = switch (actionType) {
-            case MESSAGE -> new MessageAction(plugin, actionSection);
-            case CONSOLE_COMMAND -> new ConsoleCommandAction(plugin, actionSection);
-            case PLAYER_COMMAND -> new PlayerCommandAction(plugin, actionSection);
-            case TITLE -> new TitleAction(plugin, actionSection);
-            case ACTIONBAR -> new ActionbarAction(plugin, actionSection);
-            case PLAY_SOUND -> new SoundAction(plugin, actionSection);
-            case EFFECT -> new EffectAction(plugin, actionSection);
-            case TOAST -> new ToastAction(plugin, actionSection, display);
-            case PARTICLE -> new ParticleAction(plugin, actionSection);
+            case MESSAGE -> new MessageAction(plugin, display, actionSection);
+            case CONSOLE_COMMAND -> new ConsoleCommandAction(plugin, display, actionSection);
+            case PLAYER_COMMAND -> new PlayerCommandAction(plugin, display, actionSection);
+            case TITLE -> new TitleAction(plugin, display, actionSection);
+            case ACTIONBAR -> new ActionbarAction(plugin, display, actionSection);
+            case PLAY_SOUND -> new SoundAction(plugin, display, actionSection);
+            case EFFECT -> new EffectAction(plugin, display, actionSection);
+            case TOAST -> new ToastAction(plugin, display, actionSection);
+            case PARTICLE -> new ParticleAction(plugin, display, actionSection);
         };
 
         if (action.hasErrors()) {
@@ -155,15 +137,6 @@ public class ActionsHandler {
         }
 
         if (display.isApi()) return;
-
-        boolean meetsConditions = conditionsHandler == null || conditionsHandler.checkConditions(player);
-
-        if (!meetsConditions) {
-            if (conditionsNotMetMessage != null && !conditionsNotMetMessage.isBlank()) {
-                plugin.getMessagesManager().sendMessage(player, Utils.getText(conditionsNotMetMessage, player, null, false));
-            }
-            return;
-        }
 
         List<Action> actionsToRun = actionsMap.get(clickType);
         if (actionsToRun == null) return;

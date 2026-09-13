@@ -22,10 +22,11 @@ public class ToastAction extends Action {
     private final AdvancementDisplayType frame;
     private final boolean animate;
 
-    public ToastAction(AdvancedDisplays plugin, ConfigurationSection actionSection, BaseEntity display) {
+    public ToastAction(AdvancedDisplays plugin, BaseEntity display, ConfigurationSection actionSection) {
         super(
                 plugin,
                 ActionType.TOAST,
+                display,
                 actionSection,
                 List.of(
                         new Field("item", ConfigurationSection.class),

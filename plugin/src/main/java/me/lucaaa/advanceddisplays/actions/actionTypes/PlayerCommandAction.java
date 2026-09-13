@@ -11,10 +11,11 @@ import java.util.*;
 public class PlayerCommandAction extends Action {
     private final List<String> commands;
 
-    public PlayerCommandAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
+    public PlayerCommandAction(AdvancedDisplays plugin, BaseEntity display, ConfigurationSection actionSection) {
         super(
                 plugin,
                 ActionType.PLAYER_COMMAND,
+                display,
                 actionSection,
                 List.of(
                         new Field("command", String.class, List.class)

@@ -20,10 +20,11 @@ public class ParticleAction extends Action {
     private String[] unparsedOffset = {};
     private final double speed;
 
-    public ParticleAction(AdvancedDisplays plugin, ConfigurationSection section) {
+    public ParticleAction(AdvancedDisplays plugin, BaseEntity display, ConfigurationSection section) {
         super(
                 plugin,
                 ActionType.PARTICLE,
+                display,
                 section,
                 List.of(
                         new Field("particle", String.class),

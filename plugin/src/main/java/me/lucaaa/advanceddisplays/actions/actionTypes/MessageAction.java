@@ -11,10 +11,11 @@ import java.util.List;
 public class MessageAction extends Action {
     private final List<String> messages;
 
-    public MessageAction(AdvancedDisplays plugin, ConfigurationSection actionSection) {
+    public MessageAction(AdvancedDisplays plugin, BaseEntity display, ConfigurationSection actionSection) {
         super(
                 plugin,
                 ActionType.MESSAGE,
+                display,
                 actionSection,
                 List.of(
                         new Field("message", String.class, List.class)

@@ -31,7 +31,7 @@ public class ADConditionsFactory implements ConditionsFactory {
     }
 
     @Override
-    public Condition placeholder(String condition) {
-        return new PlaceholderCondition(plugin, condition);
+    public Condition placeholder(String input) {
+        return new PlaceholderCondition(plugin, input);
     }
 }

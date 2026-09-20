@@ -22,6 +22,8 @@ public class ActionsHandler {
         this.plugin = plugin;
         this.display = display;
 
+        if (configManager == null) return;
+
         ConfigurationSection actionsSection = configManager.getSection("actions", false, configManager.getConfig());
         if (actionsSection == null) return;
 

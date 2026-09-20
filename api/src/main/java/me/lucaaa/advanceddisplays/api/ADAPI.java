@@ -13,6 +13,7 @@ import java.util.List;
 
 /**
  * AdvancedDisplays' API class.
+ * @see <a href="https://javadoc.jitpack.io/com/github/Luncaaa/AdvancedDisplays/main-SNAPSHOT/javadoc">AdvancedDisplays' Javadocs</a>
 */
 @SuppressWarnings("unused")
 public interface ADAPI {

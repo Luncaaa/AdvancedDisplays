@@ -161,6 +161,7 @@ public class ADBaseEntity extends Ticking implements BaseEntity {
         viewConditionsSection.set("distance", 0.0);
         viewConditionsSection.set("has-permission", "none");
         viewConditionsSection.set("lacks-permission", "none");
+        displayConfig.setComments("view-conditions", List.of("See https://lucaaa.gitbook.io/advanceddisplays/usage/conditions for more information."));
 
         ConfigurationSection locationSection = displayConfig.createSection("location");
         locationSection.set("world", Objects.requireNonNull(location.getWorld()).getName());

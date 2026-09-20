@@ -36,7 +36,7 @@ public interface ConditionsFactory {
      * A given placeholder must match a value. For example, %player_name% == Luca
      * @param input A String with the format [placeholder] == [expected value]
      * @return The placeholder condition.
-     * @deprecated Use your own {@link Condition#meetsCondition(BaseEntity, Player)} implementation since it'll be much safer and more flexible.
+     * @deprecated Using your own {@link Condition#meetsCondition(BaseEntity, Player)} implementation will be safer and more flexible.
      */
     @Deprecated
     Condition placeholder(String input);
